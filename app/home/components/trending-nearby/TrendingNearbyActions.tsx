@@ -1,19 +1,20 @@
 import { CalendarDays, Store } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/Button";
 
 export function TrendingNearbyActions() {
     return (
         <div className="mt-5 flex gap-1">
-            <Button
-                variant="primary"
-                leftIcon={<CalendarDays size={12} />}
+            <Link
+                href="/booking"
                 className="
-    flex-1 gap-2 rounded-[4px]
-    py-1 text-[8px] font-medium
+    primary-button inline-flex flex-1 items-center justify-center gap-2
+    rounded-[4px] py-1 text-[8px] font-medium text-white
   "
             >
+                <CalendarDays size={12} />
                 <span>Book Now</span>
-            </Button>
+            </Link>
 
             <Button
                 variant="secondary"

@@ -10,6 +10,7 @@ export const expertProviders: ExpertProvider[] = [
     rating: 4.9,
     reviews: 124,
     price: "₹999",
+    organizationId: "org-expert-1",
   },
   {
     id: "2",
@@ -20,6 +21,7 @@ export const expertProviders: ExpertProvider[] = [
     rating: 4.7,
     reviews: 89,
     price: "₹1,499",
+    organizationId: "org-expert-2",
   },
   {
     id: "3",
@@ -30,5 +32,6 @@ export const expertProviders: ExpertProvider[] = [
     rating: 4.7,
     reviews: 89,
     price: "₹1,000",
+    organizationId: "org-expert-2",
   },
 ];

@@ -21,8 +21,8 @@ export function CategorySlider() {
       ${category.active
                                     ? `
             border-[var(--category-active-border)]
-bg-[radial-gradient(circle_at_center,var(--bg-card-hover)_0%,var(--bg-secondary)_92%)]
-shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--accent-secondary)_18%,transparent),inset_0_0_16px_color-mix(in_srgb,var(--accent-glow)_28%,transparent),0_0_18px_color-mix(in_srgb,var(--accent-glow)_22%,transparent)]
+            bg-[var(--category-active-bg)]
+            shadow-[var(--category-shadow-active)]
           `
                                     : `
             border-[var(--border)]

@@ -1,7 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
 import {
-    Clock3,
-    Heart,
     MapPin,
     PlayCircle,
     Share2,
@@ -18,6 +17,10 @@ export function TrendingNearbyCard({
     item,
 }: TrendingNearbyCardProps) {
     return (
+        <Link
+            href={`/specificorganization/${item.organizationId}`}
+            className="block transition-transform duration-200 active:scale-[0.98]"
+        >
         <article className="feature-card overflow-hidden rounded-xl">
             <div className="relative h-[150px] overflow-hidden">
                 <Image
@@ -28,7 +31,7 @@ export function TrendingNearbyCard({
                     className="object-cover"
                 />
 
-                <div className="feature-overlay absolute inset-0" />
+                <div className="feature-overlay absolute inset-0 hidden dark:block" />
 
                 <div className="absolute left-2 top-2 h-[6px] w-[6px] rounded-full bg-[#22C55E]" />
 
@@ -88,5 +91,6 @@ export function TrendingNearbyCard({
                 <TrendingNearbyActions />
             </div>
         </article>
+        </Link>
     );
 }

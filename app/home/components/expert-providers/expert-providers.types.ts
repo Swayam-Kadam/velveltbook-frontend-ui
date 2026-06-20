@@ -7,4 +7,5 @@ export interface ExpertProvider {
   rating: number;
   reviews: number;
   price: string;
+  organizationId: string;
 }

@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Bell, ChevronDown } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { SearchBar } from "./SearchBar";
 
 export function Header() {
     return (
@@ -83,7 +82,6 @@ export function Header() {
                 </div>
             </div>
 
-            <SearchBar />
 
             
         </header>

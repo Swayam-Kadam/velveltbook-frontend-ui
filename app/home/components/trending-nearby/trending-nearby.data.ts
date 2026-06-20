@@ -9,6 +9,7 @@ export const trendingNearbyData: TrendingNearbyItem[] = [
     service: "Swedish Massage",
     availability: "9AM - 6PM",
     distance: "1.2km away",
+    organizationId: "store-1",
   },
   {
     id: "2",
@@ -18,6 +19,7 @@ export const trendingNearbyData: TrendingNearbyItem[] = [
     service: "Deep Tissue Massage",
     availability: "9AM - 5PM",
     distance: "1.2km away",
+    organizationId: "org-trending-2",
   },
   {
     id: "3",
@@ -27,6 +29,7 @@ export const trendingNearbyData: TrendingNearbyItem[] = [
     service: "Swedish Massage",
     availability: "9AM - 6PM",
     distance: "1.2km away",
+    organizationId: "store-1",
   },
   {
     id: "4",
@@ -36,6 +39,7 @@ export const trendingNearbyData: TrendingNearbyItem[] = [
     service: "Swedish Massage",
     availability: "9AM - 6PM",
     distance: "1.2km away",
+    organizationId: "store-3",
   },
   {
     id: "5",
@@ -45,5 +49,6 @@ export const trendingNearbyData: TrendingNearbyItem[] = [
     service: "Swedish Massage",
     availability: "9AM - 6PM",
     distance: "1.2km away",
+    organizationId: "store-2",
   },
 ];

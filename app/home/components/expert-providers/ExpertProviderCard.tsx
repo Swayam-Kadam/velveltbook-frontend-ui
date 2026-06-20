@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
 
 import { ExpertProvider } from "./expert-providers.types";
@@ -11,6 +12,10 @@ export function ExpertProviderCard({
     provider,
 }: ExpertProviderCardProps) {
     return (
+        <Link
+            href={`/specificorganization/${provider.organizationId}`}
+            className="block transition-transform duration-200 active:scale-[0.98]"
+        >
         <article
             className="
     w-full
@@ -65,5 +70,6 @@ export function ExpertProviderCard({
                 {provider.price}
             </span>
         </article>
+        </Link>
     );
 }

@@ -17,7 +17,7 @@ export function HeroSlide({
     time,
 }: HeroSlideProps) {
     return (
-        <div className="relative overflow-hidden rounded-xl border border-white/10">
+        <div className="relative overflow-hidden rounded-xl border border-[var(--border)] dark:border-white/10">
             <div className="relative min-h-[200px] w-full">
                 <Image
                     src={image}
@@ -28,43 +28,52 @@ export function HeroSlide({
                     className="object-cover"
                 />
 
-                {/* Dark overlay */}
-                <div className="absolute inset-0 bg-black/20" />
-
-                {/* Base dark overlay */}
+                {/* Light theme white gradient */}
                 <div
                     className="
-    absolute inset-0
+    absolute inset-y-0 left-0 w-[72%]
+    bg-[linear-gradient(90deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.82)_48%,rgba(255,255,255,0.35)_72%,transparent_100%)]
+    dark:hidden
+  "
+                />
+
+                {/* Dark theme overlays */}
+                <div className="absolute inset-0 hidden bg-black/20 dark:block" />
+
+                <div
+                    className="
+    absolute inset-0 hidden
     bg-[rgba(4,1,10,0.18)]
+    dark:block
   "
                 />
 
-                {/* Main left gradient */}
                 <div
                     className="
-    absolute inset-y-0 left-0 w-[68%]
+    absolute inset-y-0 left-0 hidden w-[68%]
     bg-[linear-gradient(90deg,rgba(10,4,25,0.96)_0%,rgba(35,12,65,0.92)_42%,rgba(7,1,15,0.72)_68%,transparent_100%)]
+    dark:block
   "
                 />
 
-                {/* Purple bloom */}
                 <div
                     className="
-    absolute -left-[12%] top-1/2
+    absolute -left-[12%] top-1/2 hidden
     h-[140%] w-[85%]
     -translate-y-1/2
     rounded-full
     bg-[radial-gradient(circle,#8B5CF6_0%,transparent_68%)]
     opacity-30 blur-[56px]
+    dark:block
   "
                 />
 
-                {/* Soft center fade */}
                 <div
                     className="
-    absolute inset-y-0 left-[42%] w-[28%]
+    absolute inset-y-0 left-[42%] hidden w-[28%]
     bg-[radial-gradient(ellipse_at_left,rgba(0,0,0,0.18)_0%,transparent_72%)]
     blur-xl
+    dark:block
   "
                 />
 
@@ -84,13 +93,13 @@ export function HeroSlide({
                             className="
         mb-3 whitespace-pre-line
         text-[24px] font-semibold leading-[24px]
-        text-[#E6BE78]
+        text-[var(--accent-primary)] dark:text-[#E6BE78]
     "
                         >
                             {title}
                         </h2>
 
-                        <p className="max-w-[220px] text-[12px] text-white">
+                        <p className="max-w-[220px] text-[12px] text-[var(--text-primary)] dark:text-white">
                             {description}
                         </p>
                     </div>

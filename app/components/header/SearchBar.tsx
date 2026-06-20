@@ -5,7 +5,7 @@ export function SearchBar() {
         <div
             className="
         search-glass
-        flex h-12 w-full items-center gap-4
+        flex h-12 w-full items-center gap-4 mt-3
         rounded-2xl border
         px-5 backdrop-blur-2xl
         transition-all duration-300

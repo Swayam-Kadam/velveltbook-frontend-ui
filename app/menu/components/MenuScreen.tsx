@@ -11,6 +11,7 @@ import {
   massageServices,
   menuCategories,
 } from "../menu.data";
+import { SearchBar } from "@/components/header/SearchBar";
 
 export function MenuScreen() {
   const [activeCategory, setActiveCategory] = useState("massage");
@@ -18,6 +19,7 @@ export function MenuScreen() {
 
   return (
     <div className="relative flex min-h-[calc(100dvh-220px)] flex-col">
+      <SearchBar />
       <div className="flex flex-1 overflow-hidden">
         <CategorySidebar
           categories={menuCategories}

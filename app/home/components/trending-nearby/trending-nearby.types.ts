@@ -7,4 +7,5 @@ export interface TrendingNearbyItem {
   availability: string;
   distance?: string;
   online?: boolean;
+  organizationId: string;
 }
