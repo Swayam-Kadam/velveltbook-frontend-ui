@@ -1,0 +1,49 @@
+import { TrendingNearbyItem } from "./trending-nearby.types";
+
+export const trendingNearbyData: TrendingNearbyItem[] = [
+  {
+    id: "1",
+    name: "Satyam Kumar",
+    image: "/body spa bg.jpg",
+    avatar: "/massage.webp",
+    service: "Swedish Massage",
+    availability: "9AM - 6PM",
+    distance: "1.2km away",
+  },
+  {
+    id: "2",
+    name: "Lori Massage Parlour",
+    image: "/massage.webp",
+    avatar: "/body spa bg.jpg",
+    service: "Deep Tissue Massage",
+    availability: "9AM - 5PM",
+    distance: "1.2km away",
+  },
+  {
+    id: "3",
+    name: "Satyam Kumar",
+    image: "/body spa bg.jpg",
+    avatar: "/massage.webp",
+    service: "Swedish Massage",
+    availability: "9AM - 6PM",
+    distance: "1.2km away",
+  },
+  {
+    id: "4",
+    name: "Satyam Kumar",
+    image: "/body spa bg.jpg",
+    avatar: "/massage.webp",
+    service: "Swedish Massage",
+    availability: "9AM - 6PM",
+    distance: "1.2km away",
+  },
+  {
+    id: "5",
+    name: "Satyam Kumar",
+    image: "/body spa bg.jpg",
+    avatar: "/massage.webp",
+    service: "Swedish Massage",
+    availability: "9AM - 6PM",
+    distance: "1.2km away",
+  },
+];
