@@ -25,7 +25,7 @@ export function BottomNavigation() {
         <nav
             className="
         search-glass
-        fixed bottom-4 left-2 right-4 z-50
+        fixed bottom-4 left-2 right-2 z-50
         rounded-2xl border
         px-4 py-3
         backdrop-blur-2xl

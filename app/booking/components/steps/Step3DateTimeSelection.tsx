@@ -55,11 +55,11 @@ export function Step3DateTimeSelection({
           Select Service
         </h2>
         <article className="feature-card relative rounded-xl p-3">
-          <span className="primary-button absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full">
+          <span className="primary-button text-white absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full">
             ✓
           </span>
           <div className="flex gap-3">
-            <div className="relative h-14 w-16 shrink-0 overflow-hidden rounded-lg">
+            <div className="relative h-14 w-16 shrink-0 overflow-hidden rounded-sm">
               <Image src={service.image} alt={service.name} fill sizes="64px" className="object-cover" />
             </div>
             <div className="min-w-0 flex-1">

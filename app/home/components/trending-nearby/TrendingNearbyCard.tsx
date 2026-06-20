@@ -31,7 +31,7 @@ export function TrendingNearbyCard({
                     className="object-cover"
                 />
 
-                <div className="feature-overlay absolute inset-0 hidden dark:block" />
+                <div className="feature-overlay absolute inset-0 hidden [.dark_&]:block" />
 
                 <div className="absolute left-2 top-2 h-[6px] w-[6px] rounded-full bg-[#22C55E]" />
 

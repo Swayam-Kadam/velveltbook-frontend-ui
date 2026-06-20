@@ -79,7 +79,7 @@ export function Step2StaffSelection({
                   onClick={() => onSelectStaff(therapist.id)}
                   className="w-full text-left"
                 >
-                  <div className="relative h-[100px] overflow-hidden rounded-lg">
+                  <div className="relative h-[100px] overflow-hidden rounded-sm">
                     <Image
                       src={therapist.image}
                       alt={therapist.name}
@@ -89,7 +89,7 @@ export function Step2StaffSelection({
                     />
                     <span
                       className={`
-                        absolute right-1 top-1 flex h-4 w-4 items-center justify-center
+                        absolute right-1 top-1 flex h-4 w-4 items-center text-white justify-center
                         rounded-full border
                         ${
                           active
@@ -186,7 +186,7 @@ export function Step2StaffSelection({
 
         <article className="feature-card space-y-2 rounded-xl p-3">
           <div className="flex items-center gap-3">
-            <div className="relative h-12 w-14 shrink-0 overflow-hidden rounded-lg">
+            <div className="relative h-12 w-14 shrink-0 overflow-hidden rounded-sm">
               <Image
                 src={service.image}
                 alt={service.name}

@@ -46,7 +46,7 @@ export function Step1ServiceSelection({
                   className="object-cover"
                 />
                 {active && (
-                  <span className="primary-button absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full">
+                  <span className="primary-button text-white absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full">
                     <Check size={10} strokeWidth={2.5} />
                   </span>
                 )}
@@ -66,7 +66,7 @@ export function Step1ServiceSelection({
 
       <article className="feature-card rounded-xl p-3">
         <div className="flex gap-3">
-          <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-lg">
+          <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-sm">
             <Image
               src={selected.image}
               alt={selected.name}

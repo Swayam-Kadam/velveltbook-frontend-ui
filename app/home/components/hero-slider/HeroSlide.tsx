@@ -33,18 +33,18 @@ export function HeroSlide({
                     className="
     absolute inset-y-0 left-0 w-[72%]
     bg-[linear-gradient(90deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.82)_48%,rgba(255,255,255,0.35)_72%,transparent_100%)]
-    dark:hidden
+    [.dark_&]:hidden
   "
                 />
 
                 {/* Dark theme overlays */}
-                <div className="absolute inset-0 hidden bg-black/20 dark:block" />
+                <div className="absolute inset-0 hidden bg-black/20 [.dark_&]:block" />
 
                 <div
                     className="
     absolute inset-0 hidden
     bg-[rgba(4,1,10,0.18)]
-    dark:block
+    [.dark_&]:block
   "
                 />
 
@@ -52,7 +52,7 @@ export function HeroSlide({
                     className="
     absolute inset-y-0 left-0 hidden w-[68%]
     bg-[linear-gradient(90deg,rgba(10,4,25,0.96)_0%,rgba(35,12,65,0.92)_42%,rgba(7,1,15,0.72)_68%,transparent_100%)]
-    dark:block
+    [.dark_&]:block
   "
                 />
 
@@ -64,7 +64,7 @@ export function HeroSlide({
     rounded-full
     bg-[radial-gradient(circle,#8B5CF6_0%,transparent_68%)]
     opacity-30 blur-[56px]
-    dark:block
+    [.dark_&]:block
   "
                 />
 
@@ -73,7 +73,7 @@ export function HeroSlide({
     absolute inset-y-0 left-[42%] hidden w-[28%]
     bg-[radial-gradient(ellipse_at_left,rgba(0,0,0,0.18)_0%,transparent_72%)]
     blur-xl
-    dark:block
+    [.dark_&]:block
   "
                 />
 
@@ -93,13 +93,13 @@ export function HeroSlide({
                             className="
         mb-3 whitespace-pre-line
         text-[24px] font-semibold leading-[24px]
-        text-[var(--accent-primary)] dark:text-[#E6BE78]
+        text-[var(--accent-primary)]  [.dark_&]:text-[#E6BE78]
     "
                         >
                             {title}
                         </h2>
 
-                        <p className="max-w-[220px] text-[12px] text-[var(--text-primary)] dark:text-white">
+                        <p className="max-w-[220px] text-[12px] text-var(--accent-primary)] [.dark_&]:text-white">
                             {description}
                         </p>
                     </div>
