@@ -38,7 +38,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
               />
             </div>
             <div className="p-2">
-            <p className="mt-2 text-[9px] font-bold text-[var(--text-primary)]">
+            <p className="mt-2 text-[10px] font-bold text-[var(--text-primary)]">
               {service.name}
             </p>
             <p className="mt-0.5 line-clamp-2 text-[9px] font-semibold leading-relaxed text-[var(--text-primary)]">
