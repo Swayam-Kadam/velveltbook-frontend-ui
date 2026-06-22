@@ -17,7 +17,7 @@ interface HeroBottomCardProps {
 }
 
 export function HeroBottomCard({ store }: HeroBottomCardProps) {
-    const organizationHref = `/specificorganization/${store.id}`;
+    const organizationHref = `/extendedspecificorganization/${store.id}`;
 
     return (
         <div

@@ -3,6 +3,7 @@ import { MapPin, Share2 } from "lucide-react";
 import DirectionsIcon from '@mui/icons-material/Directions';
 
 import { ExtendedOrganization } from "../organization.types";
+import router from "next/router";
 
 interface SalonInfoCardProps {
   organization: ExtendedOrganization;
@@ -41,7 +42,7 @@ export function SalonInfoCard({ organization }: SalonInfoCardProps) {
         "
       >
         {/* <Share2 size={14} strokeWidth={1.6} /> */}
-        <DirectionsIcon className="h-2 w-2 text-blue-600" />
+        <DirectionsIcon className="h-2 w-2 " />
       </button>
     </div>
   );
