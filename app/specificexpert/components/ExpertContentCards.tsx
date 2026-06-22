@@ -67,7 +67,7 @@ export function TagsCard({ tags }: TagsCardProps) {
             key={tag}
             className="
               rounded-lg bg-[var(--bg-card-hover)] px-2 py-1.5
-              text-center text-[7px] font-medium text-[var(--text-primary)]
+              text-center text-[9px] font-semibold text-[var(--text-primary)]
             "
           >
             {tag}
@@ -106,13 +106,13 @@ export function CertificationCard({ title, items }: CertificationCardProps) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-[9px] font-medium text-[var(--text-primary)]">{title}</p>
+          <p className="text-[10px] font-medium text-[var(--text-primary)]">{title}</p>
 
           <ul className="mt-1.5 space-y-1">
             {items.map((item) => (
               <li
                 key={item}
-                className="flex items-start gap-1 text-[7px] text-[var(--text-secondary)]"
+                className="flex items-start gap-1 text-[9px] font-semibold text-[var(--text-secondary)]"
               >
                 <Check
                   size={10}
@@ -157,7 +157,7 @@ export function HobbiesCard({ hobbies }: HobbiesCardProps) {
               "
             >
               <Icon size={12} className="shrink-0 text-[var(--accent-primary)]" />
-              <span className="text-[7px] font-medium text-[var(--text-primary)]">
+              <span className="text-[9px] font-medium text-[var(--text-primary)]">
                 {label}
               </span>
             </div>

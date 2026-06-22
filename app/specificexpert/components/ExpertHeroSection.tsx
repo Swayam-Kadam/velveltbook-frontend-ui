@@ -29,6 +29,8 @@ export function ExpertHeroSection({ expert }: ExpertHeroSectionProps) {
       />
 
       <div className="relative flex flex-col items-center">
+        <div className="flex justify-between items-center w-full">
+
         <div className="relative">
           <div
             className="
@@ -56,6 +58,14 @@ export function ExpertHeroSection({ expert }: ExpertHeroSectionProps) {
           >
             <Play size={12} className="ml-0.5 fill-white text-white" />
           </button>
+        </div>
+
+        <div className="w-[160px]">
+          <p className="text-[7px] font-semibold leading-relaxed text-[var(--text-primary)]">
+            {expert.description}
+          </p>
+
+        </div>
         </div>
 
         <div className="mt-3 flex items-center gap-1">

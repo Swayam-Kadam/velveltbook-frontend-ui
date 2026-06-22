@@ -22,6 +22,49 @@ export function Step1ServiceSelection({
 
   return (
     <div className="space-y-4">
+
+<article className="feature-card rounded-xl p-3">
+        <div className="flex gap-3">
+          <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-sm">
+            <Image
+              src={selected.image}
+              alt={selected.name}
+              fill
+              sizes="80px"
+              className="object-cover"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold text-[var(--text-primary)]">
+              {selected.name}
+            </p>
+            <div className="mt-0.5 flex items-center gap-1 text-[8px] font-bold text-[var(--text-primary)]">
+              <Clock3 size={9} />
+              <span>{selected.duration}</span>
+            </div>
+            <p className="mt-1 text-[10px] font-bold text-[var(--brand-gold)]">
+              {selected.priceLabel}
+            </p>
+            <p className="mt-1 text-[8.5px] font-semibold leading-relaxed text-[var(--text-secondary)]">
+              {selected.description}
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <Button
+        variant="primary"
+        fullWidth
+        onClick={onNext}
+        className="gap-2 rounded-xl py-3 text-[11px] font-medium"
+      >
+        Next: Select Staff
+        <ChevronRight size={16} strokeWidth={2} />
+      </Button>
+
+      
+        <h2 className="text-lg font-bold text-[var(--text-primary)] mb-[1px] ml-2">Suggestions</h2>
+      
       <div className="grid grid-cols-2 gap-2">
         {bookingServices.map((service) => {
           const active = service.id === selectedServiceId;
@@ -63,45 +106,6 @@ export function Step1ServiceSelection({
           );
         })}
       </div>
-
-      <article className="feature-card rounded-xl p-3">
-        <div className="flex gap-3">
-          <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-sm">
-            <Image
-              src={selected.image}
-              alt={selected.name}
-              fill
-              sizes="80px"
-              className="object-cover"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-medium text-[var(--text-primary)]">
-              {selected.name}
-            </p>
-            <div className="mt-0.5 flex items-center gap-1 text-[8px] text-[var(--text-muted)]">
-              <Clock3 size={9} />
-              <span>{selected.duration}</span>
-            </div>
-            <p className="mt-1 text-[10px] font-semibold text-[var(--brand-gold)]">
-              {selected.priceLabel}
-            </p>
-            <p className="mt-1 text-[7px] leading-relaxed text-[var(--text-secondary)]">
-              {selected.description}
-            </p>
-          </div>
-        </div>
-      </article>
-
-      <Button
-        variant="primary"
-        fullWidth
-        onClick={onNext}
-        className="gap-2 rounded-xl py-3 text-[11px] font-medium"
-      >
-        Next: Select Staff
-        <ChevronRight size={16} strokeWidth={2} />
-      </Button>
     </div>
   );
 }

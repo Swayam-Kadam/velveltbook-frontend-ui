@@ -21,15 +21,15 @@ export function ExpertProfileScreen({ expert }: ExpertProfileScreenProps) {
         <ExpertTopNav />
         <ExpertHeroSection expert={expert} />
         <ExpertActionButtons expertId={expert.id} />
-        <DescriptionCard description={expert.description} />
+        {/* <DescriptionCard description={expert.description} /> */}
         <TagsCard tags={expert.tags} />
-        <CertificationCard
-          title={expert.certificationTitle}
-          items={expert.certificationItems}
-        />
         <ReviewsSection
           reviews={expert.reviewsList}
           totalReviews={expert.reviews}
+        />
+        <CertificationCard
+          title={expert.certificationTitle}
+          items={expert.certificationItems}
         />
         <HobbiesCard hobbies={expert.hobbies} />
       </div>

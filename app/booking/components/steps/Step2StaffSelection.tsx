@@ -43,7 +43,7 @@ export function Step2StaffSelection({
       <div>
         <div className="mb-2 flex items-start justify-between gap-2">
           <div>
-            <h2 className="text-xs font-medium text-[var(--text-primary)]">
+            <h2 className="text-sm font-bold text-[var(--text-primary)]">
               Select Your Preferred Therapist
             </h2>
             <p className="mt-0.5 text-[8px] text-[var(--text-muted)]">
@@ -102,10 +102,10 @@ export function Step2StaffSelection({
                     </span>
                   </div>
 
-                  <p className="mt-2 text-[9px] font-medium text-[var(--text-primary)]">
+                  <p className="mt-2 text-[10px] font-bold text-[var(--text-primary)]">
                     {therapist.name}
                   </p>
-                  <p className="text-[7px] text-[var(--text-muted)]">
+                  <p className="text-[8px] text-[var(--text-primary)]">
                     {therapist.experience}
                   </p>
 
@@ -117,12 +117,12 @@ export function Step2StaffSelection({
                         className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
                       />
                     ))}
-                    <span className="ml-0.5 text-[7px] text-[var(--text-muted)]">
+                    <span className="ml-0.5 text-[8px] text-[var(--text-primary)]">
                       ({therapist.reviews})
                     </span>
                   </div>
 
-                  <p className="mt-1 rounded-md bg-[var(--bg-card-hover)] p-1 text-[6px] leading-tight text-[var(--text-secondary)]">
+                  <p className="mt-1 rounded-md bg-[var(--bg-card-hover)] p-1 text-[7px] leading-tight text-[var(--text-primary)]">
                     {therapist.specialties}
                   </p>
                 </button>
@@ -196,15 +196,15 @@ export function Step2StaffSelection({
               />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-medium text-[var(--text-primary)]">
+              <p className="text-[10px] font-bold text-[var(--text-primary)]">
                 {service.name}
               </p>
-              <div className="flex items-center gap-1 text-[8px] text-[var(--text-muted)]">
+              <div className="flex items-center gap-1 text-[8px] font-bold text-[var(--text-primary)]">
                 <Clock3 size={9} />
                 <span>{service.duration}</span>
               </div>
             </div>
-            <span className="text-[10px] font-semibold text-[var(--text-primary)]">
+            <span className="text-[11px] font-semibold text-[var(--text-primary)]">
               {service.priceLabel}
             </span>
           </div>
@@ -237,14 +237,14 @@ export function Step2StaffSelection({
               />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[9px] font-medium text-[var(--text-primary)]">
+              <p className="text-[10px] font-bold text-[var(--text-primary)]">
                 {staff.name}
               </p>
-              <p className="text-[7px] text-[var(--text-muted)]">
+              <p className="text-[8px] font-bold text-[var(--text-primary)]">
                 {staff.experience}
               </p>
             </div>
-            <button type="button" className="text-[8px] text-[var(--accent-secondary)]">
+            <button type="button" className="text-[8px] font-bold text-[var(--accent-secondary)]">
               Change
             </button>
           </div>

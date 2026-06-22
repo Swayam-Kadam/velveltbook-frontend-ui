@@ -16,9 +16,14 @@ interface TrendingNearbyCardProps {
 export function TrendingNearbyCard({
     item,
 }: TrendingNearbyCardProps) {
+    const orgHref =
+        item.organizationId === "org-trending-2"
+            ? `/extendedspecificorganization/${item.organizationId}`
+            : `/specificorganization/${item.organizationId}`;
+
     return (
         <Link
-            href={`/specificorganization/${item.organizationId}`}
+            href={orgHref}
             className="block transition-transform duration-200 active:scale-[0.98]"
         >
         <article className="feature-card overflow-hidden rounded-xl">

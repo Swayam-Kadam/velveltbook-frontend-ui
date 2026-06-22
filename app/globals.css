@@ -63,7 +63,7 @@
 
 .feature-card {
   background: var(--gradient-card);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--brand-gold);
   box-shadow: var(--shadow-card);
 }
 

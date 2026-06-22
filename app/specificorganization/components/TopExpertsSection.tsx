@@ -40,11 +40,11 @@ export function TopExpertsSection({ experts }: TopExpertsSectionProps) {
           <article
             key={expert.id}
             className="
-              feature-card w-[118px] shrink-0 snap-start rounded-xl p-2.5
+              feature-card w-[118px] shrink-0 snap-start rounded-xl
             "
           >
-            <div className="relative mx-auto h-14 w-14">
-              <div className="relative h-14 w-14 overflow-hidden rounded-full">
+            <div className="relative mx-auto h-20 w-full">
+              <div className="relative h-20 w-full overflow-hidden rounded-t-xl">
                 <Image
                   src={expert.image}
                   alt={expert.name}
@@ -54,7 +54,7 @@ export function TopExpertsSection({ experts }: TopExpertsSectionProps) {
                 />
               </div>
 
-              {expert.online && (
+              {/* {expert.online && (
                 <span
                   className="
                     absolute bottom-0 right-0 h-2.5 w-2.5
@@ -62,18 +62,19 @@ export function TopExpertsSection({ experts }: TopExpertsSectionProps) {
                     bg-[var(--success)]
                   "
                 />
-              )}
+              )} */}
             </div>
 
-            <p className="mt-2 truncate text-center text-[9px] font-medium text-[var(--text-primary)]">
+             <div className="px-2.5 py-1.5">
+            <p className="mt-2 truncate text-center text-[10px] font-semibold text-[var(--text-primary)]">
               {expert.name}
             </p>
 
-            <p className="mt-0.5 truncate text-center text-[7px] text-[var(--text-muted)]">
+            <p className="mt-0.5 truncate text-center text-[9px] font-semibold">
               {expert.specialty}
             </p>
 
-            <div className="mt-1 flex items-center justify-center gap-0.5 text-[7px] text-[var(--text-secondary)]">
+            <div className="mt-1 flex items-center justify-center gap-0.5 text-[8px] font-semibold">
               <Star
                 size={8}
                 className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
@@ -101,6 +102,7 @@ export function TopExpertsSection({ experts }: TopExpertsSectionProps) {
               >
                 View
               </Link>
+            </div>
             </div>
           </article>
         ))}

@@ -29,7 +29,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
 
-        <button
+        {/* <button
           type="button"
           aria-label={`Save ${service.title}`}
           className="
@@ -44,11 +44,11 @@ export function ServiceCard({ service }: ServiceCardProps) {
             strokeWidth={1.8}
             className="text-[var(--brand-gold)]"
           />
-        </button>
+        </button> */}
       </div>
 
       <div className="space-y-0.5 p-1.5">
-        <h3 className="line-clamp-2 text-[8px] font-medium leading-tight text-[var(--text-primary)]">
+        <h3 className="line-clamp-2 text-[9px] font-bold leading-tight text-[var(--text-primary)]">
           {service.title}
         </h3>
 

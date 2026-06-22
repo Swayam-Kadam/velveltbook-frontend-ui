@@ -38,7 +38,7 @@ export function OrganizationHeader({ organization }: OrganizationHeaderProps) {
 
       <div className="min-w-0 flex-1 pt-0.5">
         <div className="flex items-start gap-1">
-          <h1 className="text-sm font-semibold leading-tight text-[var(--text-primary)]">
+          <h1 className="text-md font-bold leading-tight text-[var(--text-primary)]">
             {organization.name}
           </h1>
 
@@ -49,17 +49,17 @@ export function OrganizationHeader({ organization }: OrganizationHeaderProps) {
           />
         </div>
 
-        <p className="mt-1 text-[9px] text-[var(--text-muted)]">
+        <p className="mt-1 text-[10px]  text-semibold">
           {organization.categories.join(" • ")}
         </p>
 
-        <div className="mt-1.5 flex items-start gap-1 text-[8px] text-[var(--text-secondary)]">
+        <div className="mt-1.5 flex items-start gap-1 text-[9px] text-semibold">
           <MapPin size={10} strokeWidth={1.6} className="mt-0.5 shrink-0" />
           <span className="leading-tight">{organization.location}</span>
         </div>
 
-        <div className="mt-2 flex items-center gap-2 text-[8px]">
-          <div className="flex items-center gap-0.5 text-[var(--text-secondary)]">
+        <div className="mt-2 flex items-center gap-2 text-[9px]">
+          <div className="flex items-center gap-0.5 text-semibold">
             <Star
               size={9}
               className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
@@ -71,7 +71,7 @@ export function OrganizationHeader({ organization }: OrganizationHeaderProps) {
 
           <span className="h-3 w-px bg-[var(--border)]" />
 
-          <div className="flex items-center gap-0.5 text-[var(--text-secondary)]">
+          <div className="flex items-center gap-0.5 text-semibold">
             <Clock3 size={9} strokeWidth={1.6} />
             <span>
               <span className="text-[var(--success)]">{organization.status}</span>

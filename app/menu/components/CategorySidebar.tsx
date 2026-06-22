@@ -53,7 +53,7 @@ export function CategorySidebar({
 
               <span
                 className={`
-                  text-center text-[7px] leading-tight font-medium
+                  text-center text-[8px] leading-tight font-medium
                   ${active ? "text-white" : "text-[var(--text-secondary)]"}
                 `}
               >

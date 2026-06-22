@@ -39,7 +39,7 @@ export function ReviewsSection({ reviews, totalReviews }: ReviewsSectionProps) {
           <article
             key={review.id}
             className="
-              w-[160px] shrink-0 snap-start rounded-lg
+              w-[160px] shrink-0 snap-start rounded-sm
               border border-[var(--border)] bg-[var(--bg-card-hover)] p-2
             "
           >
@@ -74,7 +74,7 @@ export function ReviewsSection({ reviews, totalReviews }: ReviewsSectionProps) {
               ))}
             </div>
 
-            <p className="mt-1.5 line-clamp-3 text-[7px] leading-relaxed text-[var(--text-secondary)]">
+            <p className="mt-1.5 line-clamp-3 text-[8px] font-semibold leading-relaxed text-[var(--text-secondary)]">
               {review.text}
             </p>
           </article>
