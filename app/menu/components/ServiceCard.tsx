@@ -48,7 +48,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
       </div>
 
       <div className="space-y-0.5 p-1.5">
-        <h3 className="line-clamp-2 text-[12px] font-bold leading-tight text-(--text-primary)">
+        <h3 className="line-clamp-2 text-[12px] font-bold leading-tight text-(--text-primary) h-8">
           {service.title}
         </h3>
 

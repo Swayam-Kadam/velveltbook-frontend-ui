@@ -15,7 +15,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
         <h2 className="text-lg font-bold text-(--text-primary)">Services</h2>
         <button
           type="button"
-          className="primary-button flex items-center gap-0.5 text-[9px] font-bold text-(--brand-gold) bg-(--bg-primary) rounded-xs px-2 py-1"
+          className="primary-button flex items-center gap-0.5 text-[9px] font-bold text-[#efbf04] bg-(--bg-primary) rounded-xs px-2 py-1"
         >
           <span>View All</span>
           <ArrowRight size={10} strokeWidth={2} />

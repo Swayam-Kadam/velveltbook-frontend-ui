@@ -34,6 +34,17 @@ const manicureExperts = [
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
     online: true,
   },
+  {
+    id: "e4",
+    name: "Georgina Kate More",
+    specialty: "Certified Hairdresser",
+    rating: 4.9,
+    reviews: 89,
+    experience: "10 Years Exp",
+    image:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
+    online: true,
+  },
 ];
 
 export const services: Record<string, ServiceDetail> = {

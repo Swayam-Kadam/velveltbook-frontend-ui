@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Check, ChevronRight, Clock3, Plus, ShoppingBag, X } from "lucide-react";
+import { Check, ChevronRight, Clock3, Grid2X2, Grid2X2Check, Grid2X2Plus, Menu, Plus, ShoppingBag, X } from "lucide-react";
 
 import {
   bookingServices,
@@ -75,10 +75,12 @@ export function Step1ServiceSelection({
                     <Clock3 size={8} />
                     <span>{service.duration}</span>
                   </div>
-                  <p className="mt-0.5 text-[9px] font-bold text-(--brand-gold)">
+                  
+                </div>
+                <div>
+                <p className="mt-0.5 text-[11px] font-bold text-(--brand-gold)">
                     {service.priceLabel}
                   </p>
-                </div>
                 <button
                   type="button"
                   onClick={() => onToggleService(service.id)}
@@ -91,6 +93,7 @@ export function Step1ServiceSelection({
                 >
                   <X size={12} strokeWidth={2.5} />
                 </button>
+                </div>
               </article>
             ))}
           </div>
@@ -146,7 +149,7 @@ export function Step1ServiceSelection({
                 ) : (
                   <span
                     className="
-                      absolute bottom-[-3.2rem] right-1 flex h-5 w-5 items-center justify-center
+                      absolute bottom-[-3.8rem] right-1 flex h-5 w-5 items-center justify-center
                       rounded-full border border-(--border) bg-(--surface)
                       text-(--accent-primary) shadow-sm
                     "
@@ -159,13 +162,31 @@ export function Step1ServiceSelection({
                 <p className="text-[10px] font-medium text-(--text-primary) h-8">
                   {service.name}
                 </p>
-                <p className="text-[8px] font-semibold text-(--brand-gold)">
+                <p className="text-[12px] font-semibold text-(--brand-gold)">
                   {service.priceLabel}
                 </p>
               </div>
             </button>
           );
         })}
+
+<button
+              // key={service.id}
+              type="button"
+              // onClick={() => onToggleService(service.id)}
+              className={`
+                feature-card relative overflow-hidden rounded-xl text-left
+                transition-all duration-300
+       
+              `}
+            >
+              <div className=" h-[72px] flex flex-col items-center justify-center">
+                
+                <Grid2X2Plus size={30} strokeWidth={2.5} />
+                <p className="text-[14px] font-medium text-(--text-primary)">More</p>
+              
+              </div>
+            </button>
       </div>
     </div>
   );

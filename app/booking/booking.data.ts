@@ -50,6 +50,17 @@ export const bookingServices: BookingService[] = [
     image:
       "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop",
   },
+  {
+    id: "swedish new",
+    name: "Swedish Massage new",
+    duration: "60 min",
+    price: 80,
+    priceLabel: "$80",
+    description:
+      "A relaxing full-body massage using gentle strokes to ease tension and improve circulation.",
+    image:
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
+  },
 ];
 
 export const bookingStaff: BookingStaff[] = [

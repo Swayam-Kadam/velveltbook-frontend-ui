@@ -60,7 +60,7 @@ export function ExpertHeroSection({ expert }: ExpertHeroSectionProps) {
           </button>
         </div>
 
-        <div className="w-[180px]">
+        <div className="w-[200px]">
           <p className="text-[9px] font-bold leading-relaxed text-(--text-primary)">
             {expert.description}
           </p>

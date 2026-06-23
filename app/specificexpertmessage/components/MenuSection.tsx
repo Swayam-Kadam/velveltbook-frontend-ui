@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { MenuServiceItem } from "../message.types";
+import { Grid2X2Plus } from "lucide-react";
 
 interface MenuSectionProps {
   items: MenuServiceItem[];
@@ -39,6 +40,17 @@ export function MenuSection({ items }: MenuSectionProps) {
             </div>
           </button>
         ))}
+
+<button
+            // key={item.id}
+            type="button"
+            className="w-[72px] shrink-0 text-left border border-(--brand-gold) rounded-xl"
+          >
+           <div className="h-[72px] flex flex-col items-center justify-center">
+            <Grid2X2Plus size={30} strokeWidth={2.5} />
+            <p className="text-[14px] font-medium text-(--text-primary)">More</p>
+           </div>
+          </button>
       </div>
     </section>
   );
