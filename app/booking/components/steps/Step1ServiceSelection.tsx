@@ -156,7 +156,7 @@ export function Step1ServiceSelection({
                 )}
               </div>
               <div className="p-2">
-                <p className="text-[10px] font-medium text-(--text-primary)">
+                <p className="text-[10px] font-medium text-(--text-primary) h-8">
                   {service.name}
                 </p>
                 <p className="text-[8px] font-semibold text-(--brand-gold)">
