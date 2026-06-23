@@ -1,17 +1,23 @@
-import { ChevronRight } from "lucide-react";
+import { ExpertMessageScreen } from "../components/ExpertMessageScreen";
+import { expertChats, getExpertChat } from "../message.data";
 
-export function SelectServiceButton() {
+interface ExpertMessagePageProps {
+  params: Promise<{ id: string }>;
+}
+
+export function generateStaticParams() {
+  return Object.keys(expertChats).map((id) => ({ id }));
+}
+
+export default async function ExpertMessagePage({
+  params,
+}: ExpertMessagePageProps) {
+  const { id } = await params;
+  const chat = getExpertChat(id);
+
   return (
-    <button
-      type="button"
-      className="
-        secondary-button flex w-full items-center justify-between
-        rounded-xl px-3 py-2.5 text-[10px] font-medium
-        text-(--text-primary) transition-all duration-300
-      "
-    >
-      <span className="flex-1 text-center">Select Service</span>
-      <ChevronRight size={14} className="text-(--brand-gold)" />
-    </button>
+    <main>
+      <ExpertMessageScreen chat={chat} />
+    </main>
   );
 }
