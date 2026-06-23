@@ -72,15 +72,15 @@ export function TrendingNearbyCard({
                     </div>
 
                     <div className="flex-1">
-                        <p className="text-[10px] font-medium text-[var(--text-primary)]">
+                        <p className="text-[10px] font-medium text-(--text-primary)">
                             {item.name}
                         </p>
-                        <p className="text-[8px] text-[var(--text-secondary)]">
+                        <p className="text-[8px] text-(--text-secondary)">
                             {item.service}
                         </p>
 
                         {item.distance && (
-                            <div className="mt-1 flex items-center gap-0.5 text-[8px] text-[var(--text-muted)]">
+                            <div className="mt-1 flex items-center gap-0.5 text-[8px] text-(--text-muted)">
                                 <MapPin size={8} />
 
                                 <span>{item.distance}</span>

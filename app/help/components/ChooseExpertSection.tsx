@@ -33,7 +33,7 @@ function ExpertColumn({
         className={`mb-2 flex items-center justify-center gap-1 rounded-lg px-2 py-1.5 ${headerClass}`}
       >
         <GenderIcon size={12} strokeWidth={1.6} />
-        <span className="text-[8px] font-medium">{title}</span>
+        <span className="text-[11px] font-bold">{title}</span>
       </div>
 
       <div className="space-y-2">
@@ -56,22 +56,22 @@ function ExpertColumn({
               <span
                 className="
                   absolute bottom-0 right-0 h-2 w-2 rounded-full
-                  border border-[var(--bg-card)] bg-[var(--success)]
+                  border border-(--bg-card) bg-(--success)
                 "
               />
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[8px] font-medium text-[var(--text-primary)]">
+              <p className="truncate text-[10px] font-bold text-(--text-primary)">
                 {expert.name}
               </p>
-              <p className="truncate text-[7px] text-[var(--text-muted)]">
+              <p className="truncate text-[9px] font-bold text-(--text-primary)">
                 {expert.profession}
               </p>
-              <div className="flex items-center gap-0.5 text-[6px] text-[var(--text-secondary)]">
+              <div className="flex items-center gap-0.5 text-[9px] font-bold text-(--text-primary)">
                 <Star
-                  size={7}
-                  className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
+                  size={10}
+                  className="fill-(--brand-gold) text-(--brand-gold)"
                 />
                 <span>
                   {expert.rating} ({expert.reviews})
@@ -79,7 +79,7 @@ function ExpertColumn({
               </div>
             </div>
 
-            <ChevronRight size={10} className="shrink-0 text-[var(--text-muted)]" />
+            <ChevronRight size={10} className="shrink-0 text-(--text-muted)" />
           </button>
         ))}
       </div>
@@ -87,7 +87,7 @@ function ExpertColumn({
       <div className="mt-2 grid grid-cols-2 gap-1">
         <button
           type="button"
-          className="primary-button rounded-md py-1 text-[7px] font-medium text-white"
+          className="primary-button rounded-md py-1 text-[10px] font-medium text-white"
         >
           Select
         </button>
@@ -95,7 +95,7 @@ function ExpertColumn({
           href={`/specificexpert/e1`}
           className="
             secondary-button flex items-center justify-center rounded-md
-            py-1 text-[7px] font-medium text-[var(--text-primary)]
+            py-1 text-[10px] font-medium text-(--text-primary)
           "
         >
           View
@@ -106,12 +106,12 @@ function ExpertColumn({
         type="button"
         className={`
           secondary-button mt-2 flex w-full items-center justify-between
-          rounded-lg px-2 py-1.5 text-[7px] font-medium
-          text-[var(--text-primary)] ${viewAllClass ?? ""}
+          rounded-lg px-2 py-1.5 text-[10px] font-medium
+          text-(--text-primary) ${viewAllClass ?? ""}
         `}
       >
         <span>{viewAllLabel}</span>
-        <ChevronRight size={10} className="text-[var(--brand-gold)]" />
+        <ChevronRight size={10} className="text-(--brand-gold)" />
       </button>
     </div>
   );
@@ -130,7 +130,7 @@ export function ChooseExpertSection({
 
   return (
     <section>
-      <h2 className="mb-3 text-sm font-medium text-[var(--text-primary)]">
+      <h2 className="mb-3 text-md font-bold text-(--text-primary)">
         2. Choose an Expert
       </h2>
 
@@ -140,15 +140,15 @@ export function ChooseExpertSection({
           px-3 py-2
         "
       >
-        <Search size={14} className="shrink-0 text-[var(--text-muted)]" strokeWidth={1.4} />
+        <Search size={14} className="shrink-0 text-(--text-muted)" strokeWidth={1.4} />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search expert by name or username"
           className="
-            w-full bg-transparent text-[9px] text-[var(--text-primary)]
-            placeholder:text-[var(--text-muted)] focus:outline-none
+            w-full bg-transparent text-[9px] text-(--text-primary)
+            placeholder:text-(--text-muted) focus:outline-none
           "
         />
       </div>
@@ -157,7 +157,7 @@ export function ChooseExpertSection({
         <ExpertColumn
           title="Male Experts"
           genderIcon={Mars}
-          headerClass="bg-[color-mix(in_srgb,var(--accent-primary)_10%,var(--bg-card))] text-[var(--accent-primary)]"
+          headerClass="bg-[color-mix(in_srgb,var(--accent-primary)_10%,var(--bg-card))] text-(--accent-primary)"
           experts={filterExperts(maleExperts)}
           viewAllLabel="View All Male Experts"
         />

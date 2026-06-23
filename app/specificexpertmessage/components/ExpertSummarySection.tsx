@@ -26,7 +26,7 @@ export function ExpertSummarySection({ expertId }: ExpertSummarySectionProps) {
           <div
             className="
               relative h-14 w-14 overflow-hidden rounded-full
-              border-2 border-[var(--brand-gold)]
+              border-2 border-(--brand-gold)
             "
           >
             <Image
@@ -51,33 +51,33 @@ export function ExpertSummarySection({ expertId }: ExpertSummarySectionProps) {
 
         <div className="min-w-0 flex-1 pt-0.5">
           <div className="flex items-center gap-1">
-            <h1 className="truncate text-sm font-semibold text-[var(--text-primary)]">
+            <h1 className="truncate text-sm font-semibold text-(--text-primary)">
               {expert.name}
             </h1>
             <BadgeCheck
               size={14}
-              className="shrink-0 text-[var(--brand-gold)]"
+              className="shrink-0 text-(--brand-gold)"
               strokeWidth={1.8}
             />
           </div>
 
-          <p className="mt-0.5 text-[9px] text-[var(--text-muted)]">{expert.title}</p>
+          <p className="mt-0.5 text-[9px] text-(--text-muted)">{expert.title}</p>
 
-          <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[8px] text-[var(--text-secondary)]">
+          <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[8px] text-(--text-secondary)">
             <div className="flex items-center gap-0.5">
               <Star
                 size={9}
-                className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
+                className="fill-(--brand-gold) text-(--brand-gold)"
               />
               <span>
                 {expert.rating} ({expert.reviews} Reviews)
               </span>
             </div>
 
-            <span className="h-3 w-px bg-[var(--border)]" />
+            <span className="h-3 w-px bg-(--border)" />
 
             <div className="flex items-center gap-0.5">
-              <Clock3 size={9} strokeWidth={1.6} className="text-[var(--brand-gold)]" />
+              <Clock3 size={9} strokeWidth={1.6} className="text-(--brand-gold)" />
               <span>{experienceShort}</span>
             </div>
           </div>
@@ -101,8 +101,8 @@ export function ExpertSummarySection({ expertId }: ExpertSummarySectionProps) {
           className="
             secondary-button inline-flex items-center justify-center gap-2
             rounded-xl py-2 text-[10px] font-medium
-            border-[var(--accent-primary)] bg-[color-mix(in_srgb,var(--accent-primary)_8%,var(--bg-card))]
-            text-[var(--text-primary)]
+            border-(--accent-primary) bg-[color-mix(in_srgb,var(--accent-primary)_8%,var(--bg-card))]
+            text-(--text-primary)
           "
         >
           <MessageCircle size={14} strokeWidth={1.8} />

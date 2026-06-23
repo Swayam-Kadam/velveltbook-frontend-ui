@@ -22,8 +22,8 @@ export function BookingStickyFooter({
     >
       <div className="flex items-stretch">
         <div className="flex flex-col justify-center px-3 py-2.5">
-          <span className="text-[8px] text-[var(--text-muted)]">Total Payable</span>
-          <span className="text-sm font-semibold text-[var(--text-primary)]">
+          <span className="text-[8px] text-(--text-muted)">Total Payable</span>
+          <span className="text-sm font-semibold text-(--text-primary)">
             {totalLabel}
           </span>
         </div>

@@ -7,11 +7,11 @@ export function SelectServiceButton() {
       className="
         secondary-button flex w-full items-center justify-between
         rounded-xl px-3 py-2.5 text-[10px] font-medium
-        text-[var(--text-primary)] transition-all duration-300
+        text-(--text-primary) transition-all duration-300
       "
     >
       <span className="flex-1 text-center">Select Service</span>
-      <ChevronRight size={14} className="text-[var(--brand-gold)]" />
+      <ChevronRight size={14} className="text-(--brand-gold)" />
     </button>
   );
 }

@@ -3,8 +3,7 @@
 import { useState } from "react";
 
 import {
-  calcTotal,
-  getService,
+  calcServicesTotal,
 } from "../booking.data";
 import { BookingHeader } from "./BookingHeader";
 import { BookingProgress } from "./BookingProgress";
@@ -19,7 +18,15 @@ import {
 
 export function BookingFlow() {
   const [step, setStep] = useState(1);
-  const [serviceId, setServiceId] = useState("swedish");
+  const [serviceIds, setServiceIds] = useState<string[]>(["swedish"]);
+
+  const toggleService = (id: string) => {
+    setServiceIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
+    );
+  };
+
+  const primaryServiceId = serviceIds[0] ?? "swedish";
   const [staffId, setStaffId] = useState("sony");
   const [selectedDate, setSelectedDate] = useState(22);
   const [selectedTime, setSelectedTime] = useState("11:00 AM");
@@ -29,8 +36,7 @@ export function BookingFlow() {
   const [billingEmail, setBillingEmail] = useState("");
   const [billingPhone, setBillingPhone] = useState("");
 
-  const service = getService(serviceId);
-  const { total } = calcTotal(service.price);
+  const { total } = calcServicesTotal(serviceIds);
 
   const handleBillingChange = (
     field: "billingName" | "billingEmail" | "billingPhone",
@@ -44,7 +50,7 @@ export function BookingFlow() {
   const footerConfig = () => {
     if (step === 4) {
       return {
-        totalLabel: `$${getStep4Total(serviceId)}`,
+        totalLabel: `$${getStep4Total(serviceIds)}`,
         buttonLabel: "Pay Now & Confirm Booking",
         showLock: true,
         onAction: () => alert("Booking confirmed!"),
@@ -70,15 +76,15 @@ export function BookingFlow() {
 
         {step === 1 && (
           <Step1ServiceSelection
-            selectedServiceId={serviceId}
-            onSelectService={setServiceId}
+            selectedServiceIds={serviceIds}
+            onToggleService={toggleService}
             onNext={() => setStep(2)}
           />
         )}
 
         {step === 2 && (
           <Step2StaffSelection
-            serviceId={serviceId}
+            serviceId={primaryServiceId}
             staffId={staffId}
             onSelectStaff={setStaffId}
             onBack={() => setStep(1)}
@@ -88,7 +94,7 @@ export function BookingFlow() {
 
         {step === 3 && (
           <Step3DateTimeSelection
-            serviceId={serviceId}
+            serviceId={primaryServiceId}
             staffId={staffId}
             selectedDate={selectedDate}
             selectedTime={selectedTime}
@@ -101,7 +107,7 @@ export function BookingFlow() {
 
         {step === 4 && (
           <Step4PaymentConfirmation
-            serviceId={serviceId}
+            serviceId={primaryServiceId}
             staffId={staffId}
             selectedDate={selectedDate}
             selectedTime={selectedTime}

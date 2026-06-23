@@ -17,7 +17,7 @@ export function BookingHeader({ showClose = true }: BookingHeaderProps) {
           type="button"
           onClick={() => router.back()}
           aria-label="Go back"
-          className="flex h-8 w-8 items-center justify-center text-[var(--text-primary)]"
+          className="flex h-8 w-8 items-center justify-center text-(--text-primary)"
         >
           <ArrowLeft size={18} strokeWidth={1.8} />
         </button>
@@ -27,7 +27,7 @@ export function BookingHeader({ showClose = true }: BookingHeaderProps) {
             type="button"
             onClick={() => router.push("/home")}
             aria-label="Close booking"
-            className="flex h-8 w-8 items-center justify-center text-[var(--text-primary)]"
+            className="flex h-8 w-8 items-center justify-center text-(--text-primary)"
           >
             <X size={18} strokeWidth={1.8} />
           </button>
@@ -35,10 +35,10 @@ export function BookingHeader({ showClose = true }: BookingHeaderProps) {
       </div>
 
       <div className="mt-1 text-center">
-        <h1 className="text-base font-semibold text-[var(--text-primary)]">
+        <h1 className="text-base font-semibold text-(--text-primary)">
           Book Your Appointment
         </h1>
-        <p className="mt-0.5 text-[9px] text-[var(--text-muted)]">
+        <p className="mt-0.5 text-[9px] text-(--text-muted)">
           Relax, Rejuvenate & Refresh your mind and body
         </p>
       </div>

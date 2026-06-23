@@ -24,13 +24,13 @@ export function Button({
 
         secondary: `
       secondary-button
-      text-[var(--text-primary)]
+      text-(--text-primary)
     `,
 
         icon: `
-      border border-[var(--border)]
-      bg-[var(--search-bg)]
-      text-[var(--text-primary)]
+      border border-(--border)
+      bg-(--search-bg)
+      text-(--text-primary)
       aspect-square
       justify-center
     `,

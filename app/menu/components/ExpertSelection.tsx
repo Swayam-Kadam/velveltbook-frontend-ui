@@ -24,7 +24,7 @@ export function ExpertSelection({
       type: "male",
       label: "Male Expert",
       icon: Mars,
-      iconClass: "text-[var(--accent-secondary)]",
+      iconClass: "text-(--accent-secondary)",
     },
     {
       type: "female",
@@ -36,11 +36,11 @@ export function ExpertSelection({
 
   return (
     <section className="mt-4 px-2 pb-4">
-      <h2 className="text-sm font-medium text-[var(--text-primary)]">
+      <h2 className="text-sm font-medium text-(--text-primary)">
         Select an Expert
       </h2>
 
-      <p className="mt-0.5 text-[8px] text-[var(--text-muted)]">
+      <p className="mt-0.5 text-[8px] text-(--text-muted)">
         Choose your preferred expert type
       </p>
 
@@ -55,18 +55,18 @@ export function ExpertSelection({
               onClick={() => onSelect(type)}
               className={`
                 relative flex flex-1 items-center gap-2 rounded-xl
-                border bg-[var(--bg-card)] px-3 py-3
+                border bg-(--bg-card) px-3 py-3
                 transition-all duration-300
                 ${
                   active
-                    ? "border-[var(--accent-secondary)] shadow-[var(--shadow-glow)]"
-                    : "border-[var(--border)] hover:border-[color-mix(in_srgb,var(--accent-secondary)_20%,var(--border))]"
+                    ? "border-(--accent-secondary) shadow-(--shadow-glow)"
+                    : "border-(--border) hover:border-[color-mix(in_srgb,var(--accent-secondary)_20%,var(--border))]"
                 }
               `}
             >
               <Icon size={18} strokeWidth={1.6} className={iconClass} />
 
-              <span className="text-[9px] font-medium text-[var(--text-primary)]">
+              <span className="text-[9px] font-medium text-(--text-primary)">
                 {label}
               </span>
 
@@ -75,7 +75,7 @@ export function ExpertSelection({
                   className="
                     absolute right-2 top-1/2 flex h-4 w-4 -translate-y-1/2
                     items-center justify-center rounded-full
-                    bg-[var(--accent-primary)] text-white
+                    bg-(--accent-primary) text-white
                     shadow-[0_0_8px_color-mix(in_srgb,var(--accent-glow)_45%,transparent)]
                   "
                 >
@@ -89,8 +89,8 @@ export function ExpertSelection({
       <div
         className="
           mt-1 bottom-[72px] left-0 right-0 z-40
-          border-t border-[var(--border)]
-          bg-[var(--bg-secondary)]/95 backdrop-blur-xl
+          border-t border-(--border)
+          bg-(--bg-secondary)/95 backdrop-blur-xl
         "
       >
         <Button

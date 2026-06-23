@@ -49,15 +49,15 @@ export function BottomNavigation() {
                                 <Icon
                                     strokeWidth={1.4}
                                     className={`h-4 w-4 transition-all duration-300 ${active
-                                        ? "text-[var(--accent-glow)] drop-shadow-[0_0_12px_color-mix(in_srgb,var(--accent-glow)_45%,transparent)]"
-                                        : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"
+                                        ? "text-(--accent-glow) drop-shadow-[0_0_12px_color-mix(in_srgb,var(--accent-glow)_45%,transparent)]"
+                                        : "text-(--text-secondary) group-hover:text-(--text-primary)"
                                         }`}
                                 />
 
                                 <span
                                     className={`text-[10px] transition-colors duration-300 ${active
-                                        ? "text-[var(--accent-glow)]"
-                                        : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"
+                                        ? "text-(--accent-glow)"
+                                        : "text-(--text-secondary) group-hover:text-(--text-primary)"
                                         }`}
                                 >
                                     {label}

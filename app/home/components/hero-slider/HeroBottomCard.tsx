@@ -24,8 +24,8 @@ export function HeroBottomCard({ store }: HeroBottomCardProps) {
             className="
         mt-2 relative z-10
         rounded-xl
-        border border-[var(--border)]
-        bg-[var(--bg-card)]/95
+        border border-(--brand-gold)
+        bg-(--bg-card)/95
         p-2 backdrop-blur-xl
       "
         >
@@ -44,7 +44,7 @@ export function HeroBottomCard({ store }: HeroBottomCardProps) {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                    <p className="truncate text-[10px] font-medium text-[var(--text-primary)]">
+                    <p className="truncate text-[10px] font-medium text-(--text-primary)">
                         {store.name}
                     </p>
 
@@ -56,7 +56,7 @@ export function HeroBottomCard({ store }: HeroBottomCardProps) {
                         </span>
                     </div>
 
-                    <div className="mt-1 flex items-center gap-1 text-[8px] text-[var(--text-secondary)]">
+                    <div className="mt-1 flex items-center gap-1 text-[8px] text-(--text-secondary)">
                         <MapPin size={8} />
                         <span>{store.location}</span>
                     </div>
@@ -90,7 +90,7 @@ export function HeroBottomCard({ store }: HeroBottomCardProps) {
                     className="
     secondary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium
-    text-[var(--text-primary)] transition-all duration-300
+    text-(--text-primary) transition-all duration-300
   "
                 >
                     <Store size={12} strokeWidth={1.8} />

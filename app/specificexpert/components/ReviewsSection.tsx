@@ -12,7 +12,7 @@ export function ReviewsSection({ reviews, totalReviews }: ReviewsSectionProps) {
   return (
     <article className="feature-card rounded-xl p-3">
       <div className="mb-2.5 flex items-center justify-between gap-2">
-        <h2 className="text-xs font-medium text-[var(--text-primary)]">
+        <h2 className="text-xs font-medium text-(--text-primary)">
           Reviews ({totalReviews})
         </h2>
 
@@ -20,7 +20,7 @@ export function ReviewsSection({ reviews, totalReviews }: ReviewsSectionProps) {
           type="button"
           className="
             flex items-center gap-0.5 text-[8px]
-            text-[var(--accent-secondary)] transition-opacity duration-200
+            text-(--accent-secondary) transition-opacity duration-200
             hover:opacity-80
           "
         >
@@ -40,7 +40,7 @@ export function ReviewsSection({ reviews, totalReviews }: ReviewsSectionProps) {
             key={review.id}
             className="
               w-[160px] shrink-0 snap-start rounded-sm
-              border border-[var(--border)] bg-[var(--bg-card-hover)] p-2
+              border border-(--border) bg-(--bg-card-hover) p-2
             "
           >
             <div className="flex items-center gap-2">
@@ -55,10 +55,10 @@ export function ReviewsSection({ reviews, totalReviews }: ReviewsSectionProps) {
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[8px] font-medium text-[var(--text-primary)]">
+                <p className="truncate text-[8px] font-medium text-(--text-primary)">
                   {review.name}
                 </p>
-                <p className="text-[7px] text-[var(--text-muted)]">
+                <p className="text-[7px] text-(--text-muted)">
                   {review.rating.toFixed(1)}
                 </p>
               </div>
@@ -69,12 +69,12 @@ export function ReviewsSection({ reviews, totalReviews }: ReviewsSectionProps) {
                 <Star
                   key={index}
                   size={8}
-                  className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
+                  className="fill-(--brand-gold) text-(--brand-gold)"
                 />
               ))}
             </div>
 
-            <p className="mt-1.5 line-clamp-3 text-[8px] font-semibold leading-relaxed text-[var(--text-secondary)]">
+            <p className="mt-1.5 line-clamp-3 text-[8px] font-semibold leading-relaxed text-(--text-secondary)">
               {review.text}
             </p>
           </article>

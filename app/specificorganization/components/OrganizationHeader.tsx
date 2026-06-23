@@ -22,13 +22,13 @@ export function OrganizationHeader({ organization }: OrganizationHeaderProps) {
         <div
           className="
             absolute bottom-1.5 left-1.5 flex items-center gap-0.5
-            rounded-full bg-[var(--text-primary)]/85 px-1.5 py-0.5
+            rounded-full bg-(--text-primary)/85 px-1.5 py-0.5
             backdrop-blur-sm
           "
         >
           <Star
             size={8}
-            className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
+            className="fill-(--brand-gold) text-(--brand-gold)"
           />
           <span className="text-[8px] font-medium text-white">
             {organization.rating}
@@ -38,13 +38,13 @@ export function OrganizationHeader({ organization }: OrganizationHeaderProps) {
 
       <div className="min-w-0 flex-1 pt-0.5">
         <div className="flex items-start gap-1">
-          <h1 className="text-md font-bold leading-tight text-[var(--text-primary)]">
+          <h1 className="text-md font-bold leading-tight text-(--text-primary)">
             {organization.name}
           </h1>
 
           <BadgeCheck
             size={14}
-            className="mt-0.5 shrink-0 text-[var(--accent-primary)]"
+            className="mt-0.5 shrink-0 text-(--accent-primary)"
             strokeWidth={1.8}
           />
         </div>
@@ -62,19 +62,19 @@ export function OrganizationHeader({ organization }: OrganizationHeaderProps) {
           <div className="flex items-center gap-0.5 text-semibold">
             <Star
               size={9}
-              className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
+              className="fill-(--brand-gold) text-(--brand-gold)"
             />
             <span>
               {organization.rating} ({organization.reviews} Reviews)
             </span>
           </div>
 
-          <span className="h-3 w-px bg-[var(--border)]" />
+          <span className="h-3 w-px bg-(--border)" />
 
           <div className="flex items-center gap-0.5 text-semibold">
             <Clock3 size={9} strokeWidth={1.6} />
             <span>
-              <span className="text-[var(--success)]">{organization.status}</span>
+              <span className="text-(--success)">{organization.status}</span>
               {" • "}
               Closes {organization.closesAt}
             </span>

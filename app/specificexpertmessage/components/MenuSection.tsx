@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { ChevronRight } from "lucide-react";
 
 import { MenuServiceItem } from "../message.types";
 
@@ -10,37 +9,34 @@ interface MenuSectionProps {
 export function MenuSection({ items }: MenuSectionProps) {
   return (
     <section>
-      <h2 className="mb-3 text-sm font-medium text-[var(--text-primary)]">Menu</h2>
+      <h2 className="mb-3 text-md font-bold text-(--text-primary)">Menu</h2>
 
-      <div className="space-y-0">
-        {items.map((item, index) => (
+      <div className="flex mx-auto w-full gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {items.map((item) => (
           <button
             key={item.id}
             type="button"
-            className={`
-              flex w-full items-center gap-3 py-2.5 text-left
-              ${index < items.length - 1 ? "border-b border-[var(--border)]" : ""}
-            `}
+            className="w-[72px] shrink-0 text-left"
           >
-            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
-              <Image
-                src={item.image}
-                alt={item.name}
-                fill
-                sizes="36px"
-                className="object-cover"
-              />
+            <div className="feature-card relative overflow-hidden rounded-xl">
+              <div className="relative h-[72px] w-[72px]">
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  fill
+                  sizes="72px"
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-1.5 text-center">
+                <p className="text-[10px] h-7 font-bold text-(--text-primary)">
+                  {item.name}
+                </p>
+                <p className="text-[10px] font-bold text-(--brand-gold)">
+                  {item.price}
+                </p>
+              </div>
             </div>
-
-            <span className="min-w-0 flex-1 text-[10px] font-medium text-[var(--text-primary)]">
-              {item.name}
-            </span>
-
-            <span className="text-[10px] font-semibold text-[var(--text-primary)]">
-              {item.price}
-            </span>
-
-            <ChevronRight size={14} className="shrink-0 text-[var(--brand-gold)]" />
           </button>
         ))}
       </div>

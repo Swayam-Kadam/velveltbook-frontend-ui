@@ -14,7 +14,7 @@ export function ExpertTopNav() {
         aria-label="Go back"
         className="
           flex h-8 w-8 items-center justify-center rounded-full
-          text-[var(--text-primary)] transition-opacity duration-200
+          text-(--text-primary) transition-opacity duration-200
           hover:opacity-70
         "
       >
@@ -26,7 +26,7 @@ export function ExpertTopNav() {
         aria-label="Share profile"
         className="
           flex h-8 w-8 items-center justify-center rounded-full
-          text-[var(--text-primary)] transition-opacity duration-200
+          text-(--text-primary) transition-opacity duration-200
           hover:opacity-70
         "
       >

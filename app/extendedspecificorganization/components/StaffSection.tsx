@@ -12,10 +12,10 @@ export function StaffSection({ staff }: StaffSectionProps) {
   return (
     <section>
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="text-md font-bold text-[var(--text-primary)]">Staff</h2>
+        <h2 className="text-lg font-bold text-(--text-primary)">Staff</h2>
         <button
           type="button"
-          className="flex items-center gap-0.5 text-[8px] text-[var(--brand-gold)]"
+          className="primary-button flex items-center gap-0.5 text-[9px] font-bold text-(--brand-gold) bg-(--bg-primary) rounded-xs px-2 py-1"
         >
           <span>View All</span>
           <ArrowRight size={10} strokeWidth={2} />
@@ -39,17 +39,17 @@ export function StaffSection({ staff }: StaffSectionProps) {
             </div>
 
             <div className="p-2">
-            <p className="mt-2 text-[11px] font-bold text-[var(--text-primary)]">
+            <p className="mt-2 text-[11px] font-bold text-(--text-primary)">
               {member.name}
             </p>
-            <p className="mt-0.5 text-[9px] font-semibold text-[var(--text-primary)]">
+            <p className="mt-0.5 text-[9px] font-semibold text-(--text-primary)">
               {member.experience}
             </p>
 
             <div className="mt-2 grid grid-cols-2 gap-1">
               <button
                 type="button"
-                className="secondary-button rounded-xs py-1 text-[7px] font-medium"
+                className="secondary-button rounded-xs py-1 text-[10px] font-medium"
               >
                 Select
               </button>
@@ -57,7 +57,7 @@ export function StaffSection({ staff }: StaffSectionProps) {
                 href="/specificexpert/e1"
                 className="
                   secondary-button flex items-center justify-center
-                  rounded-xs py-1 text-[7px] font-medium text-[var(--text-primary)]
+                  rounded-xs py-1 text-[10px] font-medium text-(--text-primary)
                 "
               >
                 View

@@ -8,7 +8,7 @@ export function QuickActions() {
         type="button"
         className="
           secondary-button flex items-center justify-center gap-1
-          rounded-xs py-2 text-[8px] font-medium text-[var(--text-primary)]
+          rounded-xs py-2 text-[8px] font-medium text-(--text-primary)
         "
       >
         <Phone size={12} strokeWidth={1.6} />
@@ -19,7 +19,7 @@ export function QuickActions() {
         type="button"
         className="
           secondary-button flex items-center justify-center gap-1
-          rounded-xs py-2 text-[8px] font-medium text-[var(--text-primary)]
+          rounded-xs py-2 text-[8px] font-medium text-(--text-primary)
         "
       >
         <PlayCircle size={12} strokeWidth={1.6} />

@@ -12,10 +12,10 @@ export function ServicesSection({ services }: ServicesSectionProps) {
   return (
     <section>
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="text-md font-bold text-[var(--text-primary)]">Services</h2>
+        <h2 className="text-lg font-bold text-(--text-primary)">Services</h2>
         <button
           type="button"
-          className="flex items-center gap-0.5 text-[8px] text-[var(--brand-gold)]"
+          className="primary-button flex items-center gap-0.5 text-[9px] font-bold text-(--brand-gold) bg-(--bg-primary) rounded-xs px-2 py-1"
         >
           <span>View All</span>
           <ArrowRight size={10} strokeWidth={2} />
@@ -38,20 +38,21 @@ export function ServicesSection({ services }: ServicesSectionProps) {
               />
             </div>
             <div className="p-2">
-            <p className="mt-2 text-[10px] font-bold text-[var(--text-primary)]">
+            <p className="mt-2 text-[10px] font-bold text-(--text-primary) h-6">
               {service.name}
             </p>
-            <p className="mt-0.5 line-clamp-2 text-[9px] font-semibold leading-relaxed text-[var(--text-primary)]">
+            <p className="mt-0.5 line-clamp-2 text-[9px] font-semibold leading-relaxed text-(--text-primary)">
               {service.description}
             </p>
-            <p className="mt-1 text-[9px] font-bold text-[var(--brand-gold)]">
+            <p className="mt-1 text-[9px] font-bold text-(--brand-gold)">
               {service.price}
             </p>
 
-            <div className="mt-2 grid grid-cols-2 gap-1">
+
+            <div className=" mt-2 grid grid-cols-2 gap-1 ">
               <button
                 type="button"
-                className="secondary-button rounded-xs py-1 text-[7px] font-medium"
+                className="secondary-button rounded-xs py-1 text-[10px] font-medium"
               >
                 Select
               </button>
@@ -59,7 +60,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
                 href={`/specificservice/s2`}
                 className="
                   secondary-button flex items-center justify-center
-                  rounded-xs py-1 text-[7px] font-medium text-[var(--text-primary)]
+                  rounded-xs py-1 text-[10px] font-medium text-(--text-primary)
                 "
               >
                 View

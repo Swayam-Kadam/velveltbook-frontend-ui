@@ -17,7 +17,7 @@ export function HeroSlide({
     time,
 }: HeroSlideProps) {
     return (
-        <div className="relative overflow-hidden rounded-xl border border-[var(--border)] dark:border-white/10">
+        <div className="relative overflow-hidden rounded-xl border border-(--border) dark:border-white/10">
             <div className="relative min-h-[200px] w-full">
                 <Image
                     src={image}
@@ -70,11 +70,11 @@ export function HeroSlide({
 
                 <div
                     className="
-    absolute inset-y-0 left-[42%] hidden w-[28%]
-    bg-[radial-gradient(ellipse_at_left,rgba(0,0,0,0.18)_0%,transparent_72%)]
-    blur-xl
-    [.dark_&]:block
-  "
+                        absolute inset-y-0 left-[42%] hidden w-[28%]
+                        bg-[radial-gradient(ellipse_at_left,rgba(0,0,0,0.18)_0%,transparent_72%)]
+                        blur-xl
+                        [.dark_&]:block
+                    "
                 />
 
                 {/* Content */}
@@ -91,10 +91,10 @@ export function HeroSlide({
                     <div className="max-w-[55%] min-h-[50px]">
                         <h2
                             className="
-        mb-3 whitespace-pre-line
-        text-[24px] font-semibold leading-[24px]
-        text-[var(--accent-primary)]  [.dark_&]:text-[#E6BE78]
-    "
+                                mb-3 whitespace-pre-line
+                                text-[24px] font-semibold leading-[24px]
+                                text-(--accent-primary)  [.dark_&]:text-[#E6BE78]
+                            "
                         >
                             {title}
                         </h2>

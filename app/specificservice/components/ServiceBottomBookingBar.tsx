@@ -14,7 +14,7 @@ export function ServiceBottomBookingBar({
          left-2 right-2 z-40 mx-2 mt-3
         overflow-hidden rounded-xs
         border border-[color-mix(in_srgb,var(--accent-primary)_20%,var(--border))]
-        primary-button shadow-[var(--shadow-glow)]
+        primary-button shadow-(--shadow-glow)
       "
     >
       <div className="grid grid-cols-2">

@@ -18,7 +18,7 @@ const tabs = [
 
 export function HelpTabNav() {
   return (
-    <nav className="border-b border-[var(--border)]">
+    <nav className="border-b border-(--border)">
       <div className="flex justify-between gap-1 overflow-x-auto scrollbar-none px-1">
         {tabs.map(({ id, label, icon: Icon, active }) => (
           <button
@@ -26,7 +26,7 @@ export function HelpTabNav() {
             type="button"
             className={`
               flex shrink-0 flex-col items-center gap-1 pb-2 pt-1
-              ${active ? "border-b-2 border-[var(--accent-primary)]" : "opacity-70"}
+              ${active ? "border-b-2 border-(--accent-primary)" : "opacity-70"}
             `}
           >
             <Icon
@@ -34,15 +34,15 @@ export function HelpTabNav() {
               strokeWidth={1.4}
               className={
                 active
-                  ? "text-[var(--accent-primary)]"
-                  : "text-[var(--text-secondary)]"
+                  ? "text-(--accent-primary)"
+                  : "text-(--text-secondary)"
               }
             />
             <span
-              className={`text-[7px] leading-tight ${
+              className={`text-[9px] leading-tight ${
                 active
-                  ? "font-medium text-[var(--accent-primary)]"
-                  : "text-[var(--text-muted)]"
+                  ? "font-bold text-(--accent-primary)"
+                  : "text-(--text-muted) font-bold"
               }`}
             >
               {label}

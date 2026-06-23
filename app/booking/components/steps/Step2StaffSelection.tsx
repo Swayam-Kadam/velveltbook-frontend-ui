@@ -43,10 +43,10 @@ export function Step2StaffSelection({
       <div>
         <div className="mb-2 flex items-start justify-between gap-2">
           <div>
-            <h2 className="text-sm font-bold text-[var(--text-primary)]">
+            <h2 className="text-sm font-bold text-(--text-primary)">
               Select Your Preferred Therapist
             </h2>
-            <p className="mt-0.5 text-[8px] text-[var(--text-muted)]">
+            <p className="mt-0.5 text-[8px] text-(--text-muted)">
               Our professional therapists are here to provide you the best
               experience
             </p>
@@ -55,7 +55,7 @@ export function Step2StaffSelection({
             type="button"
             className="
               secondary-button shrink-0 rounded-md px-2 py-1
-              text-[7px] font-medium text-[var(--text-primary)]
+              text-[7px] font-medium text-(--text-primary)
             "
           >
             view more
@@ -71,7 +71,7 @@ export function Step2StaffSelection({
                 key={therapist.id}
                 className={`
                   feature-card w-[118px] shrink-0 rounded-xl p-2
-                  ${active ? "border-[var(--accent-primary)]" : ""}
+                  ${active ? "border-(--accent-primary)" : ""}
                 `}
               >
                 <button
@@ -94,7 +94,7 @@ export function Step2StaffSelection({
                         ${
                           active
                             ? "primary-button border-transparent"
-                            : "border-[var(--border)] bg-[var(--bg-card)]"
+                            : "border-(--border) bg-(--bg-card)"
                         }
                       `}
                     >
@@ -102,10 +102,10 @@ export function Step2StaffSelection({
                     </span>
                   </div>
 
-                  <p className="mt-2 text-[10px] font-bold text-[var(--text-primary)]">
+                  <p className="mt-2 text-[13px] font-bold text-(--text-primary)">
                     {therapist.name}
                   </p>
-                  <p className="text-[8px] text-[var(--text-primary)]">
+                  <p className="text-[10px] font-semibold text-(--text-primary)">
                     {therapist.experience}
                   </p>
 
@@ -113,16 +113,16 @@ export function Step2StaffSelection({
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
-                        size={7}
-                        className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
+                        size={10}
+                        className="fill-(--brand-gold) text-(--brand-gold)"
                       />
                     ))}
-                    <span className="ml-0.5 text-[8px] text-[var(--text-primary)]">
+                    <span className="ml-0.5 text-[10px] text-(--text-primary)">
                       ({therapist.reviews})
                     </span>
                   </div>
 
-                  <p className="mt-1 rounded-md bg-[var(--bg-card-hover)] p-1 text-[7px] leading-tight text-[var(--text-primary)]">
+                  <p className="mt-1 h-10 rounded-md bg-(--bg-card-hover) p-1 text-[9px] font-semibold leading-tight text-(--text-primary)">
                     {therapist.specialties}
                   </p>
                 </button>
@@ -131,8 +131,8 @@ export function Step2StaffSelection({
                   href={`/specificexpert/e1`}
                   className="
                     secondary-button mt-2 flex w-full items-center justify-center
-                    rounded-md py-1 text-[7px] font-medium
-                    text-[var(--text-primary)]
+                    rounded-md py-1 text-[9px] font-bold
+                    text-(--text-primary)
                   "
                 >
                   View Profile
@@ -145,10 +145,10 @@ export function Step2StaffSelection({
             type="button"
             className="
               flex h-8 w-8 shrink-0 items-center justify-center self-center
-              rounded-full border border-[var(--border)] bg-[var(--bg-card)]
+              rounded-full border border-(--border) bg-(--bg-card)
             "
           >
-            <ChevronRight size={14} className="text-[var(--text-primary)]" />
+            <ChevronRight size={14} className="text-(--text-primary)" />
           </button>
         </div>
       </div>
@@ -160,8 +160,8 @@ export function Step2StaffSelection({
           p-3
         "
       >
-        <ShieldCheck size={16} className="shrink-0 text-[var(--accent-primary)]" />
-        <p className="text-[8px] leading-relaxed text-[var(--text-secondary)]">
+        <ShieldCheck size={16} className="shrink-0 text-(--accent-primary)" />
+        <p className="text-[8px] leading-relaxed text-(--text-secondary)">
           All our therapists are certified, experienced and committed to your
           comfort and well-being.
         </p>
@@ -172,7 +172,7 @@ export function Step2StaffSelection({
         onClick={onBack}
         className="
           secondary-button inline-flex items-center gap-1 rounded-lg
-          px-3 py-2 text-[9px] font-medium text-[var(--text-primary)]
+          px-3 py-2 text-[9px] font-medium text-(--text-primary)
         "
       >
         <ArrowLeft size={12} />
@@ -180,7 +180,7 @@ export function Step2StaffSelection({
       </button>
 
       <section>
-        <h2 className="mb-2 text-xs font-medium text-[var(--text-primary)]">
+        <h2 className="mb-2 text-xs font-medium text-(--text-primary)">
           Your Booking
         </h2>
 
@@ -196,15 +196,15 @@ export function Step2StaffSelection({
               />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold text-[var(--text-primary)]">
+              <p className="text-[12px] font-bold text-(--text-primary)">
                 {service.name}
               </p>
-              <div className="flex items-center gap-1 text-[8px] font-bold text-[var(--text-primary)]">
-                <Clock3 size={9} />
+              <div className="flex items-center gap-1 text-[10px] font-bold text-(--text-primary)">
+                <Clock3 size={10} />
                 <span>{service.duration}</span>
               </div>
             </div>
-            <span className="text-[11px] font-semibold text-[var(--text-primary)]">
+            <span className="text-[14px] font-bold text-(--text-primary)">
               {service.priceLabel}
             </span>
           </div>
@@ -214,19 +214,19 @@ export function Step2StaffSelection({
             onClick={onNext}
             className="
               flex w-full items-center justify-between rounded-lg
-              border border-[var(--border)] bg-[var(--bg-card-hover)] px-3 py-2
+              border border-(--border) bg-(--bg-card-hover) px-3 py-2
             "
           >
             <div className="flex items-center gap-2">
-              <CalendarDays size={14} className="text-[var(--accent-primary)]" />
-              <span className="text-[9px] text-[var(--text-primary)]">
+              <CalendarDays size={14} className="text-(--accent-primary)" />
+              <span className="text-[10px] font-bold text-(--text-primary)">
                 Select Date & Time
               </span>
             </div>
-            <ChevronRight size={14} className="text-[var(--text-muted)]" />
+            <ChevronRight size={14} className="text-(--text-muted)" />
           </button>
 
-          <div className="flex items-center gap-2 border-t border-[var(--border)] pt-2">
+          <div className="flex items-center gap-2 border-t border-(--border) pt-2">
             <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
               <Image
                 src={staff.image}
@@ -237,14 +237,14 @@ export function Step2StaffSelection({
               />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold text-[var(--text-primary)]">
+              <p className="text-[13px] font-bold text-(--text-primary)">
                 {staff.name}
               </p>
-              <p className="text-[8px] font-bold text-[var(--text-primary)]">
+              <p className="text-[10px] font-bold text-(--text-primary)">
                 {staff.experience}
               </p>
             </div>
-            <button type="button" className="text-[8px] font-bold text-[var(--accent-secondary)]">
+            <button type="button" className="text-[10px] font-bold text-(--accent-secondary)">
               Change
             </button>
           </div>

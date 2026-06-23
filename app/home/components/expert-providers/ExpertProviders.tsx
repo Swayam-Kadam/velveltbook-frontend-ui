@@ -8,16 +8,16 @@ export function ExpertProviders() {
         <section className="pb-3">
             <div className="mb-4 flex items-start justify-between">
                 <div>
-                    <h2 className="text-xs font-medium text-[var(--text-primary)]">
+                    <h2 className="text-xs font-medium text-(--text-primary)">
                         Expert Providers
                     </h2>
 
-                    <p className="text-[8px] text-[var(--text-muted)]">
+                    <p className="text-[8px] text-(--text-muted)">
                         Top rated experts in your area
                     </p>
                 </div>
 
-                <button className="flex items-center gap-1 text-[8px] text-[var(--accent-secondary)]">
+                <button className="flex items-center gap-1 text-[8px] text-(--accent-secondary)">
                     <span>View All</span>
                     <ArrowRight size={10} />
                 </button>

@@ -13,10 +13,10 @@ export function SelectExpertsSection({ experts }: SelectExpertsSectionProps) {
   return (
     <section>
       <div className="mb-3 flex items-center gap-3">
-        <h2 className="shrink-0 text-sm font-medium text-[var(--text-primary)]">
+        <h2 className="shrink-0 text-sm font-medium text-(--text-primary)">
           Select Experts
         </h2>
-        <div className="h-px flex-1 bg-[var(--border)]" />
+        <div className="h-px flex-1 bg-(--border)" />
       </div>
 
       <div
@@ -47,33 +47,33 @@ export function SelectExpertsSection({ experts }: SelectExpertsSectionProps) {
                 <span
                   className="
                     absolute bottom-0 right-0 h-2.5 w-2.5
-                    rounded-full border-2 border-[var(--bg-card)]
-                    bg-[var(--success)]
+                    rounded-full border-2 border-(--bg-card)
+                    bg-(--success)
                   "
                 />
               )} */}
             </div>
 
             <div className="px-2.5 py-1.5">
-            <p className="mt-2 truncate text-center text-[10px] font-semibold text-[var(--text-primary)]">
+            <p className="mt-2 truncate text-center text-[10px] font-semibold text-(--text-primary)">
               {expert.name}
             </p>
 
-            <p className="mt-0.5 truncate text-center text-[9px] font-semibold text-[var(--text-muted)]">
+            <p className="mt-0.5 truncate text-center text-[9px] font-semibold text-(--text-muted)">
               {expert.specialty}
             </p>
 
-            <div className="mt-1 flex items-center justify-center gap-0.5 text-[8px] font-semibold text-[var(--text-secondary)]">
+            <div className="mt-1 flex items-center justify-center gap-0.5 text-[8px] font-semibold text-(--text-secondary)">
               <Star
                 size={8}
-                className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
+                className="fill-(--brand-gold) text-(--brand-gold)"
               />
               <span>
                 {expert.rating} ({expert.reviews})
               </span>
             </div>
 
-            <p className="mt-0.5 text-center text-[8px] font-semibold text-[var(--text-muted)]">
+            <p className="mt-0.5 text-center text-[8px] font-semibold text-(--text-muted)">
               {expert.experience}
             </p>
 
@@ -90,7 +90,7 @@ export function SelectExpertsSection({ experts }: SelectExpertsSectionProps) {
                 className="
                   secondary-button flex w-full items-center justify-center
                   rounded-xs py-1 text-[7px] font-medium
-                  text-[var(--text-primary)] transition-all duration-300
+                  text-(--text-primary) transition-all duration-300
                 "
               >
                 View

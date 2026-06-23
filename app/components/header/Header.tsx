@@ -48,7 +48,7 @@ export function Header() {
   "
                     >
                         <Bell
-                            className="h-4 w-4 text-[var(--text-primary)]"
+                            className="h-4 w-4 text-(--text-primary)"
                             strokeWidth={1.6}
                         />
 
@@ -57,7 +57,7 @@ export function Header() {
       absolute -right-[2px] top-[2px]
       flex h-3 w-3 items-center justify-center
       rounded-full
-      bg-[var(--accent-primary)]
+      bg-(--accent-primary)
       text-[11px] font-semibold text-white
       shadow-[0_0_12px_color-mix(in_srgb,var(--accent-glow)_40%,transparent)]
     "

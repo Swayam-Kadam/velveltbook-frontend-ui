@@ -33,7 +33,7 @@ export function ExpertMessageScreen({ chat }: ExpertMessageScreenProps) {
         </article>
 
         <MenuSection items={chat.menuItems} />
-        <SelectServiceButton />
+        {/* <SelectServiceButton /> */}
       </div>
 
       <ChatBottomBookingBar totalPrice={chat.totalPrice} />

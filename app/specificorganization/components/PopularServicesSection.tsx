@@ -14,7 +14,7 @@ export function PopularServicesSection({
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-medium text-[var(--text-primary)]">
+        <h2 className="text-sm font-medium text-(--text-primary)">
           Popular Services
         </h2>
 
@@ -22,7 +22,7 @@ export function PopularServicesSection({
           type="button"
           className="
             flex items-center gap-0.5 text-[8px]
-            text-[var(--brand-gold)] transition-opacity duration-200
+            text-(--brand-gold) transition-opacity duration-200
             hover:opacity-80
           "
         >
@@ -52,21 +52,21 @@ export function PopularServicesSection({
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-medium text-[var(--text-primary)]">
+              <p className="text-[10px] font-medium text-(--text-primary)">
                 {service.name}
               </p>
 
-              <div className="mt-0.5 flex items-center gap-0.5 text-[8px] text-[var(--text-muted)]">
+              <div className="mt-0.5 flex items-center gap-0.5 text-[8px] text-(--text-muted)">
                 <Clock3 size={8} strokeWidth={1.6} />
                 <span>{service.duration}</span>
               </div>
             </div>
 
             <div className="flex shrink-0 items-center gap-1">
-              <span className="text-[10px] font-semibold text-[var(--text-primary)]">
+              <span className="text-[10px] font-semibold text-(--text-primary)">
                 {service.price}
               </span>
-              <ChevronRight size={12} className="text-[var(--text-muted)]" />
+              <ChevronRight size={12} className="text-(--text-muted)" />
             </div>
           </Link>
         ))}

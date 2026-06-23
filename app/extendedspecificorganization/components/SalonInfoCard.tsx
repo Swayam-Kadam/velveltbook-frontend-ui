@@ -23,12 +23,12 @@ export function SalonInfoCard({ organization }: SalonInfoCardProps) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[12px] font-bold text-[var(--text-primary)]">
+        <p className="truncate text-[12px] font-bold text-(--text-primary)">
           {organization.name}
         </p>
         <div className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold">
-          <MapPin size={9} className="text-[var(--success)]" />
-          <span className="text-[var(--success)]">{organization.status}</span>
+          <MapPin size={9} className="text-(--success)" />
+          <span className="text-(--success)">{organization.status}</span>
         </div>
       </div>
 
@@ -37,8 +37,8 @@ export function SalonInfoCard({ organization }: SalonInfoCardProps) {
         aria-label="Share salon"
         className="
           flex h-8 w-8 shrink-0 items-center justify-center rounded-full
-          border border-[var(--border)] bg-[var(--bg-card)]
-          text-[var(--accent-primary)]
+          border border-(--border) bg-(--bg-card)
+          text-(--accent-primary)
         "
       >
         {/* <Share2 size={14} strokeWidth={1.6} /> */}

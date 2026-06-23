@@ -22,7 +22,7 @@ export function BookingProgress({ currentStep }: BookingProgressProps) {
               <div className="flex w-full items-center">
                 {index > 0 && (
                   <div
-                    className={`h-px flex-1 ${completed || active ? "bg-[var(--accent-primary)]" : "bg-[var(--border)]"}`}
+                    className={`h-px flex-1 ${completed || active ? "bg-(--accent-primary)" : "bg-(--border)"}`}
                   />
                 )}
 
@@ -33,7 +33,7 @@ export function BookingProgress({ currentStep }: BookingProgressProps) {
                     ${
                       active || completed
                         ? "primary-button text-white shadow-none"
-                        : "border border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-muted)]"
+                        : "border border-(--border) bg-(--bg-card) text-(--text-muted)"
                     }
                   `}
                 >
@@ -42,7 +42,7 @@ export function BookingProgress({ currentStep }: BookingProgressProps) {
 
                 {index < steps.length - 1 && (
                   <div
-                    className={`h-px flex-1 ${completed ? "bg-[var(--accent-primary)]" : "bg-[var(--border)]"}`}
+                    className={`h-px flex-1 ${completed ? "bg-(--accent-primary)" : "bg-(--border)"}`}
                   />
                 )}
               </div>
@@ -50,8 +50,8 @@ export function BookingProgress({ currentStep }: BookingProgressProps) {
               <span
                 className={`mt-1 text-center text-[7px] leading-tight ${
                   active
-                    ? "font-medium text-[var(--text-primary)]"
-                    : "text-[var(--text-muted)]"
+                    ? "font-medium text-(--text-primary)"
+                    : "text-(--text-muted)"
                 }`}
               >
                 {step.label}

@@ -26,12 +26,12 @@ export function TrustFeatures() {
           <Icon
             size={16}
             strokeWidth={1.4}
-            className="mx-auto text-[var(--accent-primary)]"
+            className="mx-auto text-(--accent-primary)"
           />
-          <p className="mt-1 text-[7px] font-medium text-[var(--text-primary)]">
+          <p className="mt-1 text-[7px] font-medium text-(--text-primary)">
             {title}
           </p>
-          <p className="mt-0.5 text-[6px] leading-tight text-[var(--text-muted)]">
+          <p className="mt-0.5 text-[6px] leading-tight text-(--text-muted)">
             {subtitle}
           </p>
         </div>

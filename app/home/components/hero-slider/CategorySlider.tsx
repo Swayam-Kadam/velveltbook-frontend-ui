@@ -4,7 +4,7 @@ import { categories } from "./categories";
 
 export function CategorySlider() {
     return (
-        <div className="scrollbar-none flex justify-between gap-2 overflow-x-auto py-2">
+        <div className="scrollbar-none flex justify-between gap-2 overflow-x-auto py-2 px-1">
             {categories.map((category) => {
                 const Icon = category.icon;
 
@@ -20,16 +20,16 @@ export function CategorySlider() {
       transition-all duration-300 ease-out
       ${category.active
                                     ? `
-            border-[var(--category-active-border)]
-            bg-[var(--category-active-bg)]
-            shadow-[var(--category-shadow-active)]
+            border-(--brand-gold)
+            bg-(--category-active-bg)
+            shadow-(--category-shadow-active)
           `
                                     : `
-            border-[var(--border)]
-            bg-[var(--category-bg)]
-            hover:border-[var(--category-hover-border)]
-            hover:bg-[var(--category-hover-bg)]
-            hover:shadow-[var(--category-shadow-hover)]
+            border-(--brand-gold)
+            bg-(--category-bg)
+            hover:border-(--category-hover-border)
+            hover:bg-(--category-hover-bg)
+            hover:shadow-(--category-shadow-hover)
             hover:-translate-y-[1px]
           `
                                 }
@@ -41,8 +41,8 @@ export function CategorySlider() {
                                 className={`
         transition-all duration-300
         ${category.active
-                                        ? "text-[var(--category-icon-active)] drop-shadow-[0_0_8px_color-mix(in_srgb,var(--accent-glow)_55%,transparent)]"
-                                        : "text-[var(--text-primary)]/85 group-hover:text-[var(--text-primary)]"
+                                        ? "text-(--category-icon-active) drop-shadow-[0_0_8px_color-mix(in_srgb,var(--accent-glow)_55%,transparent)]"
+                                        : "text-(--text-primary)/85 group-hover:text-(--text-primary)"
                                     }
       `}
                             />
@@ -52,8 +52,8 @@ export function CategorySlider() {
                             className={`
       text-[10px] transition-colors duration-300
       ${category.active
-                                    ? "text-[var(--text-primary)]"
-                                    : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]"
+                                    ? "text-(--text-primary)"
+                                    : "text-(--text-secondary) group-hover:text-(--text-primary)"
                                 }
     `}
                         >

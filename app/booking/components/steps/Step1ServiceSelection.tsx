@@ -1,83 +1,134 @@
 "use client";
 
 import Image from "next/image";
-import { Check, Clock3 } from "lucide-react";
+import { Check, ChevronRight, Clock3, Plus, ShoppingBag, X } from "lucide-react";
 
-import { bookingServices } from "../../booking.data";
+import {
+  bookingServices,
+  calcServicesTotal,
+  getSelectedServices,
+} from "../../booking.data";
 import { Button } from "@/components/Button";
-import { ChevronRight } from "lucide-react";
 
 interface Step1ServiceSelectionProps {
-  selectedServiceId: string;
-  onSelectService: (id: string) => void;
+  selectedServiceIds: string[];
+  onToggleService: (id: string) => void;
   onNext: () => void;
 }
 
 export function Step1ServiceSelection({
-  selectedServiceId,
-  onSelectService,
+  selectedServiceIds,
+  onToggleService,
   onNext,
 }: Step1ServiceSelectionProps) {
-  const selected = bookingServices.find((s) => s.id === selectedServiceId)!;
+  const selectedServices = getSelectedServices(selectedServiceIds);
+  const { subtotal } = calcServicesTotal(selectedServiceIds);
+  const hasSelection = selectedServices.length > 0;
 
   return (
     <div className="space-y-4">
-
-<article className="feature-card rounded-xl p-3">
-        <div className="flex gap-3">
-          <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-sm">
-            <Image
-              src={selected.image}
-              alt={selected.name}
-              fill
-              sizes="80px"
-              className="object-cover"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold text-[var(--text-primary)]">
-              {selected.name}
-            </p>
-            <div className="mt-0.5 flex items-center gap-1 text-[8px] font-bold text-[var(--text-primary)]">
-              <Clock3 size={9} />
-              <span>{selected.duration}</span>
+      <section className="feature-card overflow-hidden rounded-xl">
+        <div className="flex items-center justify-between border-b border-(--border) px-3 py-2.5">
+          <div className="flex items-center gap-2">
+            <span className="primary-button flex h-7 w-7 items-center justify-center rounded-full">
+              <ShoppingBag size={13} strokeWidth={2} className="text-white" />
+            </span>
+            <div>
+              <p className="text-[11px] font-bold text-(--text-primary)">
+                Your Cart
+              </p>
+              <p className="text-[8px] font-semibold text-(--text-muted)">
+                {hasSelection
+                  ? `${selectedServices.length} service${selectedServices.length > 1 ? "s" : ""} added`
+                  : "No services added yet"}
+              </p>
             </div>
-            <p className="mt-1 text-[10px] font-bold text-[var(--brand-gold)]">
-              {selected.priceLabel}
-            </p>
-            <p className="mt-1 text-[8.5px] font-semibold leading-relaxed text-[var(--text-secondary)]">
-              {selected.description}
-            </p>
           </div>
+          {hasSelection && (
+            <p className="text-[12px] font-bold text-(--brand-gold)">
+              ${subtotal}
+            </p>
+          )}
         </div>
-      </article>
+
+        {hasSelection ? (
+          <div className="space-y-2 p-3">
+            {selectedServices.map((service) => (
+              <article
+                key={service.id}
+                className="flex items-center gap-2.5 rounded-sm border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)] p-2"
+              >
+                <div className="relative h-12 w-14 shrink-0 overflow-hidden rounded-sm">
+                  <Image
+                    src={service.image}
+                    alt={service.name}
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[10px] font-bold text-(--text-primary)">
+                    {service.name}
+                  </p>
+                  <div className="mt-0.5 flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
+                    <Clock3 size={8} />
+                    <span>{service.duration}</span>
+                  </div>
+                  <p className="mt-0.5 text-[9px] font-bold text-(--brand-gold)">
+                    {service.priceLabel}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onToggleService(service.id)}
+                  aria-label={`Remove ${service.name}`}
+                  className="
+                    flex h-6 w-6 shrink-0 items-center justify-center rounded-full
+                    border border-(--border) text-(--text-muted)
+                    transition-colors hover:border-(--accent-primary) hover:text-(--accent-primary)
+                  "
+                >
+                  <X size={12} strokeWidth={2.5} />
+                </button>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="px-3 py-4 text-center text-[9px] font-medium text-(--text-muted)">
+            Tap + below to add services to your cart
+          </p>
+        )}
+      </section>
 
       <Button
         variant="primary"
         fullWidth
         onClick={onNext}
-        className="gap-2 rounded-xl py-3 text-[11px] font-medium"
+        disabled={!hasSelection}
+        className="gap-2 rounded-xl py-3 text-[11px] font-medium disabled:opacity-50"
       >
         Next: Select Staff
         <ChevronRight size={16} strokeWidth={2} />
       </Button>
 
-      
-        <h2 className="text-lg font-bold text-[var(--text-primary)] mb-[1px] ml-2">Suggestions</h2>
-      
-      <div className="grid grid-cols-2 gap-2">
+      <h2 className="mb-[1px] ml-2 text-lg font-bold text-(--text-primary)">
+        Add Services
+      </h2>
+
+      <div className="grid grid-cols-3 gap-2">
         {bookingServices.map((service) => {
-          const active = service.id === selectedServiceId;
+          const inCart = selectedServiceIds.includes(service.id);
 
           return (
             <button
               key={service.id}
               type="button"
-              onClick={() => onSelectService(service.id)}
+              onClick={() => onToggleService(service.id)}
               className={`
-                feature-card overflow-hidden rounded-xl text-left
+                feature-card relative overflow-hidden rounded-xl text-left
                 transition-all duration-300
-                ${active ? "border-[var(--accent-primary)] shadow-[var(--shadow-glow)]" : ""}
+                ${inCart ? "border-(--accent-primary) shadow-(--shadow-glow)" : ""}
               `}
             >
               <div className="relative h-[72px]">
@@ -88,17 +139,27 @@ export function Step1ServiceSelection({
                   sizes="150px"
                   className="object-cover"
                 />
-                {active && (
-                  <span className="primary-button text-white absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full">
+                {inCart ? (
+                  <span className="primary-button absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full text-white">
                     <Check size={10} strokeWidth={2.5} />
+                  </span>
+                ) : (
+                  <span
+                    className="
+                      absolute bottom-[-3.2rem] right-1 flex h-5 w-5 items-center justify-center
+                      rounded-full border border-(--border) bg-(--surface)
+                      text-(--accent-primary) shadow-sm
+                    "
+                  >
+                    <Plus size={11} strokeWidth={2.5} />
                   </span>
                 )}
               </div>
               <div className="p-2">
-                <p className="text-[9px] font-medium text-[var(--text-primary)]">
+                <p className="text-[10px] font-medium text-(--text-primary)">
                   {service.name}
                 </p>
-                <p className="text-[8px] font-semibold text-[var(--brand-gold)]">
+                <p className="text-[8px] font-semibold text-(--brand-gold)">
                   {service.priceLabel}
                 </p>
               </div>

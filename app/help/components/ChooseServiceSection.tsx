@@ -16,11 +16,11 @@ export function ChooseServiceSection({
 }: ChooseServiceSectionProps) {
   return (
     <section>
-      <h2 className="mb-3 text-sm font-medium text-[var(--text-primary)]">
+      <h2 className="mb-3 text-md font-bold text-(--text-primary)">
         1. Choose a Service
       </h2>
 
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+      <div className="flex mx-auto w-full gap-2 overflow-x-auto pb-1 scrollbar-none">
         {homeServices.map((service) => {
           const active = service.id === selectedServiceId;
 
@@ -34,7 +34,7 @@ export function ChooseServiceSection({
               <div
                 className={`
                   feature-card relative overflow-hidden rounded-xl
-                  ${active ? "border-[var(--accent-primary)]" : ""}
+                  ${active ? "border-(--accent-primary)" : ""}
                 `}
               >
                 <div className="relative h-[72px] w-[72px]">
@@ -52,10 +52,10 @@ export function ChooseServiceSection({
                   )}
                 </div>
                 <div className="p-1.5 text-center">
-                  <p className="text-[8px] font-medium text-[var(--text-primary)]">
+                  <p className="text-[10px] font-bold text-(--text-primary)">
                     {service.name}
                   </p>
-                  <p className="text-[8px] font-semibold text-[var(--brand-gold)]">
+                  <p className="text-[10px] font-bold text-(--brand-gold)">
                     {service.price}
                   </p>
                 </div>
@@ -66,10 +66,10 @@ export function ChooseServiceSection({
 
         <button
           type="button"
-          className="feature-card flex h-[104px] w-[72px] shrink-0 flex-col items-center justify-center rounded-xl"
+          className="feature-card flex h-[116px] w-[72px] shrink-0 flex-col items-center justify-center rounded-xl"
         >
-          <LayoutGrid size={18} className="text-[var(--text-muted)]" />
-          <span className="mt-1 text-[8px] text-[var(--text-secondary)]">More</span>
+          <LayoutGrid size={20} className="text-(--text-primary) font-bold" />
+          <span className="mt-1 text-[10px] font-bold text-(--text-primary)">More</span>
         </button>
       </div>
 
@@ -80,22 +80,22 @@ export function ChooseServiceSection({
             bg-[color-mix(in_srgb,var(--accent-primary)_10%,transparent)]
           "
         >
-          <Home size={16} className="text-[var(--accent-primary)]" strokeWidth={1.6} />
+          <Home size={16} className="text-(--accent-primary)" strokeWidth={1.6} />
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-[9px] font-medium text-[var(--text-primary)]">
+          <p className="text-[9px] font-medium text-(--text-primary)">
             Experts will come to your location
           </p>
-          <p className="mt-0.5 flex items-center gap-1 text-[7px] text-[var(--text-muted)]">
+          <p className="mt-0.5 flex items-center gap-1 text-[7px] text-(--text-muted)">
             Available at your selected address
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-(--success)" />
           </p>
         </div>
 
         <button
           type="button"
-          className="flex shrink-0 items-center gap-0.5 text-[8px] text-[var(--accent-secondary)]"
+          className="flex shrink-0 items-center gap-0.5 text-[8px] text-(--accent-secondary)"
         >
           Change
           <ChevronRight size={10} />

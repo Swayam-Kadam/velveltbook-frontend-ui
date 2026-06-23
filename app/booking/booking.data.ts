@@ -138,3 +138,12 @@ export function calcTotal(subtotal: number) {
   const tax = Math.round(subtotal * TAX_RATE);
   return { subtotal, tax, total: subtotal + tax };
 }
+
+export function getSelectedServices(ids: string[]) {
+  return bookingServices.filter((s) => ids.includes(s.id));
+}
+
+export function calcServicesTotal(ids: string[]) {
+  const subtotal = getSelectedServices(ids).reduce((sum, s) => sum + s.price, 0);
+  return calcTotal(subtotal);
+}

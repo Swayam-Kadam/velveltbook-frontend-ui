@@ -7,7 +7,7 @@ const options = [
     description: "Browse services and choose what you need",
     icon: Scissors,
     iconBg: "bg-[color-mix(in_srgb,var(--accent-primary)_12%,transparent)]",
-    iconColor: "text-[var(--accent-primary)]",
+    iconColor: "text-(--accent-primary)",
   },
   {
     id: "expert",
@@ -15,14 +15,14 @@ const options = [
     description: "Choose your preferred expert",
     icon: UserRound,
     iconBg: "bg-[color-mix(in_srgb,var(--brand-gold)_18%,transparent)]",
-    iconColor: "text-[var(--brand-gold)]",
+    iconColor: "text-(--brand-gold)",
   },
 ];
 
 export function ChooseOptionSection() {
   return (
     <section>
-      <h2 className="mb-3 text-sm font-medium text-[var(--text-primary)]">
+      <h2 className="mb-3 text-sm font-medium text-(--text-primary)">
         Choose an Option
       </h2>
 
@@ -49,17 +49,17 @@ export function ChooseOptionSection() {
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-[9px] font-medium text-[var(--text-primary)]">
+                <p className="text-[9px] font-medium text-(--text-primary)">
                   {title}
                 </p>
-                <p className="mt-0.5 line-clamp-2 text-[7px] leading-tight text-[var(--text-muted)]">
+                <p className="mt-0.5 line-clamp-2 text-[7px] leading-tight text-(--text-muted)">
                   {description}
                 </p>
               </div>
 
               <ChevronRight
                 size={12}
-                className="shrink-0 text-[var(--text-muted)]"
+                className="shrink-0 text-(--text-muted)"
               />
             </button>
           ),

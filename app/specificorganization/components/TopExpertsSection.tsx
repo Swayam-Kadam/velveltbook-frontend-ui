@@ -13,7 +13,7 @@ export function TopExpertsSection({ experts }: TopExpertsSectionProps) {
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-medium text-[var(--text-primary)]">
+        <h2 className="text-sm font-medium text-(--text-primary)">
           Top Experts
         </h2>
 
@@ -21,7 +21,7 @@ export function TopExpertsSection({ experts }: TopExpertsSectionProps) {
           type="button"
           className="
             flex items-center gap-0.5 text-[8px]
-            text-[var(--brand-gold)] transition-opacity duration-200
+            text-(--brand-gold) transition-opacity duration-200
             hover:opacity-80
           "
         >
@@ -58,15 +58,15 @@ export function TopExpertsSection({ experts }: TopExpertsSectionProps) {
                 <span
                   className="
                     absolute bottom-0 right-0 h-2.5 w-2.5
-                    rounded-full border-2 border-[var(--bg-card)]
-                    bg-[var(--success)]
+                    rounded-full border-2 border-(--bg-card)
+                    bg-(--success)
                   "
                 />
               )} */}
             </div>
 
              <div className="px-2.5 py-1.5">
-            <p className="mt-2 truncate text-center text-[10px] font-semibold text-[var(--text-primary)]">
+            <p className="mt-2 truncate text-center text-[10px] font-semibold text-(--text-primary)">
               {expert.name}
             </p>
 
@@ -77,7 +77,7 @@ export function TopExpertsSection({ experts }: TopExpertsSectionProps) {
             <div className="mt-1 flex items-center justify-center gap-0.5 text-[8px] font-semibold">
               <Star
                 size={8}
-                className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
+                className="fill-(--brand-gold) text-(--brand-gold)"
               />
               <span>
                 {expert.rating} ({expert.reviews})
@@ -97,7 +97,7 @@ export function TopExpertsSection({ experts }: TopExpertsSectionProps) {
                 className="
                   secondary-button flex items-center justify-center
                   rounded-xs py-1 text-[7px] font-medium
-                  text-[var(--text-primary)] transition-all duration-300
+                  text-(--text-primary) transition-all duration-300
                 "
               >
                 View

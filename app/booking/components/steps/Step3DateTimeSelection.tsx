@@ -51,7 +51,7 @@ export function Step3DateTimeSelection({
   return (
     <div className="space-y-4">
       <section className="space-y-3">
-        <h2 className="text-xs font-medium text-[var(--text-primary)]">
+        <h2 className="text-sm font-bold text-(--text-primary)">
           Select Service
         </h2>
         <article className="feature-card relative rounded-xl p-3">
@@ -63,66 +63,66 @@ export function Step3DateTimeSelection({
               <Image src={service.image} alt={service.name} fill sizes="64px" className="object-cover" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-medium text-[var(--text-primary)]">{service.name}</p>
-              <div className="mt-0.5 flex items-center gap-1 text-[8px] text-[var(--text-muted)]">
-                <Clock3 size={9} /><span>{service.duration}</span>
+              <p className="text-[13px] font-bold text-(--text-primary)">{service.name}</p>
+              <div className="mt-0.5 flex items-center gap-1 text-[10px] font-bold text-(--text-primary)">
+                <Clock3 size={10} /><span>{service.duration}</span>
               </div>
-              <p className="mt-1 text-[10px] font-semibold text-[var(--brand-gold)]">{service.priceLabel}</p>
-              <p className="mt-0.5 text-[7px] text-[var(--text-secondary)]">{service.description.slice(0, 60)}...</p>
+              <p className="mt-1 text-[13px] font-semibold text-(--brand-gold)">{service.priceLabel}</p>
+              <p className="mt-0.5 text-[10px] font-semibold text-(--text-primary)">{service.description.slice(0, 60)}...</p>
             </div>
           </div>
-          <button type="button" className="mt-2 w-full text-center text-[8px] text-[var(--accent-secondary)]">
+          <button type="button" className="mt-2 w-full text-center text-[10px] font-bold text-(--accent-primary)">
             Change Service
           </button>
         </article>
 
-        <h2 className="text-xs font-medium text-[var(--text-primary)]">Selected Therapist</h2>
+        <h2 className="text-sm font-bold text-(--text-primary)">Selected Therapist</h2>
         <article className="feature-card rounded-xl p-3">
           <div className="flex items-center gap-3">
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full">
               <Image src={staff.image} alt={staff.name} fill sizes="40px" className="object-cover" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-medium text-[var(--text-primary)]">{staff.name}</p>
-              <div className="flex items-center gap-1 text-[8px] text-[var(--text-secondary)]">
-                <Star size={8} className="fill-[var(--brand-gold)] text-[var(--brand-gold)]" />
+              <p className="text-[14px] font-bold text-(--text-primary)">{staff.name}</p>
+              <div className="flex items-center gap-1 text-[10px] font-bold text-(--text-primary)">
+                <Star size={8} className="fill-(--brand-gold) text-(--brand-gold)" />
                 <span>{staff.rating}</span>
                 <span>• {staff.experience}</span>
                 <span>• 1.2k+ Services</span>
               </div>
             </div>
-            <button type="button" className="flex items-center gap-0.5 text-[8px] text-[var(--accent-secondary)]">
-              <Pencil size={10} /> Change
+            <button type="button" className="flex items-center gap-0.5 text-[10px] font-bold text-(--accent-secondary)">
+              <Pencil size={11} /> Change
             </button>
           </div>
         </article>
 
-        <h2 className="text-xs font-medium text-[var(--text-primary)]">Selected Location</h2>
+        <h2 className="text-sm font-bold text-(--text-primary)">Selected Location</h2>
         <article className="feature-card rounded-xl p-3">
           <div className="flex items-center gap-3">
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg">
               <Image src={bookingLocation.image} alt={bookingLocation.name} fill sizes="40px" className="object-cover" />
             </div>
             <div>
-              <p className="text-[10px] font-medium text-[var(--text-primary)]">{bookingLocation.name}</p>
-              <p className="text-[8px] text-[var(--text-muted)]">{bookingLocation.address}</p>
-              <p className="text-[8px] text-[var(--success)]">{bookingLocation.status}</p>
+              <p className="text-[13px] font-bold text-(--text-primary)">{bookingLocation.name}</p>
+              <p className="text-[11px] font-semibold text-(--text-primary)">{bookingLocation.address}</p>
+              <p className="text-[10px] font-bold text-(--success)">{bookingLocation.status}</p>
             </div>
           </div>
         </article>
       </section>
 
       <section>
-        <h2 className="mb-2 text-xs font-medium text-[var(--text-primary)]">Select Date & Time</h2>
+        <h2 className="mb-2 text-sm font-bold text-(--text-primary)">Select Date & Time</h2>
 
         <article className="feature-card rounded-xl p-3">
           <div className="mb-3 flex items-center justify-between">
-            <button type="button" className="text-[var(--text-primary)]"><ChevronLeft size={16} /></button>
-            <span className="text-[10px] font-medium text-[var(--text-primary)]">May 2025</span>
-            <button type="button" className="text-[var(--text-primary)]"><ChevronRight size={16} /></button>
+            <button type="button" className="text-(--text-primary)"><ChevronLeft size={16} /></button>
+            <span className="text-[13px] font-bold text-(--text-primary)">May 2025</span>
+            <button type="button" className="text-(--text-primary)"><ChevronRight size={16} /></button>
           </div>
 
-          <div className="mb-1 grid grid-cols-7 gap-1 text-center text-[7px] text-[var(--text-muted)]">
+          <div className="mb-1 grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-(--text-secondary)">
             {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
               <span key={d}>{d}</span>
             ))}
@@ -138,11 +138,11 @@ export function Step3DateTimeSelection({
                   onClick={() => onSelectDate(day)}
                   className={`
                     flex h-7 w-full items-center justify-center rounded-full
-                    text-[8px] transition-all duration-200
+                    text-[10px] font-bold transition-all duration-200
                     ${
                       active
                         ? "primary-button text-white shadow-none"
-                        : "text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)]"
+                        : "text-(--text-primary) hover:bg-(--bg-card-hover)"
                     }
                   `}
                 >
@@ -153,7 +153,7 @@ export function Step3DateTimeSelection({
           </div>
         </article>
 
-        <h3 className="mb-2 mt-3 text-[10px] font-medium text-[var(--text-primary)]">
+        <h3 className="mb-2 mt-3 text-sm font-bold text-(--text-primary)">
           Available Time Slots
         </h3>
         <div className="grid grid-cols-3 gap-2">
@@ -165,11 +165,11 @@ export function Step3DateTimeSelection({
                 type="button"
                 onClick={() => onSelectTime(slot)}
                 className={`
-                  rounded-lg py-2 text-[8px] font-medium transition-all duration-200
+                  rounded-lg py-2 text-[10px] font-bold transition-all duration-200
                   ${
                     active
                       ? "primary-button text-white shadow-none"
-                      : "secondary-button text-[var(--text-primary)]"
+                      : "secondary-button text-(--text-primary)"
                   }
                 `}
               >
@@ -181,8 +181,8 @@ export function Step3DateTimeSelection({
       </section>
 
       <section>
-        <h2 className="mb-2 text-xs font-medium text-[var(--text-primary)]">Booking Summary</h2>
-        <article className="feature-card space-y-2 rounded-xl p-3 text-[8px]">
+        <h2 className="mb-2 text-sm font-bold text-(--text-primary)">Booking Summary</h2>
+        <article className="feature-card space-y-2 rounded-xl p-3 text-[12px]">
           {[
             { icon: CalendarDays, label: "Service", value: service.name },
             { icon: UserRound, label: "Therapist", value: staff.name },
@@ -191,23 +191,23 @@ export function Step3DateTimeSelection({
             { icon: MapPin, label: "Location", value: `${bookingLocation.name}, ${bookingLocation.address}` },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="flex items-start gap-2">
-              <Icon size={12} className="mt-0.5 shrink-0 text-[var(--accent-primary)]" />
+              <Icon size={12} className="mt-0.5 shrink-0 text-(--accent-primary)" />
               <div className="min-w-0 flex-1">
-                <span className="text-[var(--text-muted)]">{label}: </span>
-                <span className="text-[var(--text-primary)]">{value}</span>
+                <span className="text-(--text-secondary) font-bold">{label}: </span>
+                <span className="text-(--text-primary) font-bold">{value}</span>
               </div>
             </div>
           ))}
 
-          <div className="space-y-1 border-t border-[var(--border)] pt-2">
-            <div className="flex justify-between text-[var(--text-secondary)]">
+          <div className="space-y-1 border-t border-(--border) pt-2">
+            <div className="flex justify-between text-(--text-secondary) font-bold">
               <span>Subtotal</span><span>${subtotal}</span>
             </div>
-            <div className="flex justify-between text-[var(--text-secondary)]">
-              <span className="flex items-center gap-0.5">Taxes & Fees <Info size={9} /></span>
+            <div className="flex justify-between text-(--text-secondary) font-bold">
+              <span className="flex items-center gap-0.5">Taxes & Fees <Info size={10} /></span>
               <span>${tax}</span>
             </div>
-            <div className="flex justify-between text-[11px] font-semibold text-[var(--text-primary)]">
+            <div className="flex justify-between text-[13px] font-bold text-(--text-primary)">
               <span>Total</span><span>${total}</span>
             </div>
           </div>

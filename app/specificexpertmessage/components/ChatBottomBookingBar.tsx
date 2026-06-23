@@ -12,7 +12,7 @@ export function ChatBottomBookingBar({ totalPrice }: ChatBottomBookingBarProps) 
          left-2 right-2 z-40 mx-1 mt-3
         overflow-hidden rounded-sm
         border border-[color-mix(in_srgb,var(--accent-primary)_20%,var(--border))]
-        primary-button shadow-[var(--shadow-glow)]
+        primary-button shadow-(--shadow-glow)
       "
     >
       <div className="flex items-center justify-between px-4 py-3.5">

@@ -8,7 +8,7 @@ export function BottomBookingBar() {
          bottom-[72px] left-2 right-2 z-40
         overflow-hidden rounded-sm mx-1
         border border-[color-mix(in_srgb,var(--accent-primary)_20%,var(--border))]
-        primary-button shadow-[var(--shadow-glow)]
+        primary-button shadow-(--shadow-glow)
       "
     >
       <div className="grid grid-cols-2">

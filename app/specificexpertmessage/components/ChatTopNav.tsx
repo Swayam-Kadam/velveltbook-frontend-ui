@@ -14,7 +14,7 @@ export function ChatTopNav() {
         aria-label="Go back"
         className="
           flex h-8 w-8 items-center justify-center
-          text-[var(--text-primary)] transition-opacity duration-200
+          text-(--text-primary) transition-opacity duration-200
           hover:opacity-70
         "
       >

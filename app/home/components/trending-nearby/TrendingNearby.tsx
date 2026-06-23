@@ -17,15 +17,15 @@ export function TrendingNearby() {
                 <div className="flex items-center gap-1">
                     <Star
                         size={10}
-                        className="fill-[var(--brand-gold)] text-[var(--brand-gold)]"
+                        className="fill-(--brand-gold) text-(--brand-gold)"
                     />
 
-                    <h2 className="text-xs font-medium text-[var(--text-primary)]">
+                    <h2 className="text-xs font-medium text-(--text-primary)">
                         Trending Nearby
                     </h2>
                 </div>
 
-                <button className="flex items-center gap-1 text-[8px] text-[var(--accent-secondary)]">
+                <button className="flex items-center gap-1 text-[8px] text-(--accent-secondary)">
                     <span>View more</span>
 
                     <ArrowRight size={10} />

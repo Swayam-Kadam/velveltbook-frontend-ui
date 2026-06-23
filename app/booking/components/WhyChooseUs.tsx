@@ -10,7 +10,7 @@ const items = [
 export function WhyChooseUs() {
   return (
     <section className="mt-4">
-      <h2 className="mb-3 text-center text-xs font-medium text-[var(--text-primary)]">
+      <h2 className="mb-3 text-center text-xs font-medium text-(--text-primary)">
         Why Choose Us?
       </h2>
 
@@ -20,15 +20,15 @@ export function WhyChooseUs() {
             key={label}
             className={`
               flex flex-col items-center px-1 text-center
-              ${index < items.length - 1 ? "border-r border-[var(--border)]" : ""}
+              ${index < items.length - 1 ? "border-r border-(--border)" : ""}
             `}
           >
             <Icon
               size={16}
               strokeWidth={1.4}
-              className="text-[var(--accent-primary)]"
+              className="text-(--accent-primary)"
             />
-            <p className="mt-1 text-[6px] leading-tight text-[var(--text-secondary)]">
+            <p className="mt-1 text-[6px] leading-tight text-(--text-secondary)">
               {label}
             </p>
           </div>

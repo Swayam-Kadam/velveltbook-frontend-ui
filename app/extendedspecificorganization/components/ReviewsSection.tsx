@@ -11,10 +11,10 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-xs font-medium text-[var(--text-primary)]">Reviews</h2>
+        <h2 className="text-xs font-medium text-(--text-primary)">Reviews</h2>
         <button
           type="button"
-          className="flex items-center gap-0.5 text-[8px] text-[var(--brand-gold)]"
+          className="primary-button flex items-center gap-0.5 text-[9px] font-bold text-(--brand-gold) bg-(--bg-primary) rounded-xs px-2 py-1"
         >
           <span>View All</span>
           <ArrowRight size={10} strokeWidth={2} />
@@ -24,7 +24,7 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
       {reviews.map((review) => (
         <article key={review.id} className="feature-card rounded-xl p-3">
           <div className="flex items-start gap-2">
-            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-[var(--bg-card-hover)]">
+            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-(--bg-card-hover)">
               <Image
                 src={review.avatar}
                 alt={review.name}
@@ -36,11 +36,11 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-[10px] font-medium text-[var(--text-primary)]">
+                <p className="text-[10px] font-medium text-(--text-primary)">
                   {review.name}
                 </p>
                 <button type="button" aria-label="More options">
-                  <MoreHorizontal size={14} className="text-[var(--text-muted)]" />
+                  <MoreHorizontal size={14} className="text-(--text-muted)" />
                 </button>
               </div>
 
@@ -52,20 +52,20 @@ export function ReviewsSection({ reviews }: ReviewsSectionProps) {
                       size={8}
                       className={
                         i < Math.floor(review.rating)
-                          ? "fill-[var(--brand-gold)] text-[var(--brand-gold)]"
-                          : "text-[var(--border)]"
+                          ? "fill-(--brand-gold) text-(--brand-gold)"
+                          : "text-(--border)"
                       }
                     />
                   ))}
                 </div>
-                <span className="text-[7px] text-[var(--text-muted)]">
+                <span className="text-[7px] text-(--text-muted)">
                   {review.date}
                 </span>
               </div>
             </div>
           </div>
 
-          <p className="mt-2 text-[8px] leading-relaxed text-[var(--text-secondary)]">
+          <p className="mt-2 text-[8px] leading-relaxed text-(--text-secondary)">
             {review.text}
           </p>
         </article>

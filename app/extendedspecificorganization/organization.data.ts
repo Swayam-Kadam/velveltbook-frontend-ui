@@ -3,7 +3,7 @@ import { ExtendedOrganization } from "./organization.types";
 const defaultServices = [
   {
     id: "ds1",
-    name: "Deep Tissue Massage",
+    name: "Deep Tissue Massages new",
     description: "Premium treatment crafted for comfort.",
     price: "$20",
     image:
@@ -24,6 +24,14 @@ const defaultServices = [
     price: "$20",
     image:
       "https://images.unsplash.com/photo-1596178065880-2314bdb1a0b8?w=300&h=200&fit=crop",
+  },
+  {
+    id: "ds4",
+    name: "Deep Tissue Massage",
+    description: "Premium treatment crafted for comfort.",
+    price: "$20",
+    image:
+      "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=300&h=200&fit=crop",
   },
 ];
 
@@ -48,6 +56,13 @@ const defaultStaff = [
     experience: "4+ years Exp.",
     image:
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop",
+  },
+  {
+    id: "st4",
+    name: "lori",
+    experience: "2+ years Exp.",
+    image:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop",
   },
 ];
 

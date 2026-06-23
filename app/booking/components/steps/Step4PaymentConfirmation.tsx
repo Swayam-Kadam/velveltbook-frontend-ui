@@ -54,7 +54,7 @@ export function Step4PaymentConfirmation({
   return (
     <div className="space-y-4">
       <section>
-        <h2 className="mb-2 text-xs font-medium text-[var(--text-primary)]">Booking Summary</h2>
+        <h2 className="mb-2 text-xs font-medium text-(--text-primary)">Booking Summary</h2>
         <article className="feature-card space-y-2 rounded-xl p-3 text-[8px]">
           {[
             { icon: CalendarDays, label: "Service", value: service.name },
@@ -65,10 +65,10 @@ export function Step4PaymentConfirmation({
             { icon: Clock3, label: "Duration", value: service.duration },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="flex items-start gap-2">
-              <Icon size={12} className="mt-0.5 shrink-0 text-[var(--accent-primary)]" />
+              <Icon size={12} className="mt-0.5 shrink-0 text-(--accent-primary)" />
               <div>
-                <span className="text-[var(--text-muted)]">{label}: </span>
-                <span className="text-[var(--text-primary)]">{value}</span>
+                <span className="text-(--text-muted)">{label}: </span>
+                <span className="text-(--text-primary)">{value}</span>
               </div>
             </div>
           ))}
@@ -76,25 +76,25 @@ export function Step4PaymentConfirmation({
       </section>
 
       <section>
-        <h2 className="mb-2 text-xs font-medium text-[var(--text-primary)]">Pricing Breakdown</h2>
+        <h2 className="mb-2 text-xs font-medium text-(--text-primary)">Pricing Breakdown</h2>
         <article className="feature-card space-y-1 rounded-xl p-3 text-[9px]">
-          <div className="flex justify-between text-[var(--text-secondary)]">
+          <div className="flex justify-between text-(--text-secondary)">
             <span>Service Cost</span><span>${subtotal}</span>
           </div>
-          <div className="flex justify-between text-[var(--text-secondary)]">
+          <div className="flex justify-between text-(--text-secondary)">
             <span>Taxes & Fees</span><span>${tax}</span>
           </div>
-          <div className="flex justify-between text-[var(--text-secondary)]">
+          <div className="flex justify-between text-(--text-secondary)">
             <span>Additional Charges</span><span>$0</span>
           </div>
-          <div className="flex justify-between border-t border-[var(--border)] pt-2 text-[11px] font-semibold text-[var(--text-primary)]">
+          <div className="flex justify-between border-t border-(--border) pt-2 text-[11px] font-semibold text-(--text-primary)">
             <span>Total Amount</span><span>${total}</span>
           </div>
         </article>
       </section>
 
       <section>
-        <h2 className="mb-2 text-xs font-medium text-[var(--text-primary)]">Payment Method</h2>
+        <h2 className="mb-2 text-xs font-medium text-(--text-primary)">Payment Method</h2>
         <article className="feature-card space-y-2 rounded-xl p-3">
           {paymentMethods.map((method) => (
             <label
@@ -107,9 +107,9 @@ export function Step4PaymentConfirmation({
                   name="payment"
                   checked={paymentMethod === method.id}
                   onChange={() => onPaymentMethodChange(method.id)}
-                  className="accent-[var(--accent-primary)]"
+                  className="accent-(--accent-primary)"
                 />
-                <span className="text-[9px] text-[var(--text-primary)]">{method.label}</span>
+                <span className="text-[9px] text-(--text-primary)">{method.label}</span>
               </div>
             </label>
           ))}
@@ -117,7 +117,7 @@ export function Step4PaymentConfirmation({
       </section>
 
       <section>
-        <h2 className="mb-2 text-xs font-medium text-[var(--text-primary)]">Promo Code</h2>
+        <h2 className="mb-2 text-xs font-medium text-(--text-primary)">Promo Code</h2>
         <input
           type="text"
           value={promoCode}
@@ -125,14 +125,14 @@ export function Step4PaymentConfirmation({
           placeholder="Enter promo code (optional)"
           className="
             search-glass w-full rounded-xl border px-3 py-2.5
-            text-[9px] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]
+            text-[9px] text-(--text-primary) placeholder:text-(--text-muted)
             focus:outline-none
           "
         />
       </section>
 
       <section>
-        <h2 className="mb-2 text-xs font-medium text-[var(--text-primary)]">Billing Information</h2>
+        <h2 className="mb-2 text-xs font-medium text-(--text-primary)">Billing Information</h2>
         <article className="feature-card space-y-2 rounded-xl p-3">
           <input
             type="text"
@@ -169,6 +169,9 @@ export function Step4PaymentConfirmation({
   );
 }
 
-export function getStep4Total(serviceId: string) {
-  return calcTotal(getService(serviceId).price).total;
+export function getStep4Total(serviceIds: string[]) {
+  const subtotal = serviceIds
+    .map((id) => getService(id).price)
+    .reduce((sum, price) => sum + price, 0);
+  return calcTotal(subtotal).total;
 }

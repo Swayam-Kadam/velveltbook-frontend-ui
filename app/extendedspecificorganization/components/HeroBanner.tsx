@@ -21,7 +21,7 @@ export function HeroBanner({ images, availability, salonName, organization }: He
   const next = () => setIndex((i) => (i === images.length - 1 ? 0 : i + 1));
 
   return (
-    <div className="relative overflow-hidden rounded-t-xl border border-[var(--border)] rounded-b-xl">
+    <div className="relative overflow-hidden rounded-t-xl border border-(--border) rounded-b-xl">
       <div className="relative h-[130px] w-full mb-2">
         <Image
           src={images[index]}

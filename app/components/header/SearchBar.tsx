@@ -13,7 +13,7 @@ export function SearchBar() {
       "
         >
             <Search
-                className="h-4 w-4 shrink-0 text-[var(--text-secondary)]"
+                className="h-4 w-4 shrink-0 text-(--text-secondary)"
                 strokeWidth={1.4}
             />
 
@@ -22,15 +22,15 @@ export function SearchBar() {
                 placeholder="Search services, salons, spas..."
                 className="
           flex-1 bg-transparent
-          text-xs text-[var(--text-primary)]
-          placeholder:text-[var(--text-muted)]
+          text-xs text-(--text-primary)
+          placeholder:text-(--text-muted)
           focus:outline-none
         "
             />
 
             <button
                 className="
-          text-[var(--text-primary)]
+          text-(--text-primary)
           transition-transform duration-300
           hover:rotate-90
         "

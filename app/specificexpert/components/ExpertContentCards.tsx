@@ -29,9 +29,9 @@ function SectionCard({
               bg-[color-mix(in_srgb,var(--accent-primary)_10%,transparent)]
             "
           >
-            <Icon size={14} strokeWidth={1.6} className="text-[var(--accent-primary)]" />
+            <Icon size={14} strokeWidth={1.6} className="text-(--accent-primary)" />
           </div>
-          <h2 className="text-xs font-medium text-[var(--text-primary)]">{title}</h2>
+          <h2 className="text-xs font-medium text-(--text-primary)">{title}</h2>
         </div>
         {action}
       </div>
@@ -47,7 +47,7 @@ interface DescriptionCardProps {
 export function DescriptionCard({ description }: DescriptionCardProps) {
   return (
     <SectionCard icon={FileText} title="Description">
-      <p className="text-[8px] leading-relaxed text-[var(--text-secondary)]">
+      <p className="text-[8px] leading-relaxed text-(--text-secondary)">
         {description}
       </p>
     </SectionCard>
@@ -66,8 +66,8 @@ export function TagsCard({ tags }: TagsCardProps) {
           <span
             key={tag}
             className="
-              rounded-lg bg-[var(--bg-card-hover)] px-2 py-1.5
-              text-center text-[9px] font-semibold text-[var(--text-primary)]
+              rounded-lg bg-(--bg-card-hover) px-2 py-1.5
+              text-center text-[9px] font-semibold text-(--text-primary)
             "
           >
             {tag}
@@ -89,7 +89,7 @@ export function CertificationCard({ title, items }: CertificationCardProps) {
       icon={Award}
       title="Certification"
       action={
-        <div className="flex items-center gap-0.5 text-[8px] text-[var(--brand-gold)]">
+        <div className="flex items-center gap-0.5 text-[8px] text-(--brand-gold)">
           <Check size={10} strokeWidth={2.5} />
           <span>Verified</span>
         </div>
@@ -102,21 +102,21 @@ export function CertificationCard({ title, items }: CertificationCardProps) {
             bg-[color-mix(in_srgb,var(--brand-gold)_12%,transparent)]
           "
         >
-          <Award size={28} className="text-[var(--brand-gold)]" strokeWidth={1.4} />
+          <Award size={28} className="text-(--brand-gold)" strokeWidth={1.4} />
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-medium text-[var(--text-primary)]">{title}</p>
+          <p className="text-[10px] font-medium text-(--text-primary)">{title}</p>
 
           <ul className="mt-1.5 space-y-1">
             {items.map((item) => (
               <li
                 key={item}
-                className="flex items-start gap-1 text-[9px] font-semibold text-[var(--text-secondary)]"
+                className="flex items-start gap-1 text-[9px] font-semibold text-(--text-secondary)"
               >
                 <Check
                   size={10}
-                  className="mt-0.5 shrink-0 text-[var(--brand-gold)]"
+                  className="mt-0.5 shrink-0 text-(--brand-gold)"
                   strokeWidth={2.5}
                 />
                 <span>{item}</span>
@@ -152,12 +152,12 @@ export function HobbiesCard({ hobbies }: HobbiesCardProps) {
             <div
               key={id}
               className="
-                flex items-center gap-1.5 rounded-lg bg-[var(--bg-card-hover)]
+                flex items-center gap-1.5 rounded-lg bg-(--bg-card-hover)
                 px-2 py-1.5
               "
             >
-              <Icon size={12} className="shrink-0 text-[var(--accent-primary)]" />
-              <span className="text-[9px] font-medium text-[var(--text-primary)]">
+              <Icon size={12} className="shrink-0 text-(--accent-primary)" />
+              <span className="text-[9px] font-medium text-(--text-primary)">
                 {label}
               </span>
             </div>

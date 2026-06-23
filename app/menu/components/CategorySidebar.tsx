@@ -17,8 +17,8 @@ export function CategorySidebar({
     <aside
       className="
         flex w-[88px] shrink-0 flex-col
-        border-r border-[var(--border)]
-        bg-[var(--bg-primary)]
+        border-r border-(--border)
+        bg-(--bg-primary)
         py-2
       "
     >
@@ -36,8 +36,8 @@ export function CategorySidebar({
                 transition-all duration-300
                 ${
                   active
-                    ? "primary-button text-white shadow-[var(--shadow-glow)]"
-                    : "text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]"
+                    ? "primary-button text-white shadow-(--shadow-glow)"
+                    : "text-(--text-secondary) hover:bg-(--bg-card-hover)"
                 }
               `}
             >
@@ -46,15 +46,15 @@ export function CategorySidebar({
                 strokeWidth={1.5}
                 className={
                   active
-                    ? "text-[var(--brand-gold)]"
-                    : "text-[var(--text-muted)]"
+                    ? "text-(--brand-gold)"
+                    : "text-(--text-primary)"
                 }
               />
 
               <span
                 className={`
-                  text-center text-[8px] leading-tight font-medium
-                  ${active ? "text-white" : "text-[var(--text-secondary)]"}
+                  text-center text-[8px] leading-tight font-bold
+                  ${active ? "text-white" : "text-(--text-primary)"}
                 `}
               >
                 {label}

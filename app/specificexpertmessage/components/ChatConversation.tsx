@@ -20,9 +20,9 @@ export function ChatConversation({
   return (
     <div className="space-y-2 py-2">
       <div className="flex items-center gap-2 py-1">
-        <div className="h-px flex-1 bg-[var(--border)]" />
-        <span className="text-[8px] text-[var(--text-muted)]">Today</span>
-        <div className="h-px flex-1 bg-[var(--border)]" />
+        <div className="h-px flex-1 bg-(--border)" />
+        <span className="text-[8px] text-(--text-muted)">Today</span>
+        <div className="h-px flex-1 bg-(--border)" />
       </div>
 
       <div className="space-y-2">
@@ -47,13 +47,13 @@ export function ChatConversation({
                 <div
                   className="
                     max-w-[75%] rounded-xl rounded-bl-sm
-                    bg-[var(--bg-card-hover)] px-2.5 py-2
+                    bg-(--bg-card-hover) px-2.5 py-2
                   "
                 >
-                  <p className="text-[9px] leading-relaxed text-[var(--text-primary)]">
+                  <p className="text-[9px] leading-relaxed text-(--text-primary)">
                     {message.text}
                   </p>
-                  <p className="mt-1 text-right text-[7px] text-[var(--text-muted)]">
+                  <p className="mt-1 text-right text-[7px] text-(--text-muted)">
                     {message.time}
                   </p>
                 </div>

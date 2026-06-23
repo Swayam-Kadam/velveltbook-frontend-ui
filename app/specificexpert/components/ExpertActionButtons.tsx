@@ -24,7 +24,7 @@ export function ExpertActionButtons({ expertId }: ExpertActionButtonsProps) {
         className="
           secondary-button inline-flex items-center justify-center gap-2
           rounded-xl py-2.5 text-[10px] font-medium
-          text-[var(--text-primary)] transition-all duration-300
+          text-(--text-primary) transition-all duration-300
         "
       >
         <MessageCircle size={14} strokeWidth={1.8} />

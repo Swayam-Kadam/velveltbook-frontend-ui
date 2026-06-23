@@ -27,11 +27,11 @@ export function MenuScreen() {
           onSelect={setActiveCategory}
         />
 
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[var(--bg-secondary)]">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary)">
           <div className="flex-1 overflow-y-auto scrollbar-none">
             <div className="px-2 pt-3">
               <div className="mb-3 flex items-center justify-between">
-                <h1 className="text-xs font-medium text-[var(--text-primary)]">
+                <h1 className="text-xs font-medium text-(--text-primary)">
                   Popular Massage Services
                 </h1>
 
@@ -39,7 +39,7 @@ export function MenuScreen() {
                   type="button"
                   className="
                     flex items-center gap-0.5 text-[8px]
-                    text-[var(--brand-gold)] transition-opacity duration-200
+                    text-(--brand-gold) transition-opacity duration-200
                     hover:opacity-80
                   "
                 >
