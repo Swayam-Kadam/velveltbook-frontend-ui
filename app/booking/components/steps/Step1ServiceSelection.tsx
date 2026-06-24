@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Check, ChevronRight, Clock3, Grid2X2, Grid2X2Check, Grid2X2Plus, Menu, Plus, ShoppingBag, X } from "lucide-react";
+import { Check, ChevronRight, Clock3, Grid2X2, Grid2X2Check, Grid2X2Plus, LayoutGrid, Menu, Plus, ShoppingBag, X } from "lucide-react";
 
 import {
   bookingServices,
@@ -182,7 +182,7 @@ export function Step1ServiceSelection({
             >
               <div className=" h-[72px] flex flex-col items-center justify-center">
                 
-                <Grid2X2Plus size={30} strokeWidth={2.5} />
+                <LayoutGrid size={30} strokeWidth={1.5}  className="text-(--text-primary) font-bold"/>
                 <p className="text-[14px] font-medium text-(--text-primary)">More</p>
               
               </div>

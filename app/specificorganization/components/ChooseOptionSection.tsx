@@ -22,7 +22,7 @@ const options = [
 export function ChooseOptionSection() {
   return (
     <section>
-      <h2 className="mb-3 text-sm font-medium text-(--text-primary)">
+      <h2 className="mb-3 text-md font-bold text-(--text-primary)">
         Choose an Option
       </h2>
 

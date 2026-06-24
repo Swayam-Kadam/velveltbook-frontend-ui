@@ -13,17 +13,13 @@ export function TopExpertsSection({ experts }: TopExpertsSectionProps) {
   return (
     <section>
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-medium text-(--text-primary)">
+        <h2 className="text-md font-bold text-(--text-primary)">
           Top Experts
         </h2>
 
         <button
           type="button"
-          className="
-            flex items-center gap-0.5 text-[8px]
-            text-(--brand-gold) transition-opacity duration-200
-            hover:opacity-80
-          "
+          className="primary-button flex items-center gap-0.5 text-[9px] font-bold text-[#efbf04] bg-(--bg-primary) rounded-xs px-2 py-1"
         >
           <span>View All</span>
           <ArrowRight size={10} strokeWidth={2} />
