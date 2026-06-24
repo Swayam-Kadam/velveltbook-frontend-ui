@@ -23,7 +23,7 @@ const defaultServices = [
     description: "Premium treatment crafted for comfort.",
     price: "$20",
     image:
-      "https://images.unsplash.com/photo-1596178065880-2314bdb1a0b8?w=300&h=200&fit=crop",
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=300&h=200&fit=crop",
   },
   {
     id: "ds4",

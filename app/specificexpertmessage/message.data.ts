@@ -27,7 +27,7 @@ const defaultMenuItems = [
     name: "Oil Massage",
     price: "$80",
     image:
-      "https://images.unsplash.com/photo-1596178065880-2314bdb1a0b8?w=100&h=100&fit=crop",
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=100&h=100&fit=crop",
   },
   {
     id: "m5",

@@ -37,7 +37,7 @@ export const bookingServices: BookingService[] = [
     description:
       "Essential oils combined with soothing massage for deep relaxation and wellness.",
     image:
-      "https://images.unsplash.com/photo-1596178065880-2314bdb1a0b8?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
   },
   {
     id: "couples",
