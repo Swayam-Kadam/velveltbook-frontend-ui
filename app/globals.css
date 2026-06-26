@@ -134,8 +134,24 @@
       transparent);
 }
 
+.auth-background {
+  background-image: var(--auth-bg-image);
+  background-size: cover;
+  background-position: bottom;
+  background-repeat: no-repeat;
+}
+
+.auth-overlay {
+  background: var(--auth-overlay);
+}
+
 /* Light Theme */
 :root {
+
+  --logo-text: #58086A;
+  --auth-bg-image: url("/auth-bg.png");
+  --auth-overlay: #FFFFFF1A;
+
   /* Backgrounds */
   --bg-primary: #fdfbf7;
   --bg-secondary: #fdfbf7;
@@ -171,6 +187,7 @@
   --gradient-card: linear-gradient(180deg,
       #ffffff 0%,
       #fdfbf7 100%);
+
 
   /* Shadows */
   --shadow-glow: 0 4px 20px rgba(61, 28, 77, 0.14);
@@ -211,10 +228,16 @@
 
   --pagination-dot: rgba(61, 28, 77, 0.22);
   --pagination-active: var(--accent-primary);
+
 }
 
 /* Dark Theme (Default) */
 .dark {
+  --logo-text: #f7f3ff;
+  --auth-bg-image: url("/auth-bg-dark.png");
+  --auth-overlay: #0000008C;
+
+
   --bg-primary: #07010f;
   --bg-secondary: #12061f;
   --bg-card: #1a0d2a;

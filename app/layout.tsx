@@ -4,6 +4,7 @@ import { Cormorant_Garamond, Poppins } from "next/font/google";
 import { Providers } from "./providers";
 import { Header } from "./components/header/Header";
 import { BottomNavigation } from "./components/navigation/mobile/BottomNavigation";
+import Loader from "./components/Loader";
 
 export const headingFont = Cormorant_Garamond({
   subsets: ["latin"],
@@ -32,6 +33,7 @@ export default function RootLayout({
         className={`${headingFont.variable} ${bodyFont.variable} bg-(--bg-primary) min-h-screen antialiased`}
       >
         <Providers>
+          <Loader duration={2500} />
           <Header />
           {children}
           <BottomNavigation />
