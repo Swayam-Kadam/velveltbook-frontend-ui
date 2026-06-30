@@ -5,6 +5,7 @@ interface BookingStickyFooterProps {
   buttonLabel: string;
   onAction: () => void;
   showLock?: boolean;
+  buttonSubtext?: string;
 }
 
 export function BookingStickyFooter({
@@ -12,6 +13,7 @@ export function BookingStickyFooter({
   buttonLabel,
   onAction,
   showLock = false,
+  buttonSubtext,
 }: BookingStickyFooterProps) {
   return (
     <div
@@ -32,13 +34,20 @@ export function BookingStickyFooter({
           type="button"
           onClick={onAction}
           className="
-            primary-button flex flex-1 items-center justify-center gap-1.5
-            rounded-none px-3 py-3 text-[9px] font-medium text-white
+            primary-button flex flex-1 flex-col items-center justify-center
+            gap-0.5 rounded-none px-3 py-2.5 text-white
           "
         >
-          {showLock && <Lock size={12} strokeWidth={1.8} />}
-          <span>{buttonLabel}</span>
-          {!showLock && <ChevronRight size={14} strokeWidth={2} />}
+          <span className="flex items-center gap-1.5 text-[9px] font-medium">
+            {showLock && <Lock size={12} strokeWidth={1.8} />}
+            {buttonLabel}
+            {!showLock && <ChevronRight size={14} strokeWidth={2} />}
+          </span>
+          {buttonSubtext && (
+            <span className="text-[6px] font-normal text-white/75">
+              {buttonSubtext}
+            </span>
+          )}
         </button>
       </div>
     </div>

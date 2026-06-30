@@ -1,25 +1,45 @@
 "use client";
 
 import Image from "next/image";
-import { Clock3, Heart } from "lucide-react";
+import { Check, Clock3 } from "lucide-react";
 
 import { MenuService } from "../menu.data";
 
 interface ServiceCardProps {
   service: MenuService;
+  selected?: boolean;
+  onSelect?: (service: MenuService) => void;
 }
 
-export function ServiceCard({ service }: ServiceCardProps) {
+export function ServiceCard({ service, selected, onSelect }: ServiceCardProps) {
   return (
     <article
-      className="
-        feature-card group cursor-pointer overflow-hidden rounded-xl
+      onClick={() => onSelect?.(service)}
+      className={`
+        feature-card group relative cursor-pointer overflow-hidden rounded-xl
         transition-all duration-300
         hover:border-[color-mix(in_srgb,var(--accent-secondary)_25%,var(--border))]
         hover:shadow-(--shadow-glow)
         active:scale-[0.98]
-      "
+        ${
+          selected
+            ? "border-(--accent-secondary) shadow-(--shadow-glow)"
+            : ""
+        }
+      `}
     >
+      {selected && (
+        <span
+          className="
+            absolute right-1 top-1 z-10 flex h-5 w-5 items-center justify-center
+            rounded-full bg-(--accent-primary) text-white
+            shadow-[0_0_8px_color-mix(in_srgb,var(--accent-glow)_45%,transparent)]
+          "
+        >
+          <Check size={11} strokeWidth={2.5} />
+        </span>
+      )}
+
       <div className="relative h-[72px] overflow-hidden">
         <Image
           src={service.image}

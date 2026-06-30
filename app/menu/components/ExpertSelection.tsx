@@ -1,19 +1,39 @@
 "use client";
 
+import Swal from "sweetalert2";
 import { Button } from "@/components/Button";
 import { Check, ChevronRight, Mars, Venus } from "lucide-react";
+import Link from "next/link";
 
 export type ExpertType = "male" | "female";
 
 interface ExpertSelectionProps {
   selected: ExpertType;
   onSelect: (type: ExpertType) => void;
+  serviceSelected?: boolean;
 }
 
 export function ExpertSelection({
   selected,
   onSelect,
+  serviceSelected = false,
 }: ExpertSelectionProps) {
+  const handleSelect = (type: ExpertType) => {
+    if (!serviceSelected) {
+      Swal.fire({
+        icon: "warning",
+        title: "Select a service first",
+        text: "Please choose a service from the menu before selecting an expert type.",
+        confirmButtonText: "Okay",
+        confirmButtonColor: "#b8860b",
+        background: "#1a1a1a",
+        color: "#ffffff",
+      });
+      return;
+    }
+
+    onSelect(type);
+  };
   const options: {
     type: ExpertType;
     label: string;
@@ -44,7 +64,7 @@ export function ExpertSelection({
         Choose your preferred expert type
       </p>
 
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 mb-3 flex gap-2">
         {options.map(({ type, label, icon: Icon, iconClass }) => {
           const active = selected === type;
 
@@ -52,7 +72,7 @@ export function ExpertSelection({
             <button
               key={type}
               type="button"
-              onClick={() => onSelect(type)}
+              onClick={() => handleSelect(type)}
               className={`
                 relative flex flex-1 items-center gap-2 rounded-xl
                 border bg-(--bg-card) px-3 py-3
@@ -86,9 +106,10 @@ export function ExpertSelection({
           );
         })}
       </div>
-      <div
+      <Link
+        href="/booking"
         className="
-          mt-1 bottom-[72px] left-0 right-0 z-40
+          pt-3 pb-3 mt-3 bottom-[72px] left-0 right-0 z-40
           border-t border-(--border)
           bg-(--bg-secondary)/95 backdrop-blur-xl
         "
@@ -109,7 +130,7 @@ export function ExpertSelection({
             className="absolute right-4"
           />
         </Button>
-      </div>
+      </Link>
     </section>
   );
 }

@@ -72,7 +72,7 @@ export default function AuthPage() {
 
                 {/* Register */}
                 <Link
-                    href="/register"
+                    href="/signup"
                     className="mb-8 flex items-center justify-between rounded-sm border px-6 py-3"
                     style={{
                         background: "var(--bg-secondary)",

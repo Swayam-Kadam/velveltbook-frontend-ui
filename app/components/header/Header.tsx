@@ -1,22 +1,37 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, ChevronDown, Sparkle } from "lucide-react";
+import { Bell, ChevronDown, LogOut, UserRound } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { isAuthRoute } from "@/lib/authRoutes";
 
 
 export function Header() {
     const pathname = usePathname();
+    const router = useRouter();
 
-    const hideHeaderRoutes = [
-        "/auth",
-        "/login",
-        "/register",
-    ];
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
 
-    if (hideHeaderRoutes.includes(pathname)) {
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setMenuOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleLogout = () => {
+        setMenuOpen(false);
+        router.push("/auth");
+    };
+
+    if (isAuthRoute(pathname)) {
         return null;
     }
 
@@ -30,7 +45,7 @@ export function Header() {
                         width={100}
                         height={100}
                         priority
-                        className="h-14 w-14 object-contain sm:h-12 sm:w-12"
+                        className="h-8 w-8 object-contain sm:h-12 sm:w-12"
                     />
 
                     {/* <h1 className="hidden min-[331px]:block brand-logo text-[18px] font-semibold leading-none tracking-[0.02em] text-(--brand-gold)">
@@ -40,23 +55,16 @@ export function Header() {
 
                     <div className="flex flex-col items-center">
                         <h1
-                            className="text-lg font-semibold tracking-[4px]"
+                            className="text-lg font-semibold tracking-[1.5px]"
                             style={{
-                                color: "var(--logo-text)",
+                                color: "var(--brand-gold)",
                             }}                >
-                            VELVET
-                            <span
-                                style={{
-                                    color: "var(--brand-gold)",
-                                }}
-                            >
-                                BOOK
-                            </span>
+                            VELVETBOOK
                         </h1>
 
 
                         {/* Gold Divider */}
-                        <div className="flex items-center justify-center">
+                        {/* <div className="flex items-center justify-center">
                             <div className="h-px w-18 bg-[var(--brand-gold-light)]" />
 
                             <div className="relative flex items-center justify-center">
@@ -89,7 +97,7 @@ export function Header() {
                             <span style={{ color: "var(--brand-gold)" }} className="text-md">•</span>
 
                             <span style={{ color: "var(--text-primary)" }}>Yours</span>
-                        </div>
+                        </div> */}
                     </div>
 
                 </div>
@@ -136,19 +144,73 @@ export function Header() {
                         </span>
                     </button>
 
-                    <button className="flex items-center gap-1">
-                        <div className="relative h-9.5 w-9.5 overflow-hidden rounded-full border-2 border-(--brand-gold)">
-                            <Image
-                                src="/profile.jpeg"
-                                alt="Profile"
-                                fill
-                                sizes="38px"
-                                className="object-cover"
-                            />
-                        </div>
+                    <div className="relative" ref={menuRef}>
+                        <button
+                            type="button"
+                            onClick={() => setMenuOpen((open) => !open)}
+                            aria-haspopup="menu"
+                            aria-expanded={menuOpen}
+                            className="flex items-center gap-1"
+                        >
+                            <div className="relative h-9.5 w-9.5 overflow-hidden rounded-full border-2 border-(--brand-gold)">
+                                <Image
+                                    src="/profile.jpeg"
+                                    alt="Profile"
+                                    fill
+                                    sizes="38px"
+                                    className="object-cover"
+                                />
+                            </div>
 
-                        <ChevronDown className="h-4 w-4 text-text-secondary" />
-                    </button>
+                            <ChevronDown
+                                className={`h-4 w-4 text-(--text-secondary) transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`}
+                            />
+                        </button>
+
+                        {menuOpen && (
+                            <div
+                                role="menu"
+                                className="
+                                    absolute right-0 top-[calc(100%+8px)] z-50 w-40 overflow-hidden
+                                    rounded-xl border border-(--border) bg-(--bg-card)
+                                    shadow-[0_10px_40px_rgba(0,0,0,0.18)] backdrop-blur-2xl
+                                "
+                            >
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        router.push("/profile");
+                                    }}
+                                    className="
+                                        flex w-full items-center gap-2 px-3 py-2.5 text-left text-[12px]
+                                        font-semibold text-(--text-primary)
+                                        transition-colors hover:bg-(--bg-card-hover)
+                                    "
+                                >
+                                    <UserRound size={15} className="text-(--accent-primary)" />
+                                    Profile
+                                </button>
+
+                                <div className="h-px bg-(--border)" />
+
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={handleLogout}
+                                    className="
+                                        flex w-full items-center gap-2 px-3 py-2.5 text-left text-[12px]
+                                        font-semibold text-[#e2536b]
+                                        transition-colors hover:bg-[color-mix(in_srgb,#e2536b_8%,transparent)]
+                                    "
+                                >
+                                    <LogOut size={15} />
+                                    Logout
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

@@ -52,6 +52,7 @@ export function BookingFlow() {
       return {
         totalLabel: `$${getStep4Total(serviceIds)}`,
         buttonLabel: "Pay Now & Confirm Booking",
+        buttonSubtext: "You'll receive a confirmation instantly",
         showLock: true,
         onAction: () => alert("Booking confirmed!"),
       };
@@ -89,6 +90,7 @@ export function BookingFlow() {
             onSelectStaff={setStaffId}
             onBack={() => setStep(1)}
             onNext={() => setStep(3)}
+            onEditService={() => setStep(1)}
           />
         )}
 
@@ -121,6 +123,9 @@ export function BookingFlow() {
             onBillingChange={handleBillingChange}
             onBack={() => setStep(3)}
             onConfirm={() => alert("Booking confirmed!")}
+            onEditService={() => setStep(1)}
+            onChangeStaff={() => setStep(2)}
+            onChangeTime={() => setStep(3)}
           />
         )}
       </div>
@@ -131,6 +136,7 @@ export function BookingFlow() {
           buttonLabel={footer.buttonLabel}
           onAction={footer.onAction}
           showLock={footer.showLock}
+          buttonSubtext={"buttonSubtext" in footer ? footer.buttonSubtext : undefined}
         />
       )}
     </div>

@@ -51,53 +51,65 @@ export function Step3DateTimeSelection({
   return (
     <div className="space-y-4">
       <section className="space-y-3">
+        
+        <div className="flex items-between gap-2">
+
+        <div className="mb-2 w-full">
         <h2 className="text-sm font-bold text-(--text-primary)">
           Select Service
         </h2>
-        <article className="feature-card relative rounded-xl p-3">
-          <span className="primary-button text-white absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full">
+        <article className="feature-card relative rounded-xl ">
+          {/* <span className="primary-button text-white absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full">
             ✓
-          </span>
-          <div className="flex gap-3">
-            <div className="relative h-14 w-16 shrink-0 overflow-hidden rounded-sm">
+          </span> */}
+          <div className="flex flex-col gap-3">
+            <div className="relative h-20 w-full shrink-0 overflow-hidden rounded-t-sm">
               <Image src={service.image} alt={service.name} fill sizes="64px" className="object-cover" />
             </div>
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 px-3">
               <p className="text-[13px] font-bold text-(--text-primary)">{service.name}</p>
               <div className="mt-0.5 flex items-center gap-1 text-[10px] font-bold text-(--text-primary)">
                 <Clock3 size={10} /><span>{service.duration}</span>
               </div>
               <p className="mt-1 text-[13px] font-semibold text-(--brand-gold)">{service.priceLabel}</p>
-              <p className="mt-0.5 text-[10px] font-semibold text-(--text-primary)">{service.description.slice(0, 60)}...</p>
+              <p className="mt-0.5 text-[10px] font-semibold text-(--text-primary)">{service.description.slice(0, 55)}...</p>
             </div>
           </div>
-          <button type="button" className="mt-2 w-full text-center text-[10px] font-bold text-(--accent-primary)">
+          <button type="button" className=" pb-3 mt-2 w-full text-center text-[10px] font-bold text-(--accent-primary)">
             Change Service
           </button>
         </article>
+        </div>
 
+        <div className="w-full">
         <h2 className="text-sm font-bold text-(--text-primary)">Selected Therapist</h2>
-        <article className="feature-card rounded-xl p-3">
-          <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full">
+        <article className="feature-card rounded-xl">
+          <div className="flex flex-col items-left">
+            <div className="relative h-20 w-full shrink-0 overflow-hidden rounded-t-sm">
               <Image src={staff.image} alt={staff.name} fill sizes="40px" className="object-cover" />
             </div>
-            <div className="min-w-0 flex-1">
+            <div className="flex-1  pt-3 px-3">
               <p className="text-[14px] font-bold text-(--text-primary)">{staff.name}</p>
-              <div className="flex items-center gap-1 text-[10px] font-bold text-(--text-primary)">
-                <Star size={8} className="fill-(--brand-gold) text-(--brand-gold)" />
+              <div className="flex flex-col gap-1 text-left text-[10px] font-bold text-(--text-primary)">
+                <div className="flex items-center gap-1">
+                <Star size={20} className="fill-(--brand-gold) text-(--brand-gold)" />
                 <span>{staff.rating}</span>
-                <span>• {staff.experience}</span>
-                <span>• 1.2k+ Services</span>
+                </div>
+               
+                  <span>• {staff.experience}</span>
+                  <span>• 1.2k+ Services</span>
+                
               </div>
             </div>
-            <button type="button" className="flex items-center gap-0.5 text-[10px] font-bold text-(--accent-secondary)">
+            <button type="button" className="pb-3 pt-5 flex items-center justify-center gap-0.5 text-[10px] font-bold text-(--accent-secondary)">
               <Pencil size={11} /> Change
             </button>
           </div>
         </article>
+        </div>
+        </div>
 
-        <h2 className="text-sm font-bold text-(--text-primary)">Selected Location</h2>
+        {/* <h2 className="text-sm font-bold text-(--text-primary)">Selected Location</h2>
         <article className="feature-card rounded-xl p-3">
           <div className="flex items-center gap-3">
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg">
@@ -109,7 +121,7 @@ export function Step3DateTimeSelection({
               <p className="text-[10px] font-bold text-(--success)">{bookingLocation.status}</p>
             </div>
           </div>
-        </article>
+        </article> */}
       </section>
 
       <section>
@@ -180,7 +192,7 @@ export function Step3DateTimeSelection({
         </div>
       </section>
 
-      <section>
+      {/* <section>
         <h2 className="mb-2 text-sm font-bold text-(--text-primary)">Booking Summary</h2>
         <article className="feature-card space-y-2 rounded-xl p-3 text-[12px]">
           {[
@@ -212,12 +224,12 @@ export function Step3DateTimeSelection({
             </div>
           </div>
         </article>
-      </section>
+      </section> */}
 
-      <Button variant="primary" fullWidth onClick={onNext} className="gap-2 rounded-xl py-3 text-[11px] font-medium">
+      {/* <Button variant="primary" fullWidth onClick={onNext} className="gap-2 rounded-xl py-3 text-[11px] font-medium">
         Continue to Payment
         <ChevronRight size={16} strokeWidth={2} />
-      </Button>
+      </Button> */}
 
       <button type="button" onClick={onBack} className="secondary-button w-full rounded-xl py-2 text-[9px] font-medium">
         BACK

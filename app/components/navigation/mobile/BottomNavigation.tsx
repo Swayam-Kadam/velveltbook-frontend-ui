@@ -8,18 +8,24 @@ import {
     Home,
     ShoppingBag,
     UserRound,
+    Calendar,
 } from "lucide-react";
+import { isAuthRoute } from "@/lib/authRoutes";
 
 const items = [
     { label: "Home", icon: Home, href: "/home" },
     { label: "Menu", icon: LayoutGrid, href: "/menu" },
-    { label: "Service", icon: ShoppingBag, href: null },
+    { label: "Bookings", icon: Calendar, href: "/mybooking" },
     { label: "Experts", icon: UserRound, href: null },
     { label: "Help", icon: CircleHelp, href: "/help" },
 ];
 
 export function BottomNavigation() {
     const pathname = usePathname();
+
+    if (isAuthRoute(pathname)) {
+        return null;
+    }
 
     return (
         <nav
