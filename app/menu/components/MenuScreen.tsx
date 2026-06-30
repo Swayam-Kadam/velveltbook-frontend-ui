@@ -37,7 +37,7 @@ export function MenuScreen() {
             <div className="px-2 pt-3">
               <div className="mb-3 flex items-center justify-between">
                 <h1 className="text-xs font-medium text-(--text-primary)">
-                  Popular Massage Services
+                  Select Services
                 </h1>
 
                 <button
