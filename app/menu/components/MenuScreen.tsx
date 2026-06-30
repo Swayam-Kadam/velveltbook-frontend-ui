@@ -15,7 +15,7 @@ import { SearchBar } from "@/components/header/SearchBar";
 
 export function MenuScreen() {
   const [activeCategory, setActiveCategory] = useState("massage");
-  const [expertType, setExpertType] = useState<ExpertType>(null);
+  const [expertType, setExpertType] = useState<ExpertType>("");
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
     null
   );

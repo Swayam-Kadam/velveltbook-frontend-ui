@@ -5,7 +5,7 @@ import { Button } from "@/components/Button";
 import { Check, ChevronRight, Mars, Venus } from "lucide-react";
 import Link from "next/link";
 
-export type ExpertType = "male" | "female";
+export type ExpertType = "male" | "female" | "";
 
 interface ExpertSelectionProps {
   selected: ExpertType;
