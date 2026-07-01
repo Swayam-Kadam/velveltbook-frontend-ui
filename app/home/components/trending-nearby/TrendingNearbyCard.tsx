@@ -35,7 +35,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
     const orgHref =
         item.organizationId === "org-trending-2"
             ? `/extendedspecificorganization/${item.organizationId}`
-            : `/specificorganization/${item.organizationId}`;
+            : `/extendedspecificorganization/${item.organizationId}`;
 
     return (
         <>

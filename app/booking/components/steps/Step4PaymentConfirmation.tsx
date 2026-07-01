@@ -29,6 +29,7 @@ import {
   bookingLocation,
   calcServicesTotal,
   calcTotal,
+  getBookingDay,
   getService,
   getStaff,
 } from "../../booking.data";
@@ -36,7 +37,7 @@ import {
 interface Step4PaymentConfirmationProps {
   serviceId: string;
   staffId: string;
-  selectedDate: number;
+  selectedDayId: string;
   selectedTime: string;
   paymentMethod: string;
   promoCode: string;
@@ -123,7 +124,7 @@ function MiniCardIllustration() {
 export function Step4PaymentConfirmation({
   serviceId,
   staffId,
-  selectedDate,
+  selectedDayId,
   selectedTime,
   paymentMethod,
   billingName,
@@ -136,6 +137,7 @@ export function Step4PaymentConfirmation({
 }: Step4PaymentConfirmationProps) {
   const service = getService(serviceId);
   const staff = getStaff(staffId);
+  const selectedDay = getBookingDay(selectedDayId);
   const { subtotal, tax, total } = calcTotal(service.price);
 
   const [cardNumber, setCardNumber] = useState("");
@@ -208,7 +210,7 @@ export function Step4PaymentConfirmation({
               <ul className="mt-2 space-y-1">
                 {[
                   { icon: UserRound, text: `Therapist: ${staff.name}` },
-                  { icon: CalendarDays, text: `May ${selectedDate}, 2025` },
+                  { icon: CalendarDays, text: selectedDay.date },
                   {
                     icon: Clock3,
                     text: `${selectedTime} • ${service.duration}`,

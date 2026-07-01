@@ -9,7 +9,7 @@ export function TrendingNearbyActions({ orgHref }: TrendingNearbyActionsProps) {
     return (
         <div className="mt-5 flex gap-1 lg:mt-4 lg:gap-4">
             <Link
-                href="/booking"
+                href="/specificorganizationbook/store-1"
                 className="
     primary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[8px] font-medium text-white

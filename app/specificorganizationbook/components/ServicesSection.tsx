@@ -50,14 +50,12 @@ export function ServicesSection({ services }: ServicesSectionProps) {
 
 
             <div className=" mt-2 grid grid-cols-2 gap-1 ">
-              <Link
-                // type="button"
-                href={"/booking"}
-                className="secondary-button flex items-center justify-center
-                  rounded-xs py-1 text-[10px] font-medium text-(--text-primary)"
+              <button
+                type="button"
+                className="secondary-button rounded-xs py-1 text-[10px] font-medium"
               >
                 Select
-              </Link>
+              </button>
               <Link
                 href={`/specificservice/s2`}
                 className="

@@ -9,6 +9,14 @@ export interface ServiceExpert {
   online: boolean;
 }
 
+export interface SuggestedService {
+  id: string;
+  name: string;
+  price: string;
+  duration: string;
+  image: string;
+}
+
 export interface ServiceDetail {
   id: string;
   name: string;
@@ -19,4 +27,5 @@ export interface ServiceDetail {
   description: string;
   price: string;
   experts: ServiceExpert[];
+  suggestedServices: SuggestedService[];
 }

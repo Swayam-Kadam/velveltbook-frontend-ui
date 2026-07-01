@@ -9,14 +9,22 @@ import {
   CalendarPlus,
   Clock3,
   MapPin,
+  Navigation2,
   RotateCcw,
   Sparkles,
   Star,
   UserRound,
-  X,
 } from "lucide-react";
 
 type BookingTab = "upcoming" | "completed" | "cancelled";
+
+interface BookingOrganization {
+  id: string;
+  name: string;
+  banner: string;
+  thumbnail: string;
+  status: string;
+}
 
 interface Booking {
   id: string;
@@ -27,7 +35,29 @@ interface Booking {
   location: string;
   price: string;
   image: string;
+  organization: BookingOrganization;
 }
+
+const organizations: Record<string, BookingOrganization> = {
+  "lomi-melbourne": {
+    id: "lomi-melbourne",
+    name: "Lomi Massage, Melbourne",
+    banner:
+      "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=800&h=400&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200&h=200&fit=crop",
+    status: "Open now",
+  },
+  "glamour-salon": {
+    id: "glamour-salon",
+    name: "Glamour Salon",
+    banner:
+      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=400&fit=crop",
+    thumbnail:
+      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=200&h=200&fit=crop",
+    status: "Open now",
+  },
+};
 
 interface SuggestedService {
   id: string;
@@ -49,23 +79,25 @@ const bookingData: Record<BookingTab, Booking[]> = {
       id: "u1",
       service: "Swedish Massage",
       therapist: "Sony",
-      date: "May 22, 2025",
+      date: "May 22, 2026",
       time: "11:00 AM",
       location: "Lomi Massage, Melbourne",
       price: "$88",
       image:
         "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
+      organization: organizations["lomi-melbourne"],
     },
     {
       id: "u2",
       service: "Aromatherapy Massage",
       therapist: "Samar",
-      date: "May 28, 2025",
+      date: "May 28, 2026",
       time: "02:00 PM",
-      location: "Lomi Massage, Melbourne",
+      location: "Glamour Salon, Sydney",
       price: "$99",
       image:
         "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=400&h=300&fit=crop",
+      organization: organizations["glamour-salon"],
     },
   ],
   completed: [
@@ -73,23 +105,25 @@ const bookingData: Record<BookingTab, Booking[]> = {
       id: "c1",
       service: "Hot Stone Massage",
       therapist: "Sami",
-      date: "Apr 12, 2025",
+      date: "Apr 12, 2026",
       time: "10:00 AM",
       location: "Lomi Massage, Melbourne",
       price: "$129",
       image:
         "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=400&h=300&fit=crop",
+      organization: organizations["lomi-melbourne"],
     },
     {
       id: "c2",
       service: "Deep Tissue Massage",
       therapist: "Jesai",
-      date: "Mar 30, 2025",
+      date: "Mar 30, 2026",
       time: "04:00 PM",
       location: "Lomi Massage, Melbourne",
       price: "$119",
       image:
         "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop",
+      organization: organizations["lomi-melbourne"],
     },
   ],
   cancelled: [
@@ -97,12 +131,13 @@ const bookingData: Record<BookingTab, Booking[]> = {
       id: "x1",
       service: "Couples Massage",
       therapist: "Samar",
-      date: "Apr 02, 2025",
+      date: "Apr 02, 2026",
       time: "01:00 PM",
       location: "Lomi Massage, Melbourne",
       price: "$189",
       image:
         "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop",
+      organization: organizations["lomi-melbourne"],
     },
   ],
 };
@@ -211,6 +246,61 @@ const statusStyles: Record<
   },
 };
 
+function OrganizationBanner({
+  organization,
+}: {
+  organization: BookingOrganization;
+}) {
+  return (
+    <div className="border-b border-(--border)">
+      <div className="relative h-[88px] w-full">
+        <Image
+          src={organization.banner}
+          alt={organization.name}
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-black/45 to-transparent" />
+      </div>
+
+      <div className="flex items-center gap-3 px-2.5 py-2">
+        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl">
+          <Image
+            src={organization.thumbnail}
+            alt={organization.name}
+            fill
+            sizes="40px"
+            className="object-cover"
+          />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[12px] font-bold text-(--text-primary)">
+            {organization.name}
+          </p>
+          <div className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold">
+            <MapPin size={9} className="text-(--success)" />
+            <span className="text-(--success)">{organization.status}</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Get directions"
+          className="
+            flex h-8 w-8 shrink-0 items-center justify-center rounded-full
+            border border-(--border) bg-(--bg-card)
+            text-(--accent-primary)
+          "
+        >
+          <Navigation2 size={14} strokeWidth={1.6} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function BookingCard({
   booking,
   tab,
@@ -221,7 +311,10 @@ function BookingCard({
   const status = statusStyles[tab];
 
   return (
-    <article className="feature-card overflow-hidden rounded-xl p-2.5">
+    <article className="feature-card overflow-hidden rounded-xl">
+      <OrganizationBanner organization={booking.organization} />
+
+      <div className="p-2.5">
       <div className="flex gap-3">
         <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-sm">
           <Image
@@ -353,6 +446,7 @@ function BookingCard({
             Book Again
           </Link>
         )}
+      </div>
       </div>
     </article>
   );

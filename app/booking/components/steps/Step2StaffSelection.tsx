@@ -1,13 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
 import {
   Activity,
   ArrowRight,
   Check,
-  ChevronLeft,
-  ChevronRight,
   Clock3,
   Pencil,
   SlidersHorizontal,
@@ -15,12 +12,30 @@ import {
   Star,
 } from "lucide-react";
 
-import { bookingStaff, getService, getStaff } from "../../booking.data";
+import {
+  bookingDays,
+  bookingSeats,
+  bookingStaff,
+  getBookingDay,
+  getService,
+  getStaff,
+  timeSlots,
+} from "../../booking.data";
+import { SeatSelectionSection } from "./SeatSelectionSection";
+import { Step2DateTimeSection } from "./Step2DateTimeSection";
 
 interface Step2StaffSelectionProps {
   serviceId: string;
   staffId: string;
+  selectedDayId: string;
+  selectedTime: string;
+  selectedSeatId: string;
+  seatConfirmed: boolean;
   onSelectStaff: (id: string) => void;
+  onSelectDay: (id: string) => void;
+  onSelectTime: (time: string) => void;
+  onSelectSeat: (id: string) => void;
+  onConfirmSeat: () => void;
   onBack: () => void;
   onNext: () => void;
   onEditService: () => void;
@@ -32,53 +47,24 @@ const serviceHighlights = [
   { icon: Activity, label: "Full Body Therapy" },
 ];
 
-const dateOptions = [
-  { label: "Today", month: "May", date: 20 },
-  { label: "Wed", month: "May", date: 22 },
-  { label: "Thu", month: "May", date: 23 },
-  { label: "Fri", month: "May", date: 24 },
-  { label: "Sat", month: "May", date: 25 },
-];
-
-const timeOptions = [
-  "10:00 AM",
-  "11:00 AM",
-  "12:00 PM",
-  "1:00 PM",
-  "2:00 PM",
-];
-
 export function Step2StaffSelection({
   serviceId,
   staffId,
+  selectedDayId,
+  selectedTime,
+  selectedSeatId,
+  seatConfirmed,
   onSelectStaff,
+  onSelectDay,
+  onSelectTime,
+  onSelectSeat,
+  onConfirmSeat,
   onNext,
   onEditService,
 }: Step2StaffSelectionProps) {
   const service = getService(serviceId);
   const staff = getStaff(staffId);
-
-  const [selectedDate, setSelectedDate] = useState(22);
-  const [selectedTime, setSelectedTime] = useState("11:00 AM");
-
-  const dateScrollRef = useRef<HTMLDivElement>(null);
-  const timeScrollRef = useRef<HTMLDivElement>(null);
-
-  const scrollBy = (
-    ref: React.RefObject<HTMLDivElement | null>,
-    direction: "left" | "right",
-  ) => {
-    const el = ref.current;
-    if (!el) return;
-    const amount = el.clientWidth * 0.75;
-    el.scrollBy({
-      left: direction === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
-  };
-
-  const selectedDateOption =
-    dateOptions.find((d) => d.date === selectedDate) ?? dateOptions[1];
+  const selectedDay = getBookingDay(selectedDayId);
 
   return (
     <div className="space-y-4">
@@ -243,142 +229,22 @@ export function Step2StaffSelection({
         </div>
       </section>
 
-      {/* Choose Date & Time */}
-      <section className="feature-card rounded-xl p-3">
-        <div className="mb-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--accent-primary)/10">
-              <Clock3 size={11} className="text-(--accent-primary)" />
-            </span>
-            <h3 className="text-xs font-bold text-(--text-primary)">
-              Choose Date & Time
-            </h3>
-          </div>
-          <button
-            type="button"
-            className="text-[8px] font-bold text-(--accent-primary)"
-          >
-            View more
-          </button>
-        </div>
+      <Step2DateTimeSection
+        days={bookingDays}
+        times={timeSlots}
+        activeDayId={selectedDayId}
+        activeTime={selectedTime}
+        onSelectDay={onSelectDay}
+        onSelectTime={onSelectTime}
+      />
 
-        {/* Date selector */}
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            aria-label="Previous dates"
-            onClick={() => scrollBy(dateScrollRef, "left")}
-            className="
-              flex h-6 w-6 shrink-0 items-center justify-center rounded-full
-              border border-(--border) text-(--text-primary)
-              transition-colors hover:bg-(--bg-card-hover)
-            "
-          >
-            <ChevronLeft size={12} />
-          </button>
-
-          <div
-            ref={dateScrollRef}
-            className="scrollbar-none flex flex-1 gap-1.5 overflow-x-auto scroll-smooth"
-          >
-            {dateOptions.map((option) => {
-              const active = option.date === selectedDate;
-              return (
-                <button
-                  key={option.date}
-                  type="button"
-                  onClick={() => setSelectedDate(option.date)}
-                  className={`
-                    flex w-[52px] shrink-0 flex-col items-center rounded-lg
-                    px-2 py-1.5 transition-all duration-200
-                    ${
-                      active
-                        ? "primary-button text-white shadow-none"
-                        : "border border-(--border) bg-(--bg-card) text-(--text-primary)"
-                    }
-                  `}
-                >
-                  <span className="text-[8px] font-semibold">
-                    {option.label}
-                  </span>
-                  <span className="text-[9px] font-bold">
-                    {option.month} {option.date}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          <button
-            type="button"
-            aria-label="Next dates"
-            onClick={() => scrollBy(dateScrollRef, "right")}
-            className="
-              flex h-6 w-6 shrink-0 items-center justify-center rounded-full
-              border border-(--border) text-(--text-primary)
-              transition-colors hover:bg-(--bg-card-hover)
-            "
-          >
-            <ChevronRight size={12} />
-          </button>
-        </div>
-
-        {/* Time selector */}
-        <div className="mt-2.5 flex items-center gap-1.5">
-          <button
-            type="button"
-            aria-label="Previous time slots"
-            onClick={() => scrollBy(timeScrollRef, "left")}
-            className="
-              flex h-6 w-6 shrink-0 items-center justify-center rounded-full
-              border border-(--border) text-(--text-primary)
-              transition-colors hover:bg-(--bg-card-hover)
-            "
-          >
-            <ChevronLeft size={12} />
-          </button>
-
-          <div
-            ref={timeScrollRef}
-            className="scrollbar-none flex flex-1 gap-1.5 overflow-x-auto scroll-smooth"
-          >
-            {timeOptions.map((time) => {
-              const active = time === selectedTime;
-              return (
-                <button
-                  key={time}
-                  type="button"
-                  onClick={() => setSelectedTime(time)}
-                  className={`
-                    shrink-0 rounded-lg px-2.5 py-1.5 text-[9px] font-bold
-                    transition-all duration-200
-                    ${
-                      active
-                        ? "primary-button text-white shadow-none"
-                        : "border border-(--border) bg-(--bg-card) text-(--text-primary)"
-                    }
-                  `}
-                >
-                  {time}
-                </button>
-              );
-            })}
-          </div>
-
-          <button
-            type="button"
-            aria-label="More time slots"
-            onClick={() => scrollBy(timeScrollRef, "right")}
-            className="
-              flex h-6 w-6 shrink-0 items-center justify-center rounded-full
-              border border-(--border) text-(--text-primary)
-              transition-colors hover:bg-(--bg-card-hover)
-            "
-          >
-            <ChevronRight size={12} />
-          </button>
-        </div>
-      </section>
+      <SeatSelectionSection
+        seats={bookingSeats}
+        selectedSeatId={selectedSeatId}
+        seatConfirmed={seatConfirmed}
+        onSelectSeat={onSelectSeat}
+        onConfirmSeat={onConfirmSeat}
+      />
 
       {/* Summary + Continue footer */}
       <section className="feature-card flex items-center gap-2 rounded-xl p-3">
@@ -399,16 +265,18 @@ export function Step2StaffSelection({
             </span>
           </div>
           <p className="mt-0.5 text-[8px] font-semibold text-(--text-secondary)">
-            {selectedDateOption.month} {selectedDateOption.date}, {selectedTime}
+            {selectedDay.date}, {selectedTime}
           </p>
         </div>
 
         <button
           type="button"
           onClick={onNext}
+          disabled={!seatConfirmed}
           className="
             primary-button flex shrink-0 items-center gap-1.5 rounded-xl
             px-5 py-3 text-[11px] font-semibold text-white
+            disabled:cursor-not-allowed disabled:opacity-50
           "
         >
           Continue

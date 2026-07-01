@@ -1,4 +1,4 @@
-import { ServiceDetail } from "./service.types";
+import { ServiceDetail, SuggestedService } from "./service.types";
 
 const manicureExperts = [
   {
@@ -47,6 +47,49 @@ const manicureExperts = [
   },
 ];
 
+const allSuggestedServices: SuggestedService[] = [
+  {
+    id: "s1",
+    name: "Haircut & Style",
+    price: "$60",
+    duration: "45 mins",
+    image:
+      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=520&fit=crop",
+  },
+  {
+    id: "s2",
+    name: "Manicure",
+    price: "$80",
+    duration: "45 mins",
+    image:
+      "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=520&fit=crop",
+  },
+  {
+    id: "s3",
+    name: "Facial",
+    price: "$80",
+    duration: "60 mins",
+    image:
+      "https://images.unsplash.com/photo-1570172619644-dfd955edae04?w=400&h=520&fit=crop",
+  },
+  {
+    id: "s4",
+    name: "Swedish Massage",
+    price: "$99",
+    duration: "60 min",
+    image:
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
+  },
+  {
+    id: "s5",
+    name: "Hot Stone Massage",
+    price: "$129",
+    duration: "90 min",
+    image:
+      "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=400&h=300&fit=crop",
+  },
+];
+
 export const services: Record<string, ServiceDetail> = {
   s1: {
     id: "s1",
@@ -63,6 +106,7 @@ export const services: Record<string, ServiceDetail> = {
       ...expert,
       specialty: "Senior Hair Stylist",
     })),
+    suggestedServices: allSuggestedServices,
   },
   s2: {
     id: "s2",
@@ -76,6 +120,7 @@ export const services: Record<string, ServiceDetail> = {
       "A professional manicure to keep your nails healthy, elegant, and perfectly polished with premium care.",
     price: "$80",
     experts: manicureExperts,
+    suggestedServices: allSuggestedServices,
   },
   s3: {
     id: "s3",
@@ -92,6 +137,7 @@ export const services: Record<string, ServiceDetail> = {
       ...expert,
       specialty: "Skincare Specialist",
     })),
+    suggestedServices: allSuggestedServices,
   },
 };
 

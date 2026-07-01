@@ -6,6 +6,7 @@ interface BookingStickyFooterProps {
   onAction: () => void;
   showLock?: boolean;
   buttonSubtext?: string;
+  disabled?: boolean;
 }
 
 export function BookingStickyFooter({
@@ -14,6 +15,7 @@ export function BookingStickyFooter({
   onAction,
   showLock = false,
   buttonSubtext,
+  disabled = false,
 }: BookingStickyFooterProps) {
   return (
     <div
@@ -33,9 +35,11 @@ export function BookingStickyFooter({
         <button
           type="button"
           onClick={onAction}
+          disabled={disabled}
           className="
             primary-button flex flex-1 flex-col items-center justify-center
             gap-0.5 rounded-none px-3 py-2.5 text-white
+            disabled:cursor-not-allowed disabled:opacity-50
           "
         >
           <span className="flex items-center gap-1.5 text-[9px] font-medium">

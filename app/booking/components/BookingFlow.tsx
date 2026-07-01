@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 
+import { allMenuServices } from "@/menu/menu.data";
 import {
   calcServicesTotal,
+  getDefaultSeatId,
 } from "../booking.data";
 import { BookingHeader } from "./BookingHeader";
 import { BookingProgress } from "./BookingProgress";
@@ -18,7 +20,7 @@ import {
 
 export function BookingFlow() {
   const [step, setStep] = useState(1);
-  const [serviceIds, setServiceIds] = useState<string[]>(["swedish"]);
+  const [serviceIds, setServiceIds] = useState<string[]>([]);
 
   const toggleService = (id: string) => {
     setServiceIds((prev) =>
@@ -26,10 +28,12 @@ export function BookingFlow() {
     );
   };
 
-  const primaryServiceId = serviceIds[0] ?? "swedish";
+  const primaryServiceId = serviceIds[0] ?? allMenuServices[0].id;
   const [staffId, setStaffId] = useState("sony");
-  const [selectedDate, setSelectedDate] = useState(22);
+  const [selectedDayId, setSelectedDayId] = useState("2026-05-22");
   const [selectedTime, setSelectedTime] = useState("11:00 AM");
+  const [selectedSeatId, setSelectedSeatId] = useState(getDefaultSeatId);
+  const [seatConfirmed, setSeatConfirmed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [promoCode, setPromoCode] = useState("");
   const [billingName, setBillingName] = useState("");
@@ -47,6 +51,15 @@ export function BookingFlow() {
     if (field === "billingPhone") setBillingPhone(value);
   };
 
+  const handleSelectSeat = (id: string) => {
+    setSelectedSeatId(id);
+    setSeatConfirmed(false);
+  };
+
+  const handleConfirmSeat = () => {
+    setSeatConfirmed(true);
+  };
+
   const footerConfig = () => {
     if (step === 4) {
       return {
@@ -61,7 +74,9 @@ export function BookingFlow() {
       return {
         totalLabel: `$${total}`,
         buttonLabel: "Continue to Payment",
-        onAction: () => setStep(4),
+        onAction: () => {
+          if (seatConfirmed) setStep(4);
+        },
       };
     }
     return null;
@@ -87,7 +102,15 @@ export function BookingFlow() {
           <Step2StaffSelection
             serviceId={primaryServiceId}
             staffId={staffId}
+            selectedDayId={selectedDayId}
+            selectedTime={selectedTime}
+            selectedSeatId={selectedSeatId}
+            seatConfirmed={seatConfirmed}
             onSelectStaff={setStaffId}
+            onSelectDay={setSelectedDayId}
+            onSelectTime={setSelectedTime}
+            onSelectSeat={handleSelectSeat}
+            onConfirmSeat={handleConfirmSeat}
             onBack={() => setStep(1)}
             onNext={() => setStep(3)}
             onEditService={() => setStep(1)}
@@ -96,12 +119,16 @@ export function BookingFlow() {
 
         {step === 3 && (
           <Step3DateTimeSelection
-            serviceId={primaryServiceId}
+            selectedServiceIds={serviceIds}
             staffId={staffId}
-            selectedDate={selectedDate}
+            selectedDayId={selectedDayId}
             selectedTime={selectedTime}
-            onSelectDate={setSelectedDate}
+            selectedSeatId={selectedSeatId}
+            seatConfirmed={seatConfirmed}
+            onSelectDay={setSelectedDayId}
             onSelectTime={setSelectedTime}
+            onSelectSeat={handleSelectSeat}
+            onConfirmSeat={handleConfirmSeat}
             onBack={() => setStep(2)}
             onNext={() => setStep(4)}
           />
@@ -111,7 +138,7 @@ export function BookingFlow() {
           <Step4PaymentConfirmation
             serviceId={primaryServiceId}
             staffId={staffId}
-            selectedDate={selectedDate}
+            selectedDayId={selectedDayId}
             selectedTime={selectedTime}
             paymentMethod={paymentMethod}
             promoCode={promoCode}
@@ -136,6 +163,7 @@ export function BookingFlow() {
           buttonLabel={footer.buttonLabel}
           onAction={footer.onAction}
           showLock={footer.showLock}
+          disabled={step === 3 && !seatConfirmed}
           buttonSubtext={"buttonSubtext" in footer ? footer.buttonSubtext : undefined}
         />
       )}

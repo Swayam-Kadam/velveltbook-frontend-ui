@@ -11,12 +11,14 @@ interface ExpertSelectionProps {
   selected: ExpertType;
   onSelect: (type: ExpertType) => void;
   serviceSelected?: boolean;
+  showNextButton?: boolean;
 }
 
 export function ExpertSelection({
   selected,
   onSelect,
   serviceSelected = false,
+  showNextButton = true,
 }: ExpertSelectionProps) {
   const handleSelect = (type: ExpertType) => {
     if (!serviceSelected) {
@@ -106,6 +108,7 @@ export function ExpertSelection({
           );
         })}
       </div>
+      {showNextButton && (
       <Link
         href="/booking"
         className="
@@ -131,6 +134,7 @@ export function ExpertSelection({
           />
         </Button>
       </Link>
+      )}
     </section>
   );
 }
