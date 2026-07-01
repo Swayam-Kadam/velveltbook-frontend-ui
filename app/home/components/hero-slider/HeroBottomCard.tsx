@@ -87,7 +87,8 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                     />
                 </Button>
             </Link>
-
+                {/* Mobile View */}
+                <div className="block lg:hidden">
             <div className="mt-4 grid grid-cols-3 gap-3 lg:grid-cols-2 lg:gap-2">
                 <Link
                     href={organizationHref}
@@ -125,6 +126,49 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                     Book Now
                 </Link>
             </div>
+            </div>
+
+                {/* Desktop View */}
+                <div className="hidden lg:block">
+                <div className="mt-4 grid grid-cols-3 gap-3 lg:grid-cols-2 lg:gap-2">
+                <Link
+                    href={"/store/lori-massage-parlour"}
+                    className="
+    secondary-button inline-flex flex-1 items-center justify-center gap-2
+    rounded-[4px] py-1 text-[10px] font-medium
+    text-(--text-primary) transition-all duration-300
+    lg:py-2 lg:text-[11px]
+  "
+                >
+                    <Store size={12} strokeWidth={1.8} />
+                    View Store
+                </Link>
+
+                <Link href={organizationHref} className="
+    secondary-button inline-flex flex-1 items-center justify-center gap-2
+    rounded-[4px] py-1 text-[10px] font-medium
+    text-(--text-primary) transition-all duration-300
+    lg:py-2 lg:text-[11px]
+  ">
+                    <Play size={12} strokeWidth={1.8} />
+                    Store Tour
+
+                </Link>
+
+                <Link
+                    href="/booking"
+                    className="
+    primary-button inline-flex flex-1 items-center justify-center gap-2
+    rounded-[4px] py-1 text-[10px] font-medium text-white
+    lg:col-span-2 lg:py-2 lg:text-[11px]
+  "
+                >
+                    <Calendar size={12} strokeWidth={1.8} />
+                    Book Now
+                </Link>
+            </div>
+            </div>
+            
         </div>
     );
 }

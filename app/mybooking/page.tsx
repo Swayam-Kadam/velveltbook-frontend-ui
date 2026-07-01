@@ -4,11 +4,13 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  ArrowRight,
   CalendarDays,
   CalendarPlus,
   Clock3,
   MapPin,
   RotateCcw,
+  Sparkles,
   Star,
   UserRound,
   X,
@@ -27,8 +29,16 @@ interface Booking {
   image: string;
 }
 
+interface SuggestedService {
+  id: string;
+  title: string;
+  price: string;
+  duration: string;
+  image: string;
+}
+
 const tabs: { id: BookingTab; label: string }[] = [
-  { id: "upcoming", label: "Upcoming" },
+  { id: "upcoming", label: "Ongoing" },
   { id: "completed", label: "Completed" },
   { id: "cancelled", label: "Cancelled" },
 ];
@@ -97,14 +107,97 @@ const bookingData: Record<BookingTab, Booking[]> = {
   ],
 };
 
+const suggestedServicesByTab: Record<BookingTab, SuggestedService[]> = {
+  upcoming: [
+    {
+      id: "s-u1",
+      title: "Hot Stone Massage",
+      price: "$129",
+      duration: "90 min",
+      image:
+        "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=400&h=300&fit=crop",
+    },
+    {
+      id: "s-u2",
+      title: "Indian Head Massage",
+      price: "$69",
+      duration: "30 min",
+      image:
+        "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
+    },
+    {
+      id: "s-u3",
+      title: "Reflexology",
+      price: "$79",
+      duration: "45 min",
+      image:
+        "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=400&h=300&fit=crop",
+    },
+  ],
+  completed: [
+    {
+      id: "s-c1",
+      title: "Couples Massage",
+      price: "$189",
+      duration: "90 min",
+      image:
+        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop",
+    },
+    {
+      id: "s-c2",
+      title: "Lymphatic Drainage",
+      price: "$99",
+      duration: "60 min",
+      image:
+        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop",
+    },
+    {
+      id: "s-c3",
+      title: "Aromatherapy Massage",
+      price: "$99",
+      duration: "60 min",
+      image:
+        "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=400&h=300&fit=crop",
+    },
+  ],
+  cancelled: [
+    {
+      id: "s-x1",
+      title: "Swedish Massage",
+      price: "$99",
+      duration: "60 min",
+      image:
+        "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
+    },
+    {
+      id: "s-x2",
+      title: "Prenatal Massage",
+      price: "$109",
+      duration: "60 min",
+      image:
+        "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
+    },
+    {
+      id: "s-x3",
+      title: "Deep Tissue Massage",
+      price: "$119",
+      duration: "75 min",
+      image:
+        "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=400&h=300&fit=crop",
+    },
+  ],
+};
+
 const statusStyles: Record<
   BookingTab,
   { label: string; color: string; bg: string }
 > = {
   upcoming: {
     label: "Upcoming",
-    color: "var(--accent-secondary)",
-    bg: "color-mix(in srgb, var(--accent-primary) 12%, transparent)",
+    // color: "var(--accent-secondary)",
+    // bg: "color-mix(in srgb, var(--accent-primary) 12%, transparent)",
+    color: "#e2536b",
+    bg: "color-mix(in srgb, #e2536b 14%, transparent)"
   },
   completed: {
     label: "Completed",
@@ -149,7 +242,7 @@ function BookingCard({
               className="shrink-0 rounded-full px-2 py-0.5 text-[8px] font-bold"
               style={{ color: status.color, background: status.bg }}
             >
-              {status.label}
+              {status.label === "Upcoming" ? "Cancel" : status.label}
             </span>
           </div>
 
@@ -193,10 +286,21 @@ function BookingCard({
                 text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
               "
             >
-              <CalendarPlus size={12} />
-              Reschedule
+              {/* <CalendarPlus size={12} /> */}
+              Ongoing
             </button>
             <button
+              type="button"
+              className="
+                flex flex-1 items-center justify-center gap-1 rounded-lg
+                border border-(--border) py-1.5 text-[10px] font-bold
+                text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
+              "
+            >
+              <CalendarPlus size={12} />
+              Change
+            </button>
+            {/* <button
               type="button"
               className="
                 flex flex-1 items-center justify-center gap-1 rounded-lg
@@ -207,7 +311,7 @@ function BookingCard({
             >
               <X size={12} />
               Cancel
-            </button>
+            </button> */}
           </>
         )}
 
@@ -251,6 +355,76 @@ function BookingCard({
         )}
       </div>
     </article>
+  );
+}
+
+function SuggestedServiceCard({ service }: { service: SuggestedService }) {
+  return (
+    <Link
+      href="/booking"
+      className="
+        feature-card group block overflow-hidden rounded-xl
+        transition-all duration-300
+        hover:border-[color-mix(in_srgb,var(--accent-secondary)_25%,var(--border))]
+        hover:shadow-(--shadow-glow)
+        active:scale-[0.98]
+      "
+    >
+      <div className="relative h-[72px] overflow-hidden">
+        <Image
+          src={service.image}
+          alt={service.title}
+          fill
+          sizes="120px"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+      </div>
+
+      <div className="space-y-0.5 p-1.5">
+        <h4 className="line-clamp-2 h-8 text-[10px] font-bold leading-tight text-(--text-primary)">
+          {service.title}
+        </h4>
+        <p className="text-[11px] font-bold text-(--brand-gold)">{service.price}</p>
+        <div className="flex items-center gap-0.5 text-[8px] font-bold text-(--text-primary)">
+          <Clock3 size={9} strokeWidth={3} />
+          <span>{service.duration}</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function SuggestedServices({ tab }: { tab: BookingTab }) {
+  const services = suggestedServicesByTab[tab];
+
+  return (
+    <section className="mt-4 border-t border-(--border) pt-4">
+      <div className="mb-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <Sparkles size={14} className="text-(--brand-gold)" strokeWidth={2} />
+          <h3 className="text-xs font-bold text-(--text-primary)">
+            Suggested Services
+          </h3>
+        </div>
+
+        <Link
+          href="/menu"
+          className="
+            flex items-center gap-0.5 text-[9px] font-semibold
+            text-(--brand-gold) transition-opacity duration-200 hover:opacity-80
+          "
+        >
+          <span>View all</span>
+          <ArrowRight size={10} strokeWidth={2} />
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-3 gap-1.5">
+        {services.map((service) => (
+          <SuggestedServiceCard key={service.id} service={service} />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -317,15 +491,19 @@ export default function MyBookingPage() {
       </div>
 
       {/* Content */}
-      {bookings.length > 0 ? (
-        <div className="space-y-2.5 pt-3">
-          {bookings.map((booking) => (
-            <BookingCard key={booking.id} booking={booking} tab={activeTab} />
-          ))}
-        </div>
-      ) : (
-        <EmptyState tab={activeTab} />
-      )}
+      <div className="pt-3">
+        {bookings.length > 0 ? (
+          <div className="space-y-2.5">
+            {bookings.map((booking) => (
+              <BookingCard key={booking.id} booking={booking} tab={activeTab} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState tab={activeTab} />
+        )}
+
+        <SuggestedServices tab={activeTab} />
+      </div>
     </main>
   );
 }

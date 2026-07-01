@@ -391,7 +391,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
                     </Link>
 
                     <Link
-                        href={orgHref}
+                        href={"/store/lori-massage-parlour"}
                         className="
                 secondary-button
                 flex
