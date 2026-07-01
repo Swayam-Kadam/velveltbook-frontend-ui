@@ -96,7 +96,7 @@ export function MenuScreen() {
                           text-[11px] font-bold transition-colors duration-200
                           ${
                             page === p
-                              ? "bg-(--text-primary) text-white"
+                              ? "bg-(--text-primary) text-(--brand-gold)"
                               : "text-(--text-primary) hover:bg-(--bg-primary)"
                           }
                         `}
