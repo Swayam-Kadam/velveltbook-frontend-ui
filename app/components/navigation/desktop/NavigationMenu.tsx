@@ -1,45 +1,52 @@
-import { Search, SlidersHorizontal } from "lucide-react";
+"use client";
 
-export function SearchBar() {
-    return (
-        <div
-            className="
-        search-glass
-        flex h-12 w-full items-center gap-4 mt-3
-        rounded-2xl border
-        px-5 backdrop-blur-2xl
-        transition-all duration-300
-        hover:border-[color-mix(in_srgb,var(--accent-glow)_18%,transparent)]
-      "
-        >
-            <Search
-                className="h-4 w-4 shrink-0 text-(--text-secondary)"
-                strokeWidth={1.4}
-            />
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-            <input
-                type="text"
-                placeholder="Search services, salons, spas..."
-                className="
-          flex-1 bg-transparent
-          text-xs text-(--text-primary)
-          placeholder:text-(--text-muted)
-          focus:outline-none
-        "
-            />
+const navigationItems = [
+  { label: "Home", href: "/home" },
+  { label: "Menu", href: "/menu" },
+  { label: "Service", href: "/services" },
+  { label: "Experts", href: "/experts" },
+  { label: "Bookings", href: "/booking" },
+  { label: "Offers", href: "/offers" },
+];
 
-            <button
-                className="
-          text-(--text-primary)
-          transition-transform duration-300
-          hover:rotate-90
-        "
-            >
-                <SlidersHorizontal
-                    className="h-4 w-4"
-                    strokeWidth={1.4}
-                />
-            </button>
-        </div>
-    );
+interface NavigationMenuProps {
+  className?: string;
+}
+
+export function NavigationMenu({ className = "" }: NavigationMenuProps) {
+  const pathname = usePathname();
+
+  return (
+    <nav
+      className={`hidden items-stretch justify-center gap-8 lg:flex ${className}`}
+      aria-label="Primary navigation"
+    >
+      {navigationItems.map((item) => {
+        const active =
+          pathname === item.href ||
+          (item.href !== "/home" && pathname.startsWith(item.href));
+
+        return (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={`
+              flex h-12 items-center border-b-2 px-1 text-[13px] font-medium
+              transition-colors duration-200
+              ${
+                active
+                  ? "border-(--brand-gold) text-(--text-primary)"
+                  : "border-transparent text-(--text-primary) hover:text-(--accent-secondary)"
+              }
+            `}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
 }

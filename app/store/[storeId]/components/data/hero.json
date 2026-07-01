@@ -1,0 +1,8 @@
+{
+  "welcomeText": "WELCOME TO",
+  "onlineLabel": "Online",
+  "offlineLabel": "Offline",
+  "bookNowLabel": "Book Now",
+  "bookNowHref": "/booking",
+  "watchVideoLabel": "Watch Video"
+}

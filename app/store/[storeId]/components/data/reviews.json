@@ -1,0 +1,76 @@
+{
+  "lori-massage-parlour": {
+    "meta": {
+      "title": "What Our Clients Say",
+      "viewAllLabel": "View All",
+      "viewAllHref": "/"
+    },
+    "items": [
+      {
+        "id": 1,
+        "avatar": "/massage.webp",
+        "name": "Daniel K.",
+        "rating": 5,
+        "comment": "Absolutely amazing experience! The deep tissue massage was exactly what I needed after a long week. The staff was professional and the ambiance was perfect.",
+        "date": "2 days ago"
+      },
+      {
+        "id": 2,
+        "avatar": "/body spa bg.jpg",
+        "name": "Sarah M.",
+        "rating": 5,
+        "comment": "Best spa in Indore! I've been coming here for months and every session exceeds my expectations. Highly recommend the hot stone therapy.",
+        "date": "1 week ago"
+      },
+      {
+        "id": 3,
+        "avatar": "/salon bg.jpg",
+        "name": "James R.",
+        "rating": 4,
+        "comment": "Great service and very relaxing atmosphere. Sophia was an excellent therapist. Will definitely be back for another session soon.",
+        "date": "2 weeks ago"
+      },
+      {
+        "id": 4,
+        "avatar": "/barber.jpg",
+        "name": "Priya S.",
+        "rating": 5,
+        "comment": "The aromatherapy session was heavenly. Clean facilities, friendly staff, and reasonable prices. A hidden gem in Vijay Nagar!",
+        "date": "3 weeks ago"
+      }
+    ]
+  },
+  "thai-luxury-spa": {
+    "meta": {
+      "title": "What Our Clients Say",
+      "viewAllLabel": "View All",
+      "viewAllHref": "/"
+    },
+    "items": [
+      {
+        "id": 1,
+        "avatar": "/body spa bg.jpg",
+        "name": "Anita R.",
+        "rating": 5,
+        "comment": "The authentic Thai massage here is unmatched. Niran knew exactly where I held tension and the herbal compress was incredible.",
+        "date": "3 days ago"
+      },
+      {
+        "id": 2,
+        "avatar": "/massage.webp",
+        "name": "Rohit V.",
+        "rating": 5,
+        "comment": "Palasia's best kept secret. The couple ritual package was worth every rupee. Beautiful ambiance and skilled therapists.",
+        "date": "1 week ago"
+      },
+      {
+        "id": 3,
+        "avatar": "/salon bg.jpg",
+        "name": "Neha G.",
+        "rating": 4,
+        "comment": "Loved the foot reflexology session. Very professional team and the lemongrass oil they use smells amazing.",
+        "date": "2 weeks ago"
+      }
+    ]
+  }
+}

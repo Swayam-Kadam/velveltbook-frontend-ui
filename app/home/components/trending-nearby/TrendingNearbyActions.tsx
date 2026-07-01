@@ -7,12 +7,13 @@ interface TrendingNearbyActionsProps {
 
 export function TrendingNearbyActions({ orgHref }: TrendingNearbyActionsProps) {
     return (
-        <div className="mt-5 flex gap-1">
+        <div className="mt-5 flex gap-1 lg:mt-4 lg:gap-4">
             <Link
                 href="/booking"
                 className="
     primary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[8px] font-medium text-white
+    lg:py-2 lg:text-[11px]
   "
             >
                 <CalendarDays size={12} />
@@ -25,10 +26,11 @@ export function TrendingNearbyActions({ orgHref }: TrendingNearbyActionsProps) {
     secondary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[8px] font-medium
     text-(--text-primary) transition-all duration-300
+    lg:py-2 lg:text-[11px]
   "
             >
                 <Store size={12} strokeWidth={1.8} />
-                View
+                <span>View</span>
             </Link>
         </div>
     );

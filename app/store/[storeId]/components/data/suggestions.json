@@ -1,0 +1,110 @@
+{
+  "lori-massage-parlour": {
+    "meta": {
+      "title": "Suggestions",
+      "bookNowLabel": "Book Now",
+      "footerLabel": "View More",
+      "footerHref": "/"
+    },
+    "items": [
+      {
+        "id": 1,
+        "image": "/body spa bg.jpg",
+        "name": "Thai Luxury Spa",
+        "subtitle": "Authentic Thai Wellness",
+        "timing": "10AM - 8PM",
+        "rating": 4.7,
+        "reviewsLabel": "94+",
+        "distance": "2.1 km away",
+        "storeId": "thai-luxury-spa"
+      },
+      {
+        "id": 2,
+        "image": "/barber.jpg",
+        "name": "Fade Station Barbershop",
+        "subtitle": "Our studio is better than...",
+        "timing": "10AM - 9PM",
+        "rating": 4.7,
+        "reviewsLabel": "98+",
+        "distance": "1.5 km away",
+        "storeId": "thai-luxury-spa"
+      },
+      {
+        "id": 3,
+        "image": "/salon bg.jpg",
+        "name": "Piyush Yadav",
+        "subtitle": "Expert Clinical Massage",
+        "timing": "9AM - 6PM",
+        "rating": 4.6,
+        "reviewsLabel": "86+",
+        "distance": "2.0 km away",
+        "storeId": "lori-massage-parlour"
+      },
+      {
+        "id": 4,
+        "image": "/salon bg.jpg",
+        "name": "Piyush Yadav",
+        "subtitle": "Expert Clinical Massage",
+        "timing": "9AM - 6PM",
+        "rating": 4.6,
+        "reviewsLabel": "86+",
+        "distance": "2.0 km away",
+        "storeId": "lori-massage-parlour"
+      }
+    ]
+  },
+  "thai-luxury-spa": {
+    "meta": {
+      "title": "Suggestions",
+      "bookNowLabel": "Book Now",
+      "footerLabel": "View More",
+      "footerHref": "/"
+    },
+    "items": [
+      {
+        "id": 1,
+        "image": "/massage.webp",
+        "name": "Iori Massage Parlour",
+        "subtitle": "Deep Tissue & Oil Therapy",
+        "timing": "9AM - 5PM",
+        "rating": 4.8,
+        "reviewsLabel": "120+",
+        "distance": "2.1 km away",
+        "storeId": "lori-massage-parlour"
+      },
+      {
+        "id": 2,
+        "image": "/body spa bg.jpg",
+        "name": "Aman Wellness Spa",
+        "subtitle": "Relax & Rejuvenate",
+        "timing": "9AM - 6PM",
+        "rating": 4.7,
+        "reviewsLabel": "75+",
+        "distance": "2.3 km away",
+        "storeId": "thai-luxury-spa"
+      },
+      {
+        "id": 3,
+        "image": "/salon bg.jpg",
+        "name": "Satyam Kumar",
+        "subtitle": "Premium Wellness & Healing",
+        "timing": "9AM - 6PM",
+        "rating": 4.8,
+        "reviewsLabel": "120+",
+        "distance": "1.2 km away",
+        "storeId": "lori-massage-parlour"
+      },
+      {
+        "id": 4,
+        "image": "/salon bg.jpg",
+        "name": "Piyush Yadav",
+        "subtitle": "Expert Clinical Massage",
+        "timing": "9AM - 6PM",
+        "rating": 4.6,
+        "reviewsLabel": "86+",
+        "distance": "2.0 km away",
+        "storeId": "lori-massage-parlour"
+      }
+    ]
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "lori-massage-parlour": {
+    "meta": {
+      "title": "Menu",
+      "actionLabel": "View Full Menu",
+      "actionHref": "/menu",
+      "footerLabel": "View All Services",
+      "footerHref": "/menu"
+    },
+    "items": [
+      {
+        "id": 1,
+        "image": "/massage.webp",
+        "title": "Deep Tissue Massage",
+        "description": "Relieves chronic muscle tension and improves mobility.",
+        "price": "$20"
+      },
+      {
+        "id": 2,
+        "image": "/body spa bg.jpg",
+        "title": "Oil Massage",
+        "description": "Promotes relaxation and improves blood circulation.",
+        "price": "$100"
+      },
+      {
+        "id": 3,
+        "image": "/salon bg.jpg",
+        "title": "Thai Massage",
+        "description": "Enhances flexibility and relieves body stress.",
+        "price": "$30"
+      },
+      {
+        "id": 4,
+        "image": "/barber.jpg",
+        "title": "Hot Stone Massage",
+        "description": "Soothes sore muscles and improves circulation.",
+        "price": "$35"
+      },
+      {
+        "id": 5,
+        "image": "/massage.webp",
+        "title": "Aromatherapy Massage",
+        "description": "Helps reduce stress and promotes overall well-being.",
+        "price": "$35"
+      },
+      {
+        "id": 6,
+        "image": "/body spa bg.jpg",
+        "title": "Swedish Massage",
+        "description": "Gentle massage to relax and rejuvenate the body.",
+        "price": "$25"
+      },
+      {
+        "id": 7,
+        "image": "/salon bg.jpg",
+        "title": "Foot Massage",
+        "description": "Relieves foot pain and improves energy flow.",
+        "price": "$15"
+      },
+      {
+        "id": 8,
+        "image": "/barber.jpg",
+        "title": "Back & Neck Therapy",
+        "description": "Targets neck and back pain and relieves stiffness.",
+        "price": "$20"
+      },
+      {
+        "id": 9,
+        "image": "/massage.webp",
+        "title": "Couple Massage",
+        "description": "Enjoy a relaxing massage experience together.",
+        "price": "$80"
+      },
+      {
+        "id": 10,
+        "image": "/body spa bg.jpg",
+        "title": "Detox Therapy",
+        "description": "Aids detoxification and revitalizes the body.",
+        "price": "$40"
+      }
+    ]
+  },
+  "thai-luxury-spa": {
+    "meta": {
+      "title": "Menu",
+      "actionLabel": "View Full Menu",
+      "actionHref": "/menu",
+      "footerLabel": "View All Services",
+      "footerHref": "/menu"
+    },
+    "items": [
+      {
+        "id": 1,
+        "image": "/body spa bg.jpg",
+        "title": "Royal Thai Massage",
+        "description": "Traditional Thai stretching and acupressure techniques.",
+        "price": "$45"
+      },
+      {
+        "id": 2,
+        "image": "/massage.webp",
+        "title": "Herbal Compress",
+        "description": "Warm herbal pouches applied to soothe muscles.",
+        "price": "$55"
+      },
+      {
+        "id": 3,
+        "image": "/salon bg.jpg",
+        "title": "Foot Reflexology",
+        "description": "Pressure-point therapy for feet and energy balance.",
+        "price": "$20"
+      },
+      {
+        "id": 4,
+        "image": "/barber.jpg",
+        "title": "Lemongrass Body Scrub",
+        "description": "Exfoliating scrub with natural Thai ingredients.",
+        "price": "$35"
+      },
+      {
+        "id": 5,
+        "image": "/body spa bg.jpg",
+        "title": "Couple Ritual",
+        "description": "Side-by-side massage in a private suite.",
+        "price": "$90"
+      },
+      {
+        "id": 6,
+        "image": "/massage.webp",
+        "title": "Head & Shoulder Relief",
+        "description": "Targets tension in neck, shoulders, and scalp.",
+        "price": "$25"
+      }
+    ]
+  }
+}

@@ -12,30 +12,33 @@ import "swiper/css/pagination";
 
 export function TrendingNearby() {
     return (
-        <section className="">
-            <div className="mb-5 flex items-center justify-between">
-                <div className="flex items-center gap-1">
+        <section className="relative">
+            <div className="mb-5 flex items-center justify-between lg:mb-6">
+                <div className="flex items-center gap-2">
                     <Star
-                        size={10}
                         className="fill-(--brand-gold) text-(--brand-gold)"
+                        size={18}
                     />
 
-                    <h2 className="text-xs font-medium text-(--text-primary)">
+                    <h2 className="text-xs font-medium text-(--text-primary) lg:text-[28px]">
                         Trending Nearby
                     </h2>
                 </div>
 
-                <button className="flex items-center gap-1 text-[8px] text-(--accent-secondary)">
-                    <span>View more</span>
+                <button className="flex items-center gap-2 text-(--accent-secondary)">
+                    <span className="text-[10px] lg:text-[15px]">
+                        View more
+                    </span>
 
-                    <ArrowRight size={10} />
+                    <ArrowRight size={18} />
                 </button>
             </div>
 
             <Swiper
                 modules={[Pagination, Autoplay]}
-                slidesPerView={2}
-                spaceBetween={8}
+                loop
+                centeredSlides={false}
+                watchOverflow={false}
                 autoplay={{
                     delay: 3500,
                     disableOnInteraction: false,
@@ -43,12 +46,28 @@ export function TrendingNearby() {
                 pagination={{
                     clickable: true,
                 }}
+                breakpoints={{
+                    0: {
+                        slidesPerView: 2,
+                        spaceBetween: 8,
+                    },
+
+                    1024: {
+                        slidesPerView: 2.15,
+                        spaceBetween: 10,
+                    },
+
+                    1440: {
+                        slidesPerView: 2.2,
+                        spaceBetween: 10,
+                    },
+                }}
                 className="trending-swiper"
             >
                 {trendingNearbyData.map((item) => (
                     <SwiperSlide
                         key={item.id}
-                        className="!w-[calc(100vw-52px)] max-w-[174px]"
+                        className="pr-2"
                     >
                         <TrendingNearbyCard item={item} />
                     </SwiperSlide>

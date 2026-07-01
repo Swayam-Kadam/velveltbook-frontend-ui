@@ -1,20 +1,30 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, ChevronDown, LogOut, UserRound } from "lucide-react";
+import { Bell, ChevronDown, LogOut, UserRound, Sparkle } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { usePathname, useRouter } from "next/navigation";
+import { SearchBar } from "./SearchBar";
+import { NavigationMenu } from "../navigation/desktop/NavigationMenu";
+import { useHomeFilter } from "../layout/HomeFilterContext";
 import { useEffect, useRef, useState } from "react";
 import { isAuthRoute } from "@/lib/authRoutes";
 
 
 export function Header() {
     const pathname = usePathname();
+	const { toggleHomeFilter } = useHomeFilter();
     const router = useRouter();
 
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+
+	const hideHeaderRoutes = [
+		"/auth",
+		"/login",
+		"/register",
+	    ];
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -31,21 +41,21 @@ export function Header() {
         router.push("/auth");
     };
 
-    if (isAuthRoute(pathname)) {
+    if (isAuthRoute(pathname) || hideHeaderRoutes.includes(pathname)) {
         return null;
     }
 
     return (
-        <header className="flex flex-col gap-3 px-2 pt-4 sm:px-6 sm:pt-6">
-            <div className="flex items-center justify-between">
-                <div className="flex min-w-0 items-center">
+        <header className="flex flex-col gap-3 px-2 pt-4 sm:px-6 sm:pt-6 lg:mx-auto lg:h-[80px] lg:w-full lg:max-w-[1600px] lg:flex-row lg:items-center lg:gap-7 lg:px-5 lg:py-3">
+            <div className="flex items-center justify-between lg:contents">
+                <div className="flex min-w-0 items-center lg:shrink-0">
                     <Image
                         src="/vb-logo.png"
                         alt="Velvetbook"
                         width={100}
                         height={100}
                         priority
-                        className="h-8 w-8 object-contain sm:h-12 sm:w-12"
+                        className="h-14 w-14 object-contain sm:h-12 sm:w-12 lg:h-10 lg:w-10"
                     />
 
                     {/* <h1 className="hidden min-[331px]:block brand-logo text-[18px] font-semibold leading-none tracking-[0.02em] text-(--brand-gold)">
@@ -53,19 +63,26 @@ export function Header() {
                     </h1> */}
 
 
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center lg:items-start">
                         <h1
-                            className="text-lg font-semibold tracking-[1.5px]"
+                            className="text-lg font-semibold tracking-[4px] lg:text-[24px] leading-[24px]"
                             style={{
-                                color: "var(--brand-gold)",
+                                color: "var(--logo-text)",
                             }}                >
-                            VELVETBOOK
+                            VELVET
+                            <span
+                                style={{
+                                    color: "var(--brand-gold)",
+                                }}
+                            >
+                                BOOK
+                            </span>
                         </h1>
 
 
                         {/* Gold Divider */}
-                        {/* <div className="flex items-center justify-center">
-                            <div className="h-px w-18 bg-[var(--brand-gold-light)]" />
+                        <div className="flex items-center justify-center">
+                            <div className="h-[0.5px] w-18 lg:w-23 bg-[var(--brand-gold-light)]" />
 
                             <div className="relative flex items-center justify-center">
                                 <div
@@ -84,10 +101,10 @@ export function Header() {
                                 />
                             </div>
 
-                            <div className="h-px w-18 bg-[var(--brand-gold-light)]" />
+                            <div className="h-[0.5px] w-18 lg:w-23 bg-[var(--brand-gold-light)]" />
                         </div>
 
-                        <div className="flex items-center gap-1 text-[6.5px] tracking-[0.4em] uppercase font-semibold">
+                        <div className="flex items-center gap-1 text-[6.5px] lg:text-[8.5px] tracking-[0.4em] uppercase font-semibold">
                             <span style={{ color: "var(--text-primary)" }}>Beauty</span>
 
                             <span style={{ color: "var(--brand-gold)" }} className="text-md">•</span>
@@ -97,12 +114,23 @@ export function Header() {
                             <span style={{ color: "var(--brand-gold)" }} className="text-md">•</span>
 
                             <span style={{ color: "var(--text-primary)" }}>Yours</span>
-                        </div> */}
+                        </div>
                     </div>
 
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="hidden lg:block lg:w-[360px] xl:w-[420px]">
+                    <SearchBar
+                        onFilterClick={
+                            pathname === "/home" ? toggleHomeFilter : undefined
+                        }
+                        className="lg:h-10 lg:rounded-[10px] lg:px-4"
+                    />
+                </div>
+
+                <NavigationMenu className="lg:flex-1 lg:gap-5 xl:gap-8" />
+
+                <div className="flex items-center gap-2 lg:shrink-0">
                     <ThemeToggle />
 
                     <button

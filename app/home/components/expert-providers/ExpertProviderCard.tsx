@@ -14,7 +14,7 @@ export function ExpertProviderCard({
     return (
         <Link
             href={`/specificorganization/${provider.organizationId}`}
-            className="block transition-transform duration-200 active:scale-[0.98] border border-(--brand-gold) rounded-(--radius-md)"
+            className="block transition-transform duration-200 active:scale-[0.98] border border-(--brand-gold) rounded-(--radius-md) lg:rounded-[8px]"
         >
         <article
             className="
@@ -25,9 +25,10 @@ export function ExpertProviderCard({
     bg-(--bg-card)
     p-3
     shadow-(--shadow-card)
+    lg:min-h-[96px] lg:gap-4 lg:rounded-[8px] lg:p-4
   "
         >
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl lg:h-14 lg:w-14">
                 <Image
                     src={provider.image}
                     alt={provider.name}
@@ -38,15 +39,15 @@ export function ExpertProviderCard({
             </div>
 
             <div className="min-w-0 flex-1">
-                <p className="truncate text-[10px] font-medium text-(--text-primary)">
+                <p className="truncate text-[10px] font-medium text-(--text-primary) lg:text-[12px]">
                     {provider.name}
                 </p>
 
-                <p className="mt-0.5 text-[8px] text-(--text-secondary)">
+                <p className="mt-0.5 text-[8px] text-(--text-secondary) lg:text-[10px]">
                     {provider.specialist}
                 </p>
 
-                <div className="mt-1 flex items-center gap-3 text-[8px] text-(--text-muted)">
+                <div className="mt-1 flex items-center gap-3 text-[8px] text-(--text-muted) lg:text-[10px]">
                     <div className="flex items-center gap-1">
                         <MapPin size={8} />
 
@@ -66,7 +67,7 @@ export function ExpertProviderCard({
                 </div>
             </div>
 
-            <span className="shrink-0 text-xs font-semibold text-(--accent-secondary)">
+            <span className="shrink-0 text-xs font-semibold text-(--accent-secondary) lg:text-[14px]">
                 {provider.price}
             </span>
         </article>

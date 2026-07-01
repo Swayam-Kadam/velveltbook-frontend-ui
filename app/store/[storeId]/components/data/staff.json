@@ -1,0 +1,94 @@
+{
+  "lori-massage-parlour": {
+    "meta": {
+      "title": "Our Staffs",
+      "viewAllLabel": "View All",
+      "viewAllHref": "/",
+      "bookServiceLabel": "Book Service"
+    },
+    "items": [
+      {
+        "id": 1,
+        "image": "/massage.webp",
+        "name": "Sophia Anderson",
+        "designation": "Massage Expert",
+        "experience": "8 Years Exp",
+        "specialty": "Deep Tissue",
+        "rating": 4.9
+      },
+      {
+        "id": 2,
+        "image": "/body spa bg.jpg",
+        "name": "Emma Wilson",
+        "designation": "Spa Therapist",
+        "experience": "6 Years Exp",
+        "specialty": "Swedish",
+        "rating": 4.8
+      },
+      {
+        "id": 3,
+        "image": "/salon bg.jpg",
+        "name": "Olivia Smith",
+        "designation": "Wellness Coach",
+        "experience": "5 Years Exp",
+        "specialty": "Aromatherapy",
+        "rating": 4.7
+      },
+      {
+        "id": 4,
+        "image": "/barber.jpg",
+        "name": "Mia Johnson",
+        "designation": "Thai Specialist",
+        "experience": "9 Years Exp",
+        "specialty": "Thai Massage",
+        "rating": 5.0
+      }
+    ]
+  },
+  "thai-luxury-spa": {
+    "meta": {
+      "title": "Our Staffs",
+      "viewAllLabel": "View All",
+      "viewAllHref": "/",
+      "bookServiceLabel": "Book Service"
+    },
+    "items": [
+      {
+        "id": 1,
+        "image": "/body spa bg.jpg",
+        "name": "Niran Patel",
+        "designation": "Thai Master",
+        "experience": "12 Years Exp",
+        "specialty": "Traditional Thai",
+        "rating": 4.9
+      },
+      {
+        "id": 2,
+        "image": "/massage.webp",
+        "name": "Lila Chen",
+        "designation": "Aroma Specialist",
+        "experience": "7 Years Exp",
+        "specialty": "Aromatherapy",
+        "rating": 4.8
+      },
+      {
+        "id": 3,
+        "image": "/salon bg.jpg",
+        "name": "Arjun Mehta",
+        "designation": "Reflexologist",
+        "experience": "6 Years Exp",
+        "specialty": "Foot Therapy",
+        "rating": 4.7
+      },
+      {
+        "id": 4,
+        "image": "/barber.jpg",
+        "name": "Mei Tan",
+        "designation": "Senior Therapist",
+        "experience": "10 Years Exp",
+        "specialty": "Hot Stone",
+        "rating": 5.0
+      }
+    ]
+  }
+}

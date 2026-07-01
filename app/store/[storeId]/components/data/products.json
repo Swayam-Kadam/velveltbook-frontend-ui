@@ -1,0 +1,82 @@
+{
+  "lori-massage-parlour": {
+    "meta": {
+      "title": "Our Products",
+      "viewAllLabel": "View All",
+      "viewAllHref": "/",
+      "footerLabel": "View All Products"
+    },
+    "items": [
+      {
+        "id": 1,
+        "image": "/massage.webp",
+        "title": "Lavender Massage Oil",
+        "price": "$18"
+      },
+      {
+        "id": 2,
+        "image": "/body spa bg.jpg",
+        "title": "Aroma Essential Oil",
+        "price": "$22"
+      },
+      {
+        "id": 3,
+        "image": "/salon bg.jpg",
+        "title": "Spa Candle Set",
+        "price": "$15"
+      },
+      {
+        "id": 4,
+        "image": "/barber.jpg",
+        "title": "Herbal Body Scrub",
+        "price": "$20"
+      },
+      {
+        "id": 5,
+        "image": "/massage.webp",
+        "title": "Relaxation Balm",
+        "price": "$12"
+      }
+    ]
+  },
+  "thai-luxury-spa": {
+    "meta": {
+      "title": "Our Products",
+      "viewAllLabel": "View All",
+      "viewAllHref": "/",
+      "footerLabel": "View All Products"
+    },
+    "items": [
+      {
+        "id": 1,
+        "image": "/body spa bg.jpg",
+        "title": "Thai Herbal Balm",
+        "price": "$16"
+      },
+      {
+        "id": 2,
+        "image": "/massage.webp",
+        "title": "Lemongrass Oil",
+        "price": "$24"
+      },
+      {
+        "id": 3,
+        "image": "/salon bg.jpg",
+        "title": "Silk Eye Mask",
+        "price": "$14"
+      },
+      {
+        "id": 4,
+        "image": "/barber.jpg",
+        "title": "Bamboo Diffuser",
+        "price": "$28"
+      },
+      {
+        "id": 5,
+        "image": "/body spa bg.jpg",
+        "title": "Detox Tea Blend",
+        "price": "$10"
+      }
+    ]
+  }
+}

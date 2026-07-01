@@ -1,0 +1,46 @@
+[
+  {
+    "id": "lori-massage-parlour",
+    "name": "Lori Massage Parlour",
+    "category": "Massage Spa",
+    "coverImage": "/massage.webp",
+    "logo": "/massage.webp",
+    "address": "Vijay Nagar, Indore",
+    "timing": "9AM - 5PM",
+    "rating": 4.8,
+    "totalReviews": 120,
+    "distance": "1.2 km",
+    "phone": "+91 9876543210",
+    "description": "Specialized deep tissue and traditional oil therapies for body recovery and relaxation.",
+    "location": "Indore, India",
+    "isOnline": true,
+    "hero": {
+      "titlePrefix": "Lori ",
+      "titleHighlight": "Massage",
+      "titleSuffix": " Parlour",
+      "videoUrl": "#"
+    }
+  },
+  {
+    "id": "thai-luxury-spa",
+    "name": "Thai Luxury Spa",
+    "category": "Massage Spa",
+    "coverImage": "/body spa bg.jpg",
+    "logo": "/massage.webp",
+    "address": "Palasia, Indore",
+    "timing": "10AM - 8PM",
+    "rating": 4.7,
+    "totalReviews": 94,
+    "distance": "2.1 km",
+    "phone": "+91 9876543211",
+    "description": "Authentic Thai massage and aromatherapy treatments in a serene environment.",
+    "location": "Indore, India",
+    "isOnline": false,
+    "hero": {
+      "titlePrefix": "Thai ",
+      "titleHighlight": "Luxury",
+      "titleSuffix": " Spa",
+      "videoUrl": "#"
+    }
+  }
+]

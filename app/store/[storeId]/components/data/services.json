@@ -1,0 +1,82 @@
+{
+  "lori-massage-parlour": {
+    "meta": {
+      "title": "Our Services",
+      "viewAllLabel": "View All",
+      "viewAllHref": "/menu"
+    },
+    "items": [
+      {
+        "id": 1,
+        "image": "/massage.webp",
+        "title": "Hairs",
+        "price": "$80"
+      },
+      {
+        "id": 2,
+        "image": "/body spa bg.jpg",
+        "title": "Flexible Massage",
+        "price": "$10"
+      },
+      {
+        "id": 3,
+        "image": "/salon bg.jpg",
+        "title": "Spa Therapy",
+        "price": "$25"
+      },
+      {
+        "id": 4,
+        "image": "/barber.jpg",
+        "title": "Aromatherapy",
+        "price": "$25"
+      },
+      {
+        "id": 5,
+        "image": "/massage.webp",
+        "title": "More",
+        "price": "Explore",
+        "isExplore": true
+      }
+    ]
+  },
+  "thai-luxury-spa": {
+    "meta": {
+      "title": "Our Services",
+      "viewAllLabel": "View All",
+      "viewAllHref": "/menu"
+    },
+    "items": [
+      {
+        "id": 1,
+        "image": "/body spa bg.jpg",
+        "title": "Thai Massage",
+        "price": "$45"
+      },
+      {
+        "id": 2,
+        "image": "/massage.webp",
+        "title": "Herbal Compress",
+        "price": "$55"
+      },
+      {
+        "id": 3,
+        "image": "/salon bg.jpg",
+        "title": "Foot Reflexology",
+        "price": "$20"
+      },
+      {
+        "id": 4,
+        "image": "/barber.jpg",
+        "title": "Couple Ritual",
+        "price": "$90"
+      },
+      {
+        "id": 5,
+        "image": "/body spa bg.jpg",
+        "title": "More",
+        "price": "Explore",
+        "isExplore": true
+      }
+    ]
+  }
+}

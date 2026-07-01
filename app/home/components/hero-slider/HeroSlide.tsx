@@ -16,14 +16,16 @@ export function HeroSlide({
     description,
     time,
 }: HeroSlideProps) {
+    const titleLines = title.split("\n");
+
     return (
-        <div className="relative overflow-hidden rounded-xl border border-(--border) dark:border-white/10">
-            <div className="relative min-h-[200px] w-full">
+        <div className="relative overflow-hidden rounded-xl border border-(--border) dark:border-white/10 lg:rounded-[8px]">
+            <div className="relative min-h-[200px] w-full lg:min-h-[330px] xl:min-h-[330px]">
                 <Image
                     src={image}
                     alt={title}
                     fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 1024px) 100vw, 80vw"
                     priority
                     className="object-cover"
                 />
@@ -78,8 +80,8 @@ export function HeroSlide({
                 />
 
                 {/* Content */}
-                <div className="absolute inset-0 flex flex-col justify-center p-5">
-                    <div className="absolute right-2 top-2 flex items-center justify-between gap-1">
+                <div className="absolute inset-0 flex flex-col justify-center p-5 lg:p-20">
+                    <div className="absolute right-2 top-2 flex items-center justify-between gap-1 lg:hidden">
                         <div className="primary-button rounded-full bg-white/15 px-4 py-1 text-[8px] font-medium text-white backdrop-blur-md">
                             {time}
                         </div>
@@ -88,18 +90,27 @@ export function HeroSlide({
                         </button>
                     </div>
 
-                    <div className="max-w-[55%] min-h-[50px]">
+                    <div className="max-w-[55%] min-h-[50px] lg:max-w-[440px]">
                         <h2
                             className="
                                 mb-3 whitespace-pre-line
                                 text-[24px] font-semibold leading-[24px]
                                 text-(--accent-primary)  [.dark_&]:text-[#E6BE78]
+                                lg:mb-5 lg:text-[64px] lg:leading-[58px]
                             "
                         >
-                            {title}
+                            {titleLines.map((line, index) => (
+                                <span
+                                    key={line}
+                                    className={index > 0 ? "lg:text-(--brand-gold)" : ""}
+                                >
+                                    {line}
+                                    {index < titleLines.length - 1 && <br />}
+                                </span>
+                            ))}
                         </h2>
 
-                        <p className="max-w-[220px] text-[12px] text-var(--accent-primary)] [.dark_&]:text-white">
+                        <p className="max-w-[220px] text-[12px] text-var(--accent-primary)] [.dark_&]:text-white lg:max-w-[360px] lg:text-[16px] lg:leading-7 lg:text-(--text-primary)">
                             {description}
                         </p>
                     </div>

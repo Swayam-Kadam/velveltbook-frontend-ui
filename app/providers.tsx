@@ -1,6 +1,7 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
+import { HomeFilterProvider } from "./components/layout/HomeFilterContext";
 
 export function Providers({
     children,
@@ -14,7 +15,7 @@ export function Providers({
             enableSystem={false}
             storageKey="velvetbook-theme"
         >
-            {children}
+            <HomeFilterProvider>{children}</HomeFilterProvider>
         </ThemeProvider>
     );
 }
