@@ -8,9 +8,12 @@ import { getExtendedOrganization } from "@/specificorganizationbook/organization
 import { parseBookingSearchParams } from "../booking.navigation";
 import {
   calcServicesTotal,
+  createDefaultServiceSchedule,
   getDefaultSeatId,
   getStaffByGender,
+  syncServiceSchedules,
 } from "../booking.data";
+import type { ServiceSchedules } from "../booking.types";
 import { BookingHeader } from "./BookingHeader";
 import { BookingProgress } from "./BookingProgress";
 import { BookingStickyFooter } from "./BookingStickyFooter";
@@ -42,8 +45,7 @@ export function BookingFlow() {
   };
 
   const [staffId, setStaffId] = useState("sony");
-  const [selectedDayId, setSelectedDayId] = useState("2026-05-22");
-  const [selectedTime, setSelectedTime] = useState("11:00 AM");
+  const [serviceSchedules, setServiceSchedules] = useState<ServiceSchedules>({});
   const [selectedSeatId, setSelectedSeatId] = useState(getDefaultSeatId);
   const [seatConfirmed, setSeatConfirmed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -76,6 +78,10 @@ export function BookingFlow() {
 
     setInitialized(true);
   }, [initialized, searchParams]);
+
+  useEffect(() => {
+    setServiceSchedules((current) => syncServiceSchedules(current, serviceIds));
+  }, [serviceIds]);
 
   const organizationBanner = useMemo(() => {
     if (!organizationId) return undefined;
@@ -110,6 +116,28 @@ export function BookingFlow() {
 
   const handleSelectStaff = (id: string) => {
     setStaffId(id);
+  };
+
+  const handleSelectServiceDay = (serviceId: string, dayId: string) => {
+    setServiceSchedules((current) => ({
+      ...current,
+      [serviceId]: {
+        ...(current[serviceId] ?? createDefaultServiceSchedule()),
+        dayId,
+        isSet: true,
+      },
+    }));
+  };
+
+  const handleSelectServiceTime = (serviceId: string, time: string) => {
+    setServiceSchedules((current) => ({
+      ...current,
+      [serviceId]: {
+        ...(current[serviceId] ?? createDefaultServiceSchedule()),
+        time,
+        isSet: true,
+      },
+    }));
   };
 
   const footerConfig = () => {
@@ -156,13 +184,12 @@ export function BookingFlow() {
             organizationBanner={organizationBanner}
             expertType={expertType}
             staffId={staffId}
-            selectedDayId={selectedDayId}
-            selectedTime={selectedTime}
+            serviceSchedules={serviceSchedules}
             selectedSeatId={selectedSeatId}
             seatConfirmed={seatConfirmed}
             onSelectStaff={handleSelectStaff}
-            onSelectDay={setSelectedDayId}
-            onSelectTime={setSelectedTime}
+            onSelectServiceDay={handleSelectServiceDay}
+            onSelectServiceTime={handleSelectServiceTime}
             onSelectSeat={handleSelectSeat}
             onConfirmSeat={handleConfirmSeat}
             onRemoveService={removeService}
@@ -178,12 +205,11 @@ export function BookingFlow() {
             organizationBanner={organizationBanner}
             expertType={expertType}
             staffId={staffId}
-            selectedDayId={selectedDayId}
-            selectedTime={selectedTime}
+            serviceSchedules={serviceSchedules}
             selectedSeatId={selectedSeatId}
             seatConfirmed={seatConfirmed}
-            onSelectDay={setSelectedDayId}
-            onSelectTime={setSelectedTime}
+            onSelectServiceDay={handleSelectServiceDay}
+            onSelectServiceTime={handleSelectServiceTime}
             onSelectStaff={handleSelectStaff}
             onSelectSeat={handleSelectSeat}
             onConfirmSeat={handleConfirmSeat}
@@ -198,8 +224,7 @@ export function BookingFlow() {
             selectedServiceIds={serviceIds}
             organizationBanner={organizationBanner}
             staffId={staffId}
-            selectedDayId={selectedDayId}
-            selectedTime={selectedTime}
+            serviceSchedules={serviceSchedules}
             paymentMethod={paymentMethod}
             promoCode={promoCode}
             billingName={billingName}

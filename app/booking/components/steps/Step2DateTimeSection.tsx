@@ -82,6 +82,7 @@ interface Step2DateTimeSectionProps {
   activeTime: string;
   onSelectDay: (id: string) => void;
   onSelectTime: (time: string) => void;
+  embedded?: boolean;
 }
 
 export function Step2DateTimeSection({
@@ -91,6 +92,7 @@ export function Step2DateTimeSection({
   activeTime,
   onSelectDay,
   onSelectTime,
+  embedded = false,
 }: Step2DateTimeSectionProps) {
   const [showCalendar, setShowCalendar] = useState(false);
   const [dayOffset, setDayOffset] = useState(0);
@@ -242,56 +244,69 @@ export function Step2DateTimeSection({
         : "text-(--text-secondary) hover:text-(--accent-primary)"
     }`;
 
-  return (
-    <section className="feature-card rounded-xl p-3">
-      <div className="mb-2.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--accent-primary)/10">
-            <Clock3 size={11} className="text-(--accent-primary)" />
-          </span>
-          <h3 className="text-xs font-bold text-(--text-primary)">
-            Choose Date &amp; Time
-          </h3>
-        </div>
+  const calendarDropdown = (align: "start" | "center" | "end" = "end") => (
+    <div className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setShowCalendar((open) => !open)}
+        aria-label="Open date picker"
+        aria-expanded={showCalendar}
+        className="
+          flex h-6 items-center gap-1 rounded-lg border border-(--border)
+          bg-(--bg-card) px-1.5 text-[8px] font-semibold text-(--text-primary)
+          transition-colors hover:border-(--accent-primary)
+        "
+      >
+        <Calendar size={11} className="text-(--accent-primary)" />
+        <ChevronDown
+          size={11}
+          className={`text-(--text-secondary) transition-transform ${showCalendar ? "rotate-180" : ""}`}
+        />
+      </button>
 
-        <div className="relative shrink-0">
-          <button
-            type="button"
-            onClick={() => setShowCalendar((open) => !open)}
-            aria-label="Open date picker"
-            aria-expanded={showCalendar}
-            className="
-              flex h-7 items-center gap-1 rounded-lg border border-(--border)
-              bg-(--bg-card) px-2 text-[8px] font-semibold text-(--text-primary)
-              transition-colors hover:border-(--accent-primary)
-            "
-          >
-            <Calendar size={11} className="text-(--accent-primary)" />
-            <span>Select date</span>
-            <ChevronDown
-              size={11}
-              className={`text-(--text-secondary) transition-transform ${showCalendar ? "rotate-180" : ""}`}
-            />
-          </button>
+      {showCalendar && (
+        <DatePickerPopover
+          days={days}
+          activeDayId={activeDayId}
+          onSelect={onSelectDay}
+          onClose={() => setShowCalendar(false)}
+          align={align}
+        />
+      )}
+    </div>
+  );
 
-          {showCalendar && (
-            <DatePickerPopover
-              days={days}
-              activeDayId={activeDayId}
-              onSelect={onSelectDay}
-              onClose={() => setShowCalendar(false)}
-            />
-          )}
-        </div>
+  const header = (
+    <div className="mb-2.5 flex items-center justify-between gap-2">
+      <div className="flex items-center gap-1.5">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--accent-primary)/10">
+          <Clock3 size={11} className="text-(--accent-primary)" />
+        </span>
+        <h3 className="text-xs font-bold text-(--text-primary)">
+          Choose Date &amp; Time
+        </h3>
       </div>
+
+      {calendarDropdown("end")}
+    </div>
+  );
+
+  return (
+    <section className={embedded ? "" : "feature-card rounded-xl p-3"}>
+      {!embedded && header}
 
       {/* Date */}
       <div>
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <p className="text-[9px] font-semibold text-(--text-secondary)">
+        <div className="mb-2 flex items-center gap-2">
+          <p className="shrink-0 text-[9px] font-semibold text-(--text-secondary)">
             Select Date
           </p>
-          <div className="flex items-center gap-1">
+          {embedded && (
+            <div className="flex flex-1 items-center justify-center">
+              {calendarDropdown("center")}
+            </div>
+          )}
+          <div className={`flex shrink-0 items-center gap-1 ${embedded ? "" : "ml-auto"}`}>
             <RoundChevron
               dir="left"
               label="Previous month"

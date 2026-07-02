@@ -26,6 +26,7 @@ interface DatePickerPopoverProps {
   activeDayId: string;
   onSelect: (dayId: string) => void;
   onClose: () => void;
+  align?: "start" | "center" | "end";
 }
 
 function parseIso(iso: string) {
@@ -38,6 +39,7 @@ export function DatePickerPopover({
   activeDayId,
   onSelect,
   onClose,
+  align = "end",
 }: DatePickerPopoverProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -105,16 +107,23 @@ export function DatePickerPopover({
     return result;
   }, [view]);
 
+  const alignClass =
+    align === "center"
+      ? "left-1/2 -translate-x-1/2"
+      : align === "start"
+        ? "left-0"
+        : "right-0";
+
   return (
     <div
       ref={containerRef}
       role="dialog"
       aria-label="Choose a date"
-      className="
-        absolute right-0 top-full z-50 mt-2 w-[min(15rem,calc(100vw-2rem))]
+      className={`
+        absolute top-full z-50 mt-2 w-[min(15rem,calc(100vw-2rem))]
         overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)
-        p-2 shadow-(--shadow-card)
-      "
+        p-2 shadow-(--shadow-card) ${alignClass}
+      `}
     >
       <div className="flex items-center justify-between gap-1">
         <button

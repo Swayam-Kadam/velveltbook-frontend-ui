@@ -14,17 +14,18 @@ import {
 
 import type { ExpertType } from "@/menu/components/ExpertSelection";
 import {
-  bookingDays,
   bookingSeats,
   bookingStaff,
   getBookingDay,
   getBookingSeat,
+  getSelectedServices,
   getStaff,
-  timeSlots,
+  isServiceScheduleComplete,
 } from "../../booking.data";
+import type { ServiceSchedules } from "../../booking.types";
 import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import { SeatSelectionSection } from "./SeatSelectionSection";
-import { Step2DateTimeSection } from "./Step2DateTimeSection";
+import { ServiceScheduleAccordion } from "./ServiceScheduleAccordion";
 
 interface OrganizationBannerInfo {
   name: string;
@@ -38,12 +39,11 @@ interface Step3DateTimeSelectionProps {
   organizationBanner?: OrganizationBannerInfo;
   expertType: ExpertType;
   staffId: string;
-  selectedDayId: string;
-  selectedTime: string;
+  serviceSchedules: ServiceSchedules;
   selectedSeatId: string;
   seatConfirmed: boolean;
-  onSelectDay: (dayId: string) => void;
-  onSelectTime: (time: string) => void;
+  onSelectServiceDay: (serviceId: string, dayId: string) => void;
+  onSelectServiceTime: (serviceId: string, time: string) => void;
   onSelectStaff: (id: string) => void;
   onSelectSeat: (id: string) => void;
   onConfirmSeat: () => void;
@@ -126,12 +126,11 @@ export function Step3DateTimeSelection({
   organizationBanner,
   expertType,
   staffId,
-  selectedDayId,
-  selectedTime,
+  serviceSchedules,
   selectedSeatId,
   seatConfirmed,
-  onSelectDay,
-  onSelectTime,
+  onSelectServiceDay,
+  onSelectServiceTime,
   onSelectStaff,
   onSelectSeat,
   onConfirmSeat,
@@ -143,7 +142,7 @@ export function Step3DateTimeSelection({
   const [showTherapistModal, setShowTherapistModal] = useState(false);
 
   const staff = getStaff(staffId);
-  const selectedDay = getBookingDay(selectedDayId);
+  const selectedServices = getSelectedServices(selectedServiceIds);
   const selectedSeat = getBookingSeat(selectedSeatId);
 
   const visibleStaff = useMemo(() => {
@@ -210,35 +209,45 @@ export function Step3DateTimeSelection({
 
           <article className="feature-card rounded-xl px-2 pt-2">
             <div className="space-y-2 pb-1">
-              <div className="flex items-start gap-1.5">
-                <CalendarDays
-                  size={12}
-                  className="mt-0.5 shrink-0 text-(--accent-primary)"
-                />
-                <div className="min-w-0">
-                  <p className="text-[8px] font-semibold text-(--text-muted)">
-                    Date
-                  </p>
-                  <p className="text-[10px] font-bold text-(--text-primary)">
-                    {selectedDay.weekday}, {selectedDay.date}
-                  </p>
-                </div>
-              </div>
+              {selectedServices.map((service) => {
+                const schedule = serviceSchedules[service.id];
+                const scheduled = isServiceScheduleComplete(schedule);
 
-              <div className="flex items-start gap-1.5">
-                <Clock3
-                  size={12}
-                  className="mt-0.5 shrink-0 text-(--accent-primary)"
-                />
-                <div className="min-w-0">
-                  <p className="text-[8px] font-semibold text-(--text-muted)">
-                    Time
-                  </p>
-                  <p className="text-[10px] font-bold text-(--text-primary)">
-                    {selectedTime}
-                  </p>
-                </div>
-              </div>
+                return (
+                  <div key={service.id} className="min-w-0">
+                    <p className="truncate text-[8px] font-semibold text-(--text-muted)">
+                      {service.name}
+                    </p>
+                    {scheduled ? (
+                      <div className="mt-0.5 space-y-0.5">
+                        <div className="flex items-start gap-1.5">
+                          <CalendarDays
+                            size={10}
+                            className="mt-0.5 shrink-0 text-(--accent-primary)"
+                          />
+                          <p className="text-[9px] font-bold text-(--text-primary)">
+                            {getBookingDay(schedule.dayId).weekday},{" "}
+                            {getBookingDay(schedule.dayId).date}
+                          </p>
+                        </div>
+                        <div className="flex items-start gap-1.5">
+                          <Clock3
+                            size={10}
+                            className="mt-0.5 shrink-0 text-(--accent-primary)"
+                          />
+                          <p className="text-[9px] font-bold text-(--text-primary)">
+                            {schedule.time}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="mt-0.5 text-[9px] font-semibold text-(--text-muted)">
+                        Not scheduled yet
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <button
@@ -290,13 +299,11 @@ export function Step3DateTimeSelection({
           titleId="datetime-modal-title"
           onClose={() => setShowDateTimeModal(false)}
         >
-          <Step2DateTimeSection
-            days={bookingDays}
-            times={timeSlots}
-            activeDayId={selectedDayId}
-            activeTime={selectedTime}
-            onSelectDay={onSelectDay}
-            onSelectTime={onSelectTime}
+          <ServiceScheduleAccordion
+            selectedServiceIds={selectedServiceIds}
+            schedules={serviceSchedules}
+            onSelectDay={onSelectServiceDay}
+            onSelectTime={onSelectServiceTime}
           />
         </BookingModal>
       )}

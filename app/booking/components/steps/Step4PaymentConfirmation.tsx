@@ -27,10 +27,12 @@ import { SiRazorpay } from "react-icons/si";
 import {
   bookingLocation,
   calcServicesTotal,
-  getBookingDay,
+  formatServiceSchedule,
   getSelectedServices,
   getStaff,
+  isServiceScheduleComplete,
 } from "../../booking.data";
+import type { ServiceSchedules } from "../../booking.types";
 import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 
 interface OrganizationBannerInfo {
@@ -44,8 +46,7 @@ interface Step4PaymentConfirmationProps {
   selectedServiceIds: string[];
   organizationBanner?: OrganizationBannerInfo;
   staffId: string;
-  selectedDayId: string;
-  selectedTime: string;
+  serviceSchedules: ServiceSchedules;
   paymentMethod: string;
   promoCode: string;
   billingName: string;
@@ -133,8 +134,7 @@ export function Step4PaymentConfirmation({
   selectedServiceIds,
   organizationBanner,
   staffId,
-  selectedDayId,
-  selectedTime,
+  serviceSchedules,
   paymentMethod,
   billingName,
   onPaymentMethodChange,
@@ -147,7 +147,6 @@ export function Step4PaymentConfirmation({
 }: Step4PaymentConfirmationProps) {
   const selectedServices = getSelectedServices(selectedServiceIds);
   const staff = getStaff(staffId);
-  const selectedDay = getBookingDay(selectedDayId);
   const { subtotal, tax, total } = calcServicesTotal(selectedServiceIds);
 
   const [cardNumber, setCardNumber] = useState("");
@@ -263,15 +262,24 @@ export function Step4PaymentConfirmation({
           </div>
 
           <div className="space-y-1 text-[8px]">
-            {selectedServices.map((service) => (
-              <div
-                key={service.id}
-                className="flex justify-between gap-2 text-(--text-secondary)"
-              >
-                <span className="min-w-0 truncate">{service.name}</span>
-                <span className="shrink-0">{service.priceLabel}</span>
-              </div>
-            ))}
+            {selectedServices.map((service) => {
+              const schedule = serviceSchedules[service.id];
+              const scheduled = isServiceScheduleComplete(schedule);
+
+              return (
+                <div key={service.id} className="space-y-0.5">
+                  <div className="flex justify-between gap-2 text-(--text-secondary)">
+                    <span className="min-w-0 truncate">{service.name}</span>
+                    <span className="shrink-0">{service.priceLabel}</span>
+                  </div>
+                  {scheduled && (
+                    <p className="text-[7px] font-semibold text-(--text-muted)">
+                      {formatServiceSchedule(schedule)}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
             <div className="flex justify-between border-t border-(--border) pt-1 text-(--text-secondary)">
               <span>Subtotal</span>
               <span>${subtotal}</span>

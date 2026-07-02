@@ -46,6 +46,14 @@ export interface BookingSeat {
   status: "available" | "unavailable";
 }
 
+export interface ServiceSchedule {
+  dayId: string;
+  time: string;
+  isSet: boolean;
+}
+
+export type ServiceSchedules = Record<string, ServiceSchedule>;
+
 export interface BookingState {
   serviceId: string;
   staffId: string;

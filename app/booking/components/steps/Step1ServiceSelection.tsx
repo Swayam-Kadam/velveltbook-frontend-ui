@@ -14,6 +14,7 @@ import {
 import { CategorySidebar } from "@/menu/components/CategorySidebar";
 import { ServiceCard } from "@/menu/components/ServiceCard";
 import {
+  allMenuServices,
   getServicesByCategory,
   getTotalPages,
   menuCategories,
@@ -57,6 +58,18 @@ export function Step1ServiceSelection({
 
   const activeCategoryLabel =
     menuCategories.find((c) => c.id === activeCategory)?.label ?? "Services";
+
+  const categorySelectedCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const id of selectedServiceIds) {
+      const menuService = allMenuServices.find((s) => s.id === id);
+      if (menuService) {
+        counts[menuService.categoryId] =
+          (counts[menuService.categoryId] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }, [selectedServiceIds]);
 
   useEffect(() => {
     setPage(1);
@@ -193,6 +206,7 @@ export function Step1ServiceSelection({
           categories={menuCategories}
           activeId={activeCategory}
           onSelect={setActiveCategory}
+          selectedCounts={categorySelectedCounts}
         />
 
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary)">

@@ -6,12 +6,14 @@ interface CategorySidebarProps {
   categories: MenuCategory[];
   activeId: string;
   onSelect: (id: string) => void;
+  selectedCounts?: Record<string, number>;
 }
 
 export function CategorySidebar({
   categories,
   activeId,
   onSelect,
+  selectedCounts,
 }: CategorySidebarProps) {
   return (
     <aside
@@ -25,6 +27,8 @@ export function CategorySidebar({
       <nav className="flex flex-col gap-0.5 px-1.5">
         {categories.map(({ id, label, icon: Icon }) => {
           const active = id === activeId;
+          const count = selectedCounts?.[id] ?? 0;
+          const showBadge = count > 0;
 
           return (
             <button
@@ -41,15 +45,34 @@ export function CategorySidebar({
                 }
               `}
             >
-              <Icon
-                size={16}
-                strokeWidth={1.5}
-                className={
-                  active
-                    ? "text-(--brand-gold)"
-                    : "text-(--text-primary)"
-                }
-              />
+              <div className="relative">
+                <Icon
+                  size={16}
+                  strokeWidth={1.5}
+                  className={
+                    active
+                      ? "text-(--brand-gold)"
+                      : "text-(--text-primary)"
+                  }
+                />
+                {showBadge && (
+                  <span
+                    className={`
+                      absolute -right-3.5 -top-1.5 flex h-3.5 min-w-3.5
+                      items-center justify-center rounded-full px-0.5
+                      text-[7px] font-bold leading-none
+                      ${
+                        active
+                          ? "bg-white text-(--accent-primary)"
+                          : "bg-(--brand-gold) text-(--text-primary)"
+                      }
+                    `}
+                    aria-label={`${count} selected`}
+                  >
+                    {count}
+                  </span>
+                )}
+              </div>
 
               <span
                 className={`

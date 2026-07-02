@@ -10,6 +10,8 @@ import {
   BookingService,
   BookingStaff,
   PaymentMethod,
+  ServiceSchedule,
+  ServiceSchedules,
 } from "./booking.types";
 
 export const bookingServices: BookingService[] = [
@@ -282,4 +284,50 @@ export function getSelectedServices(ids: string[]) {
 export function calcServicesTotal(ids: string[]) {
   const subtotal = getSelectedServices(ids).reduce((sum, s) => sum + s.price, 0);
   return calcTotal(subtotal);
+}
+
+export const DEFAULT_SCHEDULE_DAY_ID = "2026-05-22";
+export const DEFAULT_SCHEDULE_TIME = "11:00 AM";
+
+export function createDefaultServiceSchedule(): ServiceSchedule {
+  return {
+    dayId: DEFAULT_SCHEDULE_DAY_ID,
+    time: DEFAULT_SCHEDULE_TIME,
+    isSet: false,
+  };
+}
+
+export function syncServiceSchedules(
+  current: ServiceSchedules,
+  serviceIds: string[],
+): ServiceSchedules {
+  const next: ServiceSchedules = {};
+  for (const id of serviceIds) {
+    next[id] = current[id] ?? createDefaultServiceSchedule();
+  }
+  return next;
+}
+
+export function isServiceScheduleComplete(schedule?: ServiceSchedule) {
+  return schedule?.isSet === true;
+}
+
+export function areAllServiceSchedulesComplete(
+  schedules: ServiceSchedules,
+  serviceIds: string[],
+) {
+  return serviceIds.every((id) => isServiceScheduleComplete(schedules[id]));
+}
+
+export function countScheduledServices(
+  schedules: ServiceSchedules,
+  serviceIds: string[],
+) {
+  return serviceIds.filter((id) => isServiceScheduleComplete(schedules[id]))
+    .length;
+}
+
+export function formatServiceSchedule(schedule: ServiceSchedule) {
+  const day = getBookingDay(schedule.dayId);
+  return `${day.date}, ${schedule.time}`;
 }

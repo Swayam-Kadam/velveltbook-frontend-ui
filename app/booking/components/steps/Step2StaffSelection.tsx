@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import {
   ArrowRight,
   Check,
-  Clock3,
   SlidersHorizontal,
   Star,
 } from "lucide-react";
@@ -13,17 +12,18 @@ import {
 import type { ExpertType } from "@/menu/components/ExpertSelection";
 import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import {
-  bookingDays,
   bookingSeats,
   bookingStaff,
+  areAllServiceSchedulesComplete,
   calcServicesTotal,
-  getBookingDay,
+  formatServiceSchedule,
   getSelectedServices,
   getStaff,
-  timeSlots,
+  isServiceScheduleComplete,
 } from "../../booking.data";
+import type { ServiceSchedules } from "../../booking.types";
 import { SeatSelectionSection } from "./SeatSelectionSection";
-import { Step2DateTimeSection } from "./Step2DateTimeSection";
+import { ServiceScheduleAccordion } from "./ServiceScheduleAccordion";
 
 interface OrganizationBannerInfo {
   name: string;
@@ -37,13 +37,12 @@ interface Step2StaffSelectionProps {
   organizationBanner?: OrganizationBannerInfo;
   expertType: ExpertType;
   staffId: string;
-  selectedDayId: string;
-  selectedTime: string;
+  serviceSchedules: ServiceSchedules;
   selectedSeatId: string;
   seatConfirmed: boolean;
   onSelectStaff: (id: string) => void;
-  onSelectDay: (id: string) => void;
-  onSelectTime: (time: string) => void;
+  onSelectServiceDay: (serviceId: string, dayId: string) => void;
+  onSelectServiceTime: (serviceId: string, time: string) => void;
   onSelectSeat: (id: string) => void;
   onConfirmSeat: () => void;
   onRemoveService?: (id: string) => void;
@@ -62,13 +61,12 @@ export function Step2StaffSelection({
   organizationBanner,
   expertType,
   staffId,
-  selectedDayId,
-  selectedTime,
+  serviceSchedules,
   selectedSeatId,
   seatConfirmed,
   onSelectStaff,
-  onSelectDay,
-  onSelectTime,
+  onSelectServiceDay,
+  onSelectServiceTime,
   onSelectSeat,
   onConfirmSeat,
   onRemoveService,
@@ -76,9 +74,12 @@ export function Step2StaffSelection({
   onNext,
 }: Step2StaffSelectionProps) {
   const staff = getStaff(staffId);
-  const selectedDay = getBookingDay(selectedDayId);
   const selectedServices = getSelectedServices(selectedServiceIds);
   const { subtotal } = calcServicesTotal(selectedServiceIds);
+  const allScheduled = areAllServiceSchedulesComplete(
+    serviceSchedules,
+    selectedServiceIds,
+  );
 
   const visibleStaff = useMemo(() => {
     if (expertType === "male" || expertType === "female") {
@@ -183,13 +184,11 @@ export function Step2StaffSelection({
         </div>
       </section>
 
-      <Step2DateTimeSection
-        days={bookingDays}
-        times={timeSlots}
-        activeDayId={selectedDayId}
-        activeTime={selectedTime}
-        onSelectDay={onSelectDay}
-        onSelectTime={onSelectTime}
+      <ServiceScheduleAccordion
+        selectedServiceIds={selectedServiceIds}
+        schedules={serviceSchedules}
+        onSelectDay={onSelectServiceDay}
+        onSelectTime={onSelectServiceTime}
       />
 
       <SeatSelectionSection
@@ -209,21 +208,33 @@ export function Step2StaffSelection({
           <p className="truncate text-[8px] font-semibold text-(--text-muted)">
             with {staff.name}
           </p>
-          <div className="mt-1 flex items-center gap-2">
+          <div className="mt-1 space-y-0.5">
             <span className="text-sm font-bold text-(--accent-primary)">
               ${subtotal}
             </span>
-            <span className="flex items-center gap-0.5 text-[8px] font-semibold text-(--text-secondary)">
-              <Clock3 size={9} />
-              {selectedDay.date}, {selectedTime}
-            </span>
+            {/* {selectedServices.map((service) => {
+              const schedule = serviceSchedules[service.id];
+              const scheduled = isServiceScheduleComplete(schedule);
+
+              return (
+                <p
+                  key={service.id}
+                  className="truncate text-[8px] font-semibold text-(--text-secondary)"
+                >
+                  • {service.name} —{" "}
+                  {scheduled
+                    ? formatServiceSchedule(schedule)
+                    : "not scheduled yet"}
+                </p>
+              );
+            })} */}
           </div>
         </div>
 
         <button
           type="button"
           onClick={onNext}
-          disabled={!seatConfirmed}
+          disabled={!seatConfirmed || !allScheduled}
           className="
             primary-button flex shrink-0 items-center gap-1.5 rounded-xl
             px-5 py-3 text-[11px] font-semibold text-white

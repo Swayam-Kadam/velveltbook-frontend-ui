@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, ShoppingBag, ShoppingCart } from "lucide-react";
 import { CategorySidebar } from "@/menu/components/CategorySidebar";
 import { ExpertSelection, ExpertType } from "@/menu/components/ExpertSelection";
 import { ServiceCard } from "@/menu/components/ServiceCard";
@@ -77,6 +77,14 @@ export function ExtendedOrganizationProfile({
     [selectedServices],
   );
 
+  const categorySelectedCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const service of selectedServices) {
+      counts[service.categoryId] = (counts[service.categoryId] ?? 0) + 1;
+    }
+    return counts;
+  }, [selectedServices]);
+
   const handleBookNow = () => {
     if (selectedServiceIds.length === 0) {
       Swal.fire({
@@ -121,6 +129,7 @@ export function ExtendedOrganizationProfile({
           categories={menuCategories}
           activeId={activeCategory}
           onSelect={handleCategorySelect}
+          selectedCounts={categorySelectedCounts}
         />
 
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary)">
@@ -249,17 +258,42 @@ export function ExtendedOrganizationProfile({
         "
       >
         <div className="flex items-stretch">
-          <div className="flex flex-col justify-center px-3 py-2.5">
-            <span className="text-[8px] text-(--text-muted)">
-              {selectedServiceIds.length > 0
-                ? `${selectedServiceIds.length} service${selectedServiceIds.length > 1 ? "s" : ""} selected`
-                : "No services selected"}
-            </span>
-            {selectedServiceIds.length > 0 && (
-              <span className="text-sm font-semibold text-(--brand-gold)">
-                ${totalPrice}
+          <div className="flex items-center gap-2.5 px-3 py-2.5">
+            <div className="relative shrink-0">
+              <span
+                className="
+                  primary-button flex h-10 w-10 items-center justify-center
+                  rounded-xl
+                "
+              >
+                <ShoppingCart  size={18} strokeWidth={2} className="text-white" />
               </span>
-            )}
+              {selectedServiceIds.length > 0 && (
+                <span
+                  className="
+                    absolute -right-1 -top-1 flex h-4 min-w-4 items-center
+                    justify-center rounded-full bg-(--brand-gold) px-1
+                    text-[8px] font-bold text-(--text-primary)
+                  "
+                  aria-label={`${selectedServiceIds.length} services in cart`}
+                >
+                  {selectedServiceIds.length}
+                </span>
+              )}
+            </div>
+
+            <div className="min-w-0">
+              {/* <span className="text-[8px] text-(--text-muted)">
+                {selectedServiceIds.length > 0
+                  ? `${selectedServiceIds.length} service${selectedServiceIds.length > 1 ? "s" : ""} in cart`
+                  : "Cart is empty"}
+              </span> */}
+              {selectedServiceIds.length > 0 && (
+                <span className="text-sm font-semibold text-(--brand-gold)">
+                  ${totalPrice}
+                </span>
+              )}
+            </div>
           </div>
 
           {canBook ? (
