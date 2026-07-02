@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Clock3 } from "lucide-react";
 
 import type { BookingDay } from "../../booking.types";
@@ -94,6 +94,7 @@ export function Step2DateTimeSection({
   onSelectTime,
   embedded = false,
 }: Step2DateTimeSectionProps) {
+  const calendarAnchorRef = useRef<HTMLDivElement>(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [dayOffset, setDayOffset] = useState(0);
   const [timeOffset, setTimeOffset] = useState(0);
@@ -245,7 +246,7 @@ export function Step2DateTimeSection({
     }`;
 
   const calendarDropdown = (align: "start" | "center" | "end" = "end") => (
-    <div className="relative shrink-0">
+    <div ref={calendarAnchorRef} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setShowCalendar((open) => !open)}
@@ -271,6 +272,7 @@ export function Step2DateTimeSection({
           onSelect={onSelectDay}
           onClose={() => setShowCalendar(false)}
           align={align}
+          anchorRef={calendarAnchorRef}
         />
       )}
     </div>

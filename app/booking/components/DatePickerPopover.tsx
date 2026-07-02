@@ -1,6 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { BookingDay } from "../booking.types";
@@ -21,17 +30,26 @@ const MONTH_NAMES = [
   "December",
 ];
 
+const POPOVER_WIDTH = 240;
+const VIEWPORT_PADDING = 16;
+
 interface DatePickerPopoverProps {
   days: BookingDay[];
   activeDayId: string;
   onSelect: (dayId: string) => void;
   onClose: () => void;
   align?: "start" | "center" | "end";
+  anchorRef?: RefObject<HTMLElement | null>;
 }
 
 function parseIso(iso: string) {
   const [year, month, day] = iso.split("-").map(Number);
   return { year, month: month - 1, day };
+}
+
+function getPopoverWidth() {
+  if (typeof window === "undefined") return POPOVER_WIDTH;
+  return Math.min(POPOVER_WIDTH, window.innerWidth - VIEWPORT_PADDING * 2);
 }
 
 export function DatePickerPopover({
@@ -40,21 +58,36 @@ export function DatePickerPopover({
   onSelect,
   onClose,
   align = "end",
+  anchorRef,
 }: DatePickerPopoverProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const usePortal = Boolean(anchorRef);
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
+  const updatePosition = useCallback(() => {
+    if (!anchorRef?.current) return;
+
+    const rect = anchorRef.current.getBoundingClientRect();
+    const width = getPopoverWidth();
+    const gap = 8;
+
+    let left = rect.left;
+    if (align === "center") {
+      left = rect.left + rect.width / 2 - width / 2;
+    } else if (align === "end") {
+      left = rect.right - width;
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
+
+    left = Math.max(
+      VIEWPORT_PADDING,
+      Math.min(left, window.innerWidth - width - VIEWPORT_PADDING),
+    );
+
+    setPosition({
+      top: rect.bottom + gap,
+      left,
+    });
+  }, [align, anchorRef]);
 
   const availableByIso = useMemo(() => {
     const map = new Map<string, BookingDay>();
@@ -69,6 +102,36 @@ export function DatePickerPopover({
     days.find((d) => d.id === activeDayId)?.iso ?? firstAvailable?.iso ?? "",
   );
   const [view, setView] = useState({ year: initial.year, month: initial.month });
+
+  useLayoutEffect(() => {
+    if (!usePortal) return;
+    updatePosition();
+  }, [usePortal, updatePosition, view]);
+
+  useEffect(() => {
+    if (!usePortal) return;
+
+    const handleReposition = () => updatePosition();
+    window.addEventListener("scroll", handleReposition, true);
+    window.addEventListener("resize", handleReposition);
+
+    return () => {
+      window.removeEventListener("scroll", handleReposition, true);
+      window.removeEventListener("resize", handleReposition);
+    };
+  }, [usePortal, updatePosition]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+      if (containerRef.current?.contains(target)) return;
+      if (anchorRef?.current?.contains(target)) return;
+      onClose();
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [anchorRef, onClose]);
 
   const firstBound = firstAvailable ? parseIso(firstAvailable.iso) : null;
   const lastBound = lastAvailable ? parseIso(lastAvailable.iso) : null;
@@ -114,16 +177,34 @@ export function DatePickerPopover({
         ? "left-0"
         : "right-0";
 
-  return (
+  const popover = (
     <div
       ref={containerRef}
       role="dialog"
       aria-label="Choose a date"
-      className={`
-        absolute top-full z-50 mt-2 w-[min(15rem,calc(100vw-2rem))]
-        overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)
-        p-2 shadow-(--shadow-card) ${alignClass}
-      `}
+      style={
+        usePortal
+          ? {
+              position: "fixed",
+              top: position.top,
+              left: position.left,
+              width: getPopoverWidth(),
+              zIndex: 9999,
+            }
+          : undefined
+      }
+      className={
+        usePortal
+          ? `
+            overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)
+            p-2 shadow-(--shadow-card)
+          `
+          : `
+            absolute top-full z-50 mt-2 w-[min(15rem,calc(100vw-2rem))]
+            overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)
+            p-2 shadow-(--shadow-card) ${alignClass}
+          `
+      }
     >
       <div className="flex items-center justify-between gap-1">
         <button
@@ -159,7 +240,7 @@ export function DatePickerPopover({
         </button>
       </div>
 
-      <div className="mt-2 max-h-40 overflow-y-auto scrollbar-none">
+      <div className="mt-2">
         <div className="grid grid-cols-7 gap-0.5">
           {WEEKDAY_HEADERS.map((label, index) => (
             <span
@@ -204,4 +285,10 @@ export function DatePickerPopover({
       </div>
     </div>
   );
+
+  if (usePortal) {
+    return createPortal(popover, document.body);
+  }
+
+  return popover;
 }
