@@ -108,7 +108,6 @@ function BookingModal({
         </div>
 
         {children}
-
         <button
           type="button"
           onClick={onDone ?? onClose}
