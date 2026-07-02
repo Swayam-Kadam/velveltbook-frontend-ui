@@ -10,49 +10,59 @@ interface BookingProgressProps {
 }
 
 export function BookingProgress({ currentStep }: BookingProgressProps) {
+  const progressRatio =
+    steps.length > 1 ? (currentStep - 1) / (steps.length - 1) : 0;
+
   return (
-    <div className="mt-4 px-1">
-      <div className="flex items-start justify-between">
-        {steps.map((step, index) => {
+    <div className="relative mt-4">
+      <div
+        className="absolute inset-x-3 top-3 h-px bg-(--border)"
+        aria-hidden
+      />
+      <div
+        className="
+          absolute left-3 top-3 h-px bg-(--accent-primary)
+          transition-all duration-300
+        "
+        style={{
+          width: `calc((100% - 1.5rem) * ${progressRatio})`,
+        }}
+        aria-hidden
+      />
+
+      <div className="relative flex justify-between">
+        {steps.map((step) => {
           const active = currentStep === step.num;
           const completed = currentStep > step.num;
 
           return (
-            <div key={step.num} className="flex flex-1 flex-col items-center">
-              <div className="flex w-full items-center">
-                {index > 0 && (
-                  <div
-                    className={`h-px flex-1 ${completed || active ? "bg-(--accent-primary)" : "bg-(--border)"}`}
-                  />
-                )}
-
-                <div
-                  className={`
-                    flex h-6 w-6 shrink-0 items-center justify-center rounded-full
-                    text-[9px] font-semibold
-                    ${
-                      active || completed
-                        ? "primary-button text-white shadow-none"
-                        : "border border-(--border) bg-(--bg-card) text-(--text-muted)"
-                    }
-                  `}
-                >
-                  {step.num}
-                </div>
-
-                {index < steps.length - 1 && (
-                  <div
-                    className={`h-px flex-1 ${completed ? "bg-(--accent-primary)" : "bg-(--border)"}`}
-                  />
-                )}
+            <div
+              key={step.num}
+              className="flex w-6 flex-col items-center"
+            >
+              <div
+                className={`
+                  relative z-10 flex h-6 w-6 shrink-0 items-center justify-center
+                  rounded-full text-[9px] font-semibold
+                  ${
+                    active || completed
+                      ? "primary-button text-white shadow-none"
+                      : "border border-(--border) bg-(--bg-card) text-(--text-muted)"
+                  }
+                `}
+              >
+                {step.num}
               </div>
 
               <span
-                className={`mt-1 text-center text-[7px] leading-tight ${
-                  active
-                    ? "font-medium text-(--text-primary)"
-                    : "text-(--text-muted)"
-                }`}
+                className={`
+                  mt-1 w-max text-center text-[7px] leading-tight whitespace-nowrap
+                  ${
+                    active
+                      ? "font-medium text-(--text-primary)"
+                      : "text-(--text-muted)"
+                  }
+                `}
               >
                 {step.label}
               </span>
