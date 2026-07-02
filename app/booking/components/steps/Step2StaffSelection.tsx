@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import { useMemo } from "react";
+import Swal from "sweetalert2";
 import {
   ArrowRight,
   Check,
   SlidersHorizontal,
   Star,
 } from "lucide-react";
-
 import type { ExpertType } from "@/menu/components/ExpertSelection";
 import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import {
@@ -16,7 +16,6 @@ import {
   bookingStaff,
   areAllServiceSchedulesComplete,
   calcServicesTotal,
-  formatServiceSchedule,
   getSelectedServices,
   getStaff,
   isServiceScheduleComplete,
@@ -56,6 +55,22 @@ const expertLabel: Record<"male" | "female", string> = {
   female: "Female Expert",
 };
 
+const swalDefaults = {
+  confirmButtonText: "Okay",
+  confirmButtonColor: "#b8860b",
+  background: "#1a1a1a",
+  color: "#ffffff",
+} as const;
+
+function showBookingWarning(title: string, text: string) {
+  return Swal.fire({
+    icon: "warning",
+    title,
+    text,
+    ...swalDefaults,
+  });
+}
+
 export function Step2StaffSelection({
   selectedServiceIds,
   organizationBanner,
@@ -87,6 +102,33 @@ export function Step2StaffSelection({
     }
     return bookingStaff;
   }, [expertType]);
+
+  const pendingServices = selectedServices.filter(
+    (service) => !isServiceScheduleComplete(serviceSchedules[service.id]),
+  );
+
+  const handleContinue = async () => {
+    if (!allScheduled) {
+      const pendingNames = pendingServices.map((service) => service.name).join(", ");
+      await showBookingWarning(
+        "Schedule all services",
+        pendingServices.length === 1
+          ? `Please set a date and time for ${pendingNames}.`
+          : `Please set a date and time for: ${pendingNames}.`,
+      );
+      return;
+    }
+
+    if (!seatConfirmed) {
+      await showBookingWarning(
+        "Confirm your seat",
+        "Please select a seat and tap Confirm before continuing.",
+      );
+      return;
+    }
+
+    onNext();
+  };
 
   return (
     <div className="space-y-4">
@@ -233,12 +275,10 @@ export function Step2StaffSelection({
 
         <button
           type="button"
-          onClick={onNext}
-          disabled={!seatConfirmed || !allScheduled}
+          onClick={handleContinue}
           className="
             primary-button flex shrink-0 items-center gap-1.5 rounded-xl
             px-5 py-3 text-[11px] font-semibold text-white
-            disabled:cursor-not-allowed disabled:opacity-50
           "
         >
           Continue
