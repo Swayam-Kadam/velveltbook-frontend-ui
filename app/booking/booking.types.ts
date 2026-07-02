@@ -16,6 +16,7 @@ export interface BookingStaff {
   reviews: number;
   specialties: string;
   image: string;
+  gender: "male" | "female";
 }
 
 export interface BookingLocation {

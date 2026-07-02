@@ -16,6 +16,7 @@ import {
 } from "@/menu/menu.data";
 import { ExtendedOrganization } from "../organization.types";
 import { HeroBanner } from "./HeroBanner";
+import { buildBookingUrl } from "@/booking/booking.navigation";
 interface ExtendedOrganizationProfileProps {
   organization: ExtendedOrganization;
 }
@@ -263,7 +264,12 @@ export function ExtendedOrganizationProfile({
 
           {canBook ? (
             <Link
-              href="/booking"
+              href={buildBookingUrl({
+                serviceIds: selectedServiceIds,
+                expertType,
+                organizationId: organization.id,
+                step: 2,
+              })}
               className="
                 primary-button flex flex-1 items-center justify-center
                 rounded-none px-3 py-3 text-[11px] font-semibold text-white

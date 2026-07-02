@@ -1,31 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Image from "next/image";
 import {
+  Armchair,
   CalendarDays,
+  Check,
   Clock3,
   Pencil,
-  ShoppingBag,
   Star,
   X,
 } from "lucide-react";
 
+import type { ExpertType } from "@/menu/components/ExpertSelection";
 import {
   bookingDays,
-  bookingLocation,
   bookingSeats,
-  calcServicesTotal,
+  bookingStaff,
   getBookingDay,
-  getSelectedServices,
+  getBookingSeat,
   getStaff,
   timeSlots,
 } from "../../booking.data";
+import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import { SeatSelectionSection } from "./SeatSelectionSection";
 import { Step2DateTimeSection } from "./Step2DateTimeSection";
 
+interface OrganizationBannerInfo {
+  name: string;
+  banner: string;
+  availability: string;
+  status: string;
+}
+
 interface Step3DateTimeSelectionProps {
   selectedServiceIds: string[];
+  organizationBanner?: OrganizationBannerInfo;
+  expertType: ExpertType;
   staffId: string;
   selectedDayId: string;
   selectedTime: string;
@@ -33,14 +44,87 @@ interface Step3DateTimeSelectionProps {
   seatConfirmed: boolean;
   onSelectDay: (dayId: string) => void;
   onSelectTime: (time: string) => void;
+  onSelectStaff: (id: string) => void;
   onSelectSeat: (id: string) => void;
   onConfirmSeat: () => void;
+  onRemoveService: (id: string) => void;
   onBack: () => void;
   onNext: () => void;
 }
 
+const expertLabel: Record<"male" | "female", string> = {
+  male: "Male Expert",
+  female: "Female Expert",
+};
+
+function BookingModal({
+  title,
+  titleId,
+  onClose,
+  children,
+  onDone,
+}: {
+  title: string;
+  titleId: string;
+  onClose: () => void;
+  children: ReactNode;
+  onDone?: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="
+          max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-2xl
+          bg-(--bg-primary) p-3 shadow-(--shadow-glow) scrollbar-none
+        "
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+      >
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h3
+            id={titleId}
+            className="text-sm font-bold text-(--text-primary)"
+          >
+            {title}
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="
+              flex h-7 w-7 items-center justify-center rounded-full
+              border border-(--border) text-(--text-muted)
+              transition-colors hover:text-(--text-primary)
+            "
+          >
+            <X size={14} strokeWidth={2} />
+          </button>
+        </div>
+
+        {children}
+
+        <button
+          type="button"
+          onClick={onDone ?? onClose}
+          className="primary-button mt-3 w-full rounded-xl py-2.5 text-[11px] font-semibold text-white"
+        >
+          Done
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function Step3DateTimeSelection({
   selectedServiceIds,
+  organizationBanner,
+  expertType,
   staffId,
   selectedDayId,
   selectedTime,
@@ -48,122 +132,43 @@ export function Step3DateTimeSelection({
   seatConfirmed,
   onSelectDay,
   onSelectTime,
+  onSelectStaff,
   onSelectSeat,
   onConfirmSeat,
+  onRemoveService,
   onBack,
 }: Step3DateTimeSelectionProps) {
   const [showDateTimeModal, setShowDateTimeModal] = useState(false);
+  const [showSeatModal, setShowSeatModal] = useState(false);
+  const [showTherapistModal, setShowTherapistModal] = useState(false);
 
-  const selectedServices = getSelectedServices(selectedServiceIds);
-  const { subtotal } = calcServicesTotal(selectedServiceIds);
   const staff = getStaff(staffId);
   const selectedDay = getBookingDay(selectedDayId);
-  const hasSelection = selectedServices.length > 0;
+  const selectedSeat = getBookingSeat(selectedSeatId);
+
+  const visibleStaff = useMemo(() => {
+    if (expertType === "male" || expertType === "female") {
+      return bookingStaff.filter((therapist) => therapist.gender === expertType);
+    }
+    return bookingStaff;
+  }, [expertType]);
 
   return (
     <div className="space-y-4">
-      <section className="feature-card overflow-hidden rounded-xl">
-        <div className="relative h-[130px] w-full">
-          <Image
-            src={bookingLocation.banner}
-            alt={bookingLocation.name}
-            fill
-            sizes="100vw"
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-black/55 via-black/15 to-transparent" />
-
-          <div className="absolute right-2 top-2">
-            <div className="primary-button rounded-full px-3 py-1 text-[8px] font-medium text-white">
-              {bookingLocation.availability}
-            </div>
-          </div>
-
-          <div className="absolute bottom-2 left-2.5 right-2.5">
-            <p className="truncate text-[14px] font-bold text-white">
-              {bookingLocation.name}
-            </p>
-            <p className="text-[9px] font-semibold text-(--success)">
-              {bookingLocation.status}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="feature-card overflow-hidden rounded-xl">
-        <div className="flex items-center justify-between border-b border-(--border) px-3 py-2.5">
-          <div className="flex items-center gap-2">
-            <span className="primary-button flex h-7 w-7 items-center justify-center rounded-full">
-              <ShoppingBag size={13} strokeWidth={2} className="text-white" />
-            </span>
-            <div>
-              <p className="text-[11px] font-bold text-(--text-primary)">
-                Selected Services
-              </p>
-              <p className="text-[8px] font-semibold text-(--text-muted)">
-                {hasSelection
-                  ? `${selectedServices.length} service${selectedServices.length > 1 ? "s" : ""} added`
-                  : "No services selected"}
-              </p>
-            </div>
-          </div>
-          {hasSelection && (
-            <p className="text-[12px] font-bold text-(--brand-gold)">
-              ${subtotal}
-            </p>
-          )}
-        </div>
-
-        {hasSelection ? (
-          <div className="grid grid-cols-4 gap-2 p-3">
-            {selectedServices.map((service) => (
-              <article
-                key={service.id}
-                className="
-                  overflow-hidden rounded-sm border border-(--border)
-                  bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)]
-                "
-              >
-                <div className="relative h-14 w-full">
-                  <Image
-                    src={service.image}
-                    alt={service.name}
-                    fill
-                    sizes="80px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="space-y-0.5 p-1.5">
-                  <p className="line-clamp-2 min-h-6 text-[7px] font-bold leading-tight text-(--text-primary)">
-                    {service.name}
-                  </p>
-                  <div className="flex items-center gap-0.5 text-[6px] font-semibold text-(--text-secondary)">
-                    <Clock3 size={6} />
-                    <span className="truncate">{service.duration}</span>
-                  </div>
-                  <p className="text-[8px] font-bold text-(--brand-gold)">
-                    {service.priceLabel}
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p className="px-3 py-4 text-center text-[9px] font-medium text-(--text-muted)">
-            No services selected yet
-          </p>
-        )}
-      </section>
+      <BookingSelectedServicesPanel
+        selectedServiceIds={selectedServiceIds}
+        organization={organizationBanner}
+        onRemoveService={onRemoveService}
+      />
 
       <section className="grid grid-cols-2 gap-2">
         <div className="min-w-0">
           <h2 className="mb-2 text-sm font-bold text-(--text-primary)">
             Selected Therapist
           </h2>
-          <article className="feature-card h-40 rounded-xl">
+          <article className="feature-card rounded-xl">
             <div className="flex h-full flex-col">
-              <div className="relative h-16 w-full shrink-0 overflow-hidden rounded-t-sm">
+              <div className="relative h-27 w-full shrink-0 overflow-hidden rounded-t-sm">
                 <Image
                   src={staff.image}
                   alt={staff.name}
@@ -188,22 +193,23 @@ export function Step3DateTimeSelection({
                 </div>
                 <button
                   type="button"
-                  onClick={onBack}
+                  onClick={() => setShowTherapistModal(true)}
                   className="mt-auto flex items-center justify-center gap-0.5 pb-2 pt-3 text-[8px] font-bold text-(--accent-secondary)"
                 >
-                  <Pencil size={10} /> Change
+                  <Pencil size={10} /> Change Therapist
                 </button>
               </div>
             </div>
           </article>
         </div>
 
-        <div className="min-w-0">
-          <h2 className="mb-2 text-sm font-bold text-(--text-primary)">
-            Date &amp; Time
+        <div className="min-w-0 space-y-2">
+          <h2 className="text-sm font-bold text-(--text-primary)">
+            Schedule &amp; Seat
           </h2>
-          <article className="feature-card flex h-40 flex-col rounded-xl px-2 pt-2">
-            <div className="flex flex-1 flex-col gap-2">
+
+          <article className="feature-card rounded-xl px-2 pt-2">
+            <div className="space-y-2 pb-1">
               <div className="flex items-start gap-1.5">
                 <CalendarDays
                   size={12}
@@ -238,77 +244,144 @@ export function Step3DateTimeSelection({
             <button
               type="button"
               onClick={() => setShowDateTimeModal(true)}
-              className="mt-auto flex items-center justify-center gap-0.5 pb-2 pt-3 text-[8px] font-bold text-(--accent-secondary)"
+              className="flex w-full items-center justify-center gap-0.5 border-t border-(--border) py-2 text-[8px] font-bold text-(--accent-secondary)"
             >
               <Pencil size={10} /> Change Date &amp; Time
+            </button>
+          </article>
+
+          <article className="feature-card rounded-xl px-2 pt-2">
+            <div className="flex items-start gap-1.5 pb-1">
+              <Armchair
+                size={12}
+                className="mt-0.5 shrink-0 text-(--accent-primary)"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="text-[8px] font-semibold text-(--text-muted)">
+                  Selected Seat
+                </p>
+                <p className="text-[10px] font-bold text-(--text-primary)">
+                  {selectedSeat.label}
+                </p>
+                <p
+                  className={`mt-0.5 text-[8px] font-semibold ${
+                    seatConfirmed ? "text-(--success)" : "text-(--text-muted)"
+                  }`}
+                >
+                  {seatConfirmed ? "Seat confirmed" : "Not confirmed yet"}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowSeatModal(true)}
+              className="flex w-full items-center justify-center gap-0.5 border-t border-(--border) py-2 text-[8px] font-bold text-(--accent-secondary)"
+            >
+              <Pencil size={10} /> Change Seat
             </button>
           </article>
         </div>
       </section>
 
-      <SeatSelectionSection
-        seats={bookingSeats}
-        selectedSeatId={selectedSeatId}
-        seatConfirmed={seatConfirmed}
-        onSelectSeat={onSelectSeat}
-        onConfirmSeat={onConfirmSeat}
-      />
-
       {showDateTimeModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2"
-          onClick={() => setShowDateTimeModal(false)}
-          role="presentation"
+        <BookingModal
+          title="Change Date & Time"
+          titleId="datetime-modal-title"
+          onClose={() => setShowDateTimeModal(false)}
         >
-          <div
-            className="
-              max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-2xl
-              bg-(--bg-primary) p-3 shadow-(--shadow-glow) scrollbar-none
-            "
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="datetime-modal-title"
-          >
-            <div className="mb-3 flex items-center justify-between gap-2">
-              <h3
-                id="datetime-modal-title"
-                className="text-sm font-bold text-(--text-primary)"
-              >
-                Change Date &amp; Time
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowDateTimeModal(false)}
-                aria-label="Close"
-                className="
-                  flex h-7 w-7 items-center justify-center rounded-full
-                  border border-(--border) text-(--text-muted)
-                  transition-colors hover:text-(--text-primary)
-                "
-              >
-                <X size={14} strokeWidth={2} />
-              </button>
-            </div>
+          <Step2DateTimeSection
+            days={bookingDays}
+            times={timeSlots}
+            activeDayId={selectedDayId}
+            activeTime={selectedTime}
+            onSelectDay={onSelectDay}
+            onSelectTime={onSelectTime}
+          />
+        </BookingModal>
+      )}
 
-            <Step2DateTimeSection
-              days={bookingDays}
-              times={timeSlots}
-              activeDayId={selectedDayId}
-              activeTime={selectedTime}
-              onSelectDay={onSelectDay}
-              onSelectTime={onSelectTime}
-            />
+      {showSeatModal && (
+        <BookingModal
+          title="Change Seat"
+          titleId="seat-modal-title"
+          onClose={() => setShowSeatModal(false)}
+        >
+          <SeatSelectionSection
+            seats={bookingSeats}
+            selectedSeatId={selectedSeatId}
+            seatConfirmed={seatConfirmed}
+            onSelectSeat={onSelectSeat}
+            onConfirmSeat={onConfirmSeat}
+          />
+        </BookingModal>
+      )}
 
-            <button
-              type="button"
-              onClick={() => setShowDateTimeModal(false)}
-              className="primary-button mt-3 w-full rounded-xl py-2.5 text-[11px] font-semibold text-white"
-            >
-              Done
-            </button>
+      {showTherapistModal && (
+        <BookingModal
+          title="Change Therapist"
+          titleId="therapist-modal-title"
+          onClose={() => setShowTherapistModal(false)}
+        >
+          <p className="mb-2 text-[9px] font-semibold text-(--text-muted)">
+            {expertType ? expertLabel[expertType] : "All available therapists"}
+          </p>
+          <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
+            {visibleStaff.map((therapist) => {
+              const active = therapist.id === staffId;
+
+              return (
+                <button
+                  key={therapist.id}
+                  type="button"
+                  onClick={() => onSelectStaff(therapist.id)}
+                  className={`
+                    feature-card w-[96px] shrink-0 rounded-xl p-1.5 text-left
+                    transition-all duration-200
+                    ${
+                      active
+                        ? "border-(--accent-primary) shadow-(--shadow-glow)"
+                        : "hover:border-[color-mix(in_srgb,var(--accent-primary)_30%,var(--border))]"
+                    }
+                  `}
+                >
+                  <div className="relative h-[78px] overflow-hidden rounded-sm">
+                    <Image
+                      src={therapist.image}
+                      alt={therapist.name}
+                      fill
+                      sizes="96px"
+                      className="object-cover"
+                    />
+                    {active && (
+                      <span className="primary-button absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full border-3 border-white text-white">
+                        <Check size={10} strokeWidth={2.5} />
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="mt-1.5 truncate text-[11px] font-bold text-(--text-primary)">
+                    {therapist.name}
+                  </p>
+
+                  <div className="mt-0.5 flex items-center gap-0.5">
+                    <Star
+                      size={9}
+                      className="fill-(--brand-gold) text-(--brand-gold)"
+                    />
+                    <span className="text-[9px] font-bold text-(--text-primary)">
+                      {therapist.rating}
+                    </span>
+                  </div>
+
+                  <p className="mt-0.5 truncate text-[8px] font-semibold text-(--text-muted)">
+                    {therapist.experience}
+                  </p>
+                </button>
+              );
+            })}
           </div>
-        </div>
+        </BookingModal>
       )}
 
       <button

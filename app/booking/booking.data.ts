@@ -80,6 +80,7 @@ export const bookingStaff: BookingStaff[] = [
     specialties: "Specializes in: Swedish, Aromatherapy",
     image:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=400&fit=crop",
+    gender: "female",
   },
   {
     id: "jesai",
@@ -90,6 +91,7 @@ export const bookingStaff: BookingStaff[] = [
     specialties: "Specializes in: Deep Tissue, Sports",
     image:
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=400&fit=crop",
+    gender: "female",
   },
   {
     id: "sami",
@@ -100,6 +102,7 @@ export const bookingStaff: BookingStaff[] = [
     specialties: "Specializes in: Hot Stone, Relaxation",
     image:
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=400&fit=crop",
+    gender: "female",
   },
   {
     id: "samar",
@@ -109,7 +112,8 @@ export const bookingStaff: BookingStaff[] = [
     reviews: 210,
     specialties: "Specializes in: Couples, Aromatherapy",
     image:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=400&fit=crop&q=80",
+    gender: "male",
   },
 ];
 
@@ -257,6 +261,10 @@ export function getService(id: string) {
 
 export function getStaff(id: string) {
   return bookingStaff.find((s) => s.id === id) ?? bookingStaff[0];
+}
+
+export function getStaffByGender(gender: "male" | "female") {
+  return bookingStaff.filter((staff) => staff.gender === gender);
 }
 
 export function calcTotal(subtotal: number) {

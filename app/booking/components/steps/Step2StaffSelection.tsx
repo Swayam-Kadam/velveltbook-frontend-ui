@@ -1,31 +1,41 @@
 "use client";
 
 import Image from "next/image";
+import { useMemo } from "react";
 import {
-  Activity,
   ArrowRight,
   Check,
   Clock3,
-  Pencil,
   SlidersHorizontal,
-  Sparkles,
   Star,
 } from "lucide-react";
 
+import type { ExpertType } from "@/menu/components/ExpertSelection";
+import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import {
   bookingDays,
   bookingSeats,
   bookingStaff,
+  calcServicesTotal,
   getBookingDay,
-  getService,
+  getSelectedServices,
   getStaff,
   timeSlots,
 } from "../../booking.data";
 import { SeatSelectionSection } from "./SeatSelectionSection";
 import { Step2DateTimeSection } from "./Step2DateTimeSection";
 
+interface OrganizationBannerInfo {
+  name: string;
+  banner: string;
+  availability: string;
+  status: string;
+}
+
 interface Step2StaffSelectionProps {
-  serviceId: string;
+  selectedServiceIds: string[];
+  organizationBanner?: OrganizationBannerInfo;
+  expertType: ExpertType;
   staffId: string;
   selectedDayId: string;
   selectedTime: string;
@@ -36,19 +46,21 @@ interface Step2StaffSelectionProps {
   onSelectTime: (time: string) => void;
   onSelectSeat: (id: string) => void;
   onConfirmSeat: () => void;
+  onRemoveService?: (id: string) => void;
   onBack: () => void;
   onNext: () => void;
   onEditService: () => void;
 }
 
-const serviceHighlights = [
-  { icon: Clock3, label: "60 Minutes" },
-  { icon: Sparkles, label: "Relaxation & Stress Relief" },
-  { icon: Activity, label: "Full Body Therapy" },
-];
+const expertLabel: Record<"male" | "female", string> = {
+  male: "Male Expert",
+  female: "Female Expert",
+};
 
 export function Step2StaffSelection({
-  serviceId,
+  selectedServiceIds,
+  organizationBanner,
+  expertType,
   staffId,
   selectedDayId,
   selectedTime,
@@ -59,88 +71,30 @@ export function Step2StaffSelection({
   onSelectTime,
   onSelectSeat,
   onConfirmSeat,
+  onRemoveService,
+  onBack,
   onNext,
-  onEditService,
 }: Step2StaffSelectionProps) {
-  const service = getService(serviceId);
   const staff = getStaff(staffId);
   const selectedDay = getBookingDay(selectedDayId);
+  const selectedServices = getSelectedServices(selectedServiceIds);
+  const { subtotal } = calcServicesTotal(selectedServiceIds);
+
+  const visibleStaff = useMemo(() => {
+    if (expertType === "male" || expertType === "female") {
+      return bookingStaff.filter((therapist) => therapist.gender === expertType);
+    }
+    return bookingStaff;
+  }, [expertType]);
 
   return (
     <div className="space-y-4">
-      {/* Selected Service Header */}
-      <section
-        className="
-          relative overflow-hidden rounded-2xl
-          bg-linear-to-r from-[#efe4fb] via-[#f1e7fc] to-[#e9dcfb]
-          shadow-[0_8px_28px_rgba(61,28,77,0.12)]
-        "
-      >
-        <div className="flex">
-          <div className="relative w-[34%] shrink-0 overflow-hidden">
-            <Image
-              src={service.image}
-              alt={service.name}
-              fill
-              sizes="130px"
-              className="object-cover"
-            />
-          </div>
+      <BookingSelectedServicesPanel
+        selectedServiceIds={selectedServiceIds}
+        organization={organizationBanner}
+        onRemoveService={onRemoveService}
+      />
 
-          <div className="relative flex-1 p-3">
-            <span
-              className="
-                inline-flex rounded-full bg-(--accent-primary)/10
-                px-2 py-0.5 text-[7px] font-semibold text-(--accent-primary)
-              "
-            >
-              Selected Service
-            </span>
-
-            <div className="mt-1.5 flex items-start justify-between gap-2">
-              <h2 className="text-base font-bold leading-tight text-(--accent-primary)">
-                {service.name}
-              </h2>
-              <span className="shrink-0 text-lg font-bold text-(--accent-primary)">
-                {service.priceLabel}
-              </span>
-            </div>
-
-            <ul className="mt-2 space-y-1">
-              {serviceHighlights.map(({ icon: Icon, label }) => (
-                <li
-                  key={label}
-                  className="flex items-center gap-1.5 text-[8px] text-(--accent-primary)"
-                >
-                  <Icon
-                    size={10}
-                    strokeWidth={2}
-                    className="shrink-0 text-(--accent-primary)"
-                  />
-                  <span>{label}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-2 flex justify-end">
-              <button
-                type="button"
-                className="
-                  flex items-center gap-1 rounded-full border border-(--accent-primary)/30
-                  bg-white/60 px-2 py-0.5 text-[7px] font-semibold text-(--accent-primary)
-                  transition-colors hover:bg-white
-                "
-                onClick={() => onEditService()}
-              >
-                <Pencil size={8} strokeWidth={2} />
-                Change Service
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Select Your Therapist */}
       <section>
         <div className="mb-2.5 flex items-center justify-between">
           <div className="flex items-center gap-1.5">
@@ -152,7 +106,7 @@ export function Step2StaffSelection({
                 Select Your Therapist
               </h3>
               <p className="text-[8px] font-semibold text-(--brand-gold)">
-                Male Expert
+                {expertType ? expertLabel[expertType] : "All Experts"}
               </p>
             </div>
           </div>
@@ -170,7 +124,7 @@ export function Step2StaffSelection({
         </div>
 
         <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
-          {bookingStaff.map((therapist) => {
+          {visibleStaff.map((therapist) => {
             const active = therapist.id === staffId;
 
             return (
@@ -197,7 +151,7 @@ export function Step2StaffSelection({
                     className="object-cover"
                   />
                   {active && (
-                    <span className="border-3 border-white  primary-button absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full text-white">
+                    <span className="border-3 border-white primary-button absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full text-white">
                       <Check size={10} strokeWidth={2.5} />
                     </span>
                   )}
@@ -246,27 +200,24 @@ export function Step2StaffSelection({
         onConfirmSeat={onConfirmSeat}
       />
 
-      {/* Summary + Continue footer */}
       <section className="feature-card flex items-center gap-2 rounded-xl p-3">
         <div className="min-w-0 flex-1">
           <p className="truncate text-[11px] font-bold text-(--text-primary)">
-            {service.name}
+            {selectedServices.length} service
+            {selectedServices.length !== 1 ? "s" : ""} selected
           </p>
           <p className="truncate text-[8px] font-semibold text-(--text-muted)">
             with {staff.name}
           </p>
           <div className="mt-1 flex items-center gap-2">
             <span className="text-sm font-bold text-(--accent-primary)">
-              {service.priceLabel}
+              ${subtotal}
             </span>
             <span className="flex items-center gap-0.5 text-[8px] font-semibold text-(--text-secondary)">
               <Clock3 size={9} />
-              {service.duration}
+              {selectedDay.date}, {selectedTime}
             </span>
           </div>
-          <p className="mt-0.5 text-[8px] font-semibold text-(--text-secondary)">
-            {selectedDay.date}, {selectedTime}
-          </p>
         </div>
 
         <button
@@ -283,6 +234,14 @@ export function Step2StaffSelection({
           <ArrowRight size={14} strokeWidth={2} />
         </button>
       </section>
+
+      <button
+        type="button"
+        onClick={onBack}
+        className="secondary-button w-full rounded-xl py-2 text-[9px] font-medium"
+      >
+        BACK
+      </button>
     </div>
   );
 }

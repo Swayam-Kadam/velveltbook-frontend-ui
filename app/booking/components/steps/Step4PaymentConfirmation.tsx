@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import {
   CalendarDays,
@@ -28,14 +27,22 @@ import { SiRazorpay } from "react-icons/si";
 import {
   bookingLocation,
   calcServicesTotal,
-  calcTotal,
   getBookingDay,
-  getService,
+  getSelectedServices,
   getStaff,
 } from "../../booking.data";
+import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
+
+interface OrganizationBannerInfo {
+  name: string;
+  banner: string;
+  availability: string;
+  status: string;
+}
 
 interface Step4PaymentConfirmationProps {
-  serviceId: string;
+  selectedServiceIds: string[];
+  organizationBanner?: OrganizationBannerInfo;
   staffId: string;
   selectedDayId: string;
   selectedTime: string;
@@ -55,6 +62,7 @@ interface Step4PaymentConfirmationProps {
   onEditService?: () => void;
   onChangeStaff?: () => void;
   onChangeTime?: () => void;
+  onRemoveService?: (id: string) => void;
 }
 
 const paymentOptions = [
@@ -122,7 +130,8 @@ function MiniCardIllustration() {
 }
 
 export function Step4PaymentConfirmation({
-  serviceId,
+  selectedServiceIds,
+  organizationBanner,
   staffId,
   selectedDayId,
   selectedTime,
@@ -134,11 +143,12 @@ export function Step4PaymentConfirmation({
   onEditService,
   onChangeStaff,
   onChangeTime,
+  onRemoveService,
 }: Step4PaymentConfirmationProps) {
-  const service = getService(serviceId);
+  const selectedServices = getSelectedServices(selectedServiceIds);
   const staff = getStaff(staffId);
   const selectedDay = getBookingDay(selectedDayId);
-  const { subtotal, tax, total } = calcTotal(service.price);
+  const { subtotal, tax, total } = calcServicesTotal(selectedServiceIds);
 
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -167,31 +177,20 @@ export function Step4PaymentConfirmation({
 
   return (
     <div className="space-y-3 pb-2">
-      {/* Service Summary Header */}
-      <section className="overflow-hidden rounded-2xl shadow-[0_8px_32px_rgba(61,28,77,0.18)]">
-        <div className="relative min-h-[148px] bg-linear-to-r from-[#2d1540] via-[#3d1c4d] to-[#4a2560]">
-          <div className="absolute inset-y-0 left-0 w-[42%] overflow-hidden">
-            <Image
-              src="/spa-header.png"
-              alt=""
-              fill
-              className="object-cover object-left opacity-90"
-              sizes="180px"
-              priority
-            />
-            <div
-              className="
-                absolute inset-0 bg-linear-to-r
-                from-transparent via-[#3d1c4d]/40 to-[#3d1c4d]
-              "
-            />
-          </div>
+      <BookingSelectedServicesPanel
+        selectedServiceIds={selectedServiceIds}
+        organization={organizationBanner}
+        onRemoveService={onRemoveService}
+      />
 
-          <div className="relative flex min-h-[148px] flex-col justify-between p-3 pl-[38%]">
+      {/* Booking Details Header */}
+      {/* <section className="overflow-hidden rounded-2xl shadow-[0_8px_32px_rgba(61,28,77,0.18)]">
+        <div className="relative min-h-[120px] bg-linear-to-r from-[#2d1540] via-[#3d1c4d] to-[#4a2560] p-3">
+          <div className="relative flex min-h-[100px] flex-col justify-between">
             <div>
               <div className="flex items-start justify-between gap-2">
                 <h2 className="text-base font-semibold leading-tight text-white">
-                  {service.name}
+                  Booking Summary
                 </h2>
                 <button
                   type="button"
@@ -203,7 +202,7 @@ export function Step4PaymentConfirmation({
                   "
                 >
                   <Pencil size={8} strokeWidth={2} />
-                  Edit Service
+                  Edit Services
                 </button>
               </div>
 
@@ -213,7 +212,7 @@ export function Step4PaymentConfirmation({
                   { icon: CalendarDays, text: selectedDay.date },
                   {
                     icon: Clock3,
-                    text: `${selectedTime} • ${service.duration}`,
+                    text: selectedTime,
                   },
                   { icon: MapPin, text: bookingLocation.name },
                 ].map(({ icon: Icon, text }) => (
@@ -251,7 +250,7 @@ export function Step4PaymentConfirmation({
             </button>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* Pricing + Security */}
       <div className="grid grid-cols-2 gap-2">
@@ -264,8 +263,17 @@ export function Step4PaymentConfirmation({
           </div>
 
           <div className="space-y-1 text-[8px]">
-            <div className="flex justify-between text-(--text-secondary)">
-              <span>Service Cost</span>
+            {selectedServices.map((service) => (
+              <div
+                key={service.id}
+                className="flex justify-between gap-2 text-(--text-secondary)"
+              >
+                <span className="min-w-0 truncate">{service.name}</span>
+                <span className="shrink-0">{service.priceLabel}</span>
+              </div>
+            ))}
+            <div className="flex justify-between border-t border-(--border) pt-1 text-(--text-secondary)">
+              <span>Subtotal</span>
               <span>${subtotal}</span>
             </div>
             <div className="flex justify-between text-(--text-secondary)">
@@ -534,6 +542,14 @@ export function Step4PaymentConfirmation({
           </span>
         </div>
       </section>
+
+      <button
+        type="button"
+        onClick={onBack}
+        className="secondary-button w-full rounded-xl py-2 text-[9px] font-medium"
+      >
+        BACK
+      </button>
     </div>
   );
 }

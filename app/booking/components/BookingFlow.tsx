@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
-import { allMenuServices } from "@/menu/menu.data";
+import type { ExpertType } from "@/menu/components/ExpertSelection";
+import { getExtendedOrganization } from "@/specificorganizationbook/organization.data";
+import { parseBookingSearchParams } from "../booking.navigation";
 import {
   calcServicesTotal,
   getDefaultSeatId,
+  getStaffByGender,
 } from "../booking.data";
 import { BookingHeader } from "./BookingHeader";
 import { BookingProgress } from "./BookingProgress";
@@ -19,8 +23,13 @@ import {
 } from "./steps/Step4PaymentConfirmation";
 
 export function BookingFlow() {
+  const searchParams = useSearchParams();
+  const [initialized, setInitialized] = useState(false);
+
   const [step, setStep] = useState(1);
   const [serviceIds, setServiceIds] = useState<string[]>([]);
+  const [expertType, setExpertType] = useState<ExpertType>("");
+  const [organizationId, setOrganizationId] = useState<string | undefined>();
 
   const toggleService = (id: string) => {
     setServiceIds((prev) =>
@@ -28,7 +37,10 @@ export function BookingFlow() {
     );
   };
 
-  const primaryServiceId = serviceIds[0] ?? allMenuServices[0].id;
+  const removeService = (id: string) => {
+    setServiceIds((prev) => prev.filter((s) => s !== id));
+  };
+
   const [staffId, setStaffId] = useState("sony");
   const [selectedDayId, setSelectedDayId] = useState("2026-05-22");
   const [selectedTime, setSelectedTime] = useState("11:00 AM");
@@ -39,6 +51,42 @@ export function BookingFlow() {
   const [billingName, setBillingName] = useState("");
   const [billingEmail, setBillingEmail] = useState("");
   const [billingPhone, setBillingPhone] = useState("");
+
+  useEffect(() => {
+    if (initialized) return;
+
+    const parsed = parseBookingSearchParams(searchParams);
+
+    if (parsed.serviceIds.length > 0) {
+      setServiceIds(parsed.serviceIds);
+    }
+    if (parsed.expertType) {
+      setExpertType(parsed.expertType);
+      const matchingStaff = getStaffByGender(parsed.expertType);
+      if (matchingStaff[0]) {
+        setStaffId(matchingStaff[0].id);
+      }
+    }
+    if (parsed.organizationId) {
+      setOrganizationId(parsed.organizationId);
+    }
+    if (parsed.step === 2 && parsed.serviceIds.length > 0 && parsed.expertType) {
+      setStep(2);
+    }
+
+    setInitialized(true);
+  }, [initialized, searchParams]);
+
+  const organizationBanner = useMemo(() => {
+    if (!organizationId) return undefined;
+    const org = getExtendedOrganization(organizationId);
+    return {
+      name: org.name,
+      banner: org.heroImages[0],
+      availability: org.availability,
+      status: org.status,
+    };
+  }, [organizationId]);
 
   const { total } = calcServicesTotal(serviceIds);
 
@@ -58,6 +106,10 @@ export function BookingFlow() {
 
   const handleConfirmSeat = () => {
     setSeatConfirmed(true);
+  };
+
+  const handleSelectStaff = (id: string) => {
+    setStaffId(id);
   };
 
   const footerConfig = () => {
@@ -100,17 +152,20 @@ export function BookingFlow() {
 
         {step === 2 && (
           <Step2StaffSelection
-            serviceId={primaryServiceId}
+            selectedServiceIds={serviceIds}
+            organizationBanner={organizationBanner}
+            expertType={expertType}
             staffId={staffId}
             selectedDayId={selectedDayId}
             selectedTime={selectedTime}
             selectedSeatId={selectedSeatId}
             seatConfirmed={seatConfirmed}
-            onSelectStaff={setStaffId}
+            onSelectStaff={handleSelectStaff}
             onSelectDay={setSelectedDayId}
             onSelectTime={setSelectedTime}
             onSelectSeat={handleSelectSeat}
             onConfirmSeat={handleConfirmSeat}
+            onRemoveService={removeService}
             onBack={() => setStep(1)}
             onNext={() => setStep(3)}
             onEditService={() => setStep(1)}
@@ -120,6 +175,8 @@ export function BookingFlow() {
         {step === 3 && (
           <Step3DateTimeSelection
             selectedServiceIds={serviceIds}
+            organizationBanner={organizationBanner}
+            expertType={expertType}
             staffId={staffId}
             selectedDayId={selectedDayId}
             selectedTime={selectedTime}
@@ -127,8 +184,10 @@ export function BookingFlow() {
             seatConfirmed={seatConfirmed}
             onSelectDay={setSelectedDayId}
             onSelectTime={setSelectedTime}
+            onSelectStaff={handleSelectStaff}
             onSelectSeat={handleSelectSeat}
             onConfirmSeat={handleConfirmSeat}
+            onRemoveService={removeService}
             onBack={() => setStep(2)}
             onNext={() => setStep(4)}
           />
@@ -136,7 +195,8 @@ export function BookingFlow() {
 
         {step === 4 && (
           <Step4PaymentConfirmation
-            serviceId={primaryServiceId}
+            selectedServiceIds={serviceIds}
+            organizationBanner={organizationBanner}
             staffId={staffId}
             selectedDayId={selectedDayId}
             selectedTime={selectedTime}
@@ -148,6 +208,7 @@ export function BookingFlow() {
             onPaymentMethodChange={setPaymentMethod}
             onPromoCodeChange={setPromoCode}
             onBillingChange={handleBillingChange}
+            onRemoveService={removeService}
             onBack={() => setStep(3)}
             onConfirm={() => alert("Booking confirmed!")}
             onEditService={() => setStep(1)}
