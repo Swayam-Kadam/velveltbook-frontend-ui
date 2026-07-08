@@ -1,0 +1,18 @@
+export type {
+  DealType,
+  DealCategory,
+  SortOption,
+  DealsSuburbFilter,
+  DealsLanguageFilter,
+  DealsPriceFilter,
+  DealsNationalityFilter,
+  DealService,
+  BaseDeal,
+  SingleDeal,
+  PackageDeal,
+  Deal,
+  StoreProfile,
+  StoreDealsResponse,
+  DealsQueryParams,
+  DealsFilterState,
+} from "@/types/deal";

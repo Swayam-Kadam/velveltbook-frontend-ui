@@ -1,0 +1,4 @@
+/*
+  SelectSeat uses global theme tokens from app/globals.css.
+  Fonts are loaded in app/layout.tsx — no duplicate token definitions here.
+*/

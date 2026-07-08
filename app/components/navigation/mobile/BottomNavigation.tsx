@@ -4,26 +4,30 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     CircleHelp,
-    LayoutGrid,
     Home,
-    ShoppingBag,
-    UserRound,
     Calendar,
+    MessageCircle,
+    Tag,
 } from "lucide-react";
 import { isAuthRoute } from "@/lib/authRoutes";
 
 const items = [
     { label: "Home", icon: Home, href: "/home" },
-    { label: "Menu", icon: LayoutGrid, href: "/menu" },
+    { label: "Deals", icon: Tag, href: "/deals" },
     { label: "Bookings", icon: Calendar, href: "/mybooking" },
-    { label: "Experts", icon: UserRound, href: null },
+    { label: "Message", icon: MessageCircle, href: "/service-category/barber" },
     { label: "Help", icon: CircleHelp, href: "/help" },
 ];
 
 export function BottomNavigation() {
     const pathname = usePathname();
 
-    if (isAuthRoute(pathname)) {
+    if (
+        !pathname ||
+        isAuthRoute(pathname) ||
+        pathname === "/profile" ||
+        pathname.startsWith("/profile/")
+    ) {
         return null;
     }
 

@@ -19,7 +19,26 @@
       }
     ],
     "paths": {
-      "@/*": ["./app/*"]
+      "@/*": ["./app/*"],
+      "@/data/*": ["./app/data/*"],
+      "@/services/*": ["./app/services/*"],
+      "@/types/*": ["./app/types/*"],
+      "@/booking/*": ["./app/(booking)/booking/*"],
+      "@/mybooking/*": ["./app/(booking)/mybooking/*"],
+      "@/home/*": ["./app/(main)/home/*"],
+      "@/deals/*": ["./app/(main)/deals/*"],
+      "@/help/*": ["./app/(main)/help/*"],
+      "@/menu/*": ["./app/(main)/menu/*"],
+      "@/profile/*": ["./app/(account)/profile/*"],
+      "@/experts/*": ["./app/(catalog)/experts/*"],
+      "@/store/*": ["./app/(catalog)/store/*"],
+      "@/service-category/*": ["./app/(catalog)/service-category/*"],
+      "@/specificexpert/*": ["./app/(catalog)/specificexpert/*"],
+      "@/specificorganization/*": ["./app/(catalog)/specificorganization/*"],
+      "@/specificorganizationbook/*": ["./app/(catalog)/specificorganizationbook/*"],
+      "@/extendedspecificorganization/*": ["./app/(catalog)/extendedspecificorganization/*"],
+      "@/specificservice/*": ["./app/(catalog)/specificservice/*"],
+      "@/specificexpertmessage/*": ["./app/(catalog)/specificexpertmessage/*"]
     }
   },
   "include": [

@@ -1,14 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, ChevronDown, LogOut, UserRound, Sparkle } from "lucide-react";
+import { Bell, ChevronDown, LogOut, UserRound, Sparkle, ShoppingBag, CreditCard, ShieldCheck, FileText } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { usePathname, useRouter } from "next/navigation";
 import { SearchBar } from "./SearchBar";
 import { NavigationMenu } from "../navigation/desktop/NavigationMenu";
 import { useHomeFilter } from "../layout/HomeFilterContext";
-import { useEffect, useRef, useState } from "react";
+import { NotificationDropdown } from "./NotificationDropdown";
+import {
+  initialNotifications,
+  type AppNotification,
+} from "./notifications.data";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { isAuthRoute } from "@/lib/authRoutes";
 
 
@@ -18,12 +23,23 @@ export function Header() {
     const router = useRouter();
 
     const [menuOpen, setMenuOpen] = useState(false);
+    const [notificationOpen, setNotificationOpen] = useState(false);
+    const [notifications, setNotifications] = useState<AppNotification[]>(
+        initialNotifications,
+    );
     const menuRef = useRef<HTMLDivElement>(null);
+    const notificationRef = useRef<HTMLDivElement>(null);
+
+    const unreadCount = useMemo(
+        () => notifications.filter((notification) => !notification.read).length,
+        [notifications],
+    );
 
 	const hideHeaderRoutes = [
 		"/auth",
 		"/login",
 		"/register",
+		"/profile",
 	    ];
 
     useEffect(() => {
@@ -31,17 +47,45 @@ export function Header() {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setMenuOpen(false);
             }
+            if (
+                notificationRef.current &&
+                !notificationRef.current.contains(event.target as Node)
+            ) {
+                setNotificationOpen(false);
+            }
         }
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    const handleNotificationToggle = () => {
+        setMenuOpen(false);
+
+        if (!notificationOpen) {
+            setNotifications((current) =>
+                current.map((notification) => ({ ...notification, read: true })),
+            );
+        }
+
+        setNotificationOpen((open) => !open);
+    };
+
+    const handleViewMoreNotifications = () => {
+        setNotificationOpen(false);
+    };
 
     const handleLogout = () => {
         setMenuOpen(false);
         router.push("/auth");
     };
 
-    if (isAuthRoute(pathname) || hideHeaderRoutes.includes(pathname)) {
+    if (
+        !pathname ||
+        isAuthRoute(pathname) ||
+        hideHeaderRoutes.some(
+            (route) => pathname === route || pathname.startsWith(`${route}/`),
+        )
+    ) {
         return null;
     }
 
@@ -133,49 +177,66 @@ export function Header() {
                 <div className="flex items-center gap-2 lg:shrink-0">
                     <ThemeToggle />
 
-                    <button
-                        className="
-    relative flex h-[38px] w-[38px] items-center justify-center
-    rounded-full border border-[color-mix(in_srgb,var(--accent-glow)_10%,var(--border))]
-    bg-[radial-gradient(circle_at_top,var(--bg-card-hover)_0%,var(--bg-card)_70%)]
-    backdrop-blur-2xl
-    shadow-[
-      inset_0_1px_0_color-mix(in_srgb,var(--accent-glow)_8%,transparent),
-      inset_0_0_20px_color-mix(in_srgb,var(--accent-glow)_4%,transparent),
-      0_0_0_1px_color-mix(in_srgb,var(--accent-glow)_4%,transparent)
-    ]
-    transition-all duration-300
-    hover:border-[color-mix(in_srgb,var(--accent-glow)_18%,var(--border))]
-    hover:shadow-[
-      inset_0_1px_0_color-mix(in_srgb,var(--accent-glow)_10%,transparent),
-      inset_0_0_24px_color-mix(in_srgb,var(--accent-glow)_6%,transparent),
-      0_0_18px_color-mix(in_srgb,var(--accent-glow)_12%,transparent)
-    ]
-  "
-                    >
-                        <Bell
-                            className="h-4 w-4 text-(--text-primary)"
-                            strokeWidth={1.6}
-                        />
-
-                        <span
+                    <div className="relative" ref={notificationRef}>
+                        <button
+                            type="button"
+                            onClick={handleNotificationToggle}
+                            aria-label="Notifications"
+                            aria-haspopup="menu"
+                            aria-expanded={notificationOpen}
                             className="
-      absolute -right-[2px] top-[2px]
-      flex h-3 w-3 items-center justify-center
-      rounded-full
-      bg-(--accent-primary)
-      text-[11px] font-semibold text-white
-      shadow-[0_0_12px_color-mix(in_srgb,var(--accent-glow)_40%,transparent)]
-    "
+                                relative flex h-[38px] w-[38px] cursor-pointer items-center
+                                justify-center rounded-full border
+                                border-[color-mix(in_srgb,var(--accent-glow)_10%,var(--border))]
+                                bg-[radial-gradient(circle_at_top,var(--bg-card-hover)_0%,var(--bg-card)_70%)]
+                                backdrop-blur-2xl
+                                shadow-[
+                                    inset_0_1px_0_color-mix(in_srgb,var(--accent-glow)_8%,transparent),
+                                    inset_0_0_20px_color-mix(in_srgb,var(--accent-glow)_4%,transparent),
+                                    0_0_0_1px_color-mix(in_srgb,var(--accent-glow)_4%,transparent)
+                                ]
+                                transition-all duration-300
+                                hover:border-[color-mix(in_srgb,var(--accent-glow)_18%,var(--border))]
+                                hover:shadow-[
+                                    inset_0_1px_0_color-mix(in_srgb,var(--accent-glow)_10%,transparent),
+                                    inset_0_0_24px_color-mix(in_srgb,var(--accent-glow)_6%,transparent),
+                                    0_0_18px_color-mix(in_srgb,var(--accent-glow)_12%,transparent)
+                                ]
+                            "
                         >
-                            2
-                        </span>
-                    </button>
+                            <Bell
+                                className="h-4 w-4 text-(--text-primary)"
+                                strokeWidth={1.6}
+                            />
+
+                            {unreadCount > 0 && (
+                                <span
+                                    className="
+                                        absolute -right-0.5 -top-0.5 flex h-4 min-w-4
+                                        items-center justify-center rounded-full px-0.5
+                                        bg-(--accent-primary) text-[9px] font-semibold text-white
+                                        shadow-[0_0_12px_color-mix(in_srgb,var(--accent-glow)_40%,transparent)]
+                                    "
+                                >
+                                    {unreadCount > 9 ? "9+" : unreadCount}
+                                </span>
+                            )}
+                        </button>
+
+                        <NotificationDropdown
+                            open={notificationOpen}
+                            notifications={notifications}
+                            onViewMore={handleViewMoreNotifications}
+                        />
+                    </div>
 
                     <div className="relative" ref={menuRef}>
                         <button
                             type="button"
-                            onClick={() => setMenuOpen((open) => !open)}
+                            onClick={() => {
+                                setNotificationOpen(false);
+                                setMenuOpen((open) => !open);
+                            }}
                             aria-haspopup="menu"
                             aria-expanded={menuOpen}
                             className="flex items-center gap-1"
@@ -219,6 +280,70 @@ export function Header() {
                                 >
                                     <UserRound size={15} className="text-(--accent-primary)" />
                                     Profile
+                                </button>
+                                
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        return;
+                                    }}
+                                    className="
+                                        flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
+                                        font-semibold text-(--text-primary)
+                                        transition-colors hover:bg-(--bg-card-hover)
+                                    "
+                                >
+                                    <ShoppingBag size={15} className="text-(--accent-primary)" />
+                                    My Orders
+                                </button>
+
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        return;
+                                    }}
+                                    className="
+                                        flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
+                                        font-semibold text-(--text-primary)
+                                        transition-colors hover:bg-(--bg-card-hover)
+                                    "
+                                >
+                                    <CreditCard size={15} className="text-(--accent-primary)" />
+                                    Payment
+                                </button>
+
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        return;
+                                    }}
+                                    className="
+                                        flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
+                                        font-semibold text-(--text-primary)
+                                        transition-colors hover:bg-(--bg-card-hover)
+                                    "
+                                >
+                                    <ShieldCheck size={15} className="text-(--accent-primary)" />
+                                    Privacy Policy
+                                </button>
+
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        return;
+                                    }}
+                                    className="
+                                        flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
+                                        font-semibold text-(--text-primary)
+                                        transition-colors hover:bg-(--bg-card-hover)
+                                    "
+                                >
+                                    <FileText size={15} className="text-(--accent-primary)" />
+                                    Legal (T&C)
                                 </button>
 
                                 <div className="h-px bg-(--border)" />

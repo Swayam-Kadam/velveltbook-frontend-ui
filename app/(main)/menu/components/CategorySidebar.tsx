@@ -1,0 +1,91 @@
+"use client";
+
+import { MenuCategory } from "../menu.data";
+
+interface CategorySidebarProps {
+  categories: MenuCategory[];
+  activeId: string;
+  onSelect: (id: string) => void;
+  selectedCounts?: Record<string, number>;
+}
+
+export function CategorySidebar({
+  categories,
+  activeId,
+  onSelect,
+  selectedCounts,
+}: CategorySidebarProps) {
+  return (
+    <aside
+      className="
+        flex w-[88px] shrink-0 flex-col
+        border-r border-(--border)
+        bg-(--bg-primary)
+        py-2 overflow-y-auto
+      "
+    >
+      <nav className="flex flex-col gap-0.5 px-1.5">
+        {categories.map(({ id, label, icon: Icon }) => {
+          const active = id === activeId;
+          const count = selectedCounts?.[id] ?? 0;
+          const showBadge = count > 0;
+
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => onSelect(id)}
+              className={`
+                flex flex-col items-center gap-1 rounded-xl px-1 py-2.5
+                transition-all duration-300
+                ${
+                  active
+                    ? "primary-button text-white shadow-(--shadow-glow)"
+                    : "text-(--text-secondary) hover:bg-(--bg-card-hover)"
+                }
+              `}
+            >
+              <div className="relative">
+                <Icon
+                  size={16}
+                  strokeWidth={1.5}
+                  className={
+                    active
+                      ? "text-(--brand-gold)"
+                      : "text-(--text-primary)"
+                  }
+                />
+                {showBadge && (
+                  <span
+                    className={`
+                      absolute -right-3.5 -top-1.5 flex h-3.5 min-w-3.5
+                      items-center justify-center rounded-full px-0.5
+                      text-[7px] font-bold leading-none
+                      ${
+                        active
+                          ? "bg-white text-(--accent-primary)"
+                          : "bg-(--brand-gold) text-(--text-primary)"
+                      }
+                    `}
+                    aria-label={`${count} selected`}
+                  >
+                    {count}
+                  </span>
+                )}
+              </div>
+
+              <span
+                className={`
+                  text-center text-[8px] leading-tight font-bold
+                  ${active ? "text-white" : "text-(--text-primary)"}
+                `}
+              >
+                {label}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+    </aside>
+  );
+}

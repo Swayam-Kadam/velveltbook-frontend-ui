@@ -22,7 +22,7 @@ export function HomeFilterProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [isHomeFilterOpen, setIsHomeFilterOpen] = useState(true);
+  const [isHomeFilterOpen, setIsHomeFilterOpen] = useState(false);
 
   const openHomeFilter = useCallback(() => {
     setIsHomeFilterOpen(true);

@@ -102,6 +102,24 @@ body {
   display: none;
 }
 
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent-primary) 35%, var(--border)) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-primary) 35%, var(--border));
+}
+
 .trending-swiper {
   padding-bottom: 20px !important;
 }
@@ -267,6 +285,8 @@ body {
   --pagination-dot: rgba(61, 28, 77, 0.22);
   --pagination-active: var(--accent-primary);
 
+  --help-banner-bg: #f8f3ea;
+  --message-unread-bg: color-mix(in srgb, var(--accent-primary) 7%, var(--bg-primary));
 }
 
 /* Dark Theme (Default) */
@@ -355,6 +375,9 @@ body {
   --pagination-dot: rgba(255, 255, 255, 0.28);
 
   --pagination-active: var(--accent-glow);
+
+  --help-banner-bg: #1a0d2a;
+  --message-unread-bg: color-mix(in srgb, var(--accent-primary) 14%, var(--bg-card));
 }
 
 
@@ -379,3 +402,5 @@ h6 {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+

@@ -1,0 +1,185 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  BadgeCheck,
+  CalendarCheck,
+  Clock,
+  Eye,
+  MapPin,
+  MessageSquare,
+  Play,
+  Star,
+} from "lucide-react";
+
+import type { Expert } from "../experts.types";
+import { ServiceSelectionAlert } from "@/booking/components/ServiceSelectionAlert";
+
+interface ExpertCardProps {
+  expert: Expert;
+  /** Tighter typography for mobile slider cards */
+  compact?: boolean;
+}
+
+export function ExpertCard({ expert, compact = false }: ExpertCardProps) {
+  const router = useRouter();
+  const profileHref = `/experts/${expert.id}`;
+  const [showServiceAlert, setShowServiceAlert] = useState(false);
+
+  const nameClass = compact
+    ? "truncate text-[10px] font-semibold text-(--text-primary)"
+    : "truncate text-[10px] font-semibold text-(--text-primary) sm:text-xs lg:text-sm";
+
+  const specialtyClass = compact
+    ? "mt-0.5 truncate text-[9px] text-(--text-secondary)"
+    : "mt-0.5 truncate text-[9px] text-(--text-secondary) sm:text-[10px] lg:text-[11px]";
+
+  const metaClass = compact
+    ? "flex items-center gap-1.5 text-[8px] text-(--text-muted)"
+    : "flex items-center gap-2 text-[8px] text-(--text-muted) sm:text-[9px] lg:text-[10px]";
+
+  const tagClass = compact
+    ? "rounded-md border border-(--border) bg-(--bg-secondary) px-1 py-0.5 text-[7px] font-medium text-(--text-secondary)"
+    : "rounded-md border border-(--border) bg-(--bg-secondary) px-1.5 py-0.5 text-[7px] font-medium text-(--text-secondary) sm:text-[8px] lg:text-[9px]";
+
+  const priceClass = compact
+    ? "text-[9px] font-bold text-(--text-primary)"
+    : "text-xs font-bold text-(--text-primary) sm:text-sm lg:text-base";
+
+  // Mobile: full-width stacked buttons. sm+: equal-width row.
+  const actionClass =
+    "flex h-7 w-full items-center justify-center gap-1 rounded-lg text-[10px] font-medium sm:h-7 sm:flex-1 sm:text-[9px] lg:h-8 lg:text-[10px]";
+
+  return (
+    <article className="group relative flex h-full w-full flex-col overflow-hidden rounded-[var(--radius-md)] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--shadow-glow)]">
+      {/* Full-card click target → opens the expert profile. Interactive
+          controls below sit above this via z-index. */}
+      <Link
+        href={profileHref}
+        aria-label={`View ${expert.name}'s profile`}
+        className="absolute inset-0 z-[1]"
+      />
+
+      <div className="relative aspect-[5/4] w-full overflow-hidden">
+        <Image
+          src={expert.image}
+          alt={expert.name}
+          fill
+          sizes="(max-width: 640px) 28vw, (max-width: 1280px) 25vw, 20vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+
+        <span
+          className={`absolute left-1.5 top-1.5 z-10 h-2.5 w-2.5 rounded-full sm:h-3 sm:w-3 lg:left-2 lg:top-2 ${
+            expert.isOnline ? "bg-(--success)" : "bg-(--danger)"
+          }`}
+          aria-label={expert.isOnline ? "Online" : "Offline"}
+        />
+
+        <button
+          type="button"
+          aria-label={`Play ${expert.name}'s intro video`}
+          className="absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition-colors hover:bg-(--accent-primary) sm:h-6 sm:w-6 lg:right-2 lg:top-2 lg:h-8 lg:w-8"
+        >
+          <Play size={9} strokeWidth={2} className="ml-0.5 fill-white sm:size-2.5 lg:size-[13px]" />
+        </button>
+      </div>
+
+      <div
+        className={`relative z-10 flex flex-1 flex-col ${compact ? "gap-1 p-2" : "gap-1.5 p-2 sm:gap-2 sm:p-2.5 lg:p-3"}`}
+      >
+        <div>
+          <div className="flex items-center gap-1">
+            <span className={nameClass}>{expert.name}</span>
+            {expert.verified && (
+              <BadgeCheck
+                size={compact ? 12 : 14}
+                strokeWidth={1.8}
+                className="shrink-0 text-(--brand-gold)"
+              />
+            )}
+          </div>
+          <p className={specialtyClass}>{expert.specialty}</p>
+        </div>
+
+        <div className={metaClass}>
+          <span className="flex items-center gap-0.5">
+            <Star
+              size={compact ? 9 : 10}
+              className="fill-(--brand-gold) text-(--brand-gold)"
+            />
+            <span className="font-medium text-(--text-secondary)">
+              {expert.rating.toFixed(1)}
+            </span>
+            ({expert.reviews})
+          </span>
+          <span className="flex min-w-0 items-center gap-0.5">
+            <MapPin size={compact ? 9 : 10} strokeWidth={1.8} className="shrink-0" />
+            <span className="truncate">{expert.distance}</span>
+          </span>
+        </div>
+
+        {expert.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {expert.tags.slice(0, 2).map((tag) => (
+              <span key={tag} className={tagClass}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[9px] text-(--text-muted) sm:text-[10px] lg:text-[11px]">
+            From <span className={priceClass}>{expert.currency}{expert.price}</span>
+          </p>
+          <span
+            className={`inline-flex shrink-0 items-center gap-0.5 ${tagClass}`}
+          >
+            <Clock size={compact ? 8 : 9} strokeWidth={1.8} className="shrink-0" />
+            {expert.availabilityHours}
+          </span>
+        </div>
+
+        {/* Raised above the card overlay so each control works on its own. */}
+        <div className="relative z-10 mt-auto flex flex-col gap-1 pt-0.5 sm:flex-row sm:items-center">
+          <button
+            type="button"
+            onClick={() => setShowServiceAlert(true)}
+            className={`primary-button text-white ${actionClass}`}
+          >
+            <CalendarCheck size={12} strokeWidth={1.8} />
+            Book
+          </button>
+
+          <Link
+            href={`${profileHref}?tab=message`}
+            className={`${actionClass} border border-(--border) bg-(--bg-card) text-(--text-primary) transition-colors hover:border-(--accent-primary)`}
+          >
+            <MessageSquare size={12} strokeWidth={1.8} />
+            Message
+          </Link>
+
+          <Link
+            href={profileHref}
+            aria-label={`View ${expert.name}'s profile`}
+            className="hidden h-7 w-full items-center justify-center gap-1 rounded-lg border border-(--border) bg-(--bg-card) text-[10px] font-medium text-(--text-primary) transition-colors hover:border-(--accent-primary) sm:flex sm:w-8 sm:text-[0px] lg:h-8 lg:w-9"
+          >
+            <Eye size={13} strokeWidth={1.8} />
+            <span className="sm:hidden">View</span>
+          </Link>
+        </div>
+      </div>
+
+      <ServiceSelectionAlert
+        open={showServiceAlert}
+        onClose={() => setShowServiceAlert(false)}
+        actionLabel="Select Services"
+        onAction={() => router.push(profileHref)}
+      />
+    </article>
+  );
+}

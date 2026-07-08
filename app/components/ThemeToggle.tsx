@@ -20,7 +20,7 @@ export function ThemeToggle() {
             onClick={() =>
                 setTheme(theme === "dark" ? "light" : "dark")
             }
-            className="flex h-[38px] w-[38px] items-center justify-center rounded-full border border-(--border) bg-(--bg-card) backdrop-blur-xl transition-all duration-300 hover:shadow-[0_0_24px_rgba(161,58,255,0.3)]"
+            className="flex cursor-pointer h-[38px] w-[38px] items-center justify-center rounded-full border border-(--border) bg-(--bg-card) backdrop-blur-xl transition-all duration-300 hover:shadow-[0_0_24px_rgba(161,58,255,0.3)]"
         >
             {theme === "dark" ? (
                 <Sun size={16} />
