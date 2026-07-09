@@ -776,7 +776,7 @@ export function ExtendedOrganizationProfile({
 
             {canBook ? (
               <Link
-                href={bookingUrl}
+                href={""}
                 className="
                   primary-button flex flex-1 items-center justify-center
                   rounded-none px-3 py-3 text-[11px] font-semibold text-white
