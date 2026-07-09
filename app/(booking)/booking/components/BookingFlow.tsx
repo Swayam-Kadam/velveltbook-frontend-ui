@@ -214,6 +214,7 @@ export function BookingFlow() {
           <Step4PaymentConfirmation
             selectedServiceIds={serviceIds}
             organizationBanner={organizationBanner}
+            organizationId={organizationId}
             staffId={staffId}
             serviceSchedules={serviceSchedules}
             paymentMethod={paymentMethod}

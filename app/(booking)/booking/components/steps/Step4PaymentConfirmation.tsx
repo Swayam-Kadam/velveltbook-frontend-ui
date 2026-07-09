@@ -33,18 +33,16 @@ import {
   isServiceScheduleComplete,
 } from "../../booking.data";
 import type { ServiceSchedules } from "../../booking.types";
+import {
+  BookingOrganizationBanner,
+  type BookingOrganizationBannerInfo,
+} from "../BookingOrganizationBanner";
 import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
-
-interface OrganizationBannerInfo {
-  name: string;
-  banner: string;
-  availability: string;
-  status: string;
-}
 
 interface Step4PaymentConfirmationProps {
   selectedServiceIds: string[];
-  organizationBanner?: OrganizationBannerInfo;
+  organizationBanner?: BookingOrganizationBannerInfo;
+  organizationId?: string;
   staffId: string;
   serviceSchedules: ServiceSchedules;
   paymentMethod: string;
@@ -133,6 +131,7 @@ function MiniCardIllustration() {
 export function Step4PaymentConfirmation({
   selectedServiceIds,
   organizationBanner,
+  organizationId,
   staffId,
   serviceSchedules,
   paymentMethod,
@@ -145,9 +144,15 @@ export function Step4PaymentConfirmation({
   onChangeTime,
   onRemoveService,
 }: Step4PaymentConfirmationProps) {
-  const selectedServices = getSelectedServices(selectedServiceIds);
+  const selectedServices = getSelectedServices(
+    selectedServiceIds,
+    organizationId,
+  );
   const staff = getStaff(staffId);
-  const { subtotal, tax, total } = calcServicesTotal(selectedServiceIds);
+  const { subtotal, tax, total } = calcServicesTotal(
+    selectedServiceIds,
+    organizationId,
+  );
 
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -176,10 +181,17 @@ export function Step4PaymentConfirmation({
 
   return (
     <div className="space-y-3 pb-2">
+      <BookingOrganizationBanner
+        organization={organizationBanner}
+        serviceLabels={selectedServices.map((service) => service.name)}
+      />
+
       <BookingSelectedServicesPanel
         selectedServiceIds={selectedServiceIds}
         organization={organizationBanner}
+        organizationId={organizationId}
         onRemoveService={onRemoveService}
+        showOrganizationBanner={false}
       />
 
       {/* Booking Details Header */}
