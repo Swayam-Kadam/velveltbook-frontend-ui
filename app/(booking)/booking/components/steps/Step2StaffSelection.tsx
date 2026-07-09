@@ -10,12 +10,16 @@ import {
   Star,
 } from "lucide-react";
 import type { ExpertType } from "@/menu/components/ExpertSelection";
+import {
+  BookingOrganizationBanner,
+  type BookingOrganizationBannerInfo,
+} from "../BookingOrganizationBanner";
 import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import {
   bookingSeats,
-  bookingStaff,
   areAllServiceSchedulesComplete,
   calcServicesTotal,
+  getOrganizationStaff,
   getSelectedServices,
   getStaff,
   isServiceScheduleComplete,
@@ -25,18 +29,13 @@ import { ServiceScheduleAccordion } from "./ServiceScheduleAccordion";
 import SelectSeat from "./SelectSeat";
 import "./SelectSeat/SelectSeat.css";
 
-interface OrganizationBannerInfo {
-  name: string;
-  banner: string;
-  availability: string;
-  status: string;
-}
-
 interface Step2StaffSelectionProps {
   selectedServiceIds: string[];
-  organizationBanner?: OrganizationBannerInfo;
+  organizationBanner?: BookingOrganizationBannerInfo;
+  organizationId?: string;
   expertType: ExpertType;
   staffId: string;
+  lockStaffSelection?: boolean;
   serviceSchedules: ServiceSchedules;
   selectedSeatId: string;
   seatConfirmed: boolean;
@@ -75,8 +74,10 @@ function showBookingWarning(title: string, text: string) {
 export function Step2StaffSelection({
   selectedServiceIds,
   organizationBanner,
+  organizationId,
   expertType,
   staffId,
+  lockStaffSelection = false,
   serviceSchedules,
   selectedSeatId,
   seatConfirmed,
@@ -90,19 +91,33 @@ export function Step2StaffSelection({
   onNext,
 }: Step2StaffSelectionProps) {
   const staff = getStaff(staffId);
-  const selectedServices = getSelectedServices(selectedServiceIds);
-  const { subtotal } = calcServicesTotal(selectedServiceIds);
+  const selectedServices = getSelectedServices(
+    selectedServiceIds,
+    organizationId,
+  );
+  const { subtotal } = calcServicesTotal(selectedServiceIds, organizationId);
   const allScheduled = areAllServiceSchedulesComplete(
     serviceSchedules,
     selectedServiceIds,
   );
 
   const visibleStaff = useMemo(() => {
-    if (expertType === "male" || expertType === "female") {
-      return bookingStaff.filter((therapist) => therapist.gender === expertType);
+    if (lockStaffSelection) {
+      return getOrganizationStaff(organizationId).filter(
+        (therapist) => therapist.id === staffId,
+      );
     }
-    return bookingStaff;
-  }, [expertType]);
+
+    let therapists = getOrganizationStaff(organizationId);
+
+    if (expertType === "male" || expertType === "female") {
+      therapists = therapists.filter(
+        (therapist) => therapist.gender === expertType,
+      );
+    }
+
+    return therapists;
+  }, [expertType, lockStaffSelection, organizationId, staffId]);
 
   const pendingServices = selectedServices.filter(
     (service) => !isServiceScheduleComplete(serviceSchedules[service.id]),
@@ -133,10 +148,16 @@ export function Step2StaffSelection({
 
   return (
     <div className="space-y-4">
+      <BookingOrganizationBanner
+        organization={organizationBanner}
+        serviceLabels={selectedServices.map((service) => service.name)}
+      />
       <BookingSelectedServicesPanel
         selectedServiceIds={selectedServiceIds}
         organization={organizationBanner}
+        organizationId={organizationId}
         onRemoveService={onRemoveService}
+        showOrganizationBanner={false}
       />
 
       <section>
@@ -147,24 +168,32 @@ export function Step2StaffSelection({
             </span>
             <div>
               <h3 className="text-xs font-bold text-(--text-primary)">
-                Select Your Therapist
+                {lockStaffSelection ? "Selected Therapist" : "Select Your Therapist"}
               </h3>
               <p className="text-[8px] font-semibold text-(--brand-gold)">
-                {expertType ? expertLabel[expertType] : "All Experts"}
+                {lockStaffSelection
+                  ? staff.name
+                  : expertType
+                    ? expertLabel[expertType]
+                    : organizationId
+                      ? "Organization Experts"
+                      : "All Experts"}
               </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            className="
+          {!lockStaffSelection && (
+            <button
+              type="button"
+              className="
               flex items-center gap-1 rounded-lg border border-(--border)
               bg-(--bg-card) px-2 py-1 text-[8px] font-semibold text-(--text-primary)
             "
-          >
-            <SlidersHorizontal size={10} />
-            Filter
-          </button>
+            >
+              <SlidersHorizontal size={10} />
+              Filter
+            </button>
+          )}
         </div>
 
         <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
@@ -175,10 +204,18 @@ export function Step2StaffSelection({
               <button
                 key={therapist.id}
                 type="button"
-                onClick={() => onSelectStaff(therapist.id)}
+                onClick={() => {
+                  if (!lockStaffSelection) onSelectStaff(therapist.id);
+                }}
+                disabled={lockStaffSelection}
                 className={`
                   feature-card w-[96px] shrink-0 rounded-xl p-1.5 text-left
                   transition-all duration-200
+                  ${
+                    lockStaffSelection
+                      ? "cursor-default"
+                      : ""
+                  }
                   ${
                     active
                       ? "border-(--accent-primary) shadow-(--shadow-glow)"

@@ -3,9 +3,11 @@ import {
   getMenuService,
   type MenuService,
 } from "@/data/catalog/menu/services";
+import { getExtendedOrganization } from "@/data/catalog/organizations/organizations-extended";
 import { PAYMENT_METHODS } from "@/data/shared/payment-methods";
 import { SHARED_STAFF } from "@/data/shared/staff";
 import { STUDIO_BOOKING_TIME_SLOTS } from "@/data/shared/time-slots";
+import type { ExtendedService } from "@/types/organization";
 import type {
   BookingDay,
   BookingLocation,
@@ -127,17 +129,60 @@ const MONTHS = [
 
 const BOOKING_MONTHS_AHEAD = 6;
 
-export function buildBookingDays(from = new Date(2026, 4, 20)): BookingDay[] {
+export function formatBookingDayId(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+export function getTodayBookingDayId(from = new Date()) {
+  return formatBookingDayId(from);
+}
+
+function parseBookingTimeToMinutes(time: string) {
+  const match = time.match(/^(\d{1,2}):(\d{2}) (AM|PM)$/);
+  if (!match) return 0;
+
+  let hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  const period = match[3];
+
+  if (period === "PM" && hours !== 12) hours += 12;
+  if (period === "AM" && hours === 12) hours = 0;
+
+  return hours * 60 + minutes;
+}
+
+export function getAvailableTimeSlots(
+  dayId: string,
+  slots: readonly string[] = timeSlots,
+  from = new Date(),
+) {
+  if (dayId !== getTodayBookingDayId(from)) {
+    return [...slots];
+  }
+
+  const minimumMinutes = from.getHours() * 60 + from.getMinutes() + 30;
+
+  return slots.filter(
+    (slot) => parseBookingTimeToMinutes(slot) >= minimumMinutes,
+  );
+}
+
+export function getDefaultScheduleTime(
+  dayId = getTodayBookingDayId(),
+  from = new Date(),
+) {
+  const available = getAvailableTimeSlots(dayId, timeSlots, from);
+  return available[0] ?? timeSlots[0];
+}
+
+export function buildBookingDays(from = new Date()): BookingDay[] {
   const startOfToday = new Date(
     from.getFullYear(),
     from.getMonth(),
     from.getDate(),
   );
-  const end = new Date(
-    from.getFullYear(),
-    from.getMonth() + BOOKING_MONTHS_AHEAD,
-    0,
-  );
+  const end = new Date(startOfToday);
+  end.setMonth(end.getMonth() + BOOKING_MONTHS_AHEAD);
 
   const days: BookingDay[] = [];
   for (
@@ -148,7 +193,7 @@ export function buildBookingDays(from = new Date(2026, 4, 20)): BookingDay[] {
     const monthLabel = MONTHS[cursor.getMonth()];
     const dayOfMonth = cursor.getDate();
     const isToday = cursor.getTime() === startOfToday.getTime();
-    const iso = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}-${String(dayOfMonth).padStart(2, "0")}`;
+    const iso = formatBookingDayId(cursor);
 
     days.push({
       id: iso,
@@ -161,10 +206,15 @@ export function buildBookingDays(from = new Date(2026, 4, 20)): BookingDay[] {
   return days;
 }
 
-export const bookingDays = buildBookingDays();
+export function getBookingDays(from = new Date()) {
+  return buildBookingDays(from);
+}
 
-export function getBookingDay(id: string) {
-  return bookingDays.find((d) => d.id === id) ?? bookingDays[0];
+export const bookingDays = getBookingDays();
+
+export function getBookingDay(id: string, from = new Date()) {
+  const days = getBookingDays(from);
+  return days.find((d) => d.id === id) ?? days[0];
 }
 
 export const calendarDays = Array.from({ length: 31 }, (_, i) => i + 1);
@@ -189,6 +239,18 @@ export function menuServiceToBookingService(menu: MenuService): BookingService {
   };
 }
 
+function extendedServiceToBookingService(service: ExtendedService): BookingService {
+  return {
+    id: service.id,
+    name: service.name,
+    duration: service.duration ?? "",
+    price: parseMenuPrice(service.price),
+    priceLabel: service.price,
+    description: service.description,
+    image: service.image,
+  };
+}
+
 export function getService(id: string) {
   const menu = getMenuService(id);
   if (menu) return menuServiceToBookingService(menu);
@@ -208,26 +270,70 @@ export function calcTotal(subtotal: number) {
   return { subtotal, tax, total: subtotal + tax };
 }
 
-export function getSelectedServices(ids: string[]) {
+export function getSelectedServices(ids: string[], organizationId?: string) {
+  const organization = organizationId
+    ? getExtendedOrganization(organizationId)
+    : null;
+
   return ids
-    .map((id) => getMenuService(id))
-    .filter((service): service is MenuService => service !== undefined)
-    .map(menuServiceToBookingService);
+    .map((id) => {
+      const menuService = getMenuService(id);
+      if (menuService) return menuServiceToBookingService(menuService);
+
+      const organizationService = organization?.services.find(
+        (service) => service.id === id,
+      );
+      if (organizationService) {
+        return extendedServiceToBookingService(organizationService);
+      }
+
+      return undefined;
+    })
+    .filter((service): service is BookingService => service !== undefined);
 }
 
-export function calcServicesTotal(ids: string[]) {
-  const subtotal = getSelectedServices(ids).reduce((sum, s) => sum + s.price, 0);
+export function calcServicesTotal(ids: string[], organizationId?: string) {
+  const subtotal = getSelectedServices(ids, organizationId).reduce(
+    (sum, service) => sum + service.price,
+    0,
+  );
   return calcTotal(subtotal);
 }
 
-export const DEFAULT_SCHEDULE_DAY_ID = "2026-05-22";
-export const DEFAULT_SCHEDULE_TIME = "11:00 AM";
+export function getOrganizationStaff(organizationId?: string) {
+  if (!organizationId) return bookingStaff;
 
-export function createDefaultServiceSchedule(): ServiceSchedule {
+  const organization = getExtendedOrganization(organizationId);
+  const staffIds = new Set(organization.staff.map((member) => member.id));
+
+  return bookingStaff.filter((member) => staffIds.has(member.id));
+}
+
+export function createDefaultServiceSchedule(from = new Date()): ServiceSchedule {
+  const dayId = getTodayBookingDayId(from);
   return {
-    dayId: DEFAULT_SCHEDULE_DAY_ID,
-    time: DEFAULT_SCHEDULE_TIME,
+    dayId,
+    time: getDefaultScheduleTime(dayId, from),
     isSet: false,
+  };
+}
+
+export function normalizeServiceSchedule(
+  schedule: ServiceSchedule,
+  from = new Date(),
+): ServiceSchedule {
+  const days = getBookingDays(from);
+  const hasValidDay = days.some((day) => day.id === schedule.dayId);
+  const dayId = hasValidDay ? schedule.dayId : getTodayBookingDayId(from);
+  const availableTimes = getAvailableTimeSlots(dayId, timeSlots, from);
+  const time = availableTimes.includes(schedule.time)
+    ? schedule.time
+    : getDefaultScheduleTime(dayId, from);
+
+  return {
+    ...schedule,
+    dayId,
+    time,
   };
 }
 
@@ -237,7 +343,9 @@ export function syncServiceSchedules(
 ): ServiceSchedules {
   const next: ServiceSchedules = {};
   for (const id of serviceIds) {
-    next[id] = current[id] ?? createDefaultServiceSchedule();
+    next[id] = normalizeServiceSchedule(
+      current[id] ?? createDefaultServiceSchedule(),
+    );
   }
   return next;
 }

@@ -14,6 +14,10 @@ import {
 
 import type { ExpertType } from "@/menu/components/ExpertSelection";
 import {
+  BookingOrganizationBanner,
+  type BookingOrganizationBannerInfo,
+} from "../BookingOrganizationBanner";
+import {
   bookingSeats,
   bookingStaff,
   getBookingDay,
@@ -27,16 +31,9 @@ import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import { ServiceScheduleAccordion } from "./ServiceScheduleAccordion";
 import SelectSeat from "./SelectSeat";
 
-interface OrganizationBannerInfo {
-  name: string;
-  banner: string;
-  availability: string;
-  status: string;
-}
-
 interface Step3DateTimeSelectionProps {
   selectedServiceIds: string[];
-  organizationBanner?: OrganizationBannerInfo;
+  organizationBanner?: BookingOrganizationBannerInfo;
   expertType: ExpertType;
   staffId: string;
   serviceSchedules: ServiceSchedules;
@@ -153,10 +150,15 @@ export function Step3DateTimeSelection({
 
   return (
     <div className="space-y-4">
+      <BookingOrganizationBanner
+        organization={organizationBanner}
+        serviceLabels={selectedServices.map((service) => service.name)}
+      />
       <BookingSelectedServicesPanel
         selectedServiceIds={selectedServiceIds}
         organization={organizationBanner}
         onRemoveService={onRemoveService}
+        showOrganizationBanner={false}
       />
 
       <section className="grid grid-cols-2 gap-2">
@@ -207,7 +209,7 @@ export function Step3DateTimeSelection({
           </h2>
 
           <article className="feature-card rounded-xl px-2 pt-2">
-            <div className="space-y-2 pb-1">
+            <div className="space-y-2 pb-1 min-h-16">
               {selectedServices.map((service) => {
                 const schedule = serviceSchedules[service.id];
                 const scheduled = isServiceScheduleComplete(schedule);

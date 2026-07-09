@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Clock3 } from "lucide-react";
 
+import { getAvailableTimeSlots } from "../../booking.data";
 import type { BookingDay } from "../../booking.types";
 import { DatePickerPopover } from "../DatePickerPopover";
 
@@ -40,6 +41,130 @@ function formatTimeParts(time: string) {
   return {
     clock: match?.[1] ?? time,
     period: (match?.[2] ?? getTimePeriod(time)) as TimePeriod,
+  };
+}
+
+function useHorizontalScrollControls<T extends HTMLElement>() {
+  const scrollRef = useRef<T>(null);
+  const dragState = useRef({ active: false, startX: 0, scrollLeft: 0 });
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+    setCanScrollLeft(container.scrollLeft > 1);
+    setCanScrollRight(container.scrollLeft < maxScrollLeft - 1);
+  }, []);
+
+  const scrollByPage = useCallback(
+    (direction: "left" | "right") => {
+      const container = scrollRef.current;
+      if (!container) return;
+
+      const step = container.clientWidth / VISIBLE_DAY_COUNT;
+      container.scrollBy({
+        left: direction === "left" ? -step : step,
+        behavior: "smooth",
+      });
+    },
+    [],
+  );
+
+  const handleWheel = useCallback((event: React.WheelEvent) => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const delta =
+      Math.abs(event.deltaX) > Math.abs(event.deltaY)
+        ? event.deltaX
+        : event.deltaY;
+
+    if (delta === 0) return;
+
+    event.preventDefault();
+    container.scrollLeft += delta;
+  }, []);
+
+  const handlePointerDown = useCallback((event: React.PointerEvent) => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    dragState.current = {
+      active: true,
+      startX: event.clientX,
+      scrollLeft: container.scrollLeft,
+    };
+    container.setPointerCapture(event.pointerId);
+    container.style.cursor = "grabbing";
+  }, []);
+
+  const handlePointerMove = useCallback((event: React.PointerEvent) => {
+    const container = scrollRef.current;
+    if (!container || !dragState.current.active) return;
+
+    container.scrollLeft =
+      dragState.current.scrollLeft - (event.clientX - dragState.current.startX);
+  }, []);
+
+  const endDrag = useCallback((event: React.PointerEvent) => {
+    const container = scrollRef.current;
+    if (!container || !dragState.current.active) return;
+
+    dragState.current.active = false;
+    container.releasePointerCapture(event.pointerId);
+    container.style.cursor = "grab";
+    updateScrollState();
+  }, [updateScrollState]);
+
+  const scrollItemIntoView = useCallback((index: number) => {
+    const container = scrollRef.current;
+    if (!container || index < 0) return;
+
+    const item = container.children[index] as HTMLElement | undefined;
+    item?.scrollIntoView({
+      behavior: "smooth",
+      inline: "nearest",
+      block: "nearest",
+    });
+  }, []);
+
+  const resetScroll = useCallback(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    container.scrollTo({ left: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    updateScrollState();
+
+    const onScroll = () => updateScrollState();
+    container.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+
+    return () => {
+      container.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [updateScrollState]);
+
+  return {
+    scrollRef,
+    canScrollLeft,
+    canScrollRight,
+    scrollByPage,
+    handleWheel,
+    handlePointerDown,
+    handlePointerMove,
+    endDrag,
+    scrollItemIntoView,
+    resetScroll,
+    updateScrollState,
   };
 }
 
@@ -96,15 +221,21 @@ export function Step2DateTimeSection({
 }: Step2DateTimeSectionProps) {
   const calendarAnchorRef = useRef<HTMLDivElement>(null);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [dayOffset, setDayOffset] = useState(0);
-  const [timeOffset, setTimeOffset] = useState(0);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>(() =>
     getTimePeriod(activeTime),
   );
 
+  const daysScroll = useHorizontalScrollControls<HTMLDivElement>();
+  const timesScroll = useHorizontalScrollControls<HTMLDivElement>();
+
+  const availableTimes = useMemo(
+    () => getAvailableTimeSlots(activeDayId, times),
+    [activeDayId, times],
+  );
+
   const filteredTimes = useMemo(
-    () => times.filter((time) => getTimePeriod(time) === timePeriod),
-    [times, timePeriod],
+    () => availableTimes.filter((time) => getTimePeriod(time) === timePeriod),
+    [availableTimes, timePeriod],
   );
 
   const activeDay = days.find((d) => d.id === activeDayId) ?? days[0];
@@ -115,63 +246,44 @@ export function Step2DateTimeSection({
   useEffect(() => {
     const idx = days.findIndex((d) => d.id === activeDayId);
     if (idx < 0) return;
-    setDayOffset((prev) => {
-      if (idx < prev) return idx;
-      if (idx >= prev + VISIBLE_DAY_COUNT) {
-        return Math.max(0, idx - VISIBLE_DAY_COUNT + 1);
-      }
-      return prev;
-    });
-  }, [activeDayId, days]);
+    daysScroll.scrollItemIntoView(idx);
+  }, [activeDayId, days, daysScroll.scrollItemIntoView]);
 
   useEffect(() => {
     const idx = filteredTimes.findIndex((t) => t === activeTime);
     if (idx < 0) return;
-    setTimeOffset((prev) => {
-      if (idx < prev) return idx;
-      if (idx >= prev + VISIBLE_TIME_COUNT) {
-        return Math.max(0, idx - VISIBLE_TIME_COUNT + 1);
-      }
-      return prev;
-    });
-  }, [activeTime, filteredTimes]);
+    timesScroll.scrollItemIntoView(idx);
+  }, [activeTime, filteredTimes, timesScroll.scrollItemIntoView]);
 
   useEffect(() => {
     setTimePeriod(getTimePeriod(activeTime));
   }, [activeTime]);
 
-  const visibleDays = days.slice(dayOffset, dayOffset + VISIBLE_DAY_COUNT);
-  const visibleTimes = filteredTimes.slice(
-    timeOffset,
-    timeOffset + VISIBLE_TIME_COUNT,
-  );
+  useEffect(() => {
+    if (availableTimes.includes(activeTime)) return;
 
-  const canScrollDaysLeft = dayOffset > 0;
-  const canScrollDaysRight = dayOffset + VISIBLE_DAY_COUNT < days.length;
-  const canScrollTimesLeft = timeOffset > 0;
-  const canScrollTimesRight =
-    timeOffset + VISIBLE_TIME_COUNT < filteredTimes.length;
+    const nextTime =
+      availableTimes.find((time) => getTimePeriod(time) === timePeriod) ??
+      availableTimes[0];
 
-  const scrollDaysWindow = (dir: 1 | -1) => {
-    setDayOffset((prev) =>
-      Math.max(0, Math.min(days.length - VISIBLE_DAY_COUNT, prev + dir)),
-    );
-  };
+    if (nextTime) {
+      onSelectTime(nextTime);
+    }
+  }, [activeDayId, activeTime, availableTimes, onSelectTime, timePeriod]);
 
-  const scrollTimesWindow = (dir: 1 | -1) => {
-    setTimeOffset((prev) =>
-      Math.max(
-        0,
-        Math.min(filteredTimes.length - VISIBLE_TIME_COUNT, prev + dir),
-      ),
-    );
-  };
+  useEffect(() => {
+    daysScroll.updateScrollState();
+  }, [days, daysScroll.updateScrollState]);
+
+  useEffect(() => {
+    timesScroll.updateScrollState();
+  }, [filteredTimes, timesScroll.updateScrollState]);
 
   const switchTimePeriod = (period: TimePeriod) => {
     if (period === timePeriod) return;
     setTimePeriod(period);
-    setTimeOffset(0);
-    const inPeriod = times.filter((time) => getTimePeriod(time) === period);
+    timesScroll.resetScroll();
+    const inPeriod = availableTimes.filter((time) => getTimePeriod(time) === period);
     if (!inPeriod.includes(activeTime) && inPeriod[0]) {
       onSelectTime(inPeriod[0]);
     }
@@ -213,7 +325,7 @@ export function Step2DateTimeSection({
     if (firstInMonth) {
       onSelectDay(firstInMonth.id);
       const idx = days.findIndex((d) => d.id === firstInMonth.id);
-      if (idx >= 0) setDayOffset(idx);
+      if (idx >= 0) daysScroll.scrollItemIntoView(idx);
     }
   };
 
@@ -293,6 +405,21 @@ export function Step2DateTimeSection({
     </div>
   );
 
+  const scrollTrackProps = (
+    controls: ReturnType<typeof useHorizontalScrollControls<HTMLDivElement>>,
+  ) => ({
+    ref: controls.scrollRef,
+    onWheel: controls.handleWheel,
+    onPointerDown: controls.handlePointerDown,
+    onPointerMove: controls.handlePointerMove,
+    onPointerUp: controls.endDrag,
+    onPointerCancel: controls.endDrag,
+    className:
+      "scrollbar-none flex min-w-0 flex-1 cursor-grab gap-1 overflow-x-auto select-none touch-pan-x",
+  });
+
+  const scrollItemClass = "shrink-0 basis-[calc((100%-0.75rem)/4)]";
+
   return (
     <section className={embedded ? "" : "feature-card rounded-xl p-3"}>
       {!embedded && header}
@@ -331,19 +458,20 @@ export function Step2DateTimeSection({
           <RoundChevron
             dir="left"
             label="Previous dates"
-            onClick={() => scrollDaysWindow(-1)}
-            disabled={!canScrollDaysLeft}
+            onClick={() => daysScroll.scrollByPage("left")}
+            disabled={!daysScroll.canScrollLeft}
           />
 
-          <div className="grid min-w-0 flex-1 grid-cols-4 gap-1">
-            {visibleDays.map((day) => {
+          <div {...scrollTrackProps(daysScroll)}>
+            {days.map((day) => {
               const active = day.id === activeDayId;
               return (
                 <button
                   key={day.id}
                   type="button"
+                  onPointerDown={(event) => event.stopPropagation()}
                   onClick={() => onSelectDay(day.id)}
-                  className={dayPill(active)}
+                  className={`${dayPill(active)} ${scrollItemClass}`}
                 >
                   <span className="text-[7px] font-semibold">{day.weekday}</span>
                   <span className="text-[8px] font-bold">{day.date}</span>
@@ -355,8 +483,8 @@ export function Step2DateTimeSection({
           <RoundChevron
             dir="right"
             label="Next dates"
-            onClick={() => scrollDaysWindow(1)}
-            disabled={!canScrollDaysRight}
+            onClick={() => daysScroll.scrollByPage("right")}
+            disabled={!daysScroll.canScrollRight}
           />
         </div>
       </div>
@@ -398,20 +526,21 @@ export function Step2DateTimeSection({
           <RoundChevron
             dir="left"
             label="Earlier times"
-            onClick={() => scrollTimesWindow(-1)}
-            disabled={!canScrollTimesLeft}
+            onClick={() => timesScroll.scrollByPage("left")}
+            disabled={!timesScroll.canScrollLeft}
           />
 
-          <div className="grid min-w-0 flex-1 grid-cols-4 gap-1">
-            {visibleTimes.map((time) => {
+          <div {...scrollTrackProps(timesScroll)}>
+            {filteredTimes.map((time) => {
               const { clock, period } = formatTimeParts(time);
               const active = time === activeTime;
               return (
                 <button
                   key={time}
                   type="button"
+                  onPointerDown={(event) => event.stopPropagation()}
                   onClick={() => onSelectTime(time)}
-                  className={timePill(active)}
+                  className={`${timePill(active)} ${scrollItemClass}`}
                 >
                   <span className="text-[9px]">{clock}</span>
                   <span className="text-[7px] font-semibold">{period}</span>
@@ -423,8 +552,8 @@ export function Step2DateTimeSection({
           <RoundChevron
             dir="right"
             label="More times"
-            onClick={() => scrollTimesWindow(1)}
-            disabled={!canScrollTimesRight}
+            onClick={() => timesScroll.scrollByPage("right")}
+            disabled={!timesScroll.canScrollRight}
           />
         </div>
       </div>

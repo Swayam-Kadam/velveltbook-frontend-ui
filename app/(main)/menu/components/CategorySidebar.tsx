@@ -7,6 +7,7 @@ interface CategorySidebarProps {
   activeId: string;
   onSelect: (id: string) => void;
   selectedCounts?: Record<string, number>;
+  largeText?: boolean;
 }
 
 export function CategorySidebar({
@@ -14,6 +15,7 @@ export function CategorySidebar({
   activeId,
   onSelect,
   selectedCounts,
+  largeText = false,
 }: CategorySidebarProps) {
   return (
     <aside
@@ -36,8 +38,9 @@ export function CategorySidebar({
               type="button"
               onClick={() => onSelect(id)}
               className={`
-                flex flex-col items-center gap-1 rounded-xl px-1 py-2.5
+                flex flex-col items-center rounded-xl px-1
                 transition-all duration-300
+                ${largeText ? "gap-1.5 py-3.5" : "gap-1 py-2.5"}
                 ${
                   active
                     ? "primary-button text-white shadow-(--shadow-glow)"
@@ -47,7 +50,7 @@ export function CategorySidebar({
             >
               <div className="relative">
                 <Icon
-                  size={16}
+                  size={largeText ? 18 : 16}
                   strokeWidth={1.5}
                   className={
                     active
@@ -61,6 +64,7 @@ export function CategorySidebar({
                       absolute -right-3.5 -top-1.5 flex h-3.5 min-w-3.5
                       items-center justify-center rounded-full px-0.5
                       text-[7px] font-bold leading-none
+                      lg:text-[10px]
                       ${
                         active
                           ? "bg-white text-(--accent-primary)"
@@ -76,7 +80,8 @@ export function CategorySidebar({
 
               <span
                 className={`
-                  text-center text-[8px] leading-tight font-bold
+                  text-center leading-tight font-bold
+                  ${largeText ? "text-[10px]" : "text-[8px]"}
                   ${active ? "text-white" : "text-(--text-primary)"}
                 `}
               >

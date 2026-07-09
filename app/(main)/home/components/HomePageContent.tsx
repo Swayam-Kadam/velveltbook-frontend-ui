@@ -14,6 +14,7 @@ import type {
 import { ExpertProviders } from "./expert-providers/ExpertProviders";
 import { HomeFilterSidebar } from "./filter-sidebar/HomeFilterSidebar";
 import { HeroSlider } from "./hero-slider/HeroSlider";
+import type { HomeCategory } from "@/types/home";
 import { TrendingNearby } from "./trending-nearby/TrendingNearby";
 
 const DEFAULT_MOBILE_FILTERS = {
@@ -48,6 +49,9 @@ export function HomePageContent() {
   } = useHomeFilter();
   const isMobile = useIsMobileViewport();
   const [mobileFilters, setMobileFilters] = useState(DEFAULT_MOBILE_FILTERS);
+  const [selectedCategory, setSelectedCategory] = useState<HomeCategory | null>(
+    null,
+  );
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
@@ -86,8 +90,11 @@ export function HomePageContent() {
         />
 
         <div className="min-w-0 space-y-3 lg:space-y-6">
-          <HeroSlider />
-          <TrendingNearby />
+          <HeroSlider
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
+          <TrendingNearby selectedCategory={selectedCategory} />
           <ExpertProviders />
         </div>
       </div>

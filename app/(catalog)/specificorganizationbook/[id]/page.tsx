@@ -3,6 +3,7 @@ import {
   extendedOrganizations,
   getExtendedOrganization,
 } from "../organization.data";
+import { getOrganizationSuggestions } from "@/data/catalog/organizations/organization-suggestions";
 
 interface ExtendedOrganizationPageProps {
   params: Promise<{ id: string }>;
@@ -17,10 +18,14 @@ export default async function ExtendedOrganizationPage({
 }: ExtendedOrganizationPageProps) {
   const { id } = await params;
   const organization = getExtendedOrganization(id);
+  const suggestions = getOrganizationSuggestions(id);
 
   return (
     <main>
-      <ExtendedOrganizationProfile organization={organization} />
+      <ExtendedOrganizationProfile
+        organization={organization}
+        suggestions={suggestions}
+      />
     </main>
   );
 }

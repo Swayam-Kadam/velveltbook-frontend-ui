@@ -5,6 +5,13 @@ export const heroSlides = [
     title: "Relax. Refresh.\nRejuvenate.",
     description: "Discover the best wellness & \nbeauty services near you.",
     time: "9AM - 6PM",
+    timings: [
+      { day: "Monday", hours: "9:00 AM - 6:00 PM" },
+      { day: "Tuesday", hours: "9:00 AM - 6:00 PM" },
+      { day: "Wednesday", hours: "9:00 AM - 6:00 PM" },
+      { day: "Thursday", hours: "9:00 AM - 6:00 PM" },
+      { day: "Friday", hours: "9:00 AM - 6:00 PM" },
+    ],
 
     store: {
       id: "store-1",
@@ -20,6 +27,13 @@ export const heroSlides = [
     title: "Feel Better.\nLive Better.",
     description: "Premium spa and massage \nexperiences near you.",
     time: "10AM - 7PM",
+    timings: [
+      { day: "Monday", hours: "10:00 AM - 7:00 PM" },
+      { day: "Tuesday", hours: "10:00 AM - 7:00 PM" },
+      { day: "Wednesday", hours: "10:00 AM - 7:00 PM" },
+      { day: "Thursday", hours: "10:00 AM - 7:00 PM" },
+      { day: "Friday", hours: "10:00 AM - 7:00 PM" },
+    ],
 
     store: {
       id: "store-2",
@@ -35,6 +49,13 @@ export const heroSlides = [
     title: "Recharge.\nRestore.",
     description: "Book trusted wellness \nexperts instantly.",
     time: "8AM - 5PM",
+    timings: [
+      { day: "Monday", hours: "8:00 AM - 5:00 PM" },
+      { day: "Tuesday", hours: "8:00 AM - 5:00 PM" },
+      { day: "Wednesday", hours: "8:00 AM - 5:00 PM" },
+      { day: "Thursday", hours: "8:00 AM - 5:00 PM" },
+      { day: "Friday", hours: "8:00 AM - 5:00 PM" },
+    ],
 
     store: {
       id: "store-3",

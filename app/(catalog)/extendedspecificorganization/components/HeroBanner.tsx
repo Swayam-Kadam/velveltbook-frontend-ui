@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { TimingsDropdown } from "@/components/TimingsDropdown";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { ExtendedOrganization } from "../organization.types";
@@ -57,9 +58,10 @@ export function HeroBanner({ images, availability, salonName, organization }: He
         </button>
 
         <div className="absolute right-2 top-2 flex items-center gap-1">
-          <div className="primary-button rounded-full px-3 py-1 text-[8px] font-medium text-white">
-            {availability}
-          </div>
+          <TimingsDropdown
+            summary={availability}
+            buttonClassName="primary-button flex items-center gap-1 rounded-full px-3 py-1 text-[8px] font-medium text-white"
+          />
           <button
             type="button"
             aria-label="Share"

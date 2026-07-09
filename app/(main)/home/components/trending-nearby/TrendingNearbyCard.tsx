@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { TimingsDropdown } from "@/components/TimingsDropdown";
 import {
     CalendarDays,
     Store,
@@ -41,28 +42,32 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
         <>
             {/* ================= MOBILE ================= */}
 
-            <article className="feature-card overflow-hidden rounded-xl lg:hidden">
+            <article className="feature-card overflow-visible rounded-xl lg:hidden">
                 <Link
-                    href={orgHref}
+                    href={""}
                     className="block transition-transform duration-200 active:scale-[0.98]"
                 >
-                    <div className="relative h-[150px] overflow-hidden">
-                        <Image
-                            src={item.image}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
-                        />
+                    <div className="relative h-[150px] overflow-visible">
+                        <div className="absolute inset-0 overflow-hidden rounded-t-xl">
+                            <Image
+                                src={item.image}
+                                alt={item.name}
+                                fill
+                                className="object-cover"
+                            />
 
-                        <div className="feature-overlay absolute inset-0 hidden [.dark_&]:block" />
+                            <div className="feature-overlay absolute inset-0 hidden [.dark_&]:block" />
+                        </div>
 
                         <div className="absolute left-2 top-2 h-[6px] w-[6px] rounded-full bg-[#22C55E]" />
 
-                        <div className="absolute right-2 top-2 flex gap-1">
+                        <div className="absolute right-2 top-2 z-30 flex gap-1">
 
-                            <div className="primary-button rounded-full bg-white/15 px-4 py-1 text-[8px] text-white backdrop-blur-md">
-                                {item.availability}
-                            </div>
+                            <TimingsDropdown
+                                summary={item.availability}
+                                buttonClassName="primary-button flex items-center gap-1 rounded-full bg-white/15 px-4 py-1 text-[8px] text-white backdrop-blur-md"
+                                type="trending-nearby"
+                            />
 
                             <button className="flex h-5 w-5 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md">
                                 <PlayCircle size={12} />
@@ -132,26 +137,30 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
             >
                 {/* Hero */}
 
-                <div className="relative h-[165px] overflow-hidden">
+                <div className="relative h-[165px] overflow-visible">
 
-                    <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover transition duration-500 hover:scale-105"
-                    />
+                    <div className="absolute inset-0 overflow-hidden">
+                        <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-cover transition duration-500 hover:scale-105"
+                        />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    </div>
 
                     {/* Top Left */}
 
-                    <div className="absolute left-4 top-4 flex items-center gap-3">
+                    <div className="absolute left-4 top-4 z-30 flex items-center gap-3">
 
                         <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
 
-                        <div className="rounded-full bg-[#4b2679] px-4 py-1 text-[12px] font-medium text-white">
-                            {item.availability}
-                        </div>
+                        <TimingsDropdown
+                            summary={item.availability}
+                            buttonClassName="flex items-center gap-1 rounded-full bg-[#4b2679] px-4 py-1 text-[12px] font-medium text-white"
+                            type="Right-most"
+                        />
 
                     </div>
 
@@ -368,7 +377,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
                 <div className="flex gap-3 px-4 pb-4">
 
                     <Link
-                        href="/booking"
+                        href="/specificorganizationbook/store-1"
                         className="
                 primary-button
                 flex
@@ -386,7 +395,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
 
                         <CalendarDays size={15} />
 
-                        Book Now
+                        Book Nows
 
                     </Link>
 

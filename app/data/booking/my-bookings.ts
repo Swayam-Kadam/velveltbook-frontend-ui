@@ -1,5 +1,6 @@
 export type BookingTab = "upcoming" | "completed" | "history";
 export type HistorySubTab = "completed" | "cancelled" | "refund";
+export type ServiceSubTab = "booked" | "reschedule";
 export interface BookingOrganization {
   id: string;
   name: string;
@@ -56,7 +57,7 @@ export interface SuggestedService {
 }
 
 export const tabs: { id: BookingTab; label: string }[] = [
-  { id: "upcoming", label: "Ongoing" },
+  { id: "upcoming", label: "Service" },
   { id: "completed", label: "Receipt" },
   { id: "history", label: "History" },
 ];
@@ -67,8 +68,13 @@ export const historySubTabs: { id: HistorySubTab; label: string }[] = [
   { id: "refund", label: "Refund" },
 ];
 
-export const bookingData: Record<Exclude<BookingTab, "history">, Booking[]> = {
-  upcoming: [
+export const serviceSubTabs: { id: ServiceSubTab; label: string }[] = [
+  { id: "booked", label: "Booked" },
+  { id: "reschedule", label: "Reschedule" },
+];
+
+export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {
+  booked: [
     {
       id: "u1",
       service: "Swedish Massage",
@@ -94,6 +100,36 @@ export const bookingData: Record<Exclude<BookingTab, "history">, Booking[]> = {
       organization: organizations["glamour-salon"],
     },
   ],
+  reschedule: [
+    {
+      id: "rs1",
+      service: "Deep Tissue Massage",
+      therapist: "Jesai",
+      date: "Jun 05, 2026",
+      time: "03:30 PM",
+      location: "Lomi Massage, Melbourne",
+      price: "$119",
+      image:
+        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop",
+      organization: organizations["lomi-melbourne"],
+    },
+    {
+      id: "rs2",
+      service: "Hot Stone Massage",
+      therapist: "Sami",
+      date: "Jun 12, 2026",
+      time: "10:30 AM",
+      location: "Glamour Salon, Sydney",
+      price: "$129",
+      image:
+        "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=400&h=300&fit=crop",
+      organization: organizations["glamour-salon"],
+    },
+  ],
+};
+
+export const bookingData: Record<Exclude<BookingTab, "history">, Booking[]> = {
+  upcoming: serviceBookingData.booked,
   completed: [
     {
       id: "c1",

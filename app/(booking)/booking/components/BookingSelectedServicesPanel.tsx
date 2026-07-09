@@ -11,23 +11,32 @@ interface OrganizationBannerInfo {
   banner: string;
   availability: string;
   status: string;
+  thumbnail?: string;
+  address?: string;
 }
 
 interface BookingSelectedServicesPanelProps {
   selectedServiceIds: string[];
   organization?: OrganizationBannerInfo;
+  organizationId?: string;
   title?: string;
   onRemoveService?: (id: string) => void;
+  showOrganizationBanner?: boolean;
 }
 
 export function BookingSelectedServicesPanel({
   selectedServiceIds,
   organization,
+  organizationId,
   title = "Selected Services",
   onRemoveService,
+  showOrganizationBanner = true,
 }: BookingSelectedServicesPanelProps) {
-  const selectedServices = getSelectedServices(selectedServiceIds);
-  const { subtotal } = calcServicesTotal(selectedServiceIds);
+  const selectedServices = getSelectedServices(
+    selectedServiceIds,
+    organizationId,
+  );
+  const { subtotal } = calcServicesTotal(selectedServiceIds, organizationId);
   const hasSelection = selectedServices.length > 0;
   const org = organization ?? {
     name: bookingLocation.name,
@@ -38,34 +47,36 @@ export function BookingSelectedServicesPanel({
 
   return (
     <>
-      <section className="feature-card overflow-hidden rounded-xl">
-        <div className="relative h-[130px] w-full">
-          <Image
-            src={org.banner}
-            alt={org.name}
-            fill
-            sizes="100vw"
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-black/55 via-black/15 to-transparent" />
+      {showOrganizationBanner && (
+        <section className="feature-card overflow-hidden rounded-xl">
+          <div className="relative h-[130px] w-full">
+            <Image
+              src={org.banner}
+              alt={org.name}
+              fill
+              sizes="100vw"
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-black/55 via-black/15 to-transparent" />
 
-          <div className="absolute right-2 top-2">
-            <div className="primary-button rounded-full px-3 py-1 text-[8px] font-medium text-white">
-              {org.availability}
+            <div className="absolute right-2 top-2">
+              <div className="primary-button rounded-full px-3 py-1 text-[8px] font-medium text-white">
+                {org.availability}
+              </div>
+            </div>
+
+            <div className="absolute bottom-2 left-2.5 right-2.5">
+              <p className="truncate text-[14px] font-bold text-white">
+                {org.name}
+              </p>
+              <p className="text-[9px] font-semibold text-(--success)">
+                {org.status}
+              </p>
             </div>
           </div>
-
-          <div className="absolute bottom-2 left-2.5 right-2.5">
-            <p className="truncate text-[14px] font-bold text-white">
-              {org.name}
-            </p>
-            <p className="text-[9px] font-semibold text-(--success)">
-              {org.status}
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="feature-card overflow-hidden rounded-xl">
         <div className="flex items-center justify-between border-b border-(--border) px-3 py-2.5">
@@ -127,14 +138,14 @@ export function BookingSelectedServicesPanel({
                   )}
                 </div>
                 <div className="space-y-0.5 p-1.5">
-                  <p className="line-clamp-2 min-h-6 text-[7px] font-bold leading-tight text-(--text-primary)">
+                  <p className="line-clamp-2 min-h-6 text-[8.5px] font-bold leading-tight text-(--text-primary)">
                     {service.name}
                   </p>
-                  <div className="flex items-center gap-0.5 text-[6px] font-semibold text-(--text-secondary)">
+                  <div className="flex items-center gap-0.5 text-[8px] font-semibold text-(--text-primary)">
                     <Clock3 size={6} />
                     <span className="truncate">{service.duration}</span>
                   </div>
-                  <p className="text-[8px] font-bold text-(--brand-gold)">
+                  <p className="text-[10px] font-bold text-(--brand-gold)">
                     {service.priceLabel}
                   </p>
                 </div>

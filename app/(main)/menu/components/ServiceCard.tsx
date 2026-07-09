@@ -10,6 +10,7 @@ interface ServiceCardProps {
   compact?: boolean;
   selected?: boolean;
   onSelect?: () => void;
+  largeText?: boolean;
 }
 
 export function ServiceCard({
@@ -17,6 +18,7 @@ export function ServiceCard({
   compact = false,
   selected = false,
   onSelect,
+  largeText = false,
 }: ServiceCardProps) {
   if (compact) {
     return (
@@ -59,17 +61,25 @@ export function ServiceCard({
            )}
         </div>
 
-        <div className="flex flex-1 flex-col p-1">
-          <h3 className="line-clamp-2 min-h-[24px] text-[10px] font-bold leading-tight text-(--text-primary)">
+        <div className={`flex flex-1 flex-col ${largeText ? "p-1.5" : "p-1"}`}>
+          <h3
+            className={`line-clamp-2 font-bold leading-tight text-(--text-primary) ${
+              largeText ? "min-h-[34px] text-[15px]" : "min-h-[24px] text-[10px]"
+            }`}
+          >
             {service.title}
           </h3>
 
           <div className="mt-auto flex shrink-0 items-center justify-between gap-0.5">
-            <p className="text-[8px] font-bold text-(--brand-gold)">
+            <p className={largeText ? "text-[14px] font-bold text-(--brand-gold)" : "text-[8px] font-bold text-(--brand-gold)"}>
               {service.price}
             </p>
-            <div className="flex shrink-0 items-center gap-0.5 text-[7px] font-bold text-(--text-primary)">
-              <Clock3 size={7} strokeWidth={3} />
+            <div
+              className={`flex shrink-0 items-center gap-0.5 font-bold text-(--text-primary) ${
+                largeText ? "text-[10px]" : "text-[7px]"
+              }`}
+            >
+              <Clock3 size={largeText ? 8 : 7} strokeWidth={3} />
               <span>{service.duration}</span>
             </div>
           </div>

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { CalendarDays, Check, ChevronDown, Clock3 } from "lucide-react";
 
 import {
-  bookingDays,
+  buildBookingDays,
   countScheduledServices,
   formatServiceSchedule,
   getSelectedServices,
@@ -30,6 +30,7 @@ export function ServiceScheduleAccordion({
 }: ServiceScheduleAccordionProps) {
   const selectedServices = getSelectedServices(selectedServiceIds);
   const scheduledCount = countScheduledServices(schedules, selectedServiceIds);
+  const bookingDays = useMemo(() => buildBookingDays(new Date()), []);
 
   const firstPendingId = useMemo(
     () =>
@@ -77,11 +78,11 @@ export function ServiceScheduleAccordion({
             </div>
           </div>
 
-          {/* <div className="text-right">
-            <p className="text-[8px] font-semibold text-(--text-secondary)">
-              {scheduledCount} of {selectedServiceIds.length} scheduled
+          <div className="text-right">
+            <p className="text-[9px] font-semibold text-(--text-secondary)">
+              {scheduledCount} of {selectedServiceIds.length} scheduled Service
             </p>
-            <div className="mt-1 flex justify-end gap-1">
+            {/* <div className="mt-1 flex justify-end gap-1">
               {selectedServiceIds.map((id) => {
                 const done = isServiceScheduleComplete(schedules[id]);
                 return (
@@ -93,8 +94,8 @@ export function ServiceScheduleAccordion({
                   />
                 );
               })}
-            </div>
-          </div> */}
+            </div> */}
+          </div>
         </div>
       </div>
 

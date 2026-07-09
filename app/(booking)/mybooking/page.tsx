@@ -23,12 +23,15 @@ import {
   bookingData,
   historyBookingData,
   historySubTabs,
+  serviceBookingData,
+  serviceSubTabs,
   suggestedServicesByTab,
   tabs,
   type Booking,
   type BookingOrganization,
   type BookingTab,
   type HistorySubTab,
+  type ServiceSubTab,
   type SuggestedService,
 } from "@/data/booking/my-bookings";
 
@@ -85,7 +88,7 @@ function OrganizationBanner({
       </div>
 
       <div className="flex items-center gap-3 px-2.5 py-2">
-        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl">
+        <div className="relative h-13 w-13 shrink-0 overflow-hidden rounded-xl mt-[-2.5rem] border-2 border-white">
           <Image
             src={organization.thumbnail}
             alt={organization.name}
@@ -566,7 +569,7 @@ function SuggestedServices({ tab }: { tab: BookingTab }) {
           <h3 className="text-xs font-bold text-(--text-primary)">
             Suggested Services
           </h3>
-        </div>
+        </div> 
 
         <Link
           href="/menu"
@@ -589,17 +592,19 @@ function SuggestedServices({ tab }: { tab: BookingTab }) {
   );
 }
 
-function HistorySubTabs({
-  activeSubTab,
+function SubTabs<T extends string>({
+  tabs: tabItems,
+  activeTab,
   onSelect,
 }: {
-  activeSubTab: HistorySubTab;
-  onSelect: (tab: HistorySubTab) => void;
+  tabs: { id: T; label: string }[];
+  activeTab: T;
+  onSelect: (tab: T) => void;
 }) {
   return (
     <div className="mb-3 flex gap-1.5 rounded-xl bg-(--bg-secondary) p-1">
-      {historySubTabs.map((subTab) => {
-        const active = activeSubTab === subTab.id;
+      {tabItems.map((subTab) => {
+        const active = activeTab === subTab.id;
         return (
           <button
             key={subTab.id}
@@ -615,11 +620,43 @@ function HistorySubTabs({
               }
             `}
           >
-            {subTab.label}
+            {subTab.label === "Booked" ? "Ongoing" : subTab.label}
           </button>
         );
       })}
     </div>
+  );
+}
+
+function HistorySubTabs({
+  activeSubTab,
+  onSelect,
+}: {
+  activeSubTab: HistorySubTab;
+  onSelect: (tab: HistorySubTab) => void;
+}) {
+  return (
+    <SubTabs
+      tabs={historySubTabs}
+      activeTab={activeSubTab}
+      onSelect={onSelect}
+    />
+  );
+}
+
+function ServiceSubTabs({
+  activeSubTab,
+  onSelect,
+}: {
+  activeSubTab: ServiceSubTab;
+  onSelect: (tab: ServiceSubTab) => void;
+}) {
+  return (
+    <SubTabs
+      tabs={serviceSubTabs}
+      activeTab={activeSubTab}
+      onSelect={onSelect}
+    />
   );
 }
 
@@ -654,19 +691,23 @@ function EmptyState({ label }: { label: string }) {
 
 export default function MyBookingPage() {
   const [activeTab, setActiveTab] = useState<BookingTab>("upcoming");
+  const [activeServiceSubTab, setActiveServiceSubTab] =
+    useState<ServiceSubTab>("booked");
   const [activeHistorySubTab, setActiveHistorySubTab] =
     useState<HistorySubTab>("completed");
 
   const bookings =
     activeTab === "history"
       ? historyBookingData[activeHistorySubTab]
-      : bookingData[activeTab];
+      : activeTab === "upcoming"
+        ? serviceBookingData[activeServiceSubTab]
+        : bookingData[activeTab];
 
   const emptyLabel =
     activeTab === "history"
       ? activeHistorySubTab
       : activeTab === "upcoming"
-        ? "ongoing"
+        ? activeServiceSubTab
         : "receipt";
 
   return (
@@ -699,6 +740,13 @@ export default function MyBookingPage() {
 
       {/* Content */}
       <div className="pt-3">
+        {activeTab === "upcoming" && (
+          <ServiceSubTabs
+            activeSubTab={activeServiceSubTab}
+            onSelect={setActiveServiceSubTab}
+          />
+        )}
+
         {activeTab === "history" && (
           <HistorySubTabs
             activeSubTab={activeHistorySubTab}
@@ -726,7 +774,7 @@ export default function MyBookingPage() {
           <EmptyState label={emptyLabel} />
         )}
 
-        {activeTab !== "history" && <SuggestedServices tab={activeTab} />}
+        {activeTab === "upcoming" && <SuggestedServices tab={activeTab} />}
       </div>
     </main>
   );

@@ -13,15 +13,27 @@ import { heroSlides } from "./hero-slider.data";
 import { HeroSlide } from "./HeroSlide";
 import { HeroBottomCard } from "./HeroBottomCard";
 import { CategorySlider } from "./CategorySlider";
+import type { HomeCategory } from "@/types/home";
 
-export function HeroSlider() {
+interface HeroSliderProps {
+  selectedCategory: HomeCategory | null;
+  onSelectCategory: (category: HomeCategory) => void;
+}
+
+export function HeroSlider({
+  selectedCategory,
+  onSelectCategory,
+}: HeroSliderProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [swiper, setSwiper] = useState<SwiperType | null>(null);
 
     return (
         <div className="hero-slider lg:flex lg:flex-col">
             <div className="lg:order-2">
-                <CategorySlider />
+                <CategorySlider
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={onSelectCategory}
+                />
             </div>
 
             <div className="relative lg:order-1">

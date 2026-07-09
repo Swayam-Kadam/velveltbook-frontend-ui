@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { Navigation, Share2 } from "lucide-react";
+import { TimingsDropdown } from "@/components/TimingsDropdown";
 
 import type { HeroViewModel } from "../types";
-import { PillBadge } from "../shared/Badge";
 
 interface Props {
   hero: HeroViewModel;
@@ -13,7 +13,11 @@ interface Props {
 export default function HeroBadges({ hero }: Props) {
   return (
     <div className="flex items-center gap-2">
-      <PillBadge label={hero.timing} />
+      <TimingsDropdown
+        summary={hero.timing}
+        buttonClassName="primary-button inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium text-white backdrop-blur-md lg:px-4 lg:py-2 lg:text-xs"
+        type="Right-most"
+/>
 
       <Link
         href="#"

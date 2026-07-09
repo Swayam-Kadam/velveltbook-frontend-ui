@@ -34,7 +34,13 @@ export function BookingFlow() {
   const expertType: ExpertType = parsed.expertType;
   const organizationId = parsed.organizationId;
 
-  const [staffId, setStaffId] = useState("sony");
+  const [staffId, setStaffId] = useState(() => parsed.staffId ?? "sony");
+  const [lockStaffSelection] = useState(
+    () =>
+      parsed.step === 2 &&
+      Boolean(parsed.staffId) &&
+      parsed.serviceIds.length > 0,
+  );
   const [serviceSchedules, setServiceSchedules] = useState<ServiceSchedules>(() =>
     syncServiceSchedules({}, parsed.serviceIds),
   );
@@ -72,10 +78,11 @@ export function BookingFlow() {
       banner: org.heroImages[0],
       availability: org.availability,
       status: org.status,
+      thumbnail: org.thumbnail,
     };
   }, [organizationId]);
 
-  const { total } = calcServicesTotal(serviceIds);
+  const { total } = calcServicesTotal(serviceIds, organizationId);
 
   const handleBillingChange = (
     field: "billingName" | "billingEmail" | "billingPhone",
@@ -154,6 +161,7 @@ export function BookingFlow() {
         {step === 1 && (
           <Step1ServiceSelection
             selectedServiceIds={serviceIds}
+            organizationBanner={organizationBanner}
             onToggleService={toggleService}
             onNext={() => setStep(2)}
           />
@@ -163,8 +171,10 @@ export function BookingFlow() {
           <Step2StaffSelection
             selectedServiceIds={serviceIds}
             organizationBanner={organizationBanner}
+            organizationId={organizationId}
             expertType={expertType}
             staffId={staffId}
+            lockStaffSelection={lockStaffSelection}
             serviceSchedules={serviceSchedules}
             selectedSeatId={selectedSeatId}
             seatConfirmed={seatConfirmed}

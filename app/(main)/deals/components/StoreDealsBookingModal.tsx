@@ -11,8 +11,21 @@ function formatPrice(amount: number) {
   return `$${amount.toFixed(2)}`;
 }
 
+function getStoreDealTags(deal: Deal | null): string[] {
+  if (!deal) return [];
+
+  const tags =
+    deal.type === "single"
+      ? deal.tags
+      : deal.includedServices.map((service) => service.label);
+
+  const limit = deal.type === "single" ? 2 : 4;
+  return tags.slice(0, limit);
+}
+
 interface SelectableStoreDealCardProps {
   deal: Deal;
+  tags: string[];
   isSelected: boolean;
   isHighlighted: boolean;
   onToggle: () => void;
@@ -20,6 +33,7 @@ interface SelectableStoreDealCardProps {
 
 function SelectableStoreDealCard({
   deal,
+  tags,
   isSelected,
   isHighlighted,
   onToggle,
@@ -91,6 +105,23 @@ function SelectableStoreDealCard({
               {formatPrice(deal.originalPrice)}
             </span>
           </div>
+
+          {tags.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="
+                    rounded-full border border-(--border)
+                    bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))]
+                    px-1.5 py-0.5 text-[7px] text-(--text-secondary)
+                  "
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </button>
@@ -133,6 +164,7 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
 
   if (!isOpen) return null;
 
+  const storeTags = getStoreDealTags(clickedDeal);
   const bookingHref = `/booking?deals=${selectedIds.join(",")}`;
 
   return (
@@ -227,6 +259,7 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
                 <SelectableStoreDealCard
                   key={deal.id}
                   deal={deal}
+                  tags={storeTags}
                   isSelected={selectedIds.includes(deal.id)}
                   isHighlighted={clickedDeal?.id === deal.id}
                   onToggle={() => toggleDeal(deal.id)}

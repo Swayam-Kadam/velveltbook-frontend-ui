@@ -27,7 +27,8 @@ export function QuickActions() {
       </button>
 
       <Link
-        href={`/specificorganization/store-1`}
+      // /specificorganization/store-1
+        href={`/booking`}
         className="
           primary-button flex items-center justify-center gap-1
           rounded-xs py-2 text-[8px] font-medium text-white

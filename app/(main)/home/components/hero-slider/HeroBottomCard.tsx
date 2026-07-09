@@ -115,7 +115,7 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                 </Link>
 
                 <Link
-                    href="/booking"
+                    href="/specificorganizationbook/store-1"
                     className="
     primary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium text-white
@@ -156,7 +156,7 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                 </Link>
 
                 <Link
-                    href="/booking"
+                    href="/specificorganizationbook/store-1"
                     className="
     primary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium text-white

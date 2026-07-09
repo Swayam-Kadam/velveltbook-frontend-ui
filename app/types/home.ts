@@ -1,3 +1,13 @@
+export type HomeCategory =
+  | "barber"
+  | "salon"
+  | "spa"
+  | "massage"
+  | "tattoo"
+  | "nails"
+  | "makeup"
+  | "more";
+
 export interface TrendingNearbyItem {
   id: string;
   name: string;
@@ -13,6 +23,7 @@ export interface TrendingNearbyItem {
   distance?: string;
   online?: boolean;
   organizationId: string;
+  category: HomeCategory;
 }
 
 export interface DesktopService {

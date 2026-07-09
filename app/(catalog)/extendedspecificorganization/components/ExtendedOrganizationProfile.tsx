@@ -12,6 +12,7 @@ import { OrganizationBookingCart } from "./OrganizationBookingCart";
 import { ReviewsSection } from "./ReviewsSection";
 import { ServicesSection } from "./ServicesSection";
 import { StaffSection } from "./StaffSection";
+import { ArrowRight, ShoppingCart } from "lucide-react";
 
 const swalDefaults = {
   confirmButtonText: "Okay",
@@ -75,7 +76,7 @@ export function ExtendedOrganizationProfile({
     selectedStaffId !== null && selectedServiceIds.length > 0;
 
   return (
-    <div className="space-y-4 px-2 pb-24 pt-2">
+    <div className="space-y-4 px-2 pb-35 pt-2">
       <SearchBar />
       <HeroBanner
         images={organization.heroImages}
@@ -97,11 +98,57 @@ export function ExtendedOrganizationProfile({
       <ReviewsSection reviews={organization.reviews} />
 
       {showCart && (
-        <OrganizationBookingCart
-          itemCount={selectedServiceIds.length}
-          onClick={navigateToBooking}
-        />
+        <div
+          className="
+            fixed inset-x-2 bottom-[85px] z-40 overflow-hidden rounded-xl
+            border border-(--border) bg-(--bg-card)/95 shadow-(--shadow-card)
+            backdrop-blur-xl
+          "
+        >
+          <div className="flex items-stretch">
+            <div className="flex items-center gap-2.5 px-3 py-2.5">
+              <div className="relative shrink-0">
+                <span
+                  className="
+                    primary-button flex h-10 w-10 items-center justify-center
+                    rounded-xl
+                  "
+                >
+                  <ShoppingCart size={18} strokeWidth={2} className="text-white" />
+                </span>
+                <span
+                  className="
+                    absolute -right-1 -top-1 flex h-4 min-w-4 items-center
+                    justify-center rounded-full bg-(--brand-gold) px-1
+                    text-[8px] font-bold text-(--text-primary)
+                  "
+                  aria-label={`${selectedServiceIds.length} services in cart`}
+                >
+                  {selectedServiceIds.length}
+                </span>
+              </div>
+
+              <div className="min-w-0">
+                <span className="text-sm font-semibold text-(--brand-gold)">
+                  $234
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={navigateToBooking}
+              className="
+                primary-button flex flex-1 items-center justify-center
+                rounded-none px-3 py-3 text-[11px] font-semibold text-white
+              "
+            >
+              NEXT <ArrowRight size={14} strokeWidth={2.5} />
+            </button>
+          </div>
+        </div>
       )}
+
     </div>
   );
 }
