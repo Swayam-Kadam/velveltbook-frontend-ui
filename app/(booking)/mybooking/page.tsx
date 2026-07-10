@@ -492,7 +492,13 @@ function BookingCard({
             <span className="truncate">with {booking.therapist}</span>
           </div>
 
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[9px] font-semibold text-(--text-secondary)">
+
+          <div className="mt-1 flex items-center justify-between gap-2">
+            {/* <span className="flex min-w-0 items-center gap-1 text-[9px] font-semibold text-(--text-muted)">
+              <MapPin size={10} className="shrink-0 text-(--accent-primary)" />
+              <span className="truncate">{booking.location}</span>
+            </span> */}
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[9px] font-semibold text-(--text-secondary)">
             <span className="flex items-center gap-1">
               <CalendarDays size={10} className="text-(--accent-primary)" />
               {booking.date}
@@ -502,12 +508,6 @@ function BookingCard({
               {booking.time}
             </span>
           </div>
-
-          <div className="mt-1 flex items-center justify-between gap-2">
-            <span className="flex min-w-0 items-center gap-1 text-[9px] font-semibold text-(--text-muted)">
-              <MapPin size={10} className="shrink-0 text-(--accent-primary)" />
-              <span className="truncate">{booking.location}</span>
-            </span>
             <span className="shrink-0 text-[13px] font-bold text-(--brand-gold)">
               {booking.price}
             </span>
