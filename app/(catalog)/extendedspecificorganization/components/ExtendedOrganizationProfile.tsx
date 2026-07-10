@@ -57,7 +57,15 @@ export function ExtendedOrganizationProfile({
   }, [organization.id, router, selectedServiceIds, selectedStaffId]);
 
   const handleBookNow = useCallback(() => {
-    if (selectedServiceIds.length === 0) return;
+    if (selectedServiceIds.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Select a service first",
+        text: "Please choose at least one service before booking.",
+        ...swalDefaults,
+      });
+      return;
+    }
 
     if (!selectedStaffId) {
       Swal.fire({
@@ -72,8 +80,16 @@ export function ExtendedOrganizationProfile({
     navigateToBooking();
   }, [navigateToBooking, selectedServiceIds.length, selectedStaffId]);
 
-  const showCart =
+  const canBook =
     selectedStaffId !== null && selectedServiceIds.length > 0;
+  const bookingUrl = buildBookingUrl({
+    serviceIds: selectedServiceIds,
+    expertType: "",
+    organizationId: organization.id,
+    staffId: selectedStaffId ?? undefined,
+    step: 2,
+  });
+  const showCart = canBook;
 
   return (
     <div className="space-y-4 px-2 pb-35 pt-2">
@@ -83,6 +99,9 @@ export function ExtendedOrganizationProfile({
         availability={organization.availability}
         salonName={organization.name}
         organization={organization}
+        canBook={canBook}
+        bookingUrl={bookingUrl}
+        onBookNow={handleBookNow}
       />
       <ServicesSection
         services={organization.services}

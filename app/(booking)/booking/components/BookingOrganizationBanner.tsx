@@ -62,7 +62,7 @@ export function BookingOrganizationBanner({
 
       <div className="bg-(--bg-card) px-2.5 py-2">
         <div className="flex min-w-0 items-start gap-2">
-          <div className="relative -mt-9 h-14 w-14 shrink-0">
+          <div className="relative  h-14 w-14 shrink-0">
             <div className="relative h-14 w-14 overflow-hidden rounded-xl border-2 border-(--bg-card) shadow-(--shadow-card)">
               <Image
                 src={org.thumbnail ?? org.banner}

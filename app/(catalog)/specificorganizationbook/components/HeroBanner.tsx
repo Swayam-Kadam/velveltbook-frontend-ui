@@ -13,9 +13,20 @@ interface HeroBannerProps {
   availability: string;
   salonName: string;
   organization: ExtendedOrganization;
+  canBook: boolean;
+  bookingUrl: string;
+  onBookNow: () => void;
 }
 
-export function HeroBanner({ images, availability, salonName, organization }: HeroBannerProps) {
+export function HeroBanner({
+  images,
+  availability,
+  salonName,
+  organization,
+  canBook,
+  bookingUrl,
+  onBookNow,
+}: HeroBannerProps) {
   const [index, setIndex] = useState(0);
 
   const prev = () => setIndex((i) => (i === 0 ? images.length - 1 : i - 1));
@@ -49,7 +60,11 @@ export function HeroBanner({ images, availability, salonName, organization }: He
       </div>
 
       <SalonInfoCard organization={organization} />
-      <QuickActions />
+      <QuickActions
+        canBook={canBook}
+        bookingUrl={bookingUrl}
+        onBookNow={onBookNow}
+      />
     </div>
   );
 }

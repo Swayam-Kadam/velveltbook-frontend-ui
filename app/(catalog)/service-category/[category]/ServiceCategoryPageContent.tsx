@@ -748,7 +748,7 @@ function StoreChatView({
         <div className="flex min-h-0 w-full min-w-0 max-w-full flex-1 flex-col px-2 py-2 sm:px-3 sm:py-2.5 lg:p-4">
           <div className="w-full min-w-0 shrink-0">
             <div className="flex min-w-0 items-start gap-2">
-            <div className="relative -mt-9 h-14 w-14 shrink-0 sm:-mt-10 sm:h-[4.5rem] sm:w-[4.5rem]">
+            <div className="relative  h-14 w-14 shrink-0 sm:-mt-10 sm:h-[4.5rem] sm:w-[4.5rem]">
               <div className="relative h-14 w-14 overflow-hidden rounded-xl border-2 border-(--bg-primary) shadow-(--shadow-card) sm:h-[4.5rem] sm:w-[4.5rem] sm:rounded-2xl sm:border-[3px]">
                 <Image
                   src={store.image}

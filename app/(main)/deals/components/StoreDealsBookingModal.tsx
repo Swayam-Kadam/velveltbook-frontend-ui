@@ -82,47 +82,58 @@ function SelectableStoreDealCard({
             </span>
           </div>
 
-          <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-            <span
-              className="
-                primary-button inline-flex
-                rounded-md px-1.5 py-px
-                text-[9px] font-semibold text-white
-              "
-            >
-              -{deal.discountPercent}%
-            </span>
-            <span className="text-[8px] text-(--text-muted)">
-              {deal.type === "package" ? "Package deal" : "Single deal"}
-            </span>
-          </div>
-
-          <div className="mt-0.5 flex items-baseline gap-1.5">
-            <span className="text-[13px] font-bold text-(--brand-gold)">
-              {formatPrice(deal.currentPrice)}
-            </span>
-            <span className="text-[9px] text-(--text-muted) line-through">
-              {formatPrice(deal.originalPrice)}
-            </span>
-          </div>
-
-          {tags.length > 0 && (
-            <div className="mt-1 flex flex-wrap gap-1">
-              {tags.map((tag) => (
+          <div className="mt-0.5 flex items-start gap-1.5">
+            <div className="min-w-0 shrink-0 space-y-0.5">
+              <div className="flex flex-wrap items-center gap-1.5">
                 <span
-                  key={tag}
                   className="
-                    rounded-full border border-(--border)
-                    bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))]
-                    px-1.5 py-0.5 text-[7px] text-(--text-secondary)
+                    primary-button inline-flex
+                    rounded-md px-1.5 py-px
+                    text-[9px] font-semibold text-white
                   "
                 >
-                  {tag}
+                  -{deal.discountPercent}%
                 </span>
-              ))}
+                {/* <span className="text-[8px] text-(--text-muted)">
+                  {deal.type === "package" ? "Package deal" : "Single deal"}
+                </span> */}
+              </div>
+
+              <div className="flex flex-col items-baseline ">
+                <span className="text-[13px] font-bold text-(--brand-gold)">
+                  {formatPrice(deal.currentPrice)}
+                </span>
+  
+                <span className="text-[10px] text-(--text-muted) line-through">
+                  {formatPrice(deal.originalPrice)}
+                </span>
+                <span className="text-[9px] text-(--text-muted)">
+                  {deal.type === "package" ? "Package deal" : "Single deal"}
+                </span> 
+               
+              </div>
             </div>
-          )}
+
+            {tags.length > 0 && (
+              <div className="flex min-w-0 flex-1 flex-wrap content-start justify-end gap-1">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="
+                      rounded-full border border-(--border)
+                      bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))]
+                      px-1.5 py-0.5 text-[7px] text-(--text-secondary)
+                    "
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            
+          </div>
         </div>
+        
       </div>
     </button>
   );

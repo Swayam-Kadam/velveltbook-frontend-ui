@@ -182,7 +182,7 @@ export function Step2StaffSelection({
             </div>
           </div>
 
-          {!lockStaffSelection && (
+          {/* {!lockStaffSelection && (
             <button
               type="button"
               className="
@@ -193,7 +193,7 @@ export function Step2StaffSelection({
               <SlidersHorizontal size={10} />
               Filter
             </button>
-          )}
+          )} */}
         </div>
 
         <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">

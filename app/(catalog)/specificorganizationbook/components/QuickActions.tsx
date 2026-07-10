@@ -1,9 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import { CalendarDays, Phone, PlayCircle } from "lucide-react";
 
-export function QuickActions() {
+interface QuickActionsProps {
+  canBook: boolean;
+  bookingUrl: string;
+  onBookNow: () => void;
+}
+
+export function QuickActions({
+  canBook,
+  bookingUrl,
+  onBookNow,
+}: QuickActionsProps) {
   return (
-    <div className="grid grid-cols-3 gap-2 mt-2 px-2 pb-2">
+    <div className="mt-2 grid grid-cols-3 gap-2 px-2 pb-2">
       <button
         type="button"
         className="
@@ -26,17 +38,30 @@ export function QuickActions() {
         Watch Video
       </button>
 
-      <Link
-      // /specificorganization/store-1
-        href={`/booking`}
-        className="
-          primary-button flex items-center justify-center gap-1
-          rounded-xs py-2 text-[8px] font-medium text-white
-        "
-      >
-        <CalendarDays size={12} strokeWidth={1.6} />
-        Book Now
-      </Link>
+      {canBook ? (
+        <Link
+          href={bookingUrl}
+          className="
+            primary-button flex items-center justify-center gap-1
+            rounded-xs py-2 text-[8px] font-medium text-white
+          "
+        >
+          <CalendarDays size={12} strokeWidth={1.6} />
+          Book Now
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={onBookNow}
+          className="
+            primary-button flex items-center justify-center gap-1
+            rounded-xs py-2 text-[8px] font-medium text-white
+          "
+        >
+          <CalendarDays size={12} strokeWidth={1.6} />
+          Book Now
+        </button>
+      )}
     </div>
   );
 }

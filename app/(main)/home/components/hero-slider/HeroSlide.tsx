@@ -128,7 +128,7 @@ export function HeroSlide({
                     {timings.map((timing) => (
                       <div
                         key={timing.day}
-                        className="flex items-center justify-between gap-3 rounded-lg px-2 py-1 text-[10px]"
+                        className="flex items-center justify-between gap-3 rounded-lg px-2 text-[10px]"
                       >
                         <span className="text-white/85">{timing.day}</span>
                         <span className="text-right text-white/70">

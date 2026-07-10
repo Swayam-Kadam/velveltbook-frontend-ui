@@ -8,6 +8,8 @@ import {
   CalendarDays,
   CalendarPlus,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Clock3,
   CreditCard,
   MapPin,
@@ -68,11 +70,13 @@ function OrganizationBanner({
   variant = "default",
   receiptVisible = false,
   onToggleReceipt,
+  serialNumber,
 }: {
   organization: BookingOrganization;
   variant?: "default" | "receipt";
   receiptVisible?: boolean;
   onToggleReceipt?: () => void;
+  serialNumber?: string;
 }) {
   return (
     <div className="border-b border-(--border)">
@@ -84,11 +88,26 @@ function OrganizationBanner({
           sizes="100vw"
           className="object-cover"
         />
+
         <div className="absolute inset-0 bg-linear-to-t from-black/45 to-transparent" />
+
+        <div className="absolute left-2 top-2 flex items-center gap-1.5">
+          <span
+            className={`h-2.5 w-2.5 shrink-0 rounded-full border border-white/80 shadow-sm ${
+              organization.isOpen ? "bg-(--success)" : "bg-(--danger)"
+            }`}
+            aria-label={organization.isOpen ? "Store open" : "Store closed"}
+          />
+          {serialNumber && (
+            <span className="rounded-full bg-black/55 px-1.5 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
+              {serialNumber}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-3 px-2.5 py-2">
-        <div className="relative h-13 w-13 shrink-0 overflow-hidden rounded-xl mt-[-2.5rem] border-2 border-white">
+        <div className="relative h-13 w-13 shrink-0 overflow-hidden rounded-xl  border-2 border-white">
           <Image
             src={organization.thumbnail}
             alt={organization.name}
@@ -103,8 +122,10 @@ function OrganizationBanner({
             {organization.name}
           </p>
           <div className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold">
-            <MapPin size={9} className="text-(--success)" />
-            <span className="text-(--success)">{organization.status}</span>
+            <MapPin size={9} className="shrink-0 text-(--text-secondary)" />
+            <span className="truncate text-(--text-secondary)">
+              {organization.address}
+            </span>
           </div>
         </div>
 
@@ -117,10 +138,13 @@ function OrganizationBanner({
             className="
               shrink-0 rounded-lg bg-(--accent-primary) px-2 py-1.5
               text-[10px] font-bold text-white transition-opacity duration-200
-              hover:opacity-90
+              hover:opacity-90 flex items-center gap-1
             "
           >
             {receiptVisible ? "Hide Receipt" : "Show Receipt"}
+            
+            {receiptVisible ? <ChevronUp size={15} />: <ChevronDown size={15} />}
+            
           </button>
         ) : (
           <button
@@ -325,6 +349,7 @@ function ReceiptCard({ booking }: { booking: Booking }) {
         variant="receipt"
         receiptVisible={receiptOpen}
         onToggleReceipt={() => setReceiptOpen((open) => !open)}
+        serialNumber={booking.number}
       />
 
       {/* <div className="p-2.5">
@@ -417,11 +442,14 @@ function ReceiptCard({ booking }: { booking: Booking }) {
 function BookingCard({
   booking,
   tab,
+  serviceSubTab,
 }: {
   booking: Booking;
   tab: CardStatusTab;
+  serviceSubTab?: ServiceSubTab;
 }) {
   const status = statusStyles[tab];
+  const showViewButton = tab === "upcoming" && serviceSubTab === "booked";
 
   return (
     <article className="feature-card overflow-hidden rounded-xl">
@@ -444,8 +472,15 @@ function BookingCard({
             <h3 className="truncate text-[13px] font-bold text-(--text-primary)">
               {booking.service}
             </h3>
+            {showViewButton && (
+              <span
+                className="flex shrink-0 items-center gap-1 rounded-full bg-(--text-primary) px-2 py-0.5 text-[10px] font-bold text-white"
+              >
+                view <ChevronDown size={12} />
+              </span>
+            )}
             <span
-              className="shrink-0 rounded-full px-2 py-0.5 text-[8px] font-bold"
+              className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold"
               style={{ color: status.color, background: status.bg }}
             >
               {tab === "upcoming" ? "Cancel" : status.label}
@@ -766,7 +801,12 @@ export default function MyBookingPage() {
                   tab={activeHistorySubTab}
                 />
               ) : (
-                <BookingCard key={booking.id} booking={booking} tab="upcoming" />
+                <BookingCard
+                  key={booking.id}
+                  booking={booking}
+                  tab="upcoming"
+                  serviceSubTab={activeServiceSubTab}
+                />
               ),
             )}
           </div>
@@ -774,7 +814,7 @@ export default function MyBookingPage() {
           <EmptyState label={emptyLabel} />
         )}
 
-        {activeTab === "upcoming" && <SuggestedServices tab={activeTab} />}
+        {/* {activeTab === "upcoming" && <SuggestedServices tab={activeTab} />} */}
       </div>
     </main>
   );

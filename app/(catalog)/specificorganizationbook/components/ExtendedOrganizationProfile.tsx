@@ -199,6 +199,9 @@ export function ExtendedOrganizationProfile({
           availability={organization.availability}
           salonName={organization.name}
           organization={organization}
+          canBook={canBook}
+          bookingUrl={bookingUrl}
+          onBookNow={handleBookNow}
         />
 
         <div className="flex min-h-[420px] overflow-hidden rounded-xl border border-(--border)">

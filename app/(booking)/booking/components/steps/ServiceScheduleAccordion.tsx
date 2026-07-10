@@ -79,9 +79,9 @@ export function ServiceScheduleAccordion({
           </div>
 
           <div className="text-right">
-            <p className="text-[9px] font-semibold text-(--text-secondary)">
+            <h3 className="text-[12px] font-bold text-(--text-primary)">
               {scheduledCount} of {selectedServiceIds.length} scheduled Service
-            </p>
+            </h3>
             {/* <div className="mt-1 flex justify-end gap-1">
               {selectedServiceIds.map((id) => {
                 const done = isServiceScheduleComplete(schedules[id]);

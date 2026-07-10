@@ -291,25 +291,17 @@ export default function SelectSeat({
 
     if (!isControlled) {
       setInternalSelectedSeatId(seat.id);
-      setInternalSeatConfirmed(false);
+      setInternalSeatConfirmed(true);
     }
 
     onSelectSeat?.(seat.id);
-  };
-
-  const handleConfirm = () => {
-    if (!activeSeatId) return;
-
-    if (!isControlled) {
-      setInternalSeatConfirmed(true);
-    }
 
     if (onConfirmSeat) {
       onConfirmSeat();
       return;
     }
 
-    onConfirm?.(activeSeatId);
+    onConfirm?.(seat.id);
   };
 
   const serviceLabel =
@@ -435,19 +427,10 @@ export default function SelectSeat({
             <p className="select-seat__selection-label">Selected Seat</p>
             <p className="select-seat__selection-value">
               {selectedSeat?.label ?? "—"}
+              {activeSeatConfirmed && selectedSeat ? " · Confirmed" : ""}
             </p>
           </div>
         </div>
-
-        <button
-          type="button"
-          className="select-seat__action-btn select-seat__confirm-btn"
-          disabled={!activeSeatId}
-          onClick={handleConfirm}
-        >
-          {activeSeatConfirmed ? "Seat Confirmed" : "Confirm Seat"}
-          <ArrowRightIcon size={14} />
-        </button>
       </div>
 
       {/* <div className="select-seat__summary-bar">

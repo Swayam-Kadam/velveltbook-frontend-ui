@@ -7,10 +7,13 @@ export interface BookingOrganization {
   banner: string;
   thumbnail: string;
   status: string;
+  address: string;
+  isOpen: boolean;
 }
 
 export interface Booking {
   id: string;
+  number: string;
   service: string;
   therapist: string;
   date: string;
@@ -36,6 +39,8 @@ export const organizations: Record<string, BookingOrganization> = {
     thumbnail:
       "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200&h=200&fit=crop",
     status: "Open now",
+    address: "12 Ascot Vale Rd, Ascot Vale VIC 3032, Melbourne",
+    isOpen: true,
   },
   "glamour-salon": {
     id: "glamour-salon",
@@ -44,7 +49,9 @@ export const organizations: Record<string, BookingOrganization> = {
       "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=400&fit=crop",
     thumbnail:
       "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=200&h=200&fit=crop",
-    status: "Open now",
+    status: "Closed",
+    address: "45 Bourke St, Melbourne VIC 3000, Sydney",
+    isOpen: false,
   },
 };
 
@@ -77,6 +84,7 @@ export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {
   booked: [
     {
       id: "u1",
+      number: "1",
       service: "Swedish Massage",
       therapist: "Sony",
       date: "May 22, 2026",
@@ -89,6 +97,7 @@ export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {
     },
     {
       id: "u2",
+      number: "2",
       service: "Aromatherapy Massage",
       therapist: "Samar",
       date: "May 28, 2026",
@@ -103,6 +112,7 @@ export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {
   reschedule: [
     {
       id: "rs1",
+      number: "1",
       service: "Deep Tissue Massage",
       therapist: "Jesai",
       date: "Jun 05, 2026",
@@ -115,6 +125,7 @@ export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {
     },
     {
       id: "rs2",
+      number: "2",
       service: "Hot Stone Massage",
       therapist: "Sami",
       date: "Jun 12, 2026",
@@ -133,6 +144,7 @@ export const bookingData: Record<Exclude<BookingTab, "history">, Booking[]> = {
   completed: [
     {
       id: "c1",
+      number: "1",
       service: "Hot Stone Massage",
       therapist: "Sami",
       date: "Apr 12, 2026",
@@ -151,6 +163,7 @@ export const bookingData: Record<Exclude<BookingTab, "history">, Booking[]> = {
     },
     {
       id: "c2",
+      number: "2",
       service: "Deep Tissue Massage",
       therapist: "Jesai",
       date: "Mar 30, 2026",
@@ -174,6 +187,7 @@ export const historyBookingData: Record<HistorySubTab, Booking[]> = {
   completed: [
     {
       id: "hc1",
+      number: "1",
       service: "Hot Stone Massage",
       therapist: "Sami",
       date: "Apr 12, 2026",
@@ -192,6 +206,7 @@ export const historyBookingData: Record<HistorySubTab, Booking[]> = {
     },
     {
       id: "hc2",
+      number: "2",
       service: "Deep Tissue Massage",
       therapist: "Jesai",
       date: "Mar 30, 2026",
@@ -212,6 +227,7 @@ export const historyBookingData: Record<HistorySubTab, Booking[]> = {
   cancelled: [
     {
       id: "x1",
+      number: "1",
       service: "Couples Massage",
       therapist: "Samar",
       date: "Apr 02, 2026",
@@ -224,6 +240,7 @@ export const historyBookingData: Record<HistorySubTab, Booking[]> = {
     },
     {
       id: "x2",
+      number: "2",
       service: "Swedish Massage",
       therapist: "Sony",
       date: "Mar 15, 2026",
@@ -238,6 +255,7 @@ export const historyBookingData: Record<HistorySubTab, Booking[]> = {
   refund: [
     {
       id: "r1",
+      number: "1",
       service: "Prenatal Massage",
       therapist: "Jesai",
       date: "Feb 18, 2026",
@@ -250,6 +268,7 @@ export const historyBookingData: Record<HistorySubTab, Booking[]> = {
     },
     {
       id: "r2",
+      number: "2",
       service: "Aromatherapy Massage",
       therapist: "Sami",
       date: "Jan 28, 2026",
