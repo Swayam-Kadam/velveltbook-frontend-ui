@@ -30,6 +30,7 @@ import type { ServiceSchedules } from "../../booking.types";
 import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import { ServiceScheduleAccordion } from "./ServiceScheduleAccordion";
 import SelectSeat from "./SelectSeat";
+import Swal from "sweetalert2";
 
 interface Step3DateTimeSelectionProps {
   selectedServiceIds: string[];
@@ -47,6 +48,7 @@ interface Step3DateTimeSelectionProps {
   onRemoveService: (id: string) => void;
   onBack: () => void;
   onNext: () => void;
+  onEditService: () => void;
 }
 
 const expertLabel: Record<"male" | "female", string> = {
@@ -132,6 +134,7 @@ export function Step3DateTimeSelection({
   onConfirmSeat,
   onRemoveService,
   onBack,
+  onEditService,
 }: Step3DateTimeSelectionProps) {
   const [showDateTimeModal, setShowDateTimeModal] = useState(false);
   const [showSeatModal, setShowSeatModal] = useState(false);
@@ -147,6 +150,35 @@ export function Step3DateTimeSelection({
     }
     return bookingStaff;
   }, [expertType]);
+
+  const swalDefaults = {
+    confirmButtonText: "Okay",
+    confirmButtonColor: "#b8860b",
+    background: "#1a1a1a",
+    color: "#ffffff",
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+  } as const;
+
+  const handleRemoveService = async (serviceId: string) => {
+    if (!onRemoveService) return;
+
+    const remainingCount = selectedServiceIds.filter(
+      (id) => id !== serviceId,
+    ).length;
+
+    onRemoveService(serviceId);
+
+    if (remainingCount === 0) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Please select a service",
+        text: "You need at least one service to continue booking.",
+        ...swalDefaults,
+      });
+      onEditService();
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -305,7 +337,7 @@ export function Step3DateTimeSelection({
             schedules={serviceSchedules}
             onSelectDay={onSelectServiceDay}
             onSelectTime={onSelectServiceTime}
-            onRemoveService={onRemoveService}
+            onRemoveService={ handleRemoveService}
           />
         </BookingModal>
       )}

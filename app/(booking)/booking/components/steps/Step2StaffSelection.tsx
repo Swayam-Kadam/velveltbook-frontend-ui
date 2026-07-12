@@ -60,6 +60,8 @@ const swalDefaults = {
   confirmButtonColor: "#b8860b",
   background: "#1a1a1a",
   color: "#ffffff",
+  allowOutsideClick: false,
+  allowEscapeKey: false,
 } as const;
 
 function showBookingWarning(title: string, text: string) {
@@ -89,6 +91,7 @@ export function Step2StaffSelection({
   onRemoveService,
   onBack,
   onNext,
+  onEditService,
 }: Step2StaffSelectionProps) {
   const staff = getStaff(staffId);
   const selectedServices = getSelectedServices(
@@ -123,6 +126,26 @@ export function Step2StaffSelection({
     (service) => !isServiceScheduleComplete(serviceSchedules[service.id]),
   );
 
+  const handleRemoveService = async (serviceId: string) => {
+    if (!onRemoveService) return;
+
+    const remainingCount = selectedServiceIds.filter(
+      (id) => id !== serviceId,
+    ).length;
+
+    onRemoveService(serviceId);
+
+    if (remainingCount === 0) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Please select a service",
+        text: "You need at least one service to continue booking.",
+        ...swalDefaults,
+      });
+      onEditService();
+    }
+  };
+
   const handleContinue = async () => {
     if (!allScheduled) {
       const pendingNames = pendingServices.map((service) => service.name).join(", ");
@@ -138,7 +161,7 @@ export function Step2StaffSelection({
     if (!seatConfirmed) {
       await showBookingWarning(
         "Confirm your seat",
-        "Please select a seat and tap Confirm before continuing.",
+        "Please select a seat before continuing.",
       );
       return;
     }
@@ -156,7 +179,7 @@ export function Step2StaffSelection({
         selectedServiceIds={selectedServiceIds}
         organization={organizationBanner}
         organizationId={organizationId}
-        onRemoveService={onRemoveService}
+        onRemoveService={onRemoveService ? handleRemoveService : undefined}
         showOrganizationBanner={false}
       />
 
@@ -269,7 +292,7 @@ export function Step2StaffSelection({
         schedules={serviceSchedules}
         onSelectDay={onSelectServiceDay}
         onSelectTime={onSelectServiceTime}
-        onRemoveService={onRemoveService || (() => {})}
+        onRemoveService={onRemoveService ? handleRemoveService : (() => {})}
       />
 
       {/* <SeatSelectionSection

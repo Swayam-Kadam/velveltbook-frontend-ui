@@ -207,6 +207,7 @@ export function BookingFlow() {
             onRemoveService={removeService}
             onBack={() => setStep(2)}
             onNext={() => setStep(4)}
+            onEditService={() => setStep(1)}
           />
         )}
 

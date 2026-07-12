@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import Swal from "sweetalert2";
 import {
   ArrowRight,
   ChevronLeft,
@@ -29,6 +30,15 @@ import {
   getSelectedServices,
 } from "../../booking.data";
 import { Button } from "@/components/Button";
+
+const swalDefaults = {
+  confirmButtonText: "Okay",
+  confirmButtonColor: "#b8860b",
+  background: "#1a1a1a",
+  color: "#ffffff",
+  allowOutsideClick: false,
+  allowEscapeKey: false,
+} as const;
 
 interface Step1ServiceSelectionProps {
   selectedServiceIds: string[];
@@ -80,6 +90,20 @@ export function Step1ServiceSelection({
   const handleSelectCategory = (id: string) => {
     setActiveCategory(id);
     setPage(1);
+  };
+
+  const handleNext = async () => {
+    if (!hasSelection) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Please select a service",
+        text: "Choose at least one service before continuing.",
+        ...swalDefaults,
+      });
+      return;
+    }
+
+    onNext();
   };
 
   return (
@@ -168,9 +192,8 @@ export function Step1ServiceSelection({
       <Button
         variant="primary"
         fullWidth
-        onClick={onNext}
-        disabled={!hasSelection}
-        className="gap-2 rounded-xl py-3 text-[11px] font-medium disabled:opacity-50"
+        onClick={handleNext}
+        className="gap-2 rounded-xl py-3 text-[11px] font-medium"
       >
         Next: Select Staff
         <ChevronRight size={16} strokeWidth={2} />
