@@ -305,6 +305,7 @@ export function Step3DateTimeSelection({
             schedules={serviceSchedules}
             onSelectDay={onSelectServiceDay}
             onSelectTime={onSelectServiceTime}
+            onRemoveService={onRemoveService}
           />
         </BookingModal>
       )}

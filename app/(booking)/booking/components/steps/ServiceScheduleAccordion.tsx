@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { CalendarDays, Check, ChevronDown, Clock3 } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, Clock3, Trash2 } from "lucide-react";
 
 import {
   buildBookingDays,
@@ -20,6 +20,7 @@ interface ServiceScheduleAccordionProps {
   schedules: ServiceSchedules;
   onSelectDay: (serviceId: string, dayId: string) => void;
   onSelectTime: (serviceId: string, time: string) => void;
+  onRemoveService: (serviceId: string) => void;
 }
 
 export function ServiceScheduleAccordion({
@@ -27,6 +28,7 @@ export function ServiceScheduleAccordion({
   schedules,
   onSelectDay,
   onSelectTime,
+  onRemoveService,
 }: ServiceScheduleAccordionProps) {
   const selectedServices = getSelectedServices(selectedServiceIds);
   const scheduledCount = countScheduledServices(schedules, selectedServiceIds);
@@ -58,6 +60,11 @@ export function ServiceScheduleAccordion({
 
   const toggleService = (serviceId: string) => {
     setOpenServiceId((current) => (current === serviceId ? null : serviceId));
+  };
+
+  const handleRemoveService = (serviceId: string) => {
+    onRemoveService(serviceId);
+    setOpenServiceId(null);
   };
 
   return (
@@ -150,6 +157,10 @@ export function ServiceScheduleAccordion({
                       </span>
                     )}
                   </div>
+                </div>
+
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <Trash2 size={18} className="text-red-500 cursor-pointer" onClick={() => handleRemoveService(service.id)} />
                 </div>
 
                 <div className="flex shrink-0 flex-col items-end gap-1">

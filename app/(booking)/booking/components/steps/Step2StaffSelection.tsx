@@ -269,6 +269,7 @@ export function Step2StaffSelection({
         schedules={serviceSchedules}
         onSelectDay={onSelectServiceDay}
         onSelectTime={onSelectServiceTime}
+        onRemoveService={onRemoveService || (() => {})}
       />
 
       {/* <SeatSelectionSection
