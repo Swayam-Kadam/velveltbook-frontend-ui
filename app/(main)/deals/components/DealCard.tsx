@@ -67,7 +67,7 @@ export function DealCard({ deal, onBookClick }: DealCardProps) {
           </div>
         </div>
 
-        <div className="flex items-start gap-1 text-[8px] leading-tight text-black">
+        <div className="flex items-start gap-1 text-[8px] leading-tight text-(--text-primary)">
           <MapPin size={8} className="mt-0.5 shrink-0" strokeWidth={1.5} />
           <span className="line-clamp-2">{deal.location}</span>
         </div>
