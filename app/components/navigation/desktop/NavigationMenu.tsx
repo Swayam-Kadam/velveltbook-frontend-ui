@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 
 const navigationItems = [
   { label: "Home", href: "/home" },
-  { label: "Menu", href: "/menu" },
-  { label: "Service", href: "/services" },
-  { label: "Experts", href: "/experts" },
-  { label: "Bookings", href: "/booking" },
-  { label: "Offers", href: "/offers" },
+  { label: "Deals", href: "/deals" },
+  { label: "Negotiation", href: "/service-category/barber" },
+  { label: "My Bookings", href: "/mybooking" },
+  // { label: "Bookings", href: "/booking" },
+  // { label: "Offers", href: "/offers" },
 ];
 
 interface NavigationMenuProps {

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, ChevronDown, LogOut, UserRound, Sparkle, ShoppingBag, CreditCard, ShieldCheck, FileText } from "lucide-react";
+import { Bell, ChevronDown, LogOut, UserRound, Sparkle, ShoppingBag, CreditCard, ShieldCheck, FileText, Calendar, HelpCircle } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { usePathname, useRouter } from "next/navigation";
@@ -286,7 +286,8 @@ export function Header() {
                                     type="button"
                                     role="menuitem"
                                     onClick={() => {
-                                        return;
+                                        setMenuOpen(false);
+                                        router.push("/mybooking");
                                     }}
                                     className="
                                         flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
@@ -294,11 +295,28 @@ export function Header() {
                                         transition-colors hover:bg-(--bg-card-hover)
                                     "
                                 >
-                                    <ShoppingBag size={15} className="text-(--accent-primary)" />
-                                    My Orders
+                                    <Calendar size={15} className="text-(--accent-primary)" />
+                                    My Bookings
                                 </button>
 
                                 <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        router.push("/help");
+                                    }}
+                                    className="
+                                        flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
+                                        font-semibold text-(--text-primary)
+                                        transition-colors hover:bg-(--bg-card-hover)
+                                    "
+                                >
+                                    <HelpCircle size={15} className="text-(--accent-primary)" />
+                                    Help & Support
+                                </button>
+
+                                {/* <button
                                     type="button"
                                     role="menuitem"
                                     onClick={() => {
@@ -312,7 +330,7 @@ export function Header() {
                                 >
                                     <CreditCard size={15} className="text-(--accent-primary)" />
                                     Payment
-                                </button>
+                                </button> */}
 
                                 <button
                                     type="button"

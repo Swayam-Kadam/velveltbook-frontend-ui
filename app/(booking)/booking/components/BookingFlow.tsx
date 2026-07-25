@@ -10,10 +10,14 @@ import {
   calcServicesTotal,
   createDefaultServiceSchedule,
   getDefaultSeatId,
-  getStaffByGender,
+  getPrimaryStaffId,
   syncServiceSchedules,
+  syncServiceStaffAssignments,
 } from "../booking.data";
-import type { ServiceSchedules } from "../booking.types";
+import type {
+  ServiceSchedules,
+  ServiceStaffAssignments,
+} from "../booking.types";
 import { BookingHeader } from "./BookingHeader";
 import { BookingProgress } from "./BookingProgress";
 import { BookingStickyFooter } from "./BookingStickyFooter";
@@ -41,6 +45,14 @@ export function BookingFlow() {
       Boolean(parsed.staffId) &&
       parsed.serviceIds.length > 0,
   );
+  const [serviceStaff, setServiceStaff] = useState<ServiceStaffAssignments>(
+    () =>
+      syncServiceStaffAssignments(
+        {},
+        parsed.serviceIds,
+        parsed.staffId ?? undefined,
+      ),
+  );
   const [serviceSchedules, setServiceSchedules] = useState<ServiceSchedules>(() =>
     syncServiceSchedules({}, parsed.serviceIds),
   );
@@ -56,6 +68,13 @@ export function BookingFlow() {
     setServiceIds((current) => {
       const next = updater(current);
       setServiceSchedules((existing) => syncServiceSchedules(existing, next));
+      setServiceStaff((existing) =>
+        syncServiceStaffAssignments(
+          existing,
+          next,
+          lockStaffSelection ? staffId : undefined,
+        ),
+      );
       return next;
     });
   };
@@ -102,8 +121,12 @@ export function BookingFlow() {
     setSeatConfirmed(true);
   };
 
-  const handleSelectStaff = (id: string) => {
-    setStaffId(id);
+  const handleSelectServiceStaff = (serviceId: string, nextStaffId: string) => {
+    setServiceStaff((current) => ({
+      ...current,
+      [serviceId]: nextStaffId,
+    }));
+    setStaffId(nextStaffId);
   };
 
   const handleSelectServiceDay = (serviceId: string, dayId: string) => {
@@ -173,12 +196,12 @@ export function BookingFlow() {
             organizationBanner={organizationBanner}
             organizationId={organizationId}
             expertType={expertType}
-            staffId={staffId}
+            serviceStaff={serviceStaff}
             lockStaffSelection={lockStaffSelection}
             serviceSchedules={serviceSchedules}
             selectedSeatId={selectedSeatId}
             seatConfirmed={seatConfirmed}
-            onSelectStaff={handleSelectStaff}
+            onSelectServiceStaff={handleSelectServiceStaff}
             onSelectServiceDay={handleSelectServiceDay}
             onSelectServiceTime={handleSelectServiceTime}
             onSelectSeat={handleSelectSeat}
@@ -194,14 +217,15 @@ export function BookingFlow() {
           <Step3DateTimeSelection
             selectedServiceIds={serviceIds}
             organizationBanner={organizationBanner}
+            organizationId={organizationId}
             expertType={expertType}
-            staffId={staffId}
+            serviceStaff={serviceStaff}
             serviceSchedules={serviceSchedules}
             selectedSeatId={selectedSeatId}
             seatConfirmed={seatConfirmed}
             onSelectServiceDay={handleSelectServiceDay}
             onSelectServiceTime={handleSelectServiceTime}
-            onSelectStaff={handleSelectStaff}
+            onSelectServiceStaff={handleSelectServiceStaff}
             onSelectSeat={handleSelectSeat}
             onConfirmSeat={handleConfirmSeat}
             onRemoveService={removeService}
@@ -216,7 +240,8 @@ export function BookingFlow() {
             selectedServiceIds={serviceIds}
             organizationBanner={organizationBanner}
             organizationId={organizationId}
-            staffId={staffId}
+            staffId={getPrimaryStaffId(serviceStaff, serviceIds, staffId)}
+            serviceStaff={serviceStaff}
             serviceSchedules={serviceSchedules}
             paymentMethod={paymentMethod}
             promoCode={promoCode}

@@ -473,7 +473,8 @@ export function ExtendedOrganizationProfile({
 
                       <div className="flex flex-wrap gap-3 pt-1">
                         <Link
-                          href={bookingUrl}
+                          // href={bookingUrl}
+                          href={"#"}
                           className="primary-button inline-flex h-8 items-center justify-center gap-2 rounded-full px-2 text-[10px] font-semibold text-white"
                         >
                           <CalendarDays size={16} />

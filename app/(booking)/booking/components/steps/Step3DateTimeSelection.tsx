@@ -1,14 +1,12 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import Image from "next/image";
 import {
   Armchair,
   CalendarDays,
-  Check,
   Clock3,
   Pencil,
-  Star,
   X,
 } from "lucide-react";
 
@@ -19,30 +17,35 @@ import {
 } from "../BookingOrganizationBanner";
 import {
   bookingSeats,
-  bookingStaff,
   getBookingDay,
   getBookingSeat,
+  getPrimaryStaffId,
   getSelectedServices,
   getStaff,
   isServiceScheduleComplete,
 } from "../../booking.data";
-import type { ServiceSchedules } from "../../booking.types";
+import type {
+  ServiceSchedules,
+  ServiceStaffAssignments,
+} from "../../booking.types";
 import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import { ServiceScheduleAccordion } from "./ServiceScheduleAccordion";
+import { ServiceStaffAccordion } from "./ServiceStaffAccordion";
 import SelectSeat from "./SelectSeat";
 import Swal from "sweetalert2";
 
 interface Step3DateTimeSelectionProps {
   selectedServiceIds: string[];
   organizationBanner?: BookingOrganizationBannerInfo;
+  organizationId?: string;
   expertType: ExpertType;
-  staffId: string;
+  serviceStaff: ServiceStaffAssignments;
   serviceSchedules: ServiceSchedules;
   selectedSeatId: string;
   seatConfirmed: boolean;
   onSelectServiceDay: (serviceId: string, dayId: string) => void;
   onSelectServiceTime: (serviceId: string, time: string) => void;
-  onSelectStaff: (id: string) => void;
+  onSelectServiceStaff: (serviceId: string, staffId: string) => void;
   onSelectSeat: (id: string) => void;
   onConfirmSeat: () => void;
   onRemoveService: (id: string) => void;
@@ -50,11 +53,6 @@ interface Step3DateTimeSelectionProps {
   onNext: () => void;
   onEditService: () => void;
 }
-
-const expertLabel: Record<"male" | "female", string> = {
-  male: "Male Expert",
-  female: "Female Expert",
-};
 
 function BookingModal({
   title,
@@ -122,14 +120,15 @@ function BookingModal({
 export function Step3DateTimeSelection({
   selectedServiceIds,
   organizationBanner,
+  organizationId,
   expertType,
-  staffId,
+  serviceStaff,
   serviceSchedules,
   selectedSeatId,
   seatConfirmed,
   onSelectServiceDay,
   onSelectServiceTime,
-  onSelectStaff,
+  onSelectServiceStaff,
   onSelectSeat,
   onConfirmSeat,
   onRemoveService,
@@ -140,17 +139,13 @@ export function Step3DateTimeSelection({
   const [showSeatModal, setShowSeatModal] = useState(false);
   const [showTherapistModal, setShowTherapistModal] = useState(false);
 
-  const staff = getStaff(staffId);
-  const selectedServices = getSelectedServices(selectedServiceIds);
+  const primaryStaffId = getPrimaryStaffId(serviceStaff, selectedServiceIds);
+  const staff = getStaff(primaryStaffId);
+  const selectedServices = getSelectedServices(
+    selectedServiceIds,
+    organizationId,
+  );
   const selectedSeat = getBookingSeat(selectedSeatId);
-
-  const visibleStaff = useMemo(() => {
-    if (expertType === "male" || expertType === "female") {
-      return bookingStaff.filter((therapist) => therapist.gender === expertType);
-    }
-    return bookingStaff;
-  }, [expertType]);
-
   const swalDefaults = {
     confirmButtonText: "Okay",
     confirmButtonColor: "#b8860b",
@@ -196,7 +191,7 @@ export function Step3DateTimeSelection({
       <section className="grid grid-cols-2 gap-2">
         <div className="min-w-0">
           <h2 className="mb-2 text-sm font-bold text-(--text-primary)">
-            Selected Therapist
+            Selected Therapists
           </h2>
           <article className="feature-card rounded-xl">
             <div className="flex h-full flex-col">
@@ -210,18 +205,24 @@ export function Step3DateTimeSelection({
                 />
               </div>
               <div className="flex flex-1 flex-col px-2 pt-2">
-                <p className="truncate text-[11px] font-bold text-(--text-primary)">
-                  {staff.name}
-                </p>
-                <div className="mt-1 flex flex-col gap-0.5 text-[8px] font-bold text-(--text-primary)">
-                  <div className="flex items-center gap-0.5">
-                    <Star
-                      size={10}
-                      className="fill-(--brand-gold) text-(--brand-gold)"
-                    />
-                    <span>{staff.rating}</span>
-                  </div>
-                  <span className="truncate">• {staff.experience}</span>
+                <div className="min-h-16 space-y-1.5">
+                  {selectedServices.map((service) => {
+                    const assignedId = serviceStaff[service.id];
+                    const assigned = assignedId
+                      ? getStaff(assignedId)
+                      : null;
+
+                    return (
+                      <div key={service.id} className="min-w-0">
+                        <p className="truncate text-[8px] font-semibold text-(--text-muted)">
+                          {service.name}
+                        </p>
+                        <p className="truncate text-[9px] font-bold text-(--text-primary)">
+                          {assigned?.name ?? "Not selected"}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
                 <button
                   type="button"
@@ -234,7 +235,6 @@ export function Step3DateTimeSelection({
             </div>
           </article>
         </div>
-
         <div className="min-w-0 space-y-2">
           <h2 className="text-sm font-bold text-(--text-primary)">
             Schedule &amp; Seat
@@ -372,64 +372,14 @@ export function Step3DateTimeSelection({
           titleId="therapist-modal-title"
           onClose={() => setShowTherapistModal(false)}
         >
-          <p className="mb-2 text-[9px] font-semibold text-(--text-muted)">
-            {expertType ? expertLabel[expertType] : "All available therapists"}
-          </p>
-          <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
-            {visibleStaff.map((therapist) => {
-              const active = therapist.id === staffId;
-
-              return (
-                <button
-                  key={therapist.id}
-                  type="button"
-                  onClick={() => onSelectStaff(therapist.id)}
-                  className={`
-                    feature-card w-[96px] shrink-0 rounded-xl p-1.5 text-left
-                    transition-all duration-200
-                    ${
-                      active
-                        ? "border-(--accent-primary) shadow-(--shadow-glow)"
-                        : "hover:border-[color-mix(in_srgb,var(--accent-primary)_30%,var(--border))]"
-                    }
-                  `}
-                >
-                  <div className="relative h-[78px] overflow-hidden rounded-sm">
-                    <Image
-                      src={therapist.image}
-                      alt={therapist.name}
-                      fill
-                      sizes="96px"
-                      className="object-cover"
-                    />
-                    {active && (
-                      <span className="primary-button absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full border-3 border-white text-white">
-                        <Check size={10} strokeWidth={2.5} />
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="mt-1.5 truncate text-[11px] font-bold text-(--text-primary)">
-                    {therapist.name}
-                  </p>
-
-                  <div className="mt-0.5 flex items-center gap-0.5">
-                    <Star
-                      size={9}
-                      className="fill-(--brand-gold) text-(--brand-gold)"
-                    />
-                    <span className="text-[9px] font-bold text-(--text-primary)">
-                      {therapist.rating}
-                    </span>
-                  </div>
-
-                  <p className="mt-0.5 truncate text-[8px] font-semibold text-(--text-muted)">
-                    {therapist.experience}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
+          <ServiceStaffAccordion
+            selectedServiceIds={selectedServiceIds}
+            organizationId={organizationId}
+            expertType={expertType}
+            assignments={serviceStaff}
+            onSelectStaff={onSelectServiceStaff}
+            onRemoveService={handleRemoveService}
+          />
         </BookingModal>
       )}
 

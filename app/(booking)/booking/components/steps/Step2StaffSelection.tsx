@@ -1,14 +1,8 @@
 "use client";
 
-import Image from "next/image";
-import { useMemo } from "react";
 import Swal from "sweetalert2";
-import {
-  ArrowRightIcon,
-  Check,
-  SlidersHorizontal,
-  Star,
-} from "lucide-react";
+import { ArrowRightIcon } from "lucide-react";
+
 import type { ExpertType } from "@/menu/components/ExpertSelection";
 import {
   BookingOrganizationBanner,
@@ -18,14 +12,19 @@ import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import {
   bookingSeats,
   areAllServiceSchedulesComplete,
+  areAllServiceStaffAssigned,
   calcServicesTotal,
-  getOrganizationStaff,
   getSelectedServices,
   getStaff,
   isServiceScheduleComplete,
+  isServiceStaffAssigned,
 } from "../../booking.data";
-import type { ServiceSchedules } from "../../booking.types";
+import type {
+  ServiceSchedules,
+  ServiceStaffAssignments,
+} from "../../booking.types";
 import { ServiceScheduleAccordion } from "./ServiceScheduleAccordion";
+import { ServiceStaffAccordion } from "./ServiceStaffAccordion";
 import SelectSeat from "./SelectSeat";
 import "./SelectSeat/SelectSeat.css";
 
@@ -34,12 +33,12 @@ interface Step2StaffSelectionProps {
   organizationBanner?: BookingOrganizationBannerInfo;
   organizationId?: string;
   expertType: ExpertType;
-  staffId: string;
+  serviceStaff: ServiceStaffAssignments;
   lockStaffSelection?: boolean;
   serviceSchedules: ServiceSchedules;
   selectedSeatId: string;
   seatConfirmed: boolean;
-  onSelectStaff: (id: string) => void;
+  onSelectServiceStaff: (serviceId: string, staffId: string) => void;
   onSelectServiceDay: (serviceId: string, dayId: string) => void;
   onSelectServiceTime: (serviceId: string, time: string) => void;
   onSelectSeat: (id: string) => void;
@@ -49,11 +48,6 @@ interface Step2StaffSelectionProps {
   onNext: () => void;
   onEditService: () => void;
 }
-
-const expertLabel: Record<"male" | "female", string> = {
-  male: "Male Expert",
-  female: "Female Expert",
-};
 
 const swalDefaults = {
   confirmButtonText: "Okay",
@@ -78,12 +72,12 @@ export function Step2StaffSelection({
   organizationBanner,
   organizationId,
   expertType,
-  staffId,
+  serviceStaff,
   lockStaffSelection = false,
   serviceSchedules,
   selectedSeatId,
   seatConfirmed,
-  onSelectStaff,
+  onSelectServiceStaff,
   onSelectServiceDay,
   onSelectServiceTime,
   onSelectSeat,
@@ -93,38 +87,41 @@ export function Step2StaffSelection({
   onNext,
   onEditService,
 }: Step2StaffSelectionProps) {
-  const staff = getStaff(staffId);
   const selectedServices = getSelectedServices(
     selectedServiceIds,
     organizationId,
   );
   const { subtotal } = calcServicesTotal(selectedServiceIds, organizationId);
+  const allStaffAssigned = areAllServiceStaffAssigned(
+    serviceStaff,
+    selectedServiceIds,
+  );
   const allScheduled = areAllServiceSchedulesComplete(
     serviceSchedules,
     selectedServiceIds,
   );
 
-  const visibleStaff = useMemo(() => {
-    if (lockStaffSelection) {
-      return getOrganizationStaff(organizationId).filter(
-        (therapist) => therapist.id === staffId,
-      );
-    }
-
-    let therapists = getOrganizationStaff(organizationId);
-
-    if (expertType === "male" || expertType === "female") {
-      therapists = therapists.filter(
-        (therapist) => therapist.gender === expertType,
-      );
-    }
-
-    return therapists;
-  }, [expertType, lockStaffSelection, organizationId, staffId]);
-
-  const pendingServices = selectedServices.filter(
+  const pendingStaffServices = selectedServices.filter(
+    (service) => !isServiceStaffAssigned(serviceStaff, service.id),
+  );
+  const pendingScheduleServices = selectedServices.filter(
     (service) => !isServiceScheduleComplete(serviceSchedules[service.id]),
   );
+
+  const assignedStaffNames = Array.from(
+    new Set(
+      selectedServiceIds
+        .map((id) => serviceStaff[id])
+        .filter(Boolean)
+        .map((id) => getStaff(id).name),
+    ),
+  );
+  const staffSummary =
+    assignedStaffNames.length === 0
+      ? "no therapist yet"
+      : assignedStaffNames.length === 1
+        ? assignedStaffNames[0]
+        : `${assignedStaffNames.length} therapists`;
 
   const handleRemoveService = async (serviceId: string) => {
     if (!onRemoveService) return;
@@ -147,11 +144,26 @@ export function Step2StaffSelection({
   };
 
   const handleContinue = async () => {
+    if (!allStaffAssigned) {
+      const pendingNames = pendingStaffServices
+        .map((service) => service.name)
+        .join(", ");
+      await showBookingWarning(
+        "Select a therapist",
+        pendingStaffServices.length === 1
+          ? `Please choose a therapist for ${pendingNames}.`
+          : `Please choose a therapist for: ${pendingNames}.`,
+      );
+      return;
+    }
+
     if (!allScheduled) {
-      const pendingNames = pendingServices.map((service) => service.name).join(", ");
+      const pendingNames = pendingScheduleServices
+        .map((service) => service.name)
+        .join(", ");
       await showBookingWarning(
         "Schedule all services",
-        pendingServices.length === 1
+        pendingScheduleServices.length === 1
           ? `Please set a date and time for ${pendingNames}.`
           : `Please set a date and time for: ${pendingNames}.`,
       );
@@ -183,125 +195,28 @@ export function Step2StaffSelection({
         showOrganizationBanner={false}
       />
 
-      <section>
-        <div className="mb-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--accent-primary)/10">
-              <Star size={11} className="text-(--accent-primary)" />
-            </span>
-            <div>
-              <h3 className="text-xs font-bold text-(--text-primary)">
-                {lockStaffSelection ? "Selected Therapist" : "Select Your Therapist"}
-              </h3>
-              <p className="text-[8px] font-semibold text-(--brand-gold)">
-                {lockStaffSelection
-                  ? staff.name
-                  : expertType
-                    ? expertLabel[expertType]
-                    : organizationId
-                      ? "Organization Experts"
-                      : "All Experts"}
-              </p>
-            </div>
-          </div>
-
-          {/* {!lockStaffSelection && (
-            <button
-              type="button"
-              className="
-              flex items-center gap-1 rounded-lg border border-(--border)
-              bg-(--bg-card) px-2 py-1 text-[8px] font-semibold text-(--text-primary)
-            "
-            >
-              <SlidersHorizontal size={10} />
-              Filter
-            </button>
-          )} */}
-        </div>
-
-        <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
-          {visibleStaff.map((therapist) => {
-            const active = therapist.id === staffId;
-
-            return (
-              <button
-                key={therapist.id}
-                type="button"
-                onClick={() => {
-                  if (!lockStaffSelection) onSelectStaff(therapist.id);
-                }}
-                disabled={lockStaffSelection}
-                className={`
-                  feature-card w-[96px] shrink-0 rounded-xl p-1.5 text-left
-                  transition-all duration-200
-                  ${
-                    lockStaffSelection
-                      ? "cursor-default"
-                      : ""
-                  }
-                  ${
-                    active
-                      ? "border-(--accent-primary) shadow-(--shadow-glow)"
-                      : "hover:border-[color-mix(in_srgb,var(--accent-primary)_30%,var(--border))]"
-                  }
-                `}
-              >
-                <div className="relative h-[78px] overflow-hidden rounded-sm">
-                  <Image
-                    src={therapist.image}
-                    alt={therapist.name}
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
-                  {active && (
-                    <span className="border-3 border-white primary-button absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full text-white">
-                      <Check size={10} strokeWidth={2.5} />
-                    </span>
-                  )}
-                </div>
-
-                <p className="mt-1.5 truncate text-[13px] font-bold text-(--text-primary)">
-                  {therapist.name}
-                </p>
-
-                <div className="mt-0.5 flex items-center gap-0.5">
-                  <Star
-                    size={9}
-                    className="fill-(--brand-gold) text-(--brand-gold)"
-                  />
-                  <span className="text-[10px] font-bold text-(--text-primary)">
-                    {therapist.rating}
-                  </span>
-                  <span className="text-[10px] text-(--text-muted)">
-                    ({therapist.reviews})
-                  </span>
-                </div>
-
-                <p className="mt-0.5 text-[10px] font-semibold text-(--text-muted)">
-                  {therapist.experience}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <ServiceStaffAccordion
+        selectedServiceIds={selectedServiceIds}
+        organizationId={organizationId}
+        expertType={expertType}
+        assignments={serviceStaff}
+        lockStaffSelection={lockStaffSelection}
+        onSelectStaff={onSelectServiceStaff}
+        onRemoveService={
+          onRemoveService ? handleRemoveService : () => undefined
+        }
+      />
 
       <ServiceScheduleAccordion
         selectedServiceIds={selectedServiceIds}
         schedules={serviceSchedules}
         onSelectDay={onSelectServiceDay}
         onSelectTime={onSelectServiceTime}
-        onRemoveService={onRemoveService ? handleRemoveService : (() => {})}
+        onRemoveService={
+          onRemoveService ? handleRemoveService : () => undefined
+        }
       />
 
-      {/* <SeatSelectionSection
-        seats={bookingSeats}
-        selectedSeatId={selectedSeatId}
-        seatConfirmed={seatConfirmed}
-        onSelectSeat={onSelectSeat}
-        onConfirmSeat={onConfirmSeat}
-      /> */}
       <SelectSeat
         seats={bookingSeats}
         selectedSeatId={selectedSeatId}
@@ -309,36 +224,6 @@ export function Step2StaffSelection({
         onSelectSeat={onSelectSeat}
         onConfirmSeat={onConfirmSeat}
       />
-        
-
-      {/* <section className="feature-card flex items-center gap-2 rounded-xl p-3">
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[11px] font-bold text-(--text-primary)">
-            {selectedServices.length} service
-            {selectedServices.length !== 1 ? "s" : ""} selected
-          </p>
-          <p className="truncate text-[8px] font-semibold text-(--text-muted)">
-            with {staff.name}
-          </p>
-          <div className="mt-1 space-y-0.5">
-            <span className="text-sm font-bold text-(--accent-primary)">
-              ${subtotal}
-            </span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleContinue}
-          className="
-            primary-button flex shrink-0 items-center gap-1.5 rounded-xl
-            px-5 py-3 text-[11px] font-semibold text-white
-          "
-        >
-          Continue
-          <ArrowRight size={14} strokeWidth={2} />
-        </button>
-      </section> */}
 
       <section className="feature-card grid grid-cols-[1fr_auto_auto] items-center gap-2 rounded-[14px] p-2.5 sm:p-3">
         <div className="min-w-0">
@@ -347,7 +232,7 @@ export function Step2StaffSelection({
             {selectedServices.length !== 1 ? "s" : ""} selected
           </p>
           <p className="m-0 text-[9px] font-normal leading-tight text-(--text-muted)">
-            with {staff.name}
+            with {staffSummary}
           </p>
         </div>
 

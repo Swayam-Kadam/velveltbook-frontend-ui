@@ -32,14 +32,26 @@ export interface DesktopService {
   image: string;
 }
 
-export interface ExpertProvider {
-  id: string;
+export type ExpertLocationId =
+  | "ascot-vale"
+  | "moonee-ponds"
+  | "cbd"
+  | "box-hill"
+  | "south-yarra"
+  | "richmond"
+  | "carlton"
+  | "st-kilda"
+  | "footscray"
+  | "docklands"
+  | "more";
+
+export interface ExpertLocationOption {
+  id: ExpertLocationId;
+  label: string;
   image: string;
-  name: string;
-  specialist: string;
-  distance: string;
-  rating: number;
-  reviews: number;
-  price: string;
-  organizationId: string;
+}
+
+/** Store card shape matches Trending Nearby, filtered by location. */
+export interface ExpertProvider extends TrendingNearbyItem {
+  location: Exclude<ExpertLocationId, "more">;
 }

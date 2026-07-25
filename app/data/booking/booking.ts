@@ -17,6 +17,7 @@ import type {
   PaymentMethod,
   ServiceSchedule,
   ServiceSchedules,
+  ServiceStaffAssignments,
 } from "@/types/booking";
 
 export const bookingServices: BookingService[] = [
@@ -348,6 +349,55 @@ export function syncServiceSchedules(
     );
   }
   return next;
+}
+
+export function syncServiceStaffAssignments(
+  current: ServiceStaffAssignments,
+  serviceIds: string[],
+  defaultStaffId?: string,
+): ServiceStaffAssignments {
+  const next: ServiceStaffAssignments = {};
+  for (const id of serviceIds) {
+    if (current[id]) {
+      next[id] = current[id];
+    } else if (defaultStaffId) {
+      next[id] = defaultStaffId;
+    }
+  }
+  return next;
+}
+
+export function isServiceStaffAssigned(
+  assignments: ServiceStaffAssignments,
+  serviceId: string,
+) {
+  return Boolean(assignments[serviceId]);
+}
+
+export function areAllServiceStaffAssigned(
+  assignments: ServiceStaffAssignments,
+  serviceIds: string[],
+) {
+  return serviceIds.every((id) => isServiceStaffAssigned(assignments, id));
+}
+
+export function countAssignedServiceStaff(
+  assignments: ServiceStaffAssignments,
+  serviceIds: string[],
+) {
+  return serviceIds.filter((id) => isServiceStaffAssigned(assignments, id))
+    .length;
+}
+
+export function getPrimaryStaffId(
+  assignments: ServiceStaffAssignments,
+  serviceIds: string[],
+  fallback = "sony",
+) {
+  for (const id of serviceIds) {
+    if (assignments[id]) return assignments[id];
+  }
+  return fallback;
 }
 
 export function isServiceScheduleComplete(schedule?: ServiceSchedule) {

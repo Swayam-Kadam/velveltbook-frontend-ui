@@ -14,9 +14,9 @@ import { isAuthRoute } from "@/lib/authRoutes";
 const items = [
     { label: "Home", icon: Home, href: "/home" },
     { label: "Deals", icon: Tag, href: "/deals" },
-    { label: "Bookings", icon: Calendar, href: "/mybooking" },
-    { label: "Message", icon: MessageCircle, href: "/service-category/barber" },
-    { label: "Help", icon: CircleHelp, href: "/help" },
+    // { label: "Bookings", icon: Calendar, href: "/mybooking" },
+    { label: "Negotiate", icon: MessageCircle, href: "/service-category/barber" },
+    // { label: "Help", icon: CircleHelp, href: "/help" },
 ];
 
 export function BottomNavigation() {

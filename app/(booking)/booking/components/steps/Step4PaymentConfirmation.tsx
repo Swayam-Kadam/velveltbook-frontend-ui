@@ -32,7 +32,10 @@ import {
   getStaff,
   isServiceScheduleComplete,
 } from "../../booking.data";
-import type { ServiceSchedules } from "../../booking.types";
+import type {
+  ServiceSchedules,
+  ServiceStaffAssignments,
+} from "../../booking.types";
 import {
   BookingOrganizationBanner,
   type BookingOrganizationBannerInfo,
@@ -44,6 +47,7 @@ interface Step4PaymentConfirmationProps {
   organizationBanner?: BookingOrganizationBannerInfo;
   organizationId?: string;
   staffId: string;
+  serviceStaff: ServiceStaffAssignments;
   serviceSchedules: ServiceSchedules;
   paymentMethod: string;
   promoCode: string;
@@ -133,6 +137,7 @@ export function Step4PaymentConfirmation({
   organizationBanner,
   organizationId,
   staffId,
+  serviceStaff,
   serviceSchedules,
   paymentMethod,
   billingName,
@@ -277,6 +282,10 @@ export function Step4PaymentConfirmation({
             {selectedServices.map((service) => {
               const schedule = serviceSchedules[service.id];
               const scheduled = isServiceScheduleComplete(schedule);
+              const assignedStaffId = serviceStaff[service.id];
+              const assignedStaff = assignedStaffId
+                ? getStaff(assignedStaffId)
+                : getStaff(staffId);
 
               return (
                 <div key={service.id} className="space-y-0.5">
@@ -284,6 +293,9 @@ export function Step4PaymentConfirmation({
                     <span className="min-w-0 truncate">{service.name}</span>
                     <span className="shrink-0">{service.priceLabel}</span>
                   </div>
+                  <p className="text-[7px] font-semibold text-(--text-muted)">
+                    Therapist: {assignedStaff.name}
+                  </p>
                   {scheduled && (
                     <p className="text-[7px] font-semibold text-(--text-muted)">
                       {formatServiceSchedule(schedule)}

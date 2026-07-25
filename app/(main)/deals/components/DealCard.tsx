@@ -67,19 +67,19 @@ export function DealCard({ deal, onBookClick }: DealCardProps) {
           </div>
         </div>
 
-        <div className="flex items-start gap-1 text-[7.5px] leading-tight text-(--text-muted)">
+        <div className="flex items-start gap-1 text-[8px] leading-tight text-black">
           <MapPin size={8} className="mt-0.5 shrink-0" strokeWidth={1.5} />
           <span className="line-clamp-2">{deal.location}</span>
         </div>
 
-        <div className="flex flex-wrap gap-1">
-          {deal.tags.map((tag) => (
+        <div className="grid grid-cols-2 gap-1">
+          {deal.tags.slice(0, 4).map((tag) => (
             <span
               key={tag}
               className="
-                rounded-full border border-(--border)
+                truncate rounded-full border border-(--border)
                 bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))]
-                px-1.5 py-0.5 text-[7px] text-(--text-secondary)
+                px-1.5 py-0.5 text-center text-[9px] text-(--text-secondary) font-bold
               "
             >
               {tag}

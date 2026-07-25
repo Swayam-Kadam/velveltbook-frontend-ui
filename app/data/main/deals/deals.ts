@@ -39,7 +39,7 @@ export const singleDealsData: Deal[] = [
     category: "barber",
     isStore: true,
     popularity: 95,
-    tags: ["Haircut", "Beard Trim"],
+    tags: ["Haircut", "Beard Trim", "Styling", "Wash"],
   },
   {
     id: "deal-2",
@@ -56,7 +56,7 @@ export const singleDealsData: Deal[] = [
     category: "massage",
     isStore: true,
     popularity: 88,
-    tags: ["Full Body", "Relaxation"],
+    tags: ["Full Body", "Relaxation", "60 Min", "Oil"],
   },
   {
     id: "deal-3",
@@ -73,7 +73,7 @@ export const singleDealsData: Deal[] = [
     category: "nails",
     isStore: true,
     popularity: 82,
-    tags: ["Manicure", "Gel Polish"],
+    tags: ["Manicure", "Gel Polish", "Nail Art", "Care"],
   },
   {
     id: "deal-4",
@@ -90,7 +90,7 @@ export const singleDealsData: Deal[] = [
     category: "facial",
     isStore: true,
     popularity: 91,
-    tags: ["Facial", "Skincare"],
+    tags: ["Facial", "Skincare", "Cleanse", "Mask"],
   },
   {
     id: "deal-5",
@@ -107,7 +107,7 @@ export const singleDealsData: Deal[] = [
     category: "hair",
     isStore: true,
     popularity: 76,
-    tags: ["Balayage", "Color"],
+    tags: ["Balayage", "Color", "Toner", "Blow Dry"],
   },
   {
     id: "deal-6",
@@ -124,7 +124,7 @@ export const singleDealsData: Deal[] = [
     category: "makeup",
     isStore: true,
     popularity: 70,
-    tags: ["Bridal", "Makeup"],
+    tags: ["Bridal", "Makeup", "Trial", "Touch Up"],
   },
   {
     id: "deal-7",
@@ -141,7 +141,7 @@ export const singleDealsData: Deal[] = [
     category: "massage",
     isStore: true,
     popularity: 93,
-    tags: ["Deep Tissue", "Therapeutic"],
+    tags: ["Deep Tissue", "Therapeutic", "60 Min", "Focus"],
   },
   {
     id: "deal-8",
@@ -158,7 +158,7 @@ export const singleDealsData: Deal[] = [
     category: "massage",
     isStore: true,
     popularity: 87,
-    tags: ["Hot Stone", "Relaxation"],
+    tags: ["Hot Stone", "Relaxation", "Heat Therapy", "Full Body"],
   },
   {
     id: "deal-9",
@@ -175,7 +175,7 @@ export const singleDealsData: Deal[] = [
     category: "massage",
     isStore: true,
     popularity: 84,
-    tags: ["Aromatherapy", "Essential Oils"],
+    tags: ["Aromatherapy", "Essential Oils", "Relaxation", "60 Min"],
   },
   {
     id: "deal-10",
@@ -192,7 +192,7 @@ export const singleDealsData: Deal[] = [
     category: "massage",
     isStore: true,
     popularity: 79,
-    tags: ["Sports", "Recovery"],
+    tags: ["Sports", "Recovery", "Athletes", "Deep Tissue"],
   },
   {
     id: "deal-11",
@@ -209,7 +209,7 @@ export const singleDealsData: Deal[] = [
     category: "facial",
     isStore: true,
     popularity: 90,
-    tags: ["Anti-Aging", "Collagen"],
+    tags: ["Anti-Aging", "Collagen", "Firming", "Glow"],
   },
   {
     id: "deal-12",
@@ -226,7 +226,7 @@ export const singleDealsData: Deal[] = [
     category: "facial",
     isStore: true,
     popularity: 86,
-    tags: ["Hydrating", "Glow"],
+    tags: ["Hydrating", "Glow", "Serum", "Moisturize"],
   },
   {
     id: "deal-13",
@@ -243,7 +243,7 @@ export const singleDealsData: Deal[] = [
     category: "facial",
     isStore: true,
     popularity: 81,
-    tags: ["Acne", "Treatment"],
+    tags: ["Acne", "Treatment", "Clear Skin", "Extract"],
   },
   {
     id: "deal-14",
@@ -260,7 +260,7 @@ export const singleDealsData: Deal[] = [
     category: "facial",
     isStore: true,
     popularity: 92,
-    tags: ["LED Therapy", "Rejuvenation"],
+    tags: ["LED Therapy", "Rejuvenation", "Light", "Glow"],
   },
   {
     id: "deal-15",
@@ -277,7 +277,7 @@ export const singleDealsData: Deal[] = [
     category: "hair",
     isStore: true,
     popularity: 83,
-    tags: ["Haircut", "Blow Dry"],
+    tags: ["Haircut", "Blow Dry", "Style", "Wash"],
   },
   {
     id: "deal-16",
@@ -294,7 +294,7 @@ export const singleDealsData: Deal[] = [
     category: "hair",
     isStore: true,
     popularity: 88,
-    tags: ["Keratin", "Smoothing"],
+    tags: ["Keratin", "Smoothing", "Frizz Control", "Shine"],
   },
   {
     id: "deal-17",
@@ -311,7 +311,7 @@ export const singleDealsData: Deal[] = [
     category: "barber",
     isStore: true,
     popularity: 89,
-    tags: ["Beard", "Grooming"],
+    tags: ["Beard", "Grooming", "Shape", "Oil"],
   },
   {
     id: "deal-18",
@@ -328,7 +328,7 @@ export const singleDealsData: Deal[] = [
     category: "barber",
     isStore: true,
     popularity: 77,
-    tags: ["Shave", "Hot Towel"],
+    tags: ["Shave", "Hot Towel", "Classic", "Aftercare"],
   },
   {
     id: "deal-19",
@@ -345,7 +345,7 @@ export const singleDealsData: Deal[] = [
     category: "nails",
     isStore: true,
     popularity: 80,
-    tags: ["Acrylic", "Full Set"],
+    tags: ["Acrylic", "Full Set", "Shape", "Polish"],
   },
   {
     id: "deal-20",
@@ -362,7 +362,7 @@ export const singleDealsData: Deal[] = [
     category: "nails",
     isStore: true,
     popularity: 85,
-    tags: ["Pedicure", "Spa"],
+    tags: ["Pedicure", "Spa", "Scrub", "Massage"],
   },
   {
     id: "deal-21",
@@ -379,7 +379,7 @@ export const singleDealsData: Deal[] = [
     category: "spa",
     isStore: true,
     popularity: 82,
-    tags: ["Sauna", "Detox"],
+    tags: ["Sauna", "Detox", "Infrared", "Relax"],
   },
   {
     id: "deal-22",
@@ -396,7 +396,7 @@ export const singleDealsData: Deal[] = [
     category: "spa",
     isStore: true,
     popularity: 91,
-    tags: ["Body Scrub", "Wrap"],
+    tags: ["Body Scrub", "Wrap", "Exfoliate", "Hydrate"],
   },
   {
     id: "deal-23",
@@ -413,7 +413,7 @@ export const singleDealsData: Deal[] = [
     category: "makeup",
     isStore: true,
     popularity: 74,
-    tags: ["Evening", "Glam"],
+    tags: ["Evening", "Glam", "Lashes", "Contour"],
   },
   {
     id: "deal-24",
@@ -430,7 +430,7 @@ export const singleDealsData: Deal[] = [
     category: "more",
     isStore: true,
     popularity: 72,
-    tags: ["Waxing", "Full Body"],
+    tags: ["Waxing", "Full Body", "Smooth", "Care"],
   },
 ];
 

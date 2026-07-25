@@ -54,6 +54,9 @@ export interface ServiceSchedule {
 
 export type ServiceSchedules = Record<string, ServiceSchedule>;
 
+/** Maps each selected service id to a staff id. */
+export type ServiceStaffAssignments = Record<string, string>;
+
 export interface BookingState {
   serviceId: string;
   staffId: string;

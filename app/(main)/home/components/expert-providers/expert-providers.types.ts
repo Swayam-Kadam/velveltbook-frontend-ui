@@ -1,1 +1,5 @@
-export type { ExpertProvider } from "@/types/home";
+export type {
+  ExpertLocationId,
+  ExpertLocationOption,
+  ExpertProvider,
+} from "@/types/home";

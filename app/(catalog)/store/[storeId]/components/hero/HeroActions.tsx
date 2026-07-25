@@ -13,7 +13,8 @@ export default function HeroActions({ hero }: Props) {
   return (
     <div className="flex w-full flex-nowrap items-center gap-1.5 sm:mt-1 sm:gap-2">
       <Link
-        href={hero.bookNowHref}
+        // href={hero.bookNowHref}
+        href={"/specificorganizationbook/store-1"}
         className="primary-button inline-flex h-8 min-w-0 flex-1 items-center justify-center gap-1 rounded-lg px-2 text-[8px] font-medium text-white sm:gap-1.5 sm:text-[11px] lg:h-9 lg:text-xs"
       >
         <CalendarDays size={12} className="shrink-0 lg:size-3.5" />

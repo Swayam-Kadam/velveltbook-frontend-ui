@@ -19,7 +19,7 @@ function getStoreDealTags(deal: Deal | null): string[] {
       ? deal.tags
       : deal.includedServices.map((service) => service.label);
 
-  const limit = deal.type === "single" ? 2 : 4;
+  const limit = 4;
   return tags.slice(0, limit);
 }
 
@@ -122,7 +122,7 @@ function SelectableStoreDealCard({
                     className="
                       rounded-full border border-(--border)
                       bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))]
-                      px-1.5 py-0.5 text-[7px] text-(--text-secondary)
+                      px-1.5 py-0.5 text-[9px] text-(--text-secondary) font-bold
                     "
                   >
                     {tag}
@@ -265,6 +265,13 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
               <p className="mb-1 text-[10px] font-medium text-(--text-secondary)">
                 Select discounted services from this store
               </p>
+
+              <div className="flex justify-between items-center gap-1">
+                <p className="text-[10px] font-medium text-white  border border-(--border) rounded-xs px-2 py-1 primary-button">package 1</p>
+                <p className="text-[10px] font-medium text-white  border border-(--border) rounded-xs px-2 py-1 primary-button">package 2</p>
+                <p className="text-[10px] font-medium text-white  border border-(--border) rounded-xs px-2 py-1 primary-button">package 3</p>
+                <p className="text-[10px] font-medium text-white  border border-(--border) rounded-xs px-2 py-1 primary-button">package 4</p>
+              </div>
 
               {storeDeals.map((deal) => (
                 <SelectableStoreDealCard

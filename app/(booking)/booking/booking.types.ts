@@ -7,6 +7,7 @@ export type {
   BookingSeat,
   ServiceSchedule,
   ServiceSchedules,
+  ServiceStaffAssignments,
   BookingState,
   LocationSuggestion,
   DayAvailabilityStatus,
