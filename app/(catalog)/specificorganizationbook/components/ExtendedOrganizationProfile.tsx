@@ -17,26 +17,37 @@ import {
   Share2,
   ShoppingCart,
   Star,
+  UserRound,
 } from "lucide-react";
 import { TimingsDropdown } from "@/components/TimingsDropdown";
 import { CategorySidebar } from "@/menu/components/CategorySidebar";
+import { MenuProductCard } from "@/menu/components/MenuProductCard";
 import { ServiceCard } from "@/menu/components/ServiceCard";
 import {
+  SERVICES_PER_PAGE,
+  allMenuProducts,
   allMenuServices,
+  getProductsByCategory,
   getServicesByCategory,
   getTotalPages,
   menuCategories,
+  paginateProducts,
   paginateServices,
 } from "@/menu/menu.data";
 import { buildBookingUrl } from "@/booking/booking.navigation";
-import SuggestionsSidebar from "@/store/[storeId]/components/suggestions/SuggestionsSidebar";
 import type { SectionData, Suggestion, SuggestionsSectionMeta } from "@/types/store";
 import { ExtendedOrganization } from "../organization.types";
 import { HeroBanner } from "./HeroBanner";
+import {
+  SelectionPreviewSidebar,
+  type SelectionPreviewTab,
+} from "./SelectionPreviewSidebar";
+
+type MenuCatalogTab = "service" | "product";
 
 interface ExtendedOrganizationProfileProps {
   organization: ExtendedOrganization;
-  suggestions: SectionData<Suggestion, SuggestionsSectionMeta>;
+  suggestions?: SectionData<Suggestion, SuggestionsSectionMeta>;
 }
 
 const swalDefaults = {
@@ -48,6 +59,63 @@ const swalDefaults = {
 
 function parsePrice(price: string) {
   return Number(price.replace(/[^0-9.]/g, "")) || 0;
+}
+
+function MenuCatalogTabs({
+  active,
+  onChange,
+}: {
+  active: MenuCatalogTab;
+  onChange: (tab: MenuCatalogTab) => void;
+}) {
+  return (
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <div
+        className="
+          inline-flex rounded-full border border-(--border)
+          bg-(--bg-secondary) p-0.5
+        "
+        role="tablist"
+        aria-label="Catalog type"
+      >
+        {([
+          { id: "service", label: "Service" },
+          { id: "product", label: "Product" },
+        ] as const).map((tab) => {
+          const isActive = active === tab.id;
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => onChange(tab.id)}
+              className={`
+                min-w-[88px] rounded-full px-4 py-1.5 text-sm font-semibold
+                transition-all duration-200
+                ${
+                  isActive
+                    ? "bg-(--bg-card) text-(--text-primary) shadow-(--shadow-card) ring-1 ring-(--brand-gold)"
+                    : "text-(--text-muted) hover:text-(--text-primary)"
+                }
+              `}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        className="inline-flex items-center gap-1 text-sm font-medium text-(--brand-gold) transition-opacity hover:opacity-80"
+      >
+        <span>Select</span>
+        <ArrowRight size={16} />
+      </button>
+    </div>
+  );
 }
 
 function DesktopSectionHeader({
@@ -73,23 +141,38 @@ function DesktopSectionHeader({
 
 export function ExtendedOrganizationProfile({
   organization,
-  suggestions,
 }: ExtendedOrganizationProfileProps) {
   const [activeCategory, setActiveCategory] = useState("massage");
+  const [menuTab, setMenuTab] = useState<MenuCatalogTab>("service");
+  const [previewTab, setPreviewTab] = useState<SelectionPreviewTab>("service");
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
-  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [serviceStaff, setServiceStaff] = useState<Record<string, string>>({});
+  const [assigningServiceId, setAssigningServiceId] = useState<string | null>(
+    null,
+  );
   const [page, setPage] = useState(1);
 
   const categoryServices = useMemo(
     () => getServicesByCategory(activeCategory),
     [activeCategory],
   );
+  const categoryProducts = useMemo(
+    () => getProductsByCategory(activeCategory),
+    [activeCategory],
+  );
 
-  const totalPages = getTotalPages(categoryServices.length);
+  const catalogItems =
+    menuTab === "service" ? categoryServices : categoryProducts;
+  const totalPages = getTotalPages(catalogItems.length);
   const visiblePage = Math.min(page, totalPages);
   const paginatedServices = useMemo(
     () => paginateServices(categoryServices, visiblePage),
     [categoryServices, visiblePage],
+  );
+  const paginatedProducts = useMemo(
+    () => paginateProducts(categoryProducts, visiblePage, SERVICES_PER_PAGE),
+    [categoryProducts, visiblePage],
   );
 
   const activeCategoryLabel =
@@ -97,7 +180,7 @@ export function ExtendedOrganizationProfile({
 
   useEffect(() => {
     setPage(1);
-  }, [activeCategory]);
+  }, [activeCategory, menuTab]);
 
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
@@ -107,12 +190,77 @@ export function ExtendedOrganizationProfile({
     setActiveCategory(categoryId);
   };
 
+  const handleMenuTabChange = (tab: MenuCatalogTab) => {
+    setMenuTab(tab);
+  };
+
   const toggleService = (serviceId: string) => {
-    setSelectedServiceIds((prev) =>
-      prev.includes(serviceId)
+    setSelectedServiceIds((prev) => {
+      const removing = prev.includes(serviceId);
+      const next = removing
         ? prev.filter((id) => id !== serviceId)
-        : [...prev, serviceId],
+        : [...prev, serviceId];
+
+      if (removing) {
+        setServiceStaff((current) => {
+          const { [serviceId]: _, ...rest } = current;
+          return rest;
+        });
+        setAssigningServiceId((current) =>
+          current === serviceId ? null : current,
+        );
+      }
+
+      return next;
+    });
+    setPreviewTab("service");
+  };
+
+  const toggleProduct = (productId: string) => {
+    setSelectedProductIds((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId],
     );
+    setPreviewTab("product");
+  };
+
+  const removeServiceFromSelection = (serviceId: string) => {
+    setSelectedServiceIds((prev) => prev.filter((id) => id !== serviceId));
+    setServiceStaff((current) => {
+      const { [serviceId]: _, ...rest } = current;
+      return rest;
+    });
+    setAssigningServiceId((current) =>
+      current === serviceId ? null : current,
+    );
+  };
+
+  const removeProductFromSelection = (productId: string) => {
+    setSelectedProductIds((prev) => prev.filter((id) => id !== productId));
+  };
+
+  const handleAssignStaffRequest = (serviceId: string) => {
+    setAssigningServiceId(serviceId);
+    setPreviewTab("service");
+  };
+
+  const handleSelectStaffForService = (staffId: string) => {
+    if (!assigningServiceId) {
+      Swal.fire({
+        icon: "info",
+        title: "Choose a service first",
+        text: "Tap Select staff on a service in Your Selection, then pick a staff member.",
+        ...swalDefaults,
+      });
+      return;
+    }
+
+    setServiceStaff((current) => ({
+      ...current,
+      [assigningServiceId]: staffId,
+    }));
+    setAssigningServiceId(null);
   };
 
   const selectableServices = useMemo(() => {
@@ -157,37 +305,117 @@ export function ExtendedOrganizationProfile({
     [selectableServices, selectedServiceIds],
   );
 
-  const totalPrice = useMemo(
-    () => selectedServices.reduce((sum, s) => sum + parsePrice(s.price), 0),
-    [selectedServices],
+  const selectedProducts = useMemo(
+    () =>
+      selectedProductIds
+        .map((id) => allMenuProducts.find((product) => product.id === id))
+        .filter((product): product is NonNullable<typeof product> =>
+          Boolean(product),
+        ),
+    [selectedProductIds],
   );
+
+  const staffById = useMemo(() => {
+    const map: Record<string, (typeof organization.staff)[number]> = {};
+    for (const member of organization.staff) {
+      map[member.id] = member;
+    }
+    return map;
+  }, [organization.staff]);
+
+  const totalPrice = useMemo(() => {
+    const servicesTotal = selectedServices.reduce(
+      (sum, service) => sum + parsePrice(service.price),
+      0,
+    );
+    const productsTotal = selectedProducts.reduce(
+      (sum, product) => sum + parsePrice(product.price),
+      0,
+    );
+    return servicesTotal + productsTotal;
+  }, [selectedProducts, selectedServices]);
 
   const categorySelectedCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const service of selectedServices) {
-      if (service.categoryId) {
-        counts[service.categoryId] = (counts[service.categoryId] ?? 0) + 1;
+
+    if (menuTab === "service") {
+      for (const service of selectedServices) {
+        if (service.categoryId) {
+          counts[service.categoryId] = (counts[service.categoryId] ?? 0) + 1;
+        }
+      }
+      return counts;
+    }
+
+    for (const productId of selectedProductIds) {
+      const product = allMenuProducts.find((item) => item.id === productId);
+      if (product) {
+        counts[product.categoryId] = (counts[product.categoryId] ?? 0) + 1;
       }
     }
     return counts;
-  }, [selectedServices]);
+  }, [menuTab, selectedProductIds, selectedServices]);
 
-  const handleBookNow = () => {
+  const handleNext = (options?: { requireStaff?: boolean }) => {
+    const requireStaff = options?.requireStaff ?? true;
+
     if (selectedServiceIds.length === 0) {
       Swal.fire({
         icon: "warning",
         title: "Select a service first",
-        text: "Please choose at least one service before booking.",
+        text: "Please choose at least one service before continuing.",
         ...swalDefaults,
       });
+      return;
     }
+
+    if (requireStaff) {
+      const missingStaff = selectedServices.filter(
+        (service) => !serviceStaff[service.id],
+      );
+
+      if (missingStaff.length > 0) {
+        const names = missingStaff.map((service) => service.name).join(", ");
+        Swal.fire({
+          icon: "warning",
+          title: "Select staff",
+          text:
+            missingStaff.length === 1
+              ? `Please select a staff member for ${names}.`
+              : `Please select staff for: ${names}.`,
+          ...swalDefaults,
+        });
+        setPreviewTab("service");
+        setAssigningServiceId(missingStaff[0]?.id ?? null);
+        return;
+      }
+    }
+
+    window.location.href = bookingUrl;
   };
 
-  const canBook = selectedServiceIds.length > 0;
+  const handleBookNowMobile = () => {
+    handleNext({ requireStaff: false });
+  };
+
+  const handleBookNow = () => {
+    handleNext({ requireStaff: true });
+  };
+
+  const canBookMobile = selectedServiceIds.length > 0;
+  const canBook =
+    selectedServiceIds.length > 0 &&
+    selectedServiceIds.every((id) => Boolean(serviceStaff[id]));
+
+  const primaryStaffId =
+    selectedServiceIds.map((id) => serviceStaff[id]).find(Boolean) ?? undefined;
+
   const bookingUrl = buildBookingUrl({
     serviceIds: selectedServiceIds,
     expertType: "",
     organizationId: organization.id,
+    staffId: primaryStaffId,
+    staffAssignments: serviceStaff,
     step: 2,
   });
 
@@ -199,10 +427,48 @@ export function ExtendedOrganizationProfile({
           availability={organization.availability}
           salonName={organization.name}
           organization={organization}
-          canBook={canBook}
+          canBook={canBookMobile}
           bookingUrl={bookingUrl}
-          onBookNow={handleBookNow}
+          onBookNow={handleBookNowMobile}
         />
+
+        <div className="space-y-2">
+          <div
+            className="
+              inline-flex w-full rounded-full border border-(--border)
+              bg-(--bg-secondary) p-0.5
+            "
+            role="tablist"
+            aria-label="Catalog type"
+          >
+            {([
+              { id: "service", label: "Service" },
+              { id: "product", label: "Product" },
+            ] as const).map((tab) => {
+              const isActive = menuTab === tab.id;
+
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => handleMenuTabChange(tab.id)}
+                  className={`
+                    flex-1 rounded-full px-3 py-1.5 text-[10px] font-semibold
+                    transition-all duration-200
+                    ${
+                      isActive
+                        ? "bg-(--bg-card) text-(--text-primary) shadow-(--shadow-card) ring-1 ring-(--brand-gold)"
+                        : "text-(--text-muted)"
+                    }
+                  `}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
 
         <div className="flex min-h-[420px] overflow-hidden rounded-xl border border-(--border)">
           <CategorySidebar
@@ -218,12 +484,17 @@ export function ExtendedOrganizationProfile({
                 <div className="mb-3 flex items-center justify-between">
                   <div>
                     <h1 className="text-xs font-medium text-(--text-primary)">
-                      Select Services
+                      {menuTab === "service"
+                        ? "Select Services"
+                        : "Select Products"}
                     </h1>
                     <p className="text-[8px] text-(--text-muted)">
-                      {activeCategoryLabel} · {categoryServices.length} available
-                      {selectedServiceIds.length > 0 &&
-                        ` · ${selectedServiceIds.length} selected`}
+                      {activeCategoryLabel} · {catalogItems.length} available
+                      {menuTab === "service"
+                        ? selectedServiceIds.length > 0 &&
+                          ` · ${selectedServiceIds.length} selected`
+                        : selectedProductIds.length > 0 &&
+                          ` · ${selectedProductIds.length} selected`}
                     </p>
                   </div>
 
@@ -241,19 +512,34 @@ export function ExtendedOrganizationProfile({
                 </div>
 
                 <div className="grid grid-cols-3 gap-1.5">
-                  {paginatedServices.length > 0 ? (
-                    paginatedServices.map((service) => (
-                      <ServiceCard
-                        key={service.id}
-                        compact
-                        service={service}
-                        selected={selectedServiceIds.includes(service.id)}
-                        onSelect={() => toggleService(service.id)}
+                  {menuTab === "service" ? (
+                    paginatedServices.length > 0 ? (
+                      paginatedServices.map((service) => (
+                        <ServiceCard
+                          key={service.id}
+                          compact
+                          service={service}
+                          selected={selectedServiceIds.includes(service.id)}
+                          onSelect={() => toggleService(service.id)}
+                        />
+                      ))
+                    ) : (
+                      <p className="col-span-3 py-8 text-center text-[10px] text-(--text-muted)">
+                        No services in this category yet.
+                      </p>
+                    )
+                  ) : paginatedProducts.length > 0 ? (
+                    paginatedProducts.map((product) => (
+                      <MenuProductCard
+                        key={product.id}
+                        product={product}
+                        selected={selectedProductIds.includes(product.id)}
+                        onSelect={() => toggleProduct(product.id)}
                       />
                     ))
                   ) : (
                     <p className="col-span-3 py-8 text-center text-[10px] text-(--text-muted)">
-                      No services in this category yet.
+                      No products in this category yet.
                     </p>
                   )}
                 </div>
@@ -324,6 +610,7 @@ export function ExtendedOrganizationProfile({
             </div>
           </div>
         </div>
+        </div>
 
         <div
           className="
@@ -366,7 +653,7 @@ export function ExtendedOrganizationProfile({
               </div>
             </div>
 
-            {canBook ? (
+            {canBookMobile ? (
               <Link
                 href={bookingUrl}
                 className="
@@ -374,19 +661,19 @@ export function ExtendedOrganizationProfile({
                   rounded-none px-3 py-3 text-[11px] font-semibold text-white
                 "
               >
-                Select Staff <ArrowRight size={14} strokeWidth={2.5} />
+                Next <ArrowRight size={14} strokeWidth={2.5} />
               </Link>
             ) : (
               <button
                 type="button"
-                onClick={handleBookNow}
+                onClick={handleBookNowMobile}
                 className="
                   primary-button flex flex-1 items-center justify-center
                   rounded-none px-3 py-3 text-[11px] font-semibold text-white
                   opacity-60
                 "
               >
-                Select Staff <ArrowRight size={14} strokeWidth={2.5} />
+                Next <ArrowRight size={14} strokeWidth={2.5} />
               </button>
             )}
           </div>
@@ -397,12 +684,28 @@ export function ExtendedOrganizationProfile({
         <main className="min-h-screen bg-(--bg-primary) pb-10">
           <div className="mx-auto max-w-[1600px] px-4 py-6 xl:px-8">
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_minmax(0,1fr)_500px] xl:gap-6">
-              <SuggestionsSidebar
-                meta={suggestions.meta}
-                items={suggestions.items}
+              <SelectionPreviewSidebar
+                previewTab={previewTab}
+                onPreviewTabChange={setPreviewTab}
+                services={selectedServices.map((service) => ({
+                  id: service.id,
+                  name: service.name,
+                  price: service.price,
+                  image: service.image,
+                  duration: service.duration,
+                }))}
+                products={selectedProducts}
+                serviceStaff={serviceStaff}
+                staffById={staffById}
+                assigningServiceId={assigningServiceId}
+                totalPrice={totalPrice}
+                onAssignStaffRequest={handleAssignStaffRequest}
+                onRemoveService={removeServiceFromSelection}
+                onRemoveProduct={removeProductFromSelection}
+                onNext={() => handleNext({ requireStaff: true })}
               />
 
-              <div className="order-1 space-y-6 xl:order-none xl:space-y-8">
+              <div className="order-1 space-y-6 xl:order-none xl:space-y-3">
                 <section className="overflow-hidden rounded-[28px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
                   <div className="grid grid-cols-1 lg:grid-cols-[1.45fr_0.9fr]">
                     <div className="relative h-[240px] sm:h-[280px] lg:min-h-[280px]">
@@ -492,34 +795,169 @@ export function ExtendedOrganizationProfile({
                   </div>
                 </section>
 
+                <section className="overflow-hidden rounded-[20px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
+                  {(() => {
+                    const focusedServiceId =
+                      assigningServiceId ??
+                      selectedServiceIds[selectedServiceIds.length - 1] ??
+                      null;
+                    const focusedService = focusedServiceId
+                      ? selectableServices.get(focusedServiceId)
+                      : null;
+                    const focusedStaffId = focusedServiceId
+                      ? serviceStaff[focusedServiceId]
+                      : undefined;
+                    const focusedStaff = focusedStaffId
+                      ? staffById[focusedStaffId]
+                      : undefined;
+
+                    if (!focusedService) {
+                      return (
+                        <div className="flex min-h-[120px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
+                          <p className="text-sm font-semibold text-(--text-primary)">
+                            Service preview
+                          </p>
+                          <p className="text-[12px] text-(--text-muted)">
+                            Select a service from the menu to preview it here.
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr]">
+                        <div className="relative h-[120px] sm:h-[200px] lg:min-h-[200px]">
+                          <Image
+                            src={focusedService.image}
+                            alt={focusedService.name}
+                            fill
+                            sizes="(min-width: 1000px) 420px, 100vw"
+                            className="object-cover"
+                          />
+                          {assigningServiceId === focusedService.id && (
+                            <span className="absolute left-3 top-3 rounded-full bg-(--brand-gold) px-2.5 py-1 text-[10px] font-bold text-(--text-primary)">
+                              Selecting staff
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col justify-center gap-2 bg-(--bg-secondary) p-3 lg:p-4">
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-semibold uppercase tracking-wide text-(--text-muted)">
+                              Selected service
+                            </p>
+                            <h2 className="mt-0.5 truncate text-[18px] font-semibold leading-tight text-(--text-primary)">
+                              {focusedService.name}
+                            </h2>
+                            <p className="mt-1 text-[12px] text-(--text-secondary)">
+                              {[focusedService.duration, focusedService.price]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </p>
+                          </div>
+
+                          {focusedStaff ? (
+                            <div className="flex items-center gap-2 rounded-xl border border-(--border) bg-(--bg-card) px-2 py-1.5">
+                              <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
+                                <Image
+                                  src={focusedStaff.image}
+                                  alt={focusedStaff.name}
+                                  fill
+                                  sizes="32px"
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-[11px] font-semibold text-(--text-primary)">
+                                  {focusedStaff.name}
+                                </p>
+                                <p className="text-[10px] text-(--text-muted)">
+                                  Staff assigned
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleAssignStaffRequest(focusedService.id)
+                                }
+                                className="shrink-0 text-[10px] font-semibold text-(--brand-gold)"
+                              >
+                                Change
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleAssignStaffRequest(focusedService.id)
+                              }
+                              className="
+                                primary-button inline-flex h-9 w-fit items-center
+                                justify-center gap-2 rounded-full px-3 text-[11px]
+                                font-semibold text-white
+                              "
+                            >
+                              <UserRound size={14} />
+                              Select Staff
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </section>
+
                 <section>
                   <DesktopSectionHeader title="Staff" actionLabel="View All" />
+                  {assigningServiceId && (
+                    <p className="mb-3 rounded-lg border border-(--brand-gold)/40 bg-[color-mix(in_srgb,var(--brand-gold)_10%,transparent)] px-3 py-2 text-sm font-medium text-(--text-primary)">
+                      Selecting staff for{" "}
+                      <span className="text-(--brand-gold)">
+                        {selectableServices.get(assigningServiceId)?.name ??
+                          "selected service"}
+                      </span>
+                      . Tap Select on a staff card.
+                    </p>
+                  )}
                   <div className="grid grid-cols-2 gap-1.5 xl:grid-cols-4">
-                    {organization.staff.map((member, index) => (
+                    {organization.staff.map((member, index) => {
+                      const isAssignedSomewhere = Object.values(
+                        serviceStaff,
+                      ).includes(member.id);
+                      const isActiveAssignment =
+                        assigningServiceId != null &&
+                        serviceStaff[assigningServiceId] === member.id;
+                      const highlight =
+                        isActiveAssignment ||
+                        (!assigningServiceId && isAssignedSomewhere);
+
+                      return (
                       <article
                         key={member.id}
-                        className={`flex h-full w-full flex-col overflow-hidden rounded-[22px] border bg-(--bg-card)  shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 ${
-                          selectedStaffId === member.id
+                        className={`flex h-full w-full flex-col overflow-hidden rounded-[16px] border bg-(--bg-card) shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 ${
+                          highlight
                             ? "border-(--accent-primary) ring-1 ring-(--accent-primary)"
-                            : "border-(--border)"
+                            : assigningServiceId
+                              ? "border-(--brand-gold)/40"
+                              : "border-(--border)"
                         }`}
                       >
-                        <div className="relative mb-3 h-[190px] overflow-hidden rounded-t-[18px] bg-(--bg-secondary)">
-                          <span className="absolute left-3 top-3 z-10 h-2.5 w-2.5 rounded-full bg-(--success)" />
+                        <div className="relative h-[96px] overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
+                          <span className="absolute left-2 top-2 z-10 h-2 w-2 rounded-full bg-(--success)" />
                           <Image
                             src={member.image}
                             alt={member.name}
                             fill
-                            sizes="220px"
+                            sizes="160px"
                             className="object-cover"
                           />
                         </div>
 
-                        <div className="flex flex-1 flex-col text-center">
-                          <h3 className="line-clamp-1 text-[17px] font-semibold text-(--text-primary)">
+                        <div className="flex flex-1 flex-col px-2 pb-2 pt-2 text-center">
+                          <h3 className="line-clamp-1 text-[13px] font-semibold text-(--text-primary)">
                             {member.name}
                           </h3>
-                          <p className="mt-1 line-clamp-1 text-sm text-(--text-secondary)">
+                          <p className="mt-0.5 line-clamp-1 text-[10px] text-(--text-secondary)">
                             {index === 0
                               ? "Massage Expert"
                               : index === 1
@@ -529,36 +967,43 @@ export function ExtendedOrganizationProfile({
                                   : "Thai Specialist"}
                           </p>
 
-                          <div className="mt-3 flex items-center justify-center gap-1 text-[15px] font-medium text-(--text-secondary)">
+                          <div className="mt-1 flex items-center justify-center gap-0.5 text-[11px] font-medium text-(--text-secondary)">
                             <Star
-                              size={14}
+                              size={11}
                               className="fill-(--brand-gold) text-(--brand-gold)"
                             />
                             <span>{(4.9 - index * 0.1).toFixed(1)}</span>
                           </div>
-                              <div className="p-3">
+
                           <button
                             type="button"
-                            onClick={() => setSelectedStaffId(member.id)}
+                            onClick={() => handleSelectStaffForService(member.id)}
                             className={
-                              selectedStaffId === member.id
-                                ? "primary-button mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold text-white"
-                                : "secondary-button mt-4 flex h-10 w-full items-center justify-center rounded-xl text-sm font-semibold "
+                              isActiveAssignment
+                                ? "primary-button mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold text-white"
+                                : "secondary-button mt-2 flex h-8 w-full items-center justify-center rounded-lg text-[11px] font-semibold"
                             }
                           >
-                            {selectedStaffId === member.id ? (
+                            {isActiveAssignment ? (
                               <>
-                                <Check size={16} />
+                                <Check size={13} />
                                 Selected
+                              </>
+                            ) : assigningServiceId ? (
+                              "Select"
+                            ) : isAssignedSomewhere ? (
+                              <>
+                                <Check size={13} />
+                                Assigned
                               </>
                             ) : (
                               "Select"
                             )}
                           </button>
-                          </div>
                         </div>
                       </article>
-                    ))}
+                      );
+                    })}
                   </div>
                 </section>
 
@@ -618,7 +1063,10 @@ export function ExtendedOrganizationProfile({
               <aside className="order-3 xl:order-none">
                 <div className="space-y-5 xl:sticky xl:top-24">
                   <div className="rounded-[var(--radius-lg)] border border-(--border) bg-(--bg-card) p-4 shadow-[var(--shadow-card)] lg:p-5">
-                    <DesktopSectionHeader title="Service Menu" actionLabel="Select" />
+                    <MenuCatalogTabs
+                      active={menuTab}
+                      onChange={handleMenuTabChange}
+                    />
 
                     <div className="flex min-h-[520px] overflow-hidden rounded-xl border border-(--border)">
                       <CategorySidebar
@@ -634,30 +1082,56 @@ export function ExtendedOrganizationProfile({
                           <div className="px-2 pb-3 pt-3">
                             <div className="mb-3">
                               <h3 className="text-sm font-semibold text-(--text-primary)">
-                                Select Services
+                                {menuTab === "service"
+                                  ? "Select Services"
+                                  : "Select Products"}
                               </h3>
                               <p className="text-[11px] text-(--text-muted)">
-                                {activeCategoryLabel} · {categoryServices.length} available
-                                {selectedServiceIds.length > 0 &&
-                                  ` · ${selectedServiceIds.length} selected`}
+                                {activeCategoryLabel} · {catalogItems.length}{" "}
+                                available
+                                {menuTab === "service"
+                                  ? selectedServiceIds.length > 0 &&
+                                    ` · ${selectedServiceIds.length} selected`
+                                  : selectedProductIds.length > 0 &&
+                                    ` · ${selectedProductIds.length} selected`}
                               </p>
                             </div>
 
                             <div className="grid grid-cols-3 gap-2">
-                              {paginatedServices.length > 0 ? (
-                                paginatedServices.map((service) => (
-                                  <ServiceCard
-                                    key={service.id}
-                                    compact
+                              {menuTab === "service" ? (
+                                paginatedServices.length > 0 ? (
+                                  paginatedServices.map((service) => (
+                                    <ServiceCard
+                                      key={service.id}
+                                      compact
+                                      largeText
+                                      service={service}
+                                      selected={selectedServiceIds.includes(
+                                        service.id,
+                                      )}
+                                      onSelect={() => toggleService(service.id)}
+                                    />
+                                  ))
+                                ) : (
+                                  <p className="col-span-3 py-8 text-center text-sm text-(--text-muted)">
+                                    No services in this category yet.
+                                  </p>
+                                )
+                              ) : paginatedProducts.length > 0 ? (
+                                paginatedProducts.map((product) => (
+                                  <MenuProductCard
+                                    key={product.id}
                                     largeText
-                                    service={service}
-                                    selected={selectedServiceIds.includes(service.id)}
-                                    onSelect={() => toggleService(service.id)}
+                                    product={product}
+                                    selected={selectedProductIds.includes(
+                                      product.id,
+                                    )}
+                                    onSelect={() => toggleProduct(product.id)}
                                   />
                                 ))
                               ) : (
                                 <p className="col-span-3 py-8 text-center text-sm text-(--text-muted)">
-                                  No services in this category yet.
+                                  No products in this category yet.
                                 </p>
                               )}
                             </div>
@@ -780,7 +1254,7 @@ export function ExtendedOrganizationProfile({
 
             {canBook ? (
               <Link
-                href={""}
+                href={bookingUrl}
                 className="
                   primary-button flex flex-1 items-center justify-center
                   rounded-none px-3 py-3 text-[11px] font-semibold text-white
@@ -791,7 +1265,7 @@ export function ExtendedOrganizationProfile({
             ) : (
               <button
                 type="button"
-                onClick={handleBookNow}
+                onClick={() => handleNext({ requireStaff: true })}
                 className="
                   primary-button flex flex-1 items-center justify-center
                   rounded-none px-3 py-3 text-[11px] font-semibold text-white

@@ -20,7 +20,7 @@ export function BookingStickyFooter({
   return (
     <div
       className="
-         left-2 right-2 z-40 mt-3
+         left-2 right-2 z-40 mt-3 lg:hidden
         feature-card overflow-hidden rounded-xl p-0
       "
     >

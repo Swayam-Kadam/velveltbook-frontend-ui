@@ -38,27 +38,37 @@ export function BookingFlow() {
   const expertType: ExpertType = parsed.expertType;
   const organizationId = parsed.organizationId;
 
-  const [staffId, setStaffId] = useState(() => parsed.staffId ?? "sony");
-  const [lockStaffSelection] = useState(
+  const [staffId, setStaffId] = useState(
     () =>
-      parsed.step === 2 &&
-      Boolean(parsed.staffId) &&
-      parsed.serviceIds.length > 0,
+      getPrimaryStaffId(
+        parsed.staffAssignments ?? {},
+        parsed.serviceIds,
+        parsed.staffId ?? "sony",
+      ),
   );
   const [serviceStaff, setServiceStaff] = useState<ServiceStaffAssignments>(
     () =>
       syncServiceStaffAssignments(
-        {},
+        parsed.staffAssignments ?? {},
         parsed.serviceIds,
-        parsed.staffId ?? undefined,
+        Object.keys(parsed.staffAssignments ?? {}).length > 0
+          ? undefined
+          : (parsed.staffId ?? undefined),
       ),
+  );
+  const [lockStaffSelection] = useState(
+    () =>
+      parsed.step === 2 &&
+      Boolean(parsed.staffId) &&
+      parsed.serviceIds.length > 0 &&
+      Object.keys(parsed.staffAssignments ?? {}).length === 0,
   );
   const [serviceSchedules, setServiceSchedules] = useState<ServiceSchedules>(() =>
     syncServiceSchedules({}, parsed.serviceIds),
   );
   const [selectedSeatId, setSelectedSeatId] = useState(getDefaultSeatId);
   const [seatConfirmed, setSeatConfirmed] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [paymentMethod, setPaymentMethod] = useState("visa");
   const [promoCode, setPromoCode] = useState("");
   const [billingName, setBillingName] = useState("");
   const [billingEmail, setBillingEmail] = useState("");
@@ -176,9 +186,9 @@ export function BookingFlow() {
   const footer = footerConfig();
 
   return (
-    <div className="relative pb-[140px]">
-      <div className="space-y-4 px-2 pt-2">
-        <BookingHeader />
+    <div className="relative pb-[140px] lg:pb-10 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
+      <div className="space-y-4 px-2 pt-2 lg:mx-auto lg:w-full lg:max-w-[1600px] lg:space-y-5 lg:px-5 lg:pt-4 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
+        {/* <BookingHeader /> */}
         <BookingProgress currentStep={step} />
 
         {step === 1 && (

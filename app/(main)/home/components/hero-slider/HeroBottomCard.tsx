@@ -91,7 +91,8 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                 <div className="block lg:hidden">
             <div className="mt-4 grid grid-cols-3 gap-3 lg:grid-cols-2 lg:gap-2">
                 <Link
-                    href={organizationHref}
+                    // href={organizationHref}
+                    href={"#"}
                     className="
     secondary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium
@@ -100,7 +101,8 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
   "
                 >
                     <Store size={12} strokeWidth={1.8} />
-                    View Store
+                    {/* View Store */}
+                    Services
                 </Link>
 
                 <Link href={organizationHref} className="
@@ -132,7 +134,8 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                 <div className="hidden lg:block">
                 <div className="mt-4 grid grid-cols-3 gap-3 lg:grid-cols-2 lg:gap-2">
                 <Link
-                    href={"/store/lori-massage-parlour"}
+                    // href={"/store/lori-massage-parlour"}
+                    href={"#"}
                     className="
     secondary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium
@@ -141,7 +144,8 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
   "
                 >
                     <Store size={12} strokeWidth={1.8} />
-                    View Store
+                    {/* View Store */}
+                    Services
                 </Link>
 
                 <Link href={organizationHref} className="

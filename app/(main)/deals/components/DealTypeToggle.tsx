@@ -31,6 +31,7 @@ function ToggleOption({
         relative z-10 flex flex-1 items-center gap-2
         rounded-xl px-2 py-2 text-left
         transition-all duration-300
+        lg:gap-3 lg:rounded-2xl lg:px-4 lg:py-3.5
         ${active
           ? "primary-button text-white shadow-(--shadow-glow)"
           : "border border-(--border) bg-(--bg-card) text-(--text-primary)"
@@ -40,6 +41,7 @@ function ToggleOption({
       <div
         className={`
           flex h-8 w-8 shrink-0 items-center justify-center rounded-full
+          lg:h-11 lg:w-11
           ${active
             ? "border border-(--brand-gold) bg-[color-mix(in_srgb,var(--accent-primary)_85%,#000)]"
             : "border border-(--border) bg-(--bg-card)"
@@ -49,14 +51,16 @@ function ToggleOption({
         <Icon
           size={14}
           strokeWidth={1.5}
-          className={active ? "text-white" : "text-(--accent-primary)"}
+          className={`lg:h-5 lg:w-5 ${active ? "text-white" : "text-(--accent-primary)"}`}
         />
       </div>
 
       <div className="min-w-0 flex-1">
-        <span className="block text-[11px] font-semibold leading-tight">{title}</span>
+        <span className="block text-[11px] font-semibold leading-tight lg:text-[16px]">
+          {title}
+        </span>
         <span
-          className={`block text-[7.5px] leading-snug ${active ? "text-white/70" : "text-(--text-muted)"}`}
+          className={`block text-[7.5px] leading-snug lg:mt-0.5 lg:text-[12px] ${active ? "text-white/70" : "text-(--text-muted)"}`}
         >
           {subtitle}
         </span>
@@ -67,7 +71,7 @@ function ToggleOption({
 
 export function DealTypeToggle({ value, onChange }: DealTypeToggleProps) {
   return (
-    <div className="relative flex items-stretch gap-1 px-1">
+    <div className="relative flex items-stretch gap-1 px-1 lg:gap-2 lg:px-0">
       <ToggleOption
         active={value === "single"}
         icon={Tag}
@@ -83,6 +87,7 @@ export function DealTypeToggle({ value, onChange }: DealTypeToggleProps) {
           rounded-full border border-(--border)
           bg-(--bg-card) text-[7px] font-bold text-(--text-secondary)
           shadow-sm
+          lg:h-8 lg:w-8 lg:text-[9px]
         "
       >
         OR

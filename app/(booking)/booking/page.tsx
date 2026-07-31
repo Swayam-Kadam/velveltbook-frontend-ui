@@ -4,7 +4,7 @@ import { BookingFlow } from "./components/BookingFlow";
 
 export default function BookingPage() {
   return (
-    <main>
+    <main >
       <Suspense fallback={null}>
         <BookingFlow />
       </Suspense>

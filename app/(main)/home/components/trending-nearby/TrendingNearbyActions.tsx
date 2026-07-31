@@ -20,7 +20,7 @@ export function TrendingNearbyActions({ orgHref }: TrendingNearbyActionsProps) {
                 <span>Book Now</span>
             </Link>
 
-            <Link
+            {/* <Link
                 href={orgHref}
                 className="
     secondary-button inline-flex flex-1 items-center justify-center gap-2
@@ -31,7 +31,7 @@ export function TrendingNearbyActions({ orgHref }: TrendingNearbyActionsProps) {
             >
                 <Store size={12} strokeWidth={1.8} />
                 <span>View</span>
-            </Link>
+            </Link> */}
         </div>
     );
 }

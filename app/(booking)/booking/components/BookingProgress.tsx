@@ -14,15 +14,16 @@ export function BookingProgress({ currentStep }: BookingProgressProps) {
     steps.length > 1 ? (currentStep - 1) / (steps.length - 1) : 0;
 
   return (
-    <div className="relative mt-4">
+    <div className="relative mt-4 lg:mt-6 lg:px-8">
       <div
-        className="absolute inset-x-3 top-3 h-px bg-(--border)"
+        className="absolute inset-x-3 top-3 h-px bg-(--border) lg:inset-x-12 lg:top-4 lg:h-[2px]"
         aria-hidden
       />
       <div
         className="
           absolute left-3 top-3 h-px bg-(--accent-primary)
           transition-all duration-300
+          lg:left-12 lg:top-4 lg:h-[2px]
         "
         style={{
           width: `calc((100% - 1.5rem) * ${progressRatio})`,
@@ -38,12 +39,13 @@ export function BookingProgress({ currentStep }: BookingProgressProps) {
           return (
             <div
               key={step.num}
-              className="flex w-6 flex-col items-center"
+              className="flex w-6 flex-col items-center lg:w-auto lg:min-w-[88px]"
             >
               <div
                 className={`
                   relative z-10 flex h-6 w-6 shrink-0 items-center justify-center
                   rounded-full text-[9px] font-semibold
+                  lg:h-9 lg:w-9 lg:text-[13px]
                   ${
                     active || completed
                       ? "primary-button text-white shadow-none"
@@ -57,6 +59,7 @@ export function BookingProgress({ currentStep }: BookingProgressProps) {
               <span
                 className={`
                   mt-1 w-max text-center text-[7px] leading-tight whitespace-nowrap
+                  lg:mt-2 lg:text-[12px]
                   ${
                     active
                       ? "font-medium text-(--text-primary)"

@@ -395,11 +395,11 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
 
                         <CalendarDays size={15} />
 
-                        Book Nows
+                        Book Now
 
                     </Link>
 
-                    <Link
+                    {/* <Link
                         href={"/store/lori-massage-parlour"}
                         className="
                 secondary-button
@@ -419,7 +419,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
 
                         View Store
 
-                    </Link>
+                    </Link> */}
 
                 </div>
 

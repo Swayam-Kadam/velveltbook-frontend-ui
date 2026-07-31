@@ -49,6 +49,7 @@ import {
   ChatServicePicker,
   formatSelectedServicesMessage,
 } from "../ChatServicePicker";
+import { DesktopNegotiationPage } from "../components/DesktopNegotiationPage";
 
 type ContentView = "store" | "messages";
 
@@ -876,6 +877,7 @@ export function ServiceCategoryPageContent({
   const conversations = useMemo(() => getServiceCategoryConversations(), []);
   const unreadCount = useMemo(() => getServiceCategoryUnreadCount(), []);
   const chatStore = chatStoreId ? getServiceCategoryStoreById(chatStoreId) : null;
+  const desktopSelectedStore = chatStore ?? stores[0] ?? null;
 
   const openChat = (store: ServiceCategoryStore) => {
     setChatStoreId(store.id);
@@ -898,8 +900,18 @@ export function ServiceCategoryPageContent({
         ${chatStore ? "max-w-full overflow-x-hidden pb-0 lg:pb-8" : ""}
       `}
     >
+      {desktopSelectedStore && (
+        <div className="pt-2">
+          <DesktopNegotiationPage
+            stores={stores}
+            selectedStore={desktopSelectedStore}
+            onSelectStore={(store) => setChatStoreId(store.id)}
+          />
+        </div>
+      )}
+
       <div
-        className={`mx-auto max-w-[1120px] ${chatStore ? "lg:flex lg:min-h-0 lg:flex-1 lg:flex-col" : ""}`}
+        className={`mx-auto max-w-[1120px] lg:hidden ${chatStore ? "lg:flex lg:min-h-0 lg:flex-1 lg:flex-col" : ""}`}
       >
         {showSearchAndFilters && (
           <>
