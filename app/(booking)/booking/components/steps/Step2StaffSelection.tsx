@@ -37,6 +37,7 @@ import type {
   ServiceStaffAssignments,
 } from "../../booking.types";
 import { ServiceScheduleAccordion } from "./ServiceScheduleAccordion";
+import { ServiceScheduleRows } from "./ServiceScheduleRows";
 import { ServiceStaffAccordion } from "./ServiceStaffAccordion";
 import SelectSeat from "./SelectSeat";
 import "./SelectSeat/SelectSeat.css";
@@ -321,18 +322,22 @@ export function Step2StaffSelection({
 
             <div className="absolute top-3 left-3 flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-(--success)" />
-              <TimingsDropdown
-                summary={org.availability}
-                buttonClassName="primary-button flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white"
-              />
-            </div>
 
-            <div className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-(--accent-primary) px-3 py-1.5 text-[11px] font-semibold text-white">
+              <div className=" inline-flex items-center gap-1.5 rounded-full bg-(--accent-primary) px-3 py-1.5 text-[11px] font-semibold text-white">
               <Star
                 size={12}
                 className="fill-(--brand-gold) text-(--brand-gold)"
               />
               4.8 (120+)
+            </div>
+            </div>
+            
+
+            <div className="absolute top-3 right-3 flex items-center gap-2">
+              <TimingsDropdown
+                summary={org.availability}
+                buttonClassName="primary-button flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white"
+              />
             </div>
 
             <div className="absolute right-4 bottom-4 left-4">
@@ -480,34 +485,40 @@ export function Step2StaffSelection({
           </section>
         </aside>
 
-        {/* RIGHT COLUMN — staff, schedule, seat */}
+        {/* RIGHT COLUMN — schedule per service + seat */}
         <section className="flex min-h-0 flex-col overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card)">
           <div className="flex shrink-0 items-center justify-between border-b border-(--border) px-5 py-4">
             <div>
               <h2 className="text-[20px] font-semibold text-(--text-primary)">
-                Staff & Schedule
+                Select date
               </h2>
               <p className="mt-0.5 text-[13px] text-(--text-muted)">
-                Assign therapists, set times, then confirm your seat
+                Staff is set from your previous selection — schedule each service
               </p>
             </div>
             <div className="text-right text-[13px] font-semibold text-(--text-secondary)">
               <p>
-                {pendingStaffServices.length === 0
-                  ? "Therapists set"
-                  : `${pendingStaffServices.length} therapist pending`}
-              </p>
-              <p className="mt-0.5 text-(--text-muted)">
                 {pendingScheduleServices.length === 0
-                  ? "Schedule set"
+                  ? "All scheduled"
                   : `${pendingScheduleServices.length} schedule pending`}
               </p>
             </div>
           </div>
 
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-(--bg-secondary) p-4 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
-            {renderStaffAccordion()}
-            {renderScheduleAccordion()}
+            <ServiceScheduleRows
+              selectedServiceIds={selectedServiceIds}
+              organizationId={organizationId}
+              expertType={expertType}
+              serviceStaff={serviceStaff}
+              schedules={serviceSchedules}
+              onSelectDay={onSelectServiceDay}
+              onSelectTime={onSelectServiceTime}
+              onSelectStaff={onSelectServiceStaff}
+              onRemoveService={
+                onRemoveService ? handleRemoveService : undefined
+              }
+            />
             {renderSeatSection()}
           </div>
         </section>

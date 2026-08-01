@@ -450,18 +450,22 @@ export function Step3DateTimeSelection({
 
             <div className="absolute top-3 left-3 flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-(--success)" />
-              <TimingsDropdown
-                summary={org.availability}
-                buttonClassName="primary-button flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white"
-              />
-            </div>
 
-            <div className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-(--accent-primary) px-3 py-1.5 text-[11px] font-semibold text-white">
+              <div className=" inline-flex items-center gap-1.5 rounded-full bg-(--accent-primary) px-3 py-1.5 text-[11px] font-semibold text-white">
               <Star
                 size={12}
                 className="fill-(--brand-gold) text-(--brand-gold)"
               />
               4.8 (120+)
+            </div>
+            </div>
+            
+
+            <div className="absolute top-3 right-3 flex items-center gap-2">
+              <TimingsDropdown
+                summary={org.availability}
+                buttonClassName="primary-button flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white"
+              />
             </div>
 
             <div className="absolute right-4 bottom-4 left-4">

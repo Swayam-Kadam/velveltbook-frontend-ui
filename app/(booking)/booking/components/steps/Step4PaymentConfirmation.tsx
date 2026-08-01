@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import {
   BadgeCheck,
@@ -18,6 +18,7 @@ import {
   Star,
   Tag,
   UserRound,
+  X,
   Zap,
 } from "lucide-react";
 import {
@@ -30,12 +31,13 @@ import {
 import { FaCcAmex } from "react-icons/fa";
 import { SiRazorpay } from "react-icons/si";
 
-import { allMenuProducts } from "@/data/catalog/menu/products";
 import {
   bookingLocation,
+  calcProductsTotal,
   calcServicesTotal,
   formatServiceSchedule,
   getBookingDay,
+  getSelectedProducts,
   getSelectedServices,
   getStaff,
   isServiceScheduleComplete,
@@ -53,6 +55,7 @@ import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 
 interface Step4PaymentConfirmationProps {
   selectedServiceIds: string[];
+  selectedProductIds?: string[];
   organizationBanner?: BookingOrganizationBannerInfo;
   organizationId?: string;
   staffId: string;
@@ -75,6 +78,7 @@ interface Step4PaymentConfirmationProps {
   onChangeStaff?: () => void;
   onChangeTime?: () => void;
   onRemoveService?: (id: string) => void;
+  onRemoveProduct?: (id: string) => void;
 }
 
 const paymentOptions = [
@@ -152,10 +156,6 @@ const desktopPaymentBrands = [
 
 type DesktopPaymentBrandId = (typeof desktopPaymentBrands)[number]["id"];
 
-function parsePrice(label: string) {
-  return Number(label.replace(/[^0-9.]/g, "")) || 0;
-}
-
 function money(amount: number) {
   return amount.toFixed(2);
 }
@@ -182,6 +182,7 @@ const labelClass = "mb-1.5 block text-[12px] font-medium text-(--text-secondary)
 
 export function Step4PaymentConfirmation({
   selectedServiceIds,
+  selectedProductIds = [],
   organizationBanner,
   organizationId,
   staffId,
@@ -194,16 +195,21 @@ export function Step4PaymentConfirmation({
   onBack,
   onConfirm,
   onRemoveService,
+  onRemoveProduct,
 }: Step4PaymentConfirmationProps) {
   const selectedServices = getSelectedServices(
     selectedServiceIds,
     organizationId,
   );
-  const {
-    subtotal: mobileSubtotal,
-    tax: mobileTax,
-    total: mobileTotal,
-  } = calcServicesTotal(selectedServiceIds, organizationId);
+  const selectedProducts = getSelectedProducts(selectedProductIds);
+  const isProductOnly =
+    selectedProductIds.length > 0 && selectedServiceIds.length === 0;
+
+  const serviceTotals = calcServicesTotal(selectedServiceIds, organizationId);
+  const productTotals = calcProductsTotal(selectedProductIds);
+  const mobileSubtotal = serviceTotals.subtotal + productTotals.subtotal;
+  const mobileTax = Math.round(mobileSubtotal * TAX_RATE);
+  const mobileTotal = mobileSubtotal + mobileTax;
 
   const staff = getStaff(staffId);
 
@@ -247,26 +253,13 @@ export function Step4PaymentConfirmation({
     address: bookingLocation.address,
   };
 
-  // Demo product line until booking products are wired through the flow
-  const selectedProducts = useMemo(
-    () => allMenuProducts.slice(0, 1).map((p) => ({
-      id: p.id,
-      name: p.title,
-      quantity: p.quantity,
-      price: parsePrice(p.price),
-      priceLabel: p.price.includes(".") ? p.price : `${p.price}.00`,
-      image: p.image,
-    })),
-    [],
-  );
-
   const servicesTotal = selectedServices.reduce((sum, s) => sum + s.price, 0);
   const productsTotal = selectedProducts.reduce((sum, p) => sum + p.price, 0);
   const addOnsTotal = 0;
   const lineSubtotal = servicesTotal + productsTotal + addOnsTotal;
   const taxAmount = Number((lineSubtotal * TAX_RATE).toFixed(2));
   const discount = 20;
-  const grandTotal = Number((lineSubtotal + taxAmount - discount).toFixed(2));
+  const grandTotal = Number((lineSubtotal + taxAmount - ((lineSubtotal + taxAmount) * discount / 100)).toFixed(2));
 
   const primarySchedule = selectedServiceIds
     .map((id) => serviceSchedules[id])
@@ -303,6 +296,12 @@ export function Step4PaymentConfirmation({
           </div>
         );
       })}
+      {selectedProducts.map((product) => (
+        <div key={product.id} className="flex justify-between gap-2 text-(--text-secondary)">
+          <span className="min-w-0 truncate">{product.name}</span>
+          <span className="shrink-0">{product.priceLabel}</span>
+        </div>
+      ))}
     </>
   );
 
@@ -312,16 +311,77 @@ export function Step4PaymentConfirmation({
       <div className="space-y-3 pb-2 lg:hidden">
         <BookingOrganizationBanner
           organization={organizationBanner}
-          serviceLabels={selectedServices.map((service) => service.name)}
+          serviceLabels={
+            isProductOnly
+              ? selectedProducts.map((product) => product.name)
+              : selectedServices.map((service) => service.name)
+          }
         />
 
-        <BookingSelectedServicesPanel
-          selectedServiceIds={selectedServiceIds}
-          organization={organizationBanner}
-          organizationId={organizationId}
-          onRemoveService={onRemoveService}
-          showOrganizationBanner={false}
-        />
+        {!isProductOnly && (
+          <BookingSelectedServicesPanel
+            selectedServiceIds={selectedServiceIds}
+            organization={organizationBanner}
+            organizationId={organizationId}
+            onRemoveService={onRemoveService}
+            showOrganizationBanner={false}
+          />
+        )}
+
+        {selectedProducts.length > 0 && (
+          <section className="feature-card overflow-hidden rounded-xl">
+            <div className="border-b border-(--border) px-3 py-2.5">
+              <p className="text-[11px] font-bold text-(--text-primary)">
+                Selected Products
+              </p>
+              <p className="text-[8px] font-semibold text-(--text-muted)">
+                {selectedProducts.length} item
+                {selectedProducts.length === 1 ? "" : "s"}
+              </p>
+            </div>
+            <div className="space-y-2 p-3">
+              {selectedProducts.map((product) => (
+                <article
+                  key={product.id}
+                  className="flex items-center gap-2.5 rounded-sm border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)] p-2"
+                >
+                  <div className="relative h-12 w-14 shrink-0 overflow-hidden rounded-sm">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[10px] font-bold text-(--text-primary)">
+                      {product.name}
+                    </p>
+                    <p className="mt-0.5 text-[8px] font-semibold text-(--text-secondary)">
+                      {product.quantity}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="text-[11px] font-bold text-(--brand-gold)">
+                      {product.priceLabel}
+                    </p>
+                    {onRemoveProduct && (
+                      <button
+                        type="button"
+                        onClick={() => onRemoveProduct(product.id)}
+                        aria-label={`Remove ${product.name}`}
+                        className="text-[8px] font-semibold text-(--text-muted)"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="grid grid-cols-2 gap-2">
           <section className="feature-card rounded-xl p-2.5">
@@ -551,7 +611,7 @@ export function Step4PaymentConfirmation({
               </span>
               <div>
                 <h2 className="text-[22px] font-semibold text-(--text-primary)">
-                  Your Booking Summary
+                  {isProductOnly ? "Your Order Summary" : "Your Booking Summary"}
                 </h2>
                 <p className="mt-0.5 text-[13px] text-(--text-muted)">
                   Review your selection.
@@ -560,6 +620,7 @@ export function Step4PaymentConfirmation({
             </div>
 
             {/* Selected Staff */}
+            {!isProductOnly && (
             <div className="mb-5">
               <div className="mb-2.5 flex items-center gap-2 text-[13px] font-semibold text-(--text-primary)">
                 <UserRound size={15} className="text-(--accent-primary)" />
@@ -598,8 +659,10 @@ export function Step4PaymentConfirmation({
                 </div>
               </div>
             </div>
+            )}
 
             {/* Selected Services */}
+            {selectedServices.length > 0 && (
             <div className="mb-5">
               <div className="mb-2.5 flex items-center gap-2 text-[13px] font-semibold text-(--text-primary)">
                 <Sparkles size={15} className="text-(--accent-primary)" />
@@ -645,8 +708,10 @@ export function Step4PaymentConfirmation({
                 })}
               </div>
             </div>
+            )}
 
             {/* Selected Products */}
+            {selectedProducts.length > 0 && (
             <div className="mb-5">
               <div className="mb-2.5 flex items-center gap-2 text-[13px] font-semibold text-(--text-primary)">
                 <Star size={15} className="text-(--accent-primary)" />
@@ -678,10 +743,25 @@ export function Step4PaymentConfirmation({
                     <p className="shrink-0 text-[15px] font-bold text-(--text-primary)">
                       ${money(product.price)}
                     </p>
+                    {onRemoveProduct && (
+                      <button
+                        type="button"
+                        onClick={() => onRemoveProduct(product.id)}
+                        aria-label={`Remove ${product.name}`}
+                        className="
+                          flex h-7 w-7 shrink-0 items-center justify-center
+                          rounded-full border border-(--border) text-(--text-muted)
+                          transition-colors hover:text-(--accent-primary)
+                        "
+                      >
+                        <X size={13} strokeWidth={2.5} />
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
+            )}
 
             {/* Booking details + totals */}
             <div className="rounded-xl border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))] p-4">
@@ -697,10 +777,12 @@ export function Step4PaymentConfirmation({
                         Booking Type
                       </p>
                       <p className="text-[13px] font-semibold text-(--text-primary)">
-                        Visit Salon
+                        {isProductOnly ? "Product purchase" : "Visit Salon"}
                       </p>
                     </div>
                   </div>
+                  {!isProductOnly && (
+                  <>
                   <div className="flex items-start gap-2.5">
                     <CalendarDays
                       size={15}
@@ -731,6 +813,8 @@ export function Step4PaymentConfirmation({
                       </p>
                     </div>
                   </div>
+                  </>
+                  )}
                 </div>
 
                 <div className="flex items-start gap-2.5">
@@ -784,8 +868,8 @@ export function Step4PaymentConfirmation({
                     <span>${money(taxAmount)}</span>
                   </div>
                   <div className="flex justify-between font-medium text-(--success)">
-                    <span>Discount</span>
-                    <span>-${money(discount)}</span>
+                    <span>Discount({discount}%)</span>
+                    <span>-${money(((lineSubtotal + taxAmount) * discount / 100))}</span>
                   </div>
                   <div className="flex items-baseline justify-between border-t border-(--border) pt-2">
                     <span className="text-[14px] font-semibold text-(--text-primary)">
@@ -1236,6 +1320,9 @@ export function Step4PaymentConfirmation({
   );
 }
 
-export function getStep4Total(serviceIds: string[]) {
-  return calcServicesTotal(serviceIds).total;
+export function getStep4Total(serviceIds: string[], productIds: string[] = []) {
+  const subtotal =
+    calcServicesTotal(serviceIds).subtotal +
+    calcProductsTotal(productIds).subtotal;
+  return subtotal + Math.round(subtotal * TAX_RATE);
 }

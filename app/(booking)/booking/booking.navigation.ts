@@ -1,8 +1,9 @@
 import type { ExpertType } from "@/menu/components/ExpertSelection";
 
 export interface BookingEntryParams {
-  serviceIds: string[];
-  expertType: ExpertType;
+  serviceIds?: string[];
+  productIds?: string[];
+  expertType?: ExpertType;
   organizationId?: string;
   staffId?: string;
   /** Per-service staff map encoded in the URL as staffMap=svc:staff,... */
@@ -35,15 +36,21 @@ export function parseStaffAssignments(
 }
 
 export function buildBookingUrl({
-  serviceIds,
-  expertType,
+  serviceIds = [],
+  productIds = [],
+  expertType = "",
   organizationId,
   staffId,
   staffAssignments,
   step = 2,
 }: BookingEntryParams) {
   const params = new URLSearchParams();
-  params.set("services", serviceIds.join(","));
+  if (serviceIds.length > 0) {
+    params.set("services", serviceIds.join(","));
+  }
+  if (productIds.length > 0) {
+    params.set("products", productIds.join(","));
+  }
   params.set("expert", expertType);
   params.set("step", String(step));
   if (organizationId) params.set("org", organizationId);
@@ -59,6 +66,7 @@ export function buildBookingUrl({
 
 export function parseBookingSearchParams(searchParams: URLSearchParams) {
   const services = searchParams.get("services");
+  const products = searchParams.get("products");
   const expert = searchParams.get("expert");
   const step = searchParams.get("step");
   const org = searchParams.get("org");
@@ -67,6 +75,7 @@ export function parseBookingSearchParams(searchParams: URLSearchParams) {
 
   return {
     serviceIds: services ? services.split(",").filter(Boolean) : [],
+    productIds: products ? products.split(",").filter(Boolean) : [],
     expertType:
       expert === "male" || expert === "female" ? expert : ("" as ExpertType),
     step: step ? Number(step) : 1,

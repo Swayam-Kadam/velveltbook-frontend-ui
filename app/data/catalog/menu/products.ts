@@ -1,3 +1,17 @@
+import {
+  Droplets,
+  Flower2,
+  Gift,
+  HandMetal,
+  Leaf,
+  Package,
+  Palette,
+  Scissors,
+  Sparkles,
+} from "lucide-react";
+
+import type { MenuCategory } from "./services";
+
 export interface MenuProduct {
   id: string;
   categoryId: string;
@@ -6,6 +20,19 @@ export interface MenuProduct {
   quantity: string;
   image: string;
 }
+
+/** Sidebar categories for Product catalog (ids match product.categoryId). */
+export const productCategories: MenuCategory[] = [
+  { id: "massage", label: "Oils & Lotions", icon: Droplets },
+  { id: "nails", label: "Nail Products", icon: HandMetal },
+  { id: "facials", label: "Skincare", icon: Flower2 },
+  { id: "hair", label: "Hair Care", icon: Scissors },
+  { id: "makeup", label: "Beauty Kits", icon: Palette },
+  { id: "waxing", label: "Body Care", icon: Sparkles },
+  { id: "pamper", label: "Gift Sets", icon: Gift },
+  { id: "wellness", label: "Wellness", icon: Leaf },
+  { id: "addons", label: "Accessories", icon: Package },
+];
 
 export const allMenuProducts: MenuProduct[] = [
   // Massage Therapy

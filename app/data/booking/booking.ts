@@ -3,6 +3,7 @@ import {
   getMenuService,
   type MenuService,
 } from "@/data/catalog/menu/services";
+import { getMenuProduct } from "@/data/catalog/menu/products";
 import { getExtendedOrganization } from "@/data/catalog/organizations/organizations-extended";
 import { PAYMENT_METHODS } from "@/data/shared/payment-methods";
 import { SHARED_STAFF } from "@/data/shared/staff";
@@ -296,6 +297,39 @@ export function getSelectedServices(ids: string[], organizationId?: string) {
 export function calcServicesTotal(ids: string[], organizationId?: string) {
   const subtotal = getSelectedServices(ids, organizationId).reduce(
     (sum, service) => sum + service.price,
+    0,
+  );
+  return calcTotal(subtotal);
+}
+
+export interface BookingProduct {
+  id: string;
+  name: string;
+  quantity: string;
+  price: number;
+  priceLabel: string;
+  image: string;
+}
+
+export function getSelectedProducts(ids: string[]): BookingProduct[] {
+  return ids
+    .map((id) => getMenuProduct(id))
+    .filter((product): product is NonNullable<typeof product> => Boolean(product))
+    .map((product) => ({
+      id: product.id,
+      name: product.title,
+      quantity: product.quantity,
+      price: parseMenuPrice(product.price),
+      priceLabel: product.price.includes(".")
+        ? product.price
+        : `${product.price}.00`,
+      image: product.image,
+    }));
+}
+
+export function calcProductsTotal(ids: string[]) {
+  const subtotal = getSelectedProducts(ids).reduce(
+    (sum, product) => sum + product.price,
     0,
   );
   return calcTotal(subtotal);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -33,6 +33,7 @@ import {
   menuCategories,
   paginateProducts,
   paginateServices,
+  productCategories,
 } from "@/menu/menu.data";
 import { buildBookingUrl } from "@/booking/booking.navigation";
 import type { SectionData, Suggestion, SuggestionsSectionMeta } from "@/types/store";
@@ -40,7 +41,6 @@ import { ExtendedOrganization } from "../organization.types";
 import { HeroBanner } from "./HeroBanner";
 import {
   SelectionPreviewSidebar,
-  type SelectionPreviewTab,
 } from "./SelectionPreviewSidebar";
 
 type MenuCatalogTab = "service" | "product";
@@ -144,14 +144,29 @@ export function ExtendedOrganizationProfile({
 }: ExtendedOrganizationProfileProps) {
   const [activeCategory, setActiveCategory] = useState("massage");
   const [menuTab, setMenuTab] = useState<MenuCatalogTab>("service");
-  const [previewTab, setPreviewTab] = useState<SelectionPreviewTab>("service");
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [serviceStaff, setServiceStaff] = useState<Record<string, string>>({});
   const [assigningServiceId, setAssigningServiceId] = useState<string | null>(
     null,
   );
+  const [previewProductId, setPreviewProductId] = useState<string | null>(null);
+  const [previewServiceId, setPreviewServiceId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const serviceTabsScrollRef = useRef<HTMLDivElement>(null);
+  const productTabsScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollPreviewTabs = (
+    ref: React.RefObject<HTMLDivElement | null>,
+    direction: "left" | "right",
+  ) => {
+    const container = ref.current;
+    if (!container) return;
+    container.scrollBy({
+      left: direction === "left" ? -180 : 180,
+      behavior: "smooth",
+    });
+  };
 
   const categoryServices = useMemo(
     () => getServicesByCategory(activeCategory),
@@ -161,6 +176,9 @@ export function ExtendedOrganizationProfile({
     () => getProductsByCategory(activeCategory),
     [activeCategory],
   );
+
+  const catalogCategories =
+    menuTab === "product" ? productCategories : menuCategories;
 
   const catalogItems =
     menuTab === "service" ? categoryServices : categoryProducts;
@@ -176,7 +194,8 @@ export function ExtendedOrganizationProfile({
   );
 
   const activeCategoryLabel =
-    menuCategories.find((c) => c.id === activeCategory)?.label ?? "Services";
+    catalogCategories.find((c) => c.id === activeCategory)?.label ??
+    (menuTab === "product" ? "Products" : "Services");
 
   useEffect(() => {
     setPage(1);
@@ -191,10 +210,34 @@ export function ExtendedOrganizationProfile({
   };
 
   const handleMenuTabChange = (tab: MenuCatalogTab) => {
+    if (tab === menuTab) return;
+
     setMenuTab(tab);
+    setPage(1);
+
+    const nextCategories =
+      tab === "product" ? productCategories : menuCategories;
+    const stillValid = nextCategories.some((c) => c.id === activeCategory);
+    if (!stillValid) {
+      setActiveCategory(nextCategories[0]?.id ?? "massage");
+    }
+
+    if (tab === "product") {
+      setSelectedServiceIds([]);
+      setServiceStaff({});
+      setAssigningServiceId(null);
+      setPreviewServiceId(null);
+    } else {
+      setSelectedProductIds([]);
+      setPreviewProductId(null);
+    }
   };
 
   const toggleService = (serviceId: string) => {
+    if (menuTab !== "service") {
+      handleMenuTabChange("service");
+    }
+
     setSelectedServiceIds((prev) => {
       const removing = prev.includes(serviceId);
       const next = removing
@@ -211,22 +254,58 @@ export function ExtendedOrganizationProfile({
         );
       }
 
+      setPreviewServiceId((current) => {
+        if (!removing) return serviceId;
+        if (current === serviceId) {
+          return next[next.length - 1] ?? null;
+        }
+        return current && next.includes(current)
+          ? current
+          : (next[next.length - 1] ?? null);
+      });
+
       return next;
     });
-    setPreviewTab("service");
   };
 
   const toggleProduct = (productId: string) => {
-    setSelectedProductIds((prev) =>
-      prev.includes(productId)
+    if (menuTab !== "product") {
+      handleMenuTabChange("product");
+    }
+
+    setSelectedProductIds((prev) => {
+      const removing = prev.includes(productId);
+      const next = removing
         ? prev.filter((id) => id !== productId)
-        : [...prev, productId],
-    );
-    setPreviewTab("product");
+        : [...prev, productId];
+
+      setPreviewProductId((current) => {
+        if (!removing) return productId;
+        if (current === productId) {
+          return next[next.length - 1] ?? null;
+        }
+        return current && next.includes(current)
+          ? current
+          : (next[next.length - 1] ?? null);
+      });
+
+      return next;
+    });
   };
 
   const removeServiceFromSelection = (serviceId: string) => {
-    setSelectedServiceIds((prev) => prev.filter((id) => id !== serviceId));
+    setSelectedServiceIds((prev) => {
+      const next = prev.filter((id) => id !== serviceId);
+      setPreviewServiceId((current) => {
+        if (current !== serviceId) {
+          return current && next.includes(current)
+            ? current
+            : (next[next.length - 1] ?? null);
+        }
+        return next[next.length - 1] ?? null;
+      });
+      return next;
+    });
     setServiceStaff((current) => {
       const { [serviceId]: _, ...rest } = current;
       return rest;
@@ -237,12 +316,23 @@ export function ExtendedOrganizationProfile({
   };
 
   const removeProductFromSelection = (productId: string) => {
-    setSelectedProductIds((prev) => prev.filter((id) => id !== productId));
+    setSelectedProductIds((prev) => {
+      const next = prev.filter((id) => id !== productId);
+      setPreviewProductId((current) => {
+        if (current !== productId) {
+          return current && next.includes(current)
+            ? current
+            : (next[next.length - 1] ?? null);
+        }
+        return next[next.length - 1] ?? null;
+      });
+      return next;
+    });
   };
 
   const handleAssignStaffRequest = (serviceId: string) => {
     setAssigningServiceId(serviceId);
-    setPreviewTab("service");
+    setPreviewServiceId(serviceId);
   };
 
   const handleSelectStaffForService = (staffId: string) => {
@@ -324,16 +414,23 @@ export function ExtendedOrganizationProfile({
   }, [organization.staff]);
 
   const totalPrice = useMemo(() => {
-    const servicesTotal = selectedServices.reduce(
+    if (menuTab === "product") {
+      return selectedProducts.reduce(
+        (sum, product) => sum + parsePrice(product.price),
+        0,
+      );
+    }
+
+    return selectedServices.reduce(
       (sum, service) => sum + parsePrice(service.price),
       0,
     );
-    const productsTotal = selectedProducts.reduce(
-      (sum, product) => sum + parsePrice(product.price),
-      0,
-    );
-    return servicesTotal + productsTotal;
-  }, [selectedProducts, selectedServices]);
+  }, [menuTab, selectedProducts, selectedServices]);
+
+  const cartCount =
+    menuTab === "product"
+      ? selectedProductIds.length
+      : selectedServiceIds.length;
 
   const categorySelectedCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -356,7 +453,44 @@ export function ExtendedOrganizationProfile({
     return counts;
   }, [menuTab, selectedProductIds, selectedServices]);
 
+  const isProductFlow = menuTab === "product";
+
+  const primaryStaffId =
+    selectedServiceIds.map((id) => serviceStaff[id]).find(Boolean) ?? undefined;
+
+  const serviceBookingUrl = buildBookingUrl({
+    serviceIds: selectedServiceIds,
+    expertType: "",
+    organizationId: organization.id,
+    staffId: primaryStaffId,
+    staffAssignments: serviceStaff,
+    step: 2,
+  });
+
+  const productBookingUrl = buildBookingUrl({
+    productIds: selectedProductIds,
+    organizationId: organization.id,
+    step: 1,
+  });
+
+  const bookingUrl = isProductFlow ? productBookingUrl : serviceBookingUrl;
+
   const handleNext = (options?: { requireStaff?: boolean }) => {
+    if (isProductFlow) {
+      if (selectedProductIds.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Select a product first",
+          text: "Please choose at least one product before continuing.",
+          ...swalDefaults,
+        });
+        return;
+      }
+
+      window.location.href = productBookingUrl;
+      return;
+    }
+
     const requireStaff = options?.requireStaff ?? true;
 
     if (selectedServiceIds.length === 0) {
@@ -385,13 +519,12 @@ export function ExtendedOrganizationProfile({
               : `Please select staff for: ${names}.`,
           ...swalDefaults,
         });
-        setPreviewTab("service");
         setAssigningServiceId(missingStaff[0]?.id ?? null);
         return;
       }
     }
 
-    window.location.href = bookingUrl;
+    window.location.href = serviceBookingUrl;
   };
 
   const handleBookNowMobile = () => {
@@ -402,22 +535,14 @@ export function ExtendedOrganizationProfile({
     handleNext({ requireStaff: true });
   };
 
-  const canBookMobile = selectedServiceIds.length > 0;
-  const canBook =
-    selectedServiceIds.length > 0 &&
-    selectedServiceIds.every((id) => Boolean(serviceStaff[id]));
+  const canBookMobile = isProductFlow
+    ? selectedProductIds.length > 0
+    : selectedServiceIds.length > 0;
 
-  const primaryStaffId =
-    selectedServiceIds.map((id) => serviceStaff[id]).find(Boolean) ?? undefined;
-
-  const bookingUrl = buildBookingUrl({
-    serviceIds: selectedServiceIds,
-    expertType: "",
-    organizationId: organization.id,
-    staffId: primaryStaffId,
-    staffAssignments: serviceStaff,
-    step: 2,
-  });
+  const canBook = isProductFlow
+    ? selectedProductIds.length > 0
+    : selectedServiceIds.length > 0 &&
+      selectedServiceIds.every((id) => Boolean(serviceStaff[id]));
 
   return (
     <>
@@ -472,7 +597,7 @@ export function ExtendedOrganizationProfile({
 
         <div className="flex min-h-[420px] overflow-hidden rounded-xl border border-(--border)">
           <CategorySidebar
-            categories={menuCategories}
+            categories={catalogCategories}
             activeId={activeCategory}
             onSelect={handleCategorySelect}
             selectedCounts={categorySelectedCounts}
@@ -630,22 +755,22 @@ export function ExtendedOrganizationProfile({
                 >
                   <ShoppingCart size={18} strokeWidth={2} className="text-white" />
                 </span>
-                {selectedServiceIds.length > 0 && (
+                {cartCount > 0 && (
                   <span
                     className="
                       absolute -right-1 -top-1 flex h-4 min-w-4 items-center
                       justify-center rounded-full bg-(--brand-gold) px-1
                       text-[8px] font-bold text-(--text-primary)
                     "
-                    aria-label={`${selectedServiceIds.length} services in cart`}
+                    aria-label={`${cartCount} items in cart`}
                   >
-                    {selectedServiceIds.length}
+                    {cartCount}
                   </span>
                 )}
               </div>
 
               <div className="min-w-0">
-                {selectedServiceIds.length > 0 && (
+                {cartCount > 0 && (
                   <span className="text-sm font-semibold text-(--brand-gold)">
                     ${totalPrice}
                   </span>
@@ -685,8 +810,8 @@ export function ExtendedOrganizationProfile({
           <div className="mx-auto max-w-[1600px] px-4 py-6 xl:px-8">
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_minmax(0,1fr)_500px] xl:gap-6">
               <SelectionPreviewSidebar
-                previewTab={previewTab}
-                onPreviewTabChange={setPreviewTab}
+                previewTab={menuTab}
+                onPreviewTabChange={handleMenuTabChange}
                 services={selectedServices.map((service) => ({
                   id: service.id,
                   name: service.name,
@@ -697,12 +822,16 @@ export function ExtendedOrganizationProfile({
                 products={selectedProducts}
                 serviceStaff={serviceStaff}
                 staffById={staffById}
-                assigningServiceId={assigningServiceId}
+                assigningServiceId={isProductFlow ? null : assigningServiceId}
                 totalPrice={totalPrice}
                 onAssignStaffRequest={handleAssignStaffRequest}
                 onRemoveService={removeServiceFromSelection}
                 onRemoveProduct={removeProductFromSelection}
-                onNext={() => handleNext({ requireStaff: true })}
+                onNext={() =>
+                  handleNext({
+                    requireStaff: !isProductFlow,
+                  })
+                }
               />
 
               <div className="order-1 space-y-6 xl:order-none xl:space-y-3">
@@ -795,118 +924,355 @@ export function ExtendedOrganizationProfile({
                   </div>
                 </section>
 
+                {!isProductFlow && (
                 <section className="overflow-hidden rounded-[20px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
-                  {(() => {
-                    const focusedServiceId =
-                      assigningServiceId ??
-                      selectedServiceIds[selectedServiceIds.length - 1] ??
-                      null;
-                    const focusedService = focusedServiceId
-                      ? selectableServices.get(focusedServiceId)
-                      : null;
-                    const focusedStaffId = focusedServiceId
-                      ? serviceStaff[focusedServiceId]
-                      : undefined;
-                    const focusedStaff = focusedStaffId
-                      ? staffById[focusedStaffId]
-                      : undefined;
+                  {selectedServices.length === 0 ? (
+                    <div className="flex min-h-[120px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
+                      <p className="text-sm font-semibold text-(--text-primary)">
+                        Service preview
+                      </p>
+                      <p className="text-[12px] text-(--text-muted)">
+                        Select a service from the menu to preview it here.
+                      </p>
+                    </div>
+                  ) : (
+                    (() => {
+                      const focusedService =
+                        selectedServices.find(
+                          (service) =>
+                            service.id ===
+                            (assigningServiceId ?? previewServiceId),
+                        ) ?? selectedServices[selectedServices.length - 1];
+                      const focusedStaffId = serviceStaff[focusedService.id];
+                      const focusedStaff = focusedStaffId
+                        ? staffById[focusedStaffId]
+                        : undefined;
 
-                    if (!focusedService) {
                       return (
-                        <div className="flex min-h-[120px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
-                          <p className="text-sm font-semibold text-(--text-primary)">
-                            Service preview
-                          </p>
-                          <p className="text-[12px] text-(--text-muted)">
-                            Select a service from the menu to preview it here.
-                          </p>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr]">
-                        <div className="relative h-[120px] sm:h-[200px] lg:min-h-[200px]">
-                          <Image
-                            src={focusedService.image}
-                            alt={focusedService.name}
-                            fill
-                            sizes="(min-width: 1000px) 420px, 100vw"
-                            className="object-cover"
-                          />
-                          {assigningServiceId === focusedService.id && (
-                            <span className="absolute left-3 top-3 rounded-full bg-(--brand-gold) px-2.5 py-1 text-[10px] font-bold text-(--text-primary)">
-                              Selecting staff
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col justify-center gap-2 bg-(--bg-secondary) p-3 lg:p-4">
-                          <div className="min-w-0">
-                            <p className="text-[10px] font-semibold uppercase tracking-wide text-(--text-muted)">
-                              Selected service
-                            </p>
-                            <h2 className="mt-0.5 truncate text-[18px] font-semibold leading-tight text-(--text-primary)">
-                              {focusedService.name}
-                            </h2>
-                            <p className="mt-1 text-[12px] text-(--text-secondary)">
-                              {[focusedService.duration, focusedService.price]
-                                .filter(Boolean)
-                                .join(" · ")}
-                            </p>
-                          </div>
-
-                          {focusedStaff ? (
-                            <div className="flex items-center gap-2 rounded-xl border border-(--border) bg-(--bg-card) px-2 py-1.5">
-                              <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
-                                <Image
-                                  src={focusedStaff.image}
-                                  alt={focusedStaff.name}
-                                  fill
-                                  sizes="32px"
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="truncate text-[11px] font-semibold text-(--text-primary)">
-                                  {focusedStaff.name}
-                                </p>
-                                <p className="text-[10px] text-(--text-muted)">
-                                  Staff assigned
-                                </p>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleAssignStaffRequest(focusedService.id)
-                                }
-                                className="shrink-0 text-[10px] font-semibold text-(--brand-gold)"
-                              >
-                                Change
-                              </button>
-                            </div>
-                          ) : (
+                        <div>
+                          <div className="flex items-center gap-2 border-b border-(--border) bg-(--bg-secondary) px-3 py-2.5">
                             <button
                               type="button"
                               onClick={() =>
-                                handleAssignStaffRequest(focusedService.id)
+                                scrollPreviewTabs(serviceTabsScrollRef, "left")
                               }
+                              aria-label="Slide service cards left"
                               className="
-                                primary-button inline-flex h-9 w-fit items-center
-                                justify-center gap-2 rounded-full px-3 text-[11px]
-                                font-semibold text-white
+                                flex h-8 w-8 shrink-0 items-center justify-center
+                                rounded-full border border-(--border) bg-(--bg-card)
+                                text-(--text-primary) transition-colors
+                                hover:border-(--brand-gold)
                               "
                             >
-                              <UserRound size={14} />
-                              Select Staff
+                              <ChevronLeft size={16} strokeWidth={2.5} />
                             </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </section>
 
+                            <div
+                              ref={serviceTabsScrollRef}
+                              className="scrollbar-none flex min-w-0 flex-1 gap-2 overflow-x-auto"
+                            >
+                              {selectedServices.map((service, index) => {
+                                const isActive = service.id === focusedService.id;
+
+                                return (
+                                  <button
+                                    key={service.id}
+                                    type="button"
+                                    onClick={() => setPreviewServiceId(service.id)}
+                                    className={`
+                                      flex shrink-0 items-center gap-2 rounded-xl border
+                                      px-2 py-1.5 transition-all
+                                      ${
+                                        isActive
+                                          ? "border-(--brand-gold) bg-(--bg-card) shadow-(--shadow-card)"
+                                          : "border-(--border) bg-(--bg-card)/70 hover:border-(--brand-gold)/50"
+                                      }
+                                    `}
+                                  >
+                                    <div className="relative h-8 w-8 overflow-hidden rounded-lg">
+                                      <Image
+                                        src={service.image}
+                                        alt={service.name}
+                                        fill
+                                        sizes="32px"
+                                        className="object-cover"
+                                      />
+                                    </div>
+                                    <div className="min-w-0 text-left">
+                                      <p className="text-[9px] font-semibold uppercase tracking-wide text-(--text-muted)">
+                                        Service {index + 1}
+                                      </p>
+                                      <p
+                                        className={`
+                                          max-w-[88px] truncate text-[11px] font-semibold
+                                          ${
+                                            isActive
+                                              ? "text-(--text-primary)"
+                                              : "text-(--text-secondary)"
+                                          }
+                                        `}
+                                      >
+                                        {service.name}
+                                      </p>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                scrollPreviewTabs(serviceTabsScrollRef, "right")
+                              }
+                              aria-label="Slide service cards right"
+                              className="
+                                flex h-8 w-8 shrink-0 items-center justify-center
+                                rounded-full border border-(--border) bg-(--bg-card)
+                                text-(--text-primary) transition-colors
+                                hover:border-(--brand-gold)
+                              "
+                            >
+                              <ChevronRight size={16} strokeWidth={2.5} />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr]">
+                            <div className="relative h-[120px] sm:h-[180px] lg:min-h-[180px]">
+                              <Image
+                                src={focusedService.image}
+                                alt={focusedService.name}
+                                fill
+                                sizes="(min-width: 1000px) 420px, 100vw"
+                                className="object-cover"
+                              />
+                              {assigningServiceId === focusedService.id && (
+                                <span className="absolute left-3 top-3 rounded-full bg-(--brand-gold) px-2.5 py-1 text-[10px] font-bold text-(--text-primary)">
+                                  Selecting staff
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex flex-col justify-center gap-2 bg-(--bg-secondary) p-3 lg:p-4">
+                              <div className="min-w-0">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-(--text-muted)">
+                                  Selected service
+                                </p>
+                                <h2 className="mt-0.5 truncate text-[18px] font-semibold leading-tight text-(--text-primary)">
+                                  {focusedService.name}
+                                </h2>
+                                <p className="mt-1 text-[12px] text-(--text-secondary)">
+                                  {[focusedService.duration, focusedService.price]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                                </p>
+                              </div>
+
+                              {focusedStaff ? (
+                                <div className="flex items-center gap-2 rounded-xl border border-(--border) bg-(--bg-card) px-2 py-1.5">
+                                  <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
+                                    <Image
+                                      src={focusedStaff.image}
+                                      alt={focusedStaff.name}
+                                      fill
+                                      sizes="32px"
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="truncate text-[11px] font-semibold text-(--text-primary)">
+                                      {focusedStaff.name}
+                                    </p>
+                                    <p className="text-[10px] text-(--text-muted)">
+                                      Staff assigned
+                                    </p>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleAssignStaffRequest(focusedService.id)
+                                    }
+                                    className="shrink-0 text-[10px] font-semibold text-(--brand-gold)"
+                                  >
+                                    Change
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleAssignStaffRequest(focusedService.id)
+                                  }
+                                  className="
+                                    primary-button inline-flex h-9 w-fit items-center
+                                    justify-center gap-2 rounded-full px-3 text-[11px]
+                                    font-semibold text-white
+                                  "
+                                >
+                                  <UserRound size={14} />
+                                  Select Staff
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()
+                  )}
+                </section>
+                )}
+
+                {isProductFlow && (
+                <section className="overflow-hidden rounded-[20px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
+                  {selectedProducts.length === 0 ? (
+                    <div className="flex min-h-[120px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
+                      <p className="text-sm font-semibold text-(--text-primary)">
+                        Product preview
+                      </p>
+                      <p className="text-[12px] text-(--text-muted)">
+                        Select a product from the menu to preview it here.
+                      </p>
+                    </div>
+                  ) : (
+                    (() => {
+                      const focusedProduct =
+                        selectedProducts.find(
+                          (product) => product.id === previewProductId,
+                        ) ?? selectedProducts[selectedProducts.length - 1];
+
+                      return (
+                        <div>
+                          <div className="flex items-center gap-2 border-b border-(--border) bg-(--bg-secondary) px-3 py-2.5">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                scrollPreviewTabs(productTabsScrollRef, "left")
+                              }
+                              aria-label="Slide product cards left"
+                              className="
+                                flex h-8 w-8 shrink-0 items-center justify-center
+                                rounded-full border border-(--border) bg-(--bg-card)
+                                text-(--text-primary) transition-colors
+                                hover:border-(--brand-gold)
+                              "
+                            >
+                              <ChevronLeft size={16} strokeWidth={2.5} />
+                            </button>
+
+                            <div
+                              ref={productTabsScrollRef}
+                              className="scrollbar-none flex min-w-0 flex-1 gap-2 overflow-x-auto"
+                            >
+                              {selectedProducts.map((product, index) => {
+                                const isActive =
+                                  product.id === focusedProduct.id;
+
+                                return (
+                                  <button
+                                    key={product.id}
+                                    type="button"
+                                    onClick={() =>
+                                      setPreviewProductId(product.id)
+                                    }
+                                    className={`
+                                      flex shrink-0 items-center gap-2 rounded-xl border
+                                      px-2 py-1.5 transition-all
+                                      ${
+                                        isActive
+                                          ? "border-(--brand-gold) bg-(--bg-card) shadow-(--shadow-card)"
+                                          : "border-(--border) bg-(--bg-card)/70 hover:border-(--brand-gold)/50"
+                                      }
+                                    `}
+                                  >
+                                    <div className="relative h-8 w-8 overflow-hidden rounded-lg">
+                                      <Image
+                                        src={product.image}
+                                        alt={product.title}
+                                        fill
+                                        sizes="32px"
+                                        className="object-cover"
+                                      />
+                                    </div>
+                                    <div className="min-w-0 text-left">
+                                      <p className="text-[9px] font-semibold uppercase tracking-wide text-(--text-muted)">
+                                        Product {index + 1}
+                                      </p>
+                                      <p
+                                        className={`
+                                          max-w-[88px] truncate text-[11px] font-semibold
+                                          ${
+                                            isActive
+                                              ? "text-(--text-primary)"
+                                              : "text-(--text-secondary)"
+                                          }
+                                        `}
+                                      >
+                                        {product.title}
+                                      </p>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                scrollPreviewTabs(productTabsScrollRef, "right")
+                              }
+                              aria-label="Slide product cards right"
+                              className="
+                                flex h-8 w-8 shrink-0 items-center justify-center
+                                rounded-full border border-(--border) bg-(--bg-card)
+                                text-(--text-primary) transition-colors
+                                hover:border-(--brand-gold)
+                              "
+                            >
+                              <ChevronRight size={16} strokeWidth={2.5} />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr]">
+                            <div className="relative h-[120px] sm:h-[180px] lg:min-h-[180px]">
+                              <Image
+                                src={focusedProduct.image}
+                                alt={focusedProduct.title}
+                                fill
+                                sizes="(min-width: 1000px) 420px, 100vw"
+                                className="object-cover"
+                              />
+                            </div>
+
+                            <div className="flex flex-col justify-center gap-2 bg-(--bg-secondary) p-3 lg:p-4">
+                              <div className="min-w-0">
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-(--text-muted)">
+                                  Selected product
+                                </p>
+                                <h2 className="mt-0.5 truncate text-[18px] font-semibold leading-tight text-(--text-primary)">
+                                  {focusedProduct.title}
+                                </h2>
+                                <p className="mt-1 text-[12px] text-(--text-secondary)">
+                                  {[focusedProduct.quantity, focusedProduct.price]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                                </p>
+                              </div>
+
+                              <p className="text-[11px] text-(--text-muted)">
+                                {selectedProductIds.length === 1
+                                  ? "1 product in your cart"
+                                  : `${selectedProductIds.length} products in your cart`}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()
+                  )}
+                </section>
+                )}
+
+                {!isProductFlow && (
                 <section>
                   <DesktopSectionHeader title="Staff" actionLabel="View All" />
                   {assigningServiceId && (
@@ -979,7 +1345,7 @@ export function ExtendedOrganizationProfile({
                             type="button"
                             onClick={() => handleSelectStaffForService(member.id)}
                             className={
-                              isActiveAssignment
+                              isActiveAssignment || (isAssignedSomewhere && !assigningServiceId)
                                 ? "primary-button mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold text-white"
                                 : "secondary-button mt-2 flex h-8 w-full items-center justify-center rounded-lg text-[11px] font-semibold"
                             }
@@ -1006,6 +1372,7 @@ export function ExtendedOrganizationProfile({
                     })}
                   </div>
                 </section>
+                )}
 
                 {/* <section>
                   <DesktopSectionHeader title="Reviews" actionLabel="View All" />
@@ -1070,7 +1437,7 @@ export function ExtendedOrganizationProfile({
 
                     <div className="flex min-h-[520px] overflow-hidden rounded-xl border border-(--border)">
                       <CategorySidebar
-                        categories={menuCategories}
+                        categories={catalogCategories}
                         activeId={activeCategory}
                         onSelect={handleCategorySelect}
                         selectedCounts={categorySelectedCounts}
@@ -1229,22 +1596,22 @@ export function ExtendedOrganizationProfile({
                 >
                   <ShoppingCart size={18} strokeWidth={2} className="text-white" />
                 </span>
-                {selectedServiceIds.length > 0 && (
+                {cartCount > 0 && (
                   <span
                     className="
                       absolute -right-1 -top-1 flex h-4 min-w-4 items-center
                       justify-center rounded-full bg-(--brand-gold) px-1
                       text-[8px] font-bold text-(--text-primary)
                     "
-                    aria-label={`${selectedServiceIds.length} services in cart`}
+                    aria-label={`${cartCount} items in cart`}
                   >
-                    {selectedServiceIds.length}
+                    {cartCount}
                   </span>
                 )}
               </div>
 
               <div className="min-w-0">
-                {selectedServiceIds.length > 0 && (
+                {cartCount > 0 && (
                   <span className="text-sm font-semibold text-(--brand-gold)">
                     ${totalPrice}
                   </span>

@@ -1,15 +1,25 @@
-const steps = [
+const serviceSteps = [
   { num: 1, label: "Service" },
   { num: 2, label: "Staff" },
   { num: 3, label: "Date & Time" },
   { num: 4, label: "Payment" },
 ];
 
+const productSteps = [
+  { num: 1, label: "Preview" },
+  { num: 2, label: "Payment" },
+];
+
 interface BookingProgressProps {
   currentStep: number;
+  mode?: "service" | "product";
 }
 
-export function BookingProgress({ currentStep }: BookingProgressProps) {
+export function BookingProgress({
+  currentStep,
+  mode = "service",
+}: BookingProgressProps) {
+  const steps = mode === "product" ? productSteps : serviceSteps;
   const progressRatio =
     steps.length > 1 ? (currentStep - 1) / (steps.length - 1) : 0;
 
