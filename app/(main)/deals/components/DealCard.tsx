@@ -38,7 +38,7 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
         </div>
 
         <div className="flex flex-1 flex-col gap-2 p-3.5">
-          <h3 className="line-clamp-1 text-[16px] font-semibold text-(--text-primary)">
+          <h3 className="line-clamp-1 text-[19px] text-(--text-primary) cursor-pointer font-bold hover:text-(--brand-gold)" onClick={() => onBookClick?.(deal)}>
             {deal.title}
           </h3>
 
@@ -83,7 +83,7 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
             <button
               type="button"
               onClick={() => onBookClick?.(deal)}
-              className="primary-button inline-flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-[12px] font-semibold text-white transition-transform active:scale-[0.98]"
+              className="primary-button inline-flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-[12px] font-semibold text-white transition-transform active:scale-[0.98] cursor-pointer"
             >
               Book Now
             </button>

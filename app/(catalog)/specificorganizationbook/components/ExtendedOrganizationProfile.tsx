@@ -12,7 +12,9 @@ import {
   ChevronRight,
   Clock3,
   MapPin,
+  Minus,
   PlayCircle,
+  Plus,
   Send,
   Share2,
   ShoppingCart,
@@ -35,6 +37,7 @@ import {
   paginateServices,
   productCategories,
 } from "@/menu/menu.data";
+import { getBookingDay } from "@/booking/booking.data";
 import { buildBookingUrl } from "@/booking/booking.navigation";
 import type { SectionData, Suggestion, SuggestionsSectionMeta } from "@/types/store";
 import { ExtendedOrganization } from "../organization.types";
@@ -42,6 +45,8 @@ import { HeroBanner } from "./HeroBanner";
 import {
   SelectionPreviewSidebar,
 } from "./SelectionPreviewSidebar";
+import { ServiceDateTimeModal } from "./ServiceDateTimeModal";
+import { SuggestedProductsRow } from "./SuggestedProductsRow";
 
 type MenuCatalogTab = "service" | "product";
 
@@ -141,6 +146,7 @@ function DesktopSectionHeader({
 
 export function ExtendedOrganizationProfile({
   organization,
+  suggestions,
 }: ExtendedOrganizationProfileProps) {
   const [activeCategory, setActiveCategory] = useState("massage");
   const [menuTab, setMenuTab] = useState<MenuCatalogTab>("service");
@@ -152,6 +158,13 @@ export function ExtendedOrganizationProfile({
   );
   const [previewProductId, setPreviewProductId] = useState<string | null>(null);
   const [previewServiceId, setPreviewServiceId] = useState<string | null>(null);
+  const [productQuantities, setProductQuantities] = useState<
+    Record<string, number>
+  >({});
+  const [dateTimeModalOpen, setDateTimeModalOpen] = useState(false);
+  const [serviceSchedules, setServiceSchedules] = useState<
+    Record<string, { dayId: string; time: string }>
+  >({});
   const [page, setPage] = useState(1);
   const serviceTabsScrollRef = useRef<HTMLDivElement>(null);
   const productTabsScrollRef = useRef<HTMLDivElement>(null);
@@ -225,11 +238,14 @@ export function ExtendedOrganizationProfile({
     if (tab === "product") {
       setSelectedServiceIds([]);
       setServiceStaff({});
+      setServiceSchedules({});
       setAssigningServiceId(null);
       setPreviewServiceId(null);
+      setDateTimeModalOpen(false);
     } else {
       setSelectedProductIds([]);
       setPreviewProductId(null);
+      setProductQuantities({});
     }
   };
 
@@ -268,7 +284,7 @@ export function ExtendedOrganizationProfile({
     });
   };
 
-  const toggleProduct = (productId: string) => {
+  const toggleProduct = (productId: string, quantity = 1) => {
     if (menuTab !== "product") {
       handleMenuTabChange("product");
     }
@@ -278,6 +294,18 @@ export function ExtendedOrganizationProfile({
       const next = removing
         ? prev.filter((id) => id !== productId)
         : [...prev, productId];
+
+      if (removing) {
+        setProductQuantities((current) => {
+          const { [productId]: _, ...rest } = current;
+          return rest;
+        });
+      } else {
+        setProductQuantities((current) => ({
+          ...current,
+          [productId]: Math.max(1, quantity),
+        }));
+      }
 
       setPreviewProductId((current) => {
         if (!removing) return productId;
@@ -291,6 +319,42 @@ export function ExtendedOrganizationProfile({
 
       return next;
     });
+  };
+
+  const addSuggestedProduct = (productId: string, quantity: number) => {
+    if (menuTab !== "product") {
+      handleMenuTabChange("product");
+    }
+
+    setSelectedProductIds((prev) => {
+      if (prev.includes(productId)) {
+        setProductQuantities((current) => ({
+          ...current,
+          [productId]: (current[productId] ?? 1) + Math.max(1, quantity),
+        }));
+        setPreviewProductId(productId);
+        return prev;
+      }
+
+      setProductQuantities((current) => ({
+        ...current,
+        [productId]: Math.max(1, quantity),
+      }));
+      setPreviewProductId(productId);
+      return [...prev, productId];
+    });
+  };
+
+  const updateProductQuantity = (productId: string, nextQty: number) => {
+    if (nextQty < 1) {
+      removeProductFromSelection(productId);
+      return;
+    }
+
+    setProductQuantities((current) => ({
+      ...current,
+      [productId]: nextQty,
+    }));
   };
 
   const removeServiceFromSelection = (serviceId: string) => {
@@ -307,6 +371,10 @@ export function ExtendedOrganizationProfile({
       return next;
     });
     setServiceStaff((current) => {
+      const { [serviceId]: _, ...rest } = current;
+      return rest;
+    });
+    setServiceSchedules((current) => {
       const { [serviceId]: _, ...rest } = current;
       return rest;
     });
@@ -327,6 +395,10 @@ export function ExtendedOrganizationProfile({
         return next[next.length - 1] ?? null;
       });
       return next;
+    });
+    setProductQuantities((current) => {
+      const { [productId]: _, ...rest } = current;
+      return rest;
     });
   };
 
@@ -415,17 +487,24 @@ export function ExtendedOrganizationProfile({
 
   const totalPrice = useMemo(() => {
     if (menuTab === "product") {
-      return selectedProducts.reduce(
-        (sum, product) => sum + parsePrice(product.price),
-        0,
-      );
+      return selectedProducts.reduce((sum, product) => {
+        const qty = productQuantities[product.id] ?? 1;
+        return sum + parsePrice(product.price) * qty;
+      }, 0);
     }
 
     return selectedServices.reduce(
       (sum, service) => sum + parsePrice(service.price),
       0,
     );
-  }, [menuTab, selectedProducts, selectedServices]);
+  }, [menuTab, productQuantities, selectedProducts, selectedServices]);
+
+  const suggestedProducts = useMemo(() => {
+    const selected = new Set(selectedProductIds);
+    return allMenuProducts
+      .filter((product) => !selected.has(product.id))
+      .slice(0, 8);
+  }, [selectedProductIds]);
 
   const cartCount =
     menuTab === "product"
@@ -464,11 +543,13 @@ export function ExtendedOrganizationProfile({
     organizationId: organization.id,
     staffId: primaryStaffId,
     staffAssignments: serviceStaff,
+    scheduleAssignments: serviceSchedules,
     step: 2,
   });
 
   const productBookingUrl = buildBookingUrl({
     productIds: selectedProductIds,
+    productQuantities,
     organizationId: organization.id,
     step: 1,
   });
@@ -808,7 +889,7 @@ export function ExtendedOrganizationProfile({
       <div className="hidden lg:block">
         <main className="min-h-screen bg-(--bg-primary) pb-10">
           <div className="mx-auto max-w-[1600px] px-4 py-6 xl:px-8">
-            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_minmax(0,1fr)_500px] xl:gap-6">
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[300px_minmax(0,1fr)_500px] xl:gap-6">
               <SelectionPreviewSidebar
                 previewTab={menuTab}
                 onPreviewTabChange={handleMenuTabChange}
@@ -832,6 +913,7 @@ export function ExtendedOrganizationProfile({
                     requireStaff: !isProductFlow,
                   })
                 }
+                suggestions={suggestions}
               />
 
               <div className="order-1 space-y-6 xl:order-none xl:space-y-3">
@@ -904,14 +986,14 @@ export function ExtendedOrganizationProfile({
                       </div>
 
                       <div className="flex flex-wrap gap-3 pt-1">
-                        <Link
+                        {/* <Link
                           // href={bookingUrl}
                           href={"#"}
                           className="primary-button inline-flex h-8 items-center justify-center gap-2 rounded-full px-2 text-[10px] font-semibold text-white"
                         >
                           <CalendarDays size={16} />
                           Book Now
-                        </Link>
+                        </Link> */}
                         <button
                           type="button"
                           className="inline-flex h-8 items-center justify-center gap-2 rounded-full border border-(--border) bg-(--bg-card) px-2 text-[10px] font-semibold text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)"
@@ -927,11 +1009,11 @@ export function ExtendedOrganizationProfile({
                 {!isProductFlow && (
                 <section className="overflow-hidden rounded-[20px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
                   {selectedServices.length === 0 ? (
-                    <div className="flex min-h-[120px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
-                      <p className="text-sm font-semibold text-(--text-primary)">
+                    <div className="flex min-h-[245px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
+                      <p className="text-2xl font-bold text-(--text-primary)">
                         Service preview
                       </p>
-                      <p className="text-[12px] text-(--text-muted)">
+                      <p className="text-[20px] text-(--text-muted) font-semibold">
                         Select a service from the menu to preview it here.
                       </p>
                     </div>
@@ -1037,8 +1119,8 @@ export function ExtendedOrganizationProfile({
                             </button>
                           </div>
 
-                          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr]">
-                            <div className="relative h-[120px] sm:h-[180px] lg:min-h-[180px]">
+                          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_2fr]">
+                            <div className="relative h-[120px] sm:h-[200px] lg:min-h-[200px]">
                               <Image
                                 src={focusedService.image}
                                 alt={focusedService.name}
@@ -1113,6 +1195,59 @@ export function ExtendedOrganizationProfile({
                                   Select Staff
                                 </button>
                               )}
+
+                              {(() => {
+                                const schedule =
+                                  serviceSchedules[focusedService.id];
+                                const day = schedule
+                                  ? getBookingDay(schedule.dayId)
+                                  : null;
+
+                                if (schedule && day) {
+                                  return (
+                                    <div className="flex items-center gap-2 rounded-xl border border-(--border) bg-(--bg-card) px-2 py-1.5">
+                                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-(--border) bg-(--bg-secondary)">
+                                        <CalendarDays
+                                          size={14}
+                                          className="text-(--accent-primary)"
+                                        />
+                                      </span>
+                                      <div className="min-w-0 flex-1">
+                                        <p className="truncate text-[11px] font-semibold text-(--text-primary)">
+                                          {day.weekday}, {day.date}
+                                        </p>
+                                        <p className="text-[10px] text-(--text-muted)">
+                                          {schedule.time}
+                                        </p>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setDateTimeModalOpen(true)
+                                        }
+                                        className="shrink-0 text-[10px] font-semibold text-(--brand-gold)"
+                                      >
+                                        Change
+                                      </button>
+                                    </div>
+                                  );
+                                }
+
+                                return (
+                                  <button
+                                    type="button"
+                                    onClick={() => setDateTimeModalOpen(true)}
+                                    className="
+                                      primary-button inline-flex h-9 w-fit items-center
+                                      justify-center gap-2 rounded-full px-3 text-[11px]
+                                      font-semibold text-white
+                                    "
+                                  >
+                                    <CalendarDays size={14} />
+                                    Choose Date &amp; Time
+                                  </button>
+                                );
+                              })()}
                             </div>
                           </div>
                         </div>
@@ -1125,11 +1260,11 @@ export function ExtendedOrganizationProfile({
                 {isProductFlow && (
                 <section className="overflow-hidden rounded-[20px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
                   {selectedProducts.length === 0 ? (
-                    <div className="flex min-h-[120px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
-                      <p className="text-sm font-semibold text-(--text-primary)">
+                    <div className="flex min-h-[245px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
+                      <p className="text-2xl font-bold text-(--text-primary)">
                         Product preview
                       </p>
-                      <p className="text-[12px] text-(--text-muted)">
+                      <p className="text-[20px] text-(--text-muted) font-semibold">
                         Select a product from the menu to preview it here.
                       </p>
                     </div>
@@ -1232,8 +1367,8 @@ export function ExtendedOrganizationProfile({
                             </button>
                           </div>
 
-                          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr]">
-                            <div className="relative h-[120px] sm:h-[180px] lg:min-h-[180px]">
+                          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_2fr]">
+                            <div className="relative h-[120px] sm:h-[200px] lg:min-h-[200px]">
                               <Image
                                 src={focusedProduct.image}
                                 alt={focusedProduct.title}
@@ -1258,11 +1393,47 @@ export function ExtendedOrganizationProfile({
                                 </p>
                               </div>
 
-                              <p className="text-[11px] text-(--text-muted)">
-                                {selectedProductIds.length === 1
-                                  ? "1 product in your cart"
-                                  : `${selectedProductIds.length} products in your cart`}
-                              </p>
+                              <div className="flex flex-wrap items-center gap-3">
+                                <div className="inline-flex h-9 items-center rounded-full border border-(--border) bg-(--bg-card) px-1">
+                                  <button
+                                    type="button"
+                                    aria-label="Decrease quantity"
+                                    onClick={() =>
+                                      updateProductQuantity(
+                                        focusedProduct.id,
+                                        (productQuantities[focusedProduct.id] ??
+                                          1) - 1,
+                                      )
+                                    }
+                                    className="flex h-7 w-7 items-center justify-center rounded-full text-(--text-primary)"
+                                  >
+                                    <Minus size={14} />
+                                  </button>
+                                  <span className="min-w-6 text-center text-[13px] font-semibold text-(--text-primary)">
+                                    {productQuantities[focusedProduct.id] ?? 1}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    aria-label="Increase quantity"
+                                    onClick={() =>
+                                      updateProductQuantity(
+                                        focusedProduct.id,
+                                        (productQuantities[focusedProduct.id] ??
+                                          1) + 1,
+                                      )
+                                    }
+                                    className="flex h-7 w-7 items-center justify-center rounded-full text-(--text-primary)"
+                                  >
+                                    <Plus size={14} />
+                                  </button>
+                                </div>
+
+                                <p className="text-[11px] text-(--text-muted)">
+                                  {selectedProductIds.length === 1
+                                    ? "1 product in your cart"
+                                    : `${selectedProductIds.length} products in your cart`}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1270,6 +1441,13 @@ export function ExtendedOrganizationProfile({
                     })()
                   )}
                 </section>
+                )}
+
+                {isProductFlow && (
+                  <SuggestedProductsRow
+                    products={suggestedProducts}
+                    onAddProduct={addSuggestedProduct}
+                  />
                 )}
 
                 {!isProductFlow && (
@@ -1645,6 +1823,48 @@ export function ExtendedOrganizationProfile({
           </div>
         </div>
       </div>
+
+      <ServiceDateTimeModal
+        isOpen={dateTimeModalOpen}
+        serviceName={
+          selectedServices.find(
+            (service) =>
+              service.id === (assigningServiceId ?? previewServiceId),
+          )?.name ?? selectedServices[selectedServices.length - 1]?.name
+        }
+        initialDayId={
+          serviceSchedules[
+            assigningServiceId ??
+              previewServiceId ??
+              selectedServiceIds[selectedServiceIds.length - 1] ??
+              ""
+          ]?.dayId
+        }
+        initialTime={
+          serviceSchedules[
+            assigningServiceId ??
+              previewServiceId ??
+              selectedServiceIds[selectedServiceIds.length - 1] ??
+              ""
+          ]?.time
+        }
+        onClose={() => setDateTimeModalOpen(false)}
+        onConfirm={(dayId, time) => {
+          const serviceId =
+            assigningServiceId ??
+            previewServiceId ??
+            selectedServiceIds[selectedServiceIds.length - 1];
+          if (!serviceId) {
+            setDateTimeModalOpen(false);
+            return;
+          }
+          setServiceSchedules((current) => ({
+            ...current,
+            [serviceId]: { dayId, time },
+          }));
+          setDateTimeModalOpen(false);
+        }}
+      />
     </>
   );
 }

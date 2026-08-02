@@ -41,11 +41,20 @@ import {
 } from "@/menu/menu.data";
 import { type ServiceCategoryStore } from "../service-category.data";
 
+type ChatCatalogItem = {
+  id: string;
+  title: string;
+  price: string;
+  image: string;
+};
+
 type ChatMessage = {
   id: string;
   from: "user" | "store";
   text: string;
   time: string;
+  items?: ChatCatalogItem[];
+  totalPrice?: string;
 };
 
 type MenuCatalogTab = "service" | "product";
@@ -273,6 +282,47 @@ export function DesktopNegotiationPage({
       },
     ]);
     setDraft("");
+  };
+
+  const handleSendSelection = () => {
+    const items: ChatCatalogItem[] =
+      menuTab === "service"
+        ? selectedServices.map((service) => ({
+            id: service!.id,
+            title: service!.title,
+            price: service!.price,
+            image: service!.image,
+          }))
+        : selectedProducts.map((product) => ({
+            id: product!.id,
+            title: product!.title,
+            price: product!.price,
+            image: product!.image,
+          }));
+
+    if (items.length === 0) return;
+
+    const total =
+      menuTab === "service" ? servicesTotal : productsTotal;
+    const label = menuTab === "service" ? "service" : "product";
+
+    setMessages((current) => [
+      ...current,
+      {
+        id: `user-selection-${Date.now()}`,
+        from: "user",
+        text: `Selected ${items.length} ${label}${items.length > 1 ? "s" : ""}`,
+        time: formatMessageTime(),
+        items,
+        totalPrice: formatMoney(total),
+      },
+    ]);
+
+    if (menuTab === "service") {
+      setSelectedServiceIds([]);
+    } else {
+      setSelectedProductIds([]);
+    }
   };
 
   const toggleService = (id: string) => {
@@ -639,7 +689,48 @@ export function DesktopNegotiationPage({
                         }
                       `}
                     >
-                      <span className="whitespace-pre-line">{message.text}</span>
+                      {message.items && message.items.length > 0 ? (
+                        <div className="min-w-[220px] space-y-2.5">
+                          {message.items.map((item) => (
+                            <div
+                              key={item.id}
+                              className="flex items-center gap-2.5"
+                            >
+                              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-white/15">
+                                <Image
+                                  src={item.image}
+                                  alt={item.title}
+                                  fill
+                                  sizes="44px"
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-[12px] font-semibold leading-4">
+                                  {item.title}
+                                </p>
+                                <p className="mt-0.5 text-[11px] font-medium opacity-90">
+                                  {item.price}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                          {message.totalPrice && (
+                            <div className="flex items-center justify-between border-t border-white/25 pt-2">
+                              <span className="text-[11px] font-medium opacity-90">
+                                Total
+                              </span>
+                              <span className="text-[13px] font-bold">
+                                {message.totalPrice}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="whitespace-pre-line">
+                          {message.text}
+                        </span>
+                      )}
                     </div>
                     <div
                       className={`mt-1 flex items-center gap-1 px-1 ${
@@ -873,12 +964,14 @@ export function DesktopNegotiationPage({
               </div>
             </div>
 
-            <Link
-              href={`/booking?organizationId=${selectedStore.id}`}
-              className="primary-button flex flex-1 items-center justify-center rounded-none px-3 py-3 text-[11px] font-semibold text-white"
+            <button
+              type="button"
+              onClick={handleSendSelection}
+              disabled={cartCount === 0}
+              className="primary-button flex flex-1 items-center justify-center gap-1.5 rounded-none px-3 py-3 text-[11px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
-              NEXT <ArrowRight size={14} strokeWidth={2.5} />
-            </Link>
+              Send <Send size={14} strokeWidth={2.5} />
+            </button>
           </div>
         </div>
       </aside>

@@ -1,1 +1,1 @@
-export { allDealsData, DEAL_CATEGORIES, SORT_OPTIONS } from "@/data/main/deals/deals";
+export { allDealsData, DEAL_CATEGORIES, SORT_OPTIONS, packageDealsData } from "@/data/main/deals/deals";

@@ -52,6 +52,9 @@ export function BookingFlow() {
   );
   const [serviceIds, setServiceIds] = useState<string[]>(() => parsed.serviceIds);
   const [productIds, setProductIds] = useState<string[]>(() => parsed.productIds);
+  const [productQuantities, setProductQuantities] = useState<
+    Record<string, number>
+  >(() => parsed.productQuantities ?? Object.fromEntries(parsed.productIds.map((id) => [id, 1])));
   const expertType: ExpertType = parsed.expertType;
   const organizationId = parsed.organizationId;
 
@@ -81,7 +84,10 @@ export function BookingFlow() {
       Object.keys(parsed.staffAssignments ?? {}).length === 0,
   );
   const [serviceSchedules, setServiceSchedules] = useState<ServiceSchedules>(() =>
-    syncServiceSchedules({}, parsed.serviceIds),
+    syncServiceSchedules(
+      parsed.scheduleAssignments ?? {},
+      parsed.serviceIds,
+    ),
   );
   const [selectedSeatId, setSelectedSeatId] = useState(getDefaultSeatId);
   const [seatConfirmed, setSeatConfirmed] = useState(false);
@@ -117,15 +123,41 @@ export function BookingFlow() {
   };
 
   const toggleProduct = (id: string) => {
-    setProductIds((current) =>
-      current.includes(id)
-        ? current.filter((productId) => productId !== id)
-        : [...current, id],
-    );
+    setProductIds((current) => {
+      if (current.includes(id)) {
+        setProductQuantities((quantities) => {
+          const { [id]: _, ...rest } = quantities;
+          return rest;
+        });
+        return current.filter((productId) => productId !== id);
+      }
+
+      setProductQuantities((quantities) => ({
+        ...quantities,
+        [id]: quantities[id] ?? 1,
+      }));
+      return [...current, id];
+    });
+  };
+
+  const updateProductQuantity = (id: string, quantity: number) => {
+    if (quantity < 1) {
+      removeProduct(id);
+      return;
+    }
+
+    setProductQuantities((current) => ({
+      ...current,
+      [id]: quantity,
+    }));
   };
 
   const removeProduct = (id: string) => {
     setProductIds((current) => current.filter((productId) => productId !== id));
+    setProductQuantities((current) => {
+      const { [id]: _, ...rest } = current;
+      return rest;
+    });
   };
 
   const organizationBanner = useMemo(() => {
@@ -194,7 +226,7 @@ export function BookingFlow() {
     if (isProductFlow) {
       if (step === 2) {
         return {
-          totalLabel: `$${getStep4Total(serviceIds, productIds)}`,
+          totalLabel: `$${getStep4Total(serviceIds, productIds, productQuantities)}`,
           buttonLabel: "Pay Now & Confirm Order",
           buttonSubtext: "You'll receive a confirmation instantly",
           showLock: true,
@@ -206,7 +238,7 @@ export function BookingFlow() {
 
     if (step === 4) {
       return {
-        totalLabel: `$${getStep4Total(serviceIds, productIds)}`,
+        totalLabel: `$${getStep4Total(serviceIds, productIds, productQuantities)}`,
         buttonLabel: "Pay Now & Confirm Booking",
         buttonSubtext: "You'll receive a confirmation instantly",
         showLock: true,
@@ -240,9 +272,11 @@ export function BookingFlow() {
             {step === 1 && (
               <StepProductPreview
                 selectedProductIds={productIds}
+                productQuantities={productQuantities}
                 organizationBanner={organizationBanner}
                 onToggleProduct={toggleProduct}
                 onRemoveProduct={removeProduct}
+                onUpdateQuantity={updateProductQuantity}
                 onNext={() => setStep(2)}
               />
             )}
@@ -251,6 +285,7 @@ export function BookingFlow() {
               <Step4PaymentConfirmation
                 selectedServiceIds={[]}
                 selectedProductIds={productIds}
+                productQuantities={productQuantities}
                 organizationBanner={organizationBanner}
                 organizationId={organizationId}
                 staffId={staffId}
@@ -331,6 +366,7 @@ export function BookingFlow() {
               <Step4PaymentConfirmation
                 selectedServiceIds={serviceIds}
                 selectedProductIds={productIds}
+                productQuantities={productQuantities}
                 organizationBanner={organizationBanner}
                 organizationId={organizationId}
                 staffId={getPrimaryStaffId(serviceStaff, serviceIds, staffId)}

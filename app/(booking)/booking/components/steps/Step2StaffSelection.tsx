@@ -36,9 +36,8 @@ import type {
   ServiceSchedules,
   ServiceStaffAssignments,
 } from "../../booking.types";
-import { ServiceScheduleAccordion } from "./ServiceScheduleAccordion";
+import { ServiceBookingAccordion } from "./ServiceBookingAccordion";
 import { ServiceScheduleRows } from "./ServiceScheduleRows";
-import { ServiceStaffAccordion } from "./ServiceStaffAccordion";
 import SelectSeat from "./SelectSeat";
 import "./SelectSeat/SelectSeat.css";
 
@@ -205,24 +204,15 @@ export function Step2StaffSelection({
     onNext();
   };
 
-  const renderStaffAccordion = () => (
-    <ServiceStaffAccordion
+  const renderMobileBookingAccordion = () => (
+    <ServiceBookingAccordion
       selectedServiceIds={selectedServiceIds}
       organizationId={organizationId}
       expertType={expertType}
       assignments={serviceStaff}
+      schedules={serviceSchedules}
       lockStaffSelection={lockStaffSelection}
       onSelectStaff={onSelectServiceStaff}
-      onRemoveService={
-        onRemoveService ? handleRemoveService : () => undefined
-      }
-    />
-  );
-
-  const renderScheduleAccordion = () => (
-    <ServiceScheduleAccordion
-      selectedServiceIds={selectedServiceIds}
-      schedules={serviceSchedules}
       onSelectDay={onSelectServiceDay}
       onSelectTime={onSelectServiceTime}
       onRemoveService={
@@ -243,7 +233,7 @@ export function Step2StaffSelection({
 
   return (
     <>
-      {/* ================= MOBILE (unchanged) ================= */}
+      {/* ================= MOBILE ================= */}
       <div className="space-y-4 lg:hidden">
         <BookingOrganizationBanner
           organization={organizationBanner}
@@ -257,8 +247,7 @@ export function Step2StaffSelection({
           showOrganizationBanner={false}
         />
 
-        {renderStaffAccordion()}
-        {renderScheduleAccordion()}
+        {renderMobileBookingAccordion()}
         {renderSeatSection()}
 
         <section className="feature-card grid grid-cols-[1fr_auto_auto] items-center gap-2 rounded-[14px] p-2.5 sm:p-3">

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   BadgeCheck,
+  Check,
   CreditCard,
   Headphones,
   Heart,
@@ -17,6 +19,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { TimingsDropdown } from "@/components/TimingsDropdown";
+import { buildBookingUrl } from "@/booking/booking.navigation";
 import { useDeals } from "../hooks/useDeals";
 import type { Deal } from "../deals.types";
 import { useStoreDealsBooking } from "../hooks/useStoreDealsBooking";
@@ -30,6 +33,11 @@ import { PromoBanner } from "./PromoBanner";
 import { StoreDealsBookingModal } from "./StoreDealsBookingModal";
 import { DealCard } from "./DealCard";
 import { PackageCard } from "./PackageCard";
+import {
+  buildDesktopBookingPackages,
+  createDefaultServiceSelection,
+  type BookingPackage,
+} from "./desktopBookingPackages";
 
 function formatPrice(amount: number) {
   return `$${amount.toFixed(2)}`;
@@ -43,23 +51,48 @@ function getDealTags(deal: Deal) {
 
 function DesktopSalonSidebar({
   deals,
+  bookingDeal,
+  packages,
+  activePackageId,
+  selectedServicesByPackage,
   onBookClick,
+  onActivePackageChange,
+  onToggleService,
 }: {
   deals: Deal[];
+  bookingDeal: Deal | null;
+  packages: BookingPackage[];
+  activePackageId: string;
+  selectedServicesByPackage: Record<string, string[]>;
   onBookClick?: (deal: Deal) => void;
+  onActivePackageChange: (packageId: string) => void;
+  onToggleService: (packageId: string, serviceId: string) => void;
 }) {
-  const featured = deals[0];
+  const isBooking = Boolean(bookingDeal);
+  const featured = bookingDeal ?? deals[0];
   const listDeals = deals.slice(0, 4);
-  const total = listDeals.reduce((sum, deal) => sum + deal.currentPrice, 0);
+
+  const activePackage =
+    packages.find((pkg) => pkg.id === activePackageId) ?? packages[0] ?? null;
+
+  const selectedServiceIds = activePackage
+    ? (selectedServicesByPackage[activePackage.id] ?? [])
+    : [];
 
   if (!featured) return null;
+
+  const packageLabels = ["Package 1", "Package 2", "Package 3", "Package 4"];
 
   return (
     <aside className="space-y-3">
       <section className="overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
         <div className="relative h-[168px]">
           <Image
-            src={featured.image}
+            src={
+              isBooking && activePackage
+                ? activePackage.image
+                : featured.image
+            }
             alt={featured.salonName}
             fill
             sizes="420px"
@@ -135,114 +168,241 @@ function DesktopSalonSidebar({
       </section>
 
       <div className="grid grid-cols-4 gap-1.5">
-        {["Package 1", "Package 2", "Package 3", "Package 4"].map(
-          (label, index) => (
+        {packageLabels.map((label, index) => {
+          const pkg = packages[index];
+          const isActive = isBooking
+            ? Boolean(pkg && pkg.id === activePackage?.id)
+            : index === 0;
+
+          return (
             <button
               key={label}
               type="button"
+              disabled={!isBooking || !pkg}
+              onClick={() => {
+                if (pkg) onActivePackageChange(pkg.id);
+              }}
               className={`h-9 rounded-xl border text-[11px] font-semibold transition-colors ${
-                index === 0
+                isActive
                   ? "border-(--accent-primary) bg-(--accent-primary) text-white"
                   : "border-(--border) bg-(--bg-card) text-(--text-primary)"
-              }`}
+              } ${!isBooking || !pkg ? "cursor-default" : ""}`}
             >
               {label}
             </button>
-          ),
-        )}
+          );
+        })}
       </div>
 
       <section className="space-y-2.5">
-        {listDeals.map((deal) => {
-          const tags = getDealTags(deal).slice(0, 3);
+        {isBooking && activePackage
+          ? activePackage.services.map((service) => {
+              const isSelected = selectedServiceIds.includes(service.id);
 
-          return (
-            <article
-              key={deal.id}
-              className="flex items-center gap-3 rounded-2xl border border-(--border) bg-(--bg-card) p-2.5 shadow-[var(--shadow-card)]"
-            >
-              <div className="relative h-[78px] w-[78px] shrink-0 overflow-hidden rounded-xl">
-                <Image
-                  src={deal.image}
-                  alt={deal.title}
-                  fill
-                  sizes="78px"
-                  className="object-cover"
-                />
-              </div>
+              return (
+                <article
+                  key={service.id}
+                  className={`flex items-center gap-3 rounded-2xl border bg-(--bg-card) p-2.5 shadow-[var(--shadow-card)] ${
+                    isSelected
+                      ? "border-(--brand-gold)"
+                      : "border-(--border)"
+                  }`}
+                >
+                  <div className="relative h-[78px] w-[78px] shrink-0 overflow-hidden rounded-xl">
+                    <Image
+                      src={activePackage.image}
+                      alt={service.label}
+                      fill
+                      sizes="78px"
+                      className="object-cover"
+                    />
+                  </div>
 
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[14px] font-semibold text-(--text-primary)">
-                  {deal.title}
-                </p>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[14px] font-semibold text-(--text-primary)">
+                      {service.label}
+                    </p>
 
-                <div className="mt-1 flex flex-wrap items-center gap-1">
-                  <span className="rounded-md bg-(--accent-primary) px-1.5 py-0.5 text-[9px] font-semibold text-white">
-                    -{deal.discountPercent}%
-                  </span>
-                  {tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-(--border) bg-(--bg-secondary) px-1.5 py-0.5 text-[9px] text-(--text-secondary)"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                      <span className="rounded-md bg-(--accent-primary) px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                        -{activePackage.discountPercent}%
+                      </span>
+                      <span className="rounded-full border border-(--border) bg-(--bg-secondary) px-1.5 py-0.5 text-[9px] text-(--text-secondary)">
+                        {activePackage.title}
+                      </span>
+                    </div>
 
-                <div className="mt-1.5 flex items-baseline gap-1.5">
-                  <span className="text-[20px] font-bold leading-none text-(--brand-gold)">
-                    {formatPrice(deal.currentPrice)}
-                  </span>
-                  <span className="text-[11px] text-(--text-muted) line-through">
-                    {formatPrice(deal.originalPrice)}
-                  </span>
-                </div>
+                    <div className="mt-1.5 flex items-baseline gap-1.5">
+                      <span className="text-[20px] font-bold leading-none text-(--brand-gold)">
+                        {formatPrice(service.price)}
+                      </span>
+                      <span className="text-[11px] text-(--text-muted) line-through">
+                        {formatPrice(
+                          Number(
+                            (
+                              activePackage.originalPrice /
+                              activePackage.services.length
+                            ).toFixed(2),
+                          ),
+                        )}
+                      </span>
+                    </div>
 
-                <p className="mt-0.5 text-[10px] text-(--text-muted)">
-                  {deal.type === "single" ? "Single deal" : "Package deal"}
-                </p>
-              </div>
+                    <p className="mt-0.5 text-[10px] text-(--text-muted)">
+                      Package service
+                    </p>
+                  </div>
 
-              <button
-                type="button"
-                onClick={() => onBookClick?.(deal)}
-                aria-label={`Add ${deal.title}`}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--accent-primary) text-white"
-              >
-                <Plus size={16} strokeWidth={2.5} />
-              </button>
-            </article>
-          );
-        })}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onToggleService(activePackage.id, service.id)
+                    }
+                    aria-label={
+                      isSelected
+                        ? `Remove ${service.label}`
+                        : `Add ${service.label}`
+                    }
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white ${
+                      isSelected
+                        ? "bg-(--success)"
+                        : "bg-(--accent-primary)"
+                    }`}
+                  >
+                    {isSelected ? (
+                      <Check size={16} strokeWidth={2.5} />
+                    ) : (
+                      <Plus size={16} strokeWidth={2.5} />
+                    )}
+                  </button>
+                </article>
+              );
+            })
+          : listDeals.map((deal) => {
+              const tags = getDealTags(deal).slice(0, 3);
+
+              return (
+                <article
+                  key={deal.id}
+                  className="flex items-center gap-3 rounded-2xl border border-(--border) bg-(--bg-card) p-2.5 shadow-[var(--shadow-card)]"
+                >
+                  <div className="relative h-[78px] w-[78px] shrink-0 overflow-hidden rounded-xl">
+                    <Image
+                      src={deal.image}
+                      alt={deal.title}
+                      fill
+                      sizes="78px"
+                      className="object-cover"
+                    />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[14px] font-semibold text-(--text-primary)">
+                      {deal.title}
+                    </p>
+
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                      <span className="rounded-md bg-(--accent-primary) px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                        -{deal.discountPercent}%
+                      </span>
+                      {tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-(--border) bg-(--bg-secondary) px-1.5 py-0.5 text-[9px] text-(--text-secondary)"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="mt-1.5 flex items-baseline gap-1.5">
+                      <span className="text-[20px] font-bold leading-none text-(--brand-gold)">
+                        {formatPrice(deal.currentPrice)}
+                      </span>
+                      <span className="text-[11px] text-(--text-muted) line-through">
+                        {formatPrice(deal.originalPrice)}
+                      </span>
+                    </div>
+
+                    <p className="mt-0.5 text-[10px] text-(--text-muted)">
+                      {deal.type === "single" ? "Single deal" : "Package deal"}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onBookClick?.(deal)}
+                    aria-label={`Add ${deal.title}`}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--accent-primary) text-white"
+                  >
+                    <Plus size={16} strokeWidth={2.5} />
+                  </button>
+                </article>
+              );
+            })}
       </section>
+    </aside>
+  );
+}
 
-      <div className="flex items-center gap-3 rounded-2xl border border-(--border) bg-(--bg-card) p-3 shadow-[var(--shadow-card)]">
-        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-(--accent-primary) text-white">
-          <ShoppingCart size={22} />
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-(--brand-gold) px-1 text-[10px] font-bold text-(--text-primary)">
-            {listDeals.length}
-          </span>
-        </div>
+function DesktopDealsCartBar({
+  isBooking,
+  cartCount,
+  cartTotal,
+  bookingHref,
+}: {
+  isBooking: boolean;
+  cartCount: number;
+  cartTotal: number;
+  bookingHref: string;
+}) {
+  return (
+    <div className="flex w-full max-w-[420px] items-center gap-3 rounded-2xl border border-(--border) bg-(--bg-card) p-3 shadow-[var(--shadow-card)]">
+      <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-(--accent-primary) text-white">
+        <ShoppingCart size={22} />
+        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-(--brand-gold) px-1 text-[10px] font-bold text-(--text-primary)">
+          {cartCount}
+        </span>
+      </div>
 
-        <div className="min-w-0 flex-1">
-          <p className="text-[11px] text-(--text-muted)">Total</p>
-          <p className="text-[28px] font-bold leading-none text-(--brand-gold)">
-            {formatPrice(total)}
-          </p>
-          <p className="mt-1 text-[11px] text-(--text-secondary)">
-            {listDeals.length} items
-          </p>
-        </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] text-(--text-muted)">Total</p>
+        <p className="text-[28px] font-bold leading-none text-(--brand-gold)">
+          {formatPrice(cartTotal)}
+        </p>
+        <p className="mt-1 text-[11px] text-(--text-secondary)">
+          {isBooking
+            ? `${cartCount} service${cartCount === 1 ? "" : "s"}`
+            : `${cartCount} items`}
+        </p>
+      </div>
 
+      {isBooking ? (
+        cartCount > 0 ? (
+          <Link
+            href={bookingHref}
+            className="primary-button flex h-11 shrink-0 items-center justify-center rounded-xl px-5 text-[13px] font-semibold text-white"
+          >
+            Book Now
+          </Link>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="primary-button h-11 shrink-0 rounded-xl px-5 text-[13px] font-semibold text-white opacity-50"
+          >
+            Book Now
+          </button>
+        )
+      ) : (
         <button
           type="button"
           className="primary-button h-11 shrink-0 rounded-xl px-5 text-[13px] font-semibold text-white"
         >
           View Cart
         </button>
-      </div>
-    </aside>
+      )}
+    </div>
   );
 }
 
@@ -340,6 +500,15 @@ export function DealsPageContent() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const storeBooking = useStoreDealsBooking();
 
+  const [desktopBookingDeal, setDesktopBookingDeal] = useState<Deal | null>(
+    null,
+  );
+  const [desktopPackages, setDesktopPackages] = useState<BookingPackage[]>([]);
+  const [activePackageId, setActivePackageId] = useState("");
+  const [selectedServicesByPackage, setSelectedServicesByPackage] = useState<
+    Record<string, string[]>
+  >({});
+
   const {
     allDeals,
     filters,
@@ -357,6 +526,63 @@ export function DealsPageContent() {
     setNationality,
     resetSidebarFilters,
   } = useDeals();
+
+  const openDesktopBooking = (deal: Deal) => {
+    const packages = buildDesktopBookingPackages(deal, allDeals);
+    setDesktopBookingDeal(deal);
+    setDesktopPackages(packages);
+    setActivePackageId(packages[0]?.id ?? "");
+    setSelectedServicesByPackage(createDefaultServiceSelection(packages));
+  };
+
+  // Desktop default: first card + Package 1 + all its services selected.
+  useEffect(() => {
+    if (desktopBookingDeal || allDeals.length === 0) return;
+    const firstDeal = allDeals[0];
+    const packages = buildDesktopBookingPackages(firstDeal, allDeals);
+    setDesktopBookingDeal(firstDeal);
+    setDesktopPackages(packages);
+    setActivePackageId(packages[0]?.id ?? "");
+    setSelectedServicesByPackage(createDefaultServiceSelection(packages));
+  }, [allDeals, desktopBookingDeal]);
+
+  const toggleDesktopService = (packageId: string, serviceId: string) => {
+    setSelectedServicesByPackage((current) => {
+      const existing = current[packageId] ?? [];
+      const next = existing.includes(serviceId)
+        ? existing.filter((id) => id !== serviceId)
+        : [...existing, serviceId];
+      return {
+        ...current,
+        [packageId]: next,
+      };
+    });
+  };
+
+  const isDesktopBooking = Boolean(desktopBookingDeal);
+  const activePackage =
+    desktopPackages.find((pkg) => pkg.id === activePackageId) ??
+    desktopPackages[0] ??
+    null;
+  const selectedServiceIds = activePackage
+    ? (selectedServicesByPackage[activePackage.id] ?? [])
+    : [];
+  const browseDeals = allDeals.slice(0, 4);
+  const cartCount = isDesktopBooking
+    ? selectedServiceIds.length
+    : browseDeals.length;
+  const cartTotal = isDesktopBooking
+    ? (activePackage?.services
+        .filter((service) => selectedServiceIds.includes(service.id))
+        .reduce((sum, service) => sum + service.price, 0) ?? 0)
+    : browseDeals.reduce((sum, deal) => sum + deal.currentPrice, 0);
+  const bookingHref =
+    selectedServiceIds.length > 0
+      ? buildBookingUrl({
+          serviceIds: selectedServiceIds,
+          step: 2,
+        })
+      : "#";
 
   return (
     <main className="space-y-3 px-2 pb-24 pt-3 lg:mx-auto lg:w-full lg:max-w-[1600px] lg:space-y-4 lg:px-5 lg:pb-8 lg:pt-4">
@@ -392,7 +618,13 @@ export function DealsPageContent() {
       <div className="hidden lg:grid lg:grid-cols-[380px_minmax(0,1fr)] lg:items-start lg:gap-5">
         <DesktopSalonSidebar
           deals={allDeals}
-          onBookClick={storeBooking.openBooking}
+          bookingDeal={desktopBookingDeal}
+          packages={desktopPackages}
+          activePackageId={activePackageId}
+          selectedServicesByPackage={selectedServicesByPackage}
+          onBookClick={openDesktopBooking}
+          onActivePackageChange={setActivePackageId}
+          onToggleService={toggleDesktopService}
         />
 
         <div className="space-y-4">
@@ -410,15 +642,26 @@ export function DealsPageContent() {
           ) : (
             <DesktopDealsGrid
               deals={allDeals}
-              onBookClick={storeBooking.openBooking}
+              onBookClick={openDesktopBooking}
             />
           )}
 
-          <DealsPagination
-            page={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-          />
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <DealsPagination
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
+            </div>
+
+            <DesktopDealsCartBar
+              isBooking={isDesktopBooking}
+              cartCount={cartCount}
+              cartTotal={cartTotal}
+              bookingHref={bookingHref}
+            />
+          </div>
 
           <DesktopTrustBar />
         </div>

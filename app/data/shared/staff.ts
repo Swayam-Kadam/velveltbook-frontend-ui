@@ -5,7 +5,7 @@ export const SHARED_STAFF: BookingStaff[] = [
   {
     id: "sony",
     name: "Sony",
-    experience: "5 Years Experience",
+    experience: "5 Years Exp",
     rating: 4.9,
     reviews: 234,
     specialties: "Specializes in: Swedish, Aromatherapy",
@@ -16,7 +16,7 @@ export const SHARED_STAFF: BookingStaff[] = [
   {
     id: "jesai",
     name: "Jesai",
-    experience: "5 Years Experience",
+    experience: "5 Years Exp",
     rating: 4.8,
     reviews: 198,
     specialties: "Specializes in: Deep Tissue, Sports",
@@ -27,7 +27,7 @@ export const SHARED_STAFF: BookingStaff[] = [
   {
     id: "sami",
     name: "Sami",
-    experience: "5 Years Experience",
+    experience: "5 Years Exp",
     rating: 4.7,
     reviews: 176,
     specialties: "Specializes in: Hot Stone, Relaxation",
@@ -38,7 +38,7 @@ export const SHARED_STAFF: BookingStaff[] = [
   {
     id: "samar",
     name: "Samar",
-    experience: "5 Years Experience",
+    experience: "5 Years Exp",
     rating: 4.9,
     reviews: 210,
     specialties: "Specializes in: Couples, Aromatherapy",

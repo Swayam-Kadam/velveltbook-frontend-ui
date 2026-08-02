@@ -1,10 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowRight, UserRound, X } from "lucide-react";
+import Link from "next/link";
+import {
+  ArrowRight,
+  ChevronRight,
+  MapPin,
+  Settings2,
+  Star,
+  UserRound,
+  X,
+} from "lucide-react";
 
 import type { ExtendedStaff } from "../organization.types";
 import type { MenuProduct } from "@/menu/menu.data";
+import type {
+  SectionData,
+  Suggestion,
+  SuggestionsSectionMeta,
+} from "@/types/store";
 
 export type SelectionPreviewTab = "service" | "product";
 
@@ -29,6 +43,79 @@ interface SelectionPreviewSidebarProps {
   onRemoveService: (serviceId: string) => void;
   onRemoveProduct: (productId: string) => void;
   onNext: () => void;
+  suggestions?: SectionData<Suggestion, SuggestionsSectionMeta>;
+}
+
+function SuggestionStoreCard({
+  suggestion,
+  bookNowLabel,
+}: {
+  suggestion: Suggestion;
+  bookNowLabel: string;
+}) {
+  const href = `/store/${suggestion.storeId}`;
+
+  return (
+    <article className="rounded-2xl border border-(--border) bg-(--bg-card) p-3 transition-all hover:border-(--accent-primary)/35">
+      <Link href={href} className="flex w-full items-start gap-2.5 text-left">
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl">
+          <Image
+            src={suggestion.image}
+            alt={suggestion.name}
+            fill
+            sizes="56px"
+            className="object-cover"
+          />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="truncate text-[14px] font-semibold text-(--text-primary)">
+                {suggestion.name}
+              </h3>
+              <p className="mt-0.5 truncate text-[11px] text-(--text-muted)">
+                {suggestion.subtitle}
+              </p>
+            </div>
+            <span className="primary-button shrink-0 rounded-full px-2 py-0.5 text-[9px] font-semibold text-white">
+              {suggestion.timing}
+            </span>
+          </div>
+
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-(--text-secondary)">
+            <span className="inline-flex items-center gap-1">
+              <Star
+                size={11}
+                className="fill-(--brand-gold) text-(--brand-gold)"
+              />
+              <span className="font-medium text-(--text-primary)">
+                {suggestion.rating}
+              </span>
+              <span>({suggestion.reviewsLabel})</span>
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <MapPin size={11} />
+              {suggestion.distance}
+            </span>
+          </div>
+        </div>
+      </Link>
+
+      <Link
+        href={href}
+        className="
+          primary-button mt-3 flex h-10 w-full items-center justify-between
+          rounded-full px-4 text-[13px] font-semibold text-white
+        "
+      >
+        <span>{bookNowLabel}</span>
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
+          <ChevronRight size={14} strokeWidth={2.5} />
+        </span>
+      </Link>
+    </article>
+  );
 }
 
 export function SelectionPreviewSidebar({
@@ -44,67 +131,72 @@ export function SelectionPreviewSidebar({
   onRemoveService,
   onRemoveProduct,
   onNext,
+  suggestions,
 }: SelectionPreviewSidebarProps) {
   const itemCount =
     previewTab === "service" ? services.length : products.length;
 
+  const suggestionItems = suggestions?.items ?? [];
+  const suggestionMeta = suggestions?.meta;
+
   return (
     <aside className="order-2 xl:order-none">
-      <div className="xl:sticky xl:top-24">
-        <div className="rounded-[var(--radius-lg)] border border-(--border) bg-(--bg-card) p-4 shadow-[var(--shadow-card)] lg:p-5">
-          <div className="mb-3">
+      <div className="flex flex-col gap-3 xl:sticky xl:top-24 xl:h-[calc(100dvh-7.5rem)] xl:min-h-[680px]">
+        {/* ========== TOP HALF: Your Selection ========== */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
+          <div className="shrink-0 px-4 pt-4 pb-2">
             <h2 className="text-base font-semibold text-(--text-primary) lg:text-lg">
               Your Selection
             </h2>
             <p className="mt-0.5 text-[11px] text-(--text-muted)">
               {itemCount} item{itemCount === 1 ? "" : "s"} selected
             </p>
+
+            <div
+              className="
+                mt-3 inline-flex w-full rounded-full border border-(--border)
+                bg-(--bg-secondary) p-0.5
+              "
+              role="tablist"
+              aria-label="Selection type"
+            >
+              {([
+                { id: "service", label: "Service" },
+                { id: "product", label: "Product" },
+              ] as const).map((tab) => {
+                const isActive = previewTab === tab.id;
+
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => onPreviewTabChange(tab.id)}
+                    className={`
+                      flex-1 rounded-full px-3 py-1.5 text-sm font-semibold
+                      transition-all duration-200
+                      ${
+                        isActive
+                          ? "bg-(--bg-card) text-(--text-primary) shadow-(--shadow-card) ring-1 ring-(--brand-gold)"
+                          : "text-(--text-muted) hover:text-(--text-primary)"
+                      }
+                    `}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {assigningServiceId && previewTab === "service" && (
+              <p className="mt-2 rounded-lg border border-(--brand-gold)/40 bg-[color-mix(in_srgb,var(--brand-gold)_10%,transparent)] px-2.5 py-2 text-[11px] font-medium text-(--text-primary)">
+                Select a staff member below for this service.
+              </p>
+            )}
           </div>
 
-          <div
-            className="
-              mb-4 inline-flex w-full rounded-full border border-(--border)
-              bg-(--bg-secondary) p-0.5
-            "
-            role="tablist"
-            aria-label="Selection type"
-          >
-            {([
-              { id: "service", label: "Service" },
-              { id: "product", label: "Product" },
-            ] as const).map((tab) => {
-              const isActive = previewTab === tab.id;
-
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => onPreviewTabChange(tab.id)}
-                  className={`
-                    flex-1 rounded-full px-3 py-1.5 text-sm font-semibold
-                    transition-all duration-200
-                    ${
-                      isActive
-                        ? "bg-(--bg-card) text-(--text-primary) shadow-(--shadow-card) ring-1 ring-(--brand-gold)"
-                        : "text-(--text-muted) hover:text-(--text-primary)"
-                    }
-                  `}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {assigningServiceId && previewTab === "service" && (
-            <p className="mb-3 rounded-lg border border-(--brand-gold)/40 bg-[color-mix(in_srgb,var(--brand-gold)_10%,transparent)] px-2.5 py-2 text-[11px] font-medium text-(--text-primary)">
-              Select a staff member below for this service.
-            </p>
-          )}
-
-          <div className="max-h-[520px] space-y-2.5 overflow-y-auto scrollbar-none">
+          <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3 pb-2 scrollbar-none">
             {previewTab === "service" ? (
               services.length > 0 ? (
                 services.map((service) => {
@@ -215,7 +307,7 @@ export function SelectionPreviewSidebar({
                   );
                 })
               ) : (
-                <p className="py-10 text-center text-sm text-(--text-muted)">
+                <p className="py-8 text-center text-sm text-(--text-muted)">
                   No services selected yet.
                 </p>
               )
@@ -262,13 +354,13 @@ export function SelectionPreviewSidebar({
                 </article>
               ))
             ) : (
-              <p className="py-10 text-center text-sm text-(--text-muted)">
+              <p className="py-8 text-center text-sm text-(--text-muted)">
                 No products selected yet.
               </p>
             )}
           </div>
 
-          <div className="mt-4 flex items-center gap-2 border-t border-(--border) pt-3">
+          <div className="shrink-0 flex items-center gap-2 border-t border-(--border) px-4 py-3">
             <div className="min-w-0 flex-1">
               <p className="text-[10px] text-(--text-muted)">Total</p>
               <p className="text-lg font-bold text-(--brand-gold)">
@@ -286,6 +378,56 @@ export function SelectionPreviewSidebar({
               Next
               <ArrowRight size={14} strokeWidth={2.5} />
             </button>
+          </div>
+        </div>
+
+        {/* ========== BOTTOM HALF: Suggestions (negotiation-page UI) ========== */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
+          <div className="flex shrink-0 items-center justify-between px-4 pt-4 pb-3">
+            <h2 className="font-[family-name:var(--font-heading)] text-[18px] font-semibold text-(--text-primary) xl:text-[20px]">
+              {suggestionMeta?.title ?? "Suggestions"}
+            </h2>
+            <button
+              type="button"
+              aria-label="Filter suggestions"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-(--border) text-(--text-muted) transition-colors hover:text-(--text-primary)"
+            >
+              <Settings2 size={16} />
+            </button>
+          </div>
+
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pb-2 scrollbar-none">
+            {suggestionItems.length > 0 ? (
+              suggestionItems.map((item) => (
+                <SuggestionStoreCard
+                  key={item.id}
+                  suggestion={item}
+                  bookNowLabel={suggestionMeta?.bookNowLabel ?? "Book Now"}
+                />
+              ))
+            ) : (
+              <p className="py-8 text-center text-sm text-(--text-muted)">
+                No store suggestions yet.
+              </p>
+            )}
+          </div>
+
+          <div className="shrink-0 border-t border-(--border) px-4 py-3 text-center">
+            {suggestionMeta?.footerHref ? (
+              <Link
+                href={suggestionMeta.footerHref}
+                className="text-[13px] font-semibold text-(--accent-primary) transition-opacity hover:opacity-80"
+              >
+                {suggestionMeta.footerLabel ?? "View More"} &gt;
+              </Link>
+            ) : (
+              <button
+                type="button"
+                className="text-[13px] font-semibold text-(--accent-primary) transition-opacity hover:opacity-80"
+              >
+                View More &gt;
+              </button>
+            )}
           </div>
         </div>
       </div>

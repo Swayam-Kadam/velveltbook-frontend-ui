@@ -3,6 +3,11 @@
 import { useCallback, useMemo, useState } from "react";
 import { fetchStoreDeals } from "../deals.api";
 import type { Deal, StoreProfile } from "../deals.types";
+import {
+  buildDesktopBookingPackages,
+  createDefaultServiceSelection,
+  type BookingPackage,
+} from "../components/desktopBookingPackages";
 
 export function useStoreDealsBooking() {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,18 +15,29 @@ export function useStoreDealsBooking() {
   const [clickedDeal, setClickedDeal] = useState<Deal | null>(null);
   const [store, setStore] = useState<StoreProfile | null>(null);
   const [storeDeals, setStoreDeals] = useState<Deal[]>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [packages, setPackages] = useState<BookingPackage[]>([]);
+  const [activePackageId, setActivePackageId] = useState("");
+  const [selectedServicesByPackage, setSelectedServicesByPackage] = useState<
+    Record<string, string[]>
+  >({});
 
   const openBooking = useCallback(async (deal: Deal) => {
     setClickedDeal(deal);
-    setSelectedIds([deal.id]);
     setIsOpen(true);
     setIsLoading(true);
+    setPackages([]);
+    setActivePackageId("");
+    setSelectedServicesByPackage({});
 
     try {
       const result = await fetchStoreDeals(deal.salonName, deal.id);
       setStore(result.store);
       setStoreDeals(result.deals);
+
+      const nextPackages = buildDesktopBookingPackages(deal, result.deals);
+      setPackages(nextPackages);
+      setActivePackageId(nextPackages[0]?.id ?? "");
+      setSelectedServicesByPackage(createDefaultServiceSelection(nextPackages));
     } finally {
       setIsLoading(false);
     }
@@ -32,25 +48,52 @@ export function useStoreDealsBooking() {
     setClickedDeal(null);
     setStore(null);
     setStoreDeals([]);
-    setSelectedIds([]);
+    setPackages([]);
+    setActivePackageId("");
+    setSelectedServicesByPackage({});
   }, []);
 
-  const toggleDeal = useCallback((dealId: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(dealId)
-        ? prev.filter((id) => id !== dealId)
-        : [...prev, dealId],
-    );
+  const setActivePackage = useCallback((packageId: string) => {
+    setActivePackageId(packageId);
   }, []);
 
-  const selectedDeals = useMemo(
-    () => storeDeals.filter((deal) => selectedIds.includes(deal.id)),
-    [selectedIds, storeDeals],
+  const toggleService = useCallback((packageId: string, serviceId: string) => {
+    setSelectedServicesByPackage((current) => {
+      const existing = current[packageId] ?? [];
+      const next = existing.includes(serviceId)
+        ? existing.filter((id) => id !== serviceId)
+        : [...existing, serviceId];
+      return {
+        ...current,
+        [packageId]: next,
+      };
+    });
+  }, []);
+
+  const activePackage = useMemo(
+    () =>
+      packages.find((pkg) => pkg.id === activePackageId) ?? packages[0] ?? null,
+    [packages, activePackageId],
   );
 
+  const selectedServiceIds = useMemo(
+    () =>
+      activePackage
+        ? (selectedServicesByPackage[activePackage.id] ?? [])
+        : [],
+    [activePackage, selectedServicesByPackage],
+  );
+
+  const selectedServices = useMemo(() => {
+    if (!activePackage) return [];
+    return activePackage.services.filter((service) =>
+      selectedServiceIds.includes(service.id),
+    );
+  }, [activePackage, selectedServiceIds]);
+
   const selectedTotal = useMemo(
-    () => selectedDeals.reduce((sum, deal) => sum + deal.currentPrice, 0),
-    [selectedDeals],
+    () => selectedServices.reduce((sum, service) => sum + service.price, 0),
+    [selectedServices],
   );
 
   return {
@@ -59,11 +102,15 @@ export function useStoreDealsBooking() {
     clickedDeal,
     store,
     storeDeals,
-    selectedIds,
-    selectedDeals,
+    packages,
+    activePackageId,
+    activePackage,
+    selectedServiceIds,
+    selectedServices,
     selectedTotal,
     openBooking,
     closeBooking,
-    toggleDeal,
+    setActivePackage,
+    toggleService,
   };
 }

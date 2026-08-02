@@ -327,11 +327,14 @@ export function getSelectedProducts(ids: string[]): BookingProduct[] {
     }));
 }
 
-export function calcProductsTotal(ids: string[]) {
-  const subtotal = getSelectedProducts(ids).reduce(
-    (sum, product) => sum + product.price,
-    0,
-  );
+export function calcProductsTotal(
+  ids: string[],
+  quantities: Record<string, number> = {},
+) {
+  const subtotal = getSelectedProducts(ids).reduce((sum, product) => {
+    const qty = Math.max(1, quantities[product.id] ?? 1);
+    return sum + product.price * qty;
+  }, 0);
   return calcTotal(subtotal);
 }
 

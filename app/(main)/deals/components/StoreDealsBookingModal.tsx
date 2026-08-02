@@ -4,40 +4,33 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import { Check, MapPin, Star, Store, X } from "lucide-react";
-import type { Deal } from "../deals.types";
+import { buildBookingUrl } from "@/booking/booking.navigation";
+import type { BookingPackageService } from "./desktopBookingPackages";
 import { useStoreDealsBooking } from "../hooks/useStoreDealsBooking";
 
 function formatPrice(amount: number) {
   return `$${amount.toFixed(2)}`;
 }
 
-function getStoreDealTags(deal: Deal | null): string[] {
-  if (!deal) return [];
-
-  const tags =
-    deal.type === "single"
-      ? deal.tags
-      : deal.includedServices.map((service) => service.label);
-
-  const limit = 4;
-  return tags.slice(0, limit);
-}
-
-interface SelectableStoreDealCardProps {
-  deal: Deal;
-  tags: string[];
+interface SelectableStoreServiceCardProps {
+  service: BookingPackageService;
+  image: string;
+  packageTitle: string;
+  discountPercent: number;
+  originalUnitPrice: number;
   isSelected: boolean;
-  isHighlighted: boolean;
   onToggle: () => void;
 }
 
-function SelectableStoreDealCard({
-  deal,
-  tags,
+function SelectableStoreServiceCard({
+  service,
+  image,
+  packageTitle,
+  discountPercent,
+  originalUnitPrice,
   isSelected,
-  isHighlighted,
   onToggle,
-}: SelectableStoreDealCardProps) {
+}: SelectableStoreServiceCardProps) {
   return (
     <button
       type="button"
@@ -49,14 +42,13 @@ function SelectableStoreDealCard({
           ? "border-(--brand-gold) shadow-(--shadow-glow)"
           : "border-(--border)"
         }
-        ${isHighlighted ? "ring-1 ring-(--brand-gold)/40" : ""}
       `}
     >
       <div className="flex gap-1.5 p-1.5">
         <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-sm">
           <Image
-            src={deal.image}
-            alt={deal.title}
+            src={image}
+            alt={service.label}
             fill
             sizes="80px"
             className="object-cover"
@@ -66,7 +58,7 @@ function SelectableStoreDealCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-1.5">
             <p className="line-clamp-2 text-[11px] font-semibold leading-tight text-(--text-primary)">
-              {deal.title}
+              {service.label}
             </p>
             <span
               className={`
@@ -92,48 +84,37 @@ function SelectableStoreDealCard({
                     text-[9px] font-semibold text-white
                   "
                 >
-                  -{deal.discountPercent}%
+                  -{discountPercent}%
                 </span>
-                {/* <span className="text-[8px] text-(--text-muted)">
-                  {deal.type === "package" ? "Package deal" : "Single deal"}
-                </span> */}
               </div>
 
               <div className="flex flex-col items-baseline ">
                 <span className="text-[13px] font-bold text-(--brand-gold)">
-                  {formatPrice(deal.currentPrice)}
+                  {formatPrice(service.price)}
                 </span>
-  
+
                 <span className="text-[10px] text-(--text-muted) line-through">
-                  {formatPrice(deal.originalPrice)}
+                  {formatPrice(originalUnitPrice)}
                 </span>
                 <span className="text-[9px] text-(--text-muted)">
-                  {deal.type === "package" ? "Package deal" : "Single deal"}
-                </span> 
-               
+                  Package service
+                </span>
               </div>
             </div>
 
-            {tags.length > 0 && (
-              <div className="flex min-w-0 flex-1 flex-wrap content-start justify-end gap-1">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="
-                      rounded-full border border-(--border)
-                      bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))]
-                      px-1.5 py-0.5 text-[9px] text-(--text-secondary) font-bold
-                    "
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-            
+            <div className="flex min-w-0 flex-1 flex-wrap content-start justify-end gap-1">
+              <span
+                className="
+                  rounded-full border border-(--border)
+                  bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))]
+                  px-1.5 py-0.5 text-[9px] text-(--text-secondary) font-bold
+                "
+              >
+                {packageTitle}
+              </span>
+            </div>
           </div>
         </div>
-        
       </div>
     </button>
   );
@@ -147,14 +128,16 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
   const {
     isOpen,
     isLoading,
-    clickedDeal,
     store,
-    storeDeals,
-    selectedIds,
-    selectedDeals,
+    packages,
+    activePackageId,
+    activePackage,
+    selectedServiceIds,
+    selectedServices,
     selectedTotal,
     closeBooking,
-    toggleDeal,
+    setActivePackage,
+    toggleService,
   } = booking;
 
   useEffect(() => {
@@ -175,8 +158,23 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
 
   if (!isOpen) return null;
 
-  const storeTags = getStoreDealTags(clickedDeal);
-  const bookingHref = `/booking?deals=${selectedIds.join(",")}`;
+  const bookingHref =
+    selectedServiceIds.length > 0
+      ? buildBookingUrl({
+          serviceIds: selectedServiceIds,
+          step: 2,
+        })
+      : "#";
+
+  const packageLabels = ["package 1", "package 2", "package 3", "package 4"];
+  const originalUnitPrice =
+    activePackage && activePackage.services.length > 0
+      ? Number(
+          (
+            activePackage.originalPrice / activePackage.services.length
+          ).toFixed(2),
+        )
+      : 0;
 
   return (
     <div
@@ -267,20 +265,47 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
               </p>
 
               <div className="flex justify-between items-center gap-1">
-                <p className="text-[10px] font-medium text-white  border border-(--border) rounded-xs px-2 py-1 primary-button">package 1</p>
-                <p className="text-[10px] font-medium text-white  border border-(--border) rounded-xs px-2 py-1 primary-button">package 2</p>
-                <p className="text-[10px] font-medium text-white  border border-(--border) rounded-xs px-2 py-1 primary-button">package 3</p>
-                <p className="text-[10px] font-medium text-white  border border-(--border) rounded-xs px-2 py-1 primary-button">package 4</p>
+                {packageLabels.map((label, index) => {
+                  const pkg = packages[index];
+                  const isActive = Boolean(
+                    pkg && pkg.id === (activePackage?.id ?? activePackageId),
+                  );
+
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      disabled={!pkg}
+                      onClick={() => {
+                        if (pkg) setActivePackage(pkg.id);
+                      }}
+                      className={`
+                        text-[10px] font-medium border border-(--border) rounded-xs px-2 py-1
+                        ${
+                          isActive
+                            ? "primary-button text-white"
+                            : "bg-(--bg-card) text-(--text-primary)"
+                        }
+                      `}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
 
-              {storeDeals.map((deal) => (
-                <SelectableStoreDealCard
-                  key={deal.id}
-                  deal={deal}
-                  tags={storeTags}
-                  isSelected={selectedIds.includes(deal.id)}
-                  isHighlighted={clickedDeal?.id === deal.id}
-                  onToggle={() => toggleDeal(deal.id)}
+              {activePackage?.services.map((service) => (
+                <SelectableStoreServiceCard
+                  key={service.id}
+                  service={service}
+                  image={activePackage.image}
+                  packageTitle={activePackage.title}
+                  discountPercent={activePackage.discountPercent}
+                  originalUnitPrice={originalUnitPrice}
+                  isSelected={selectedServiceIds.includes(service.id)}
+                  onToggle={() =>
+                    toggleService(activePackage.id, service.id)
+                  }
                 />
               ))}
             </div>
@@ -291,10 +316,12 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="min-w-0">
               <p className="text-[10px] font-medium text-(--text-secondary)">
-                {selectedDeals.length} service{selectedDeals.length === 1 ? "" : "s"} selected
+                {selectedServices.length} service
+                {selectedServices.length === 1 ? "" : "s"} selected
               </p>
               <p className="truncate text-[9px] text-(--text-muted)">
-                {selectedDeals.map((deal) => deal.title).join(", ") || "None selected"}
+                {selectedServices.map((service) => service.label).join(", ") ||
+                  "None selected"}
               </p>
             </div>
             <p className="shrink-0 text-[14px] font-bold text-(--brand-gold)">
@@ -305,13 +332,13 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
           <Link
             href={bookingHref}
             onClick={(event) => {
-              if (selectedDeals.length === 0) event.preventDefault();
+              if (selectedServices.length === 0) event.preventDefault();
             }}
             className={`
               primary-button flex h-8 w-full items-center justify-center
               rounded-lg text-[10px] font-medium text-white
               transition-opacity
-              ${selectedDeals.length === 0 ? "pointer-events-none opacity-50" : ""}
+              ${selectedServices.length === 0 ? "pointer-events-none opacity-50" : ""}
             `}
           >
             Book Now

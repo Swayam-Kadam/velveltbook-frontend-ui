@@ -56,6 +56,7 @@ import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 interface Step4PaymentConfirmationProps {
   selectedServiceIds: string[];
   selectedProductIds?: string[];
+  productQuantities?: Record<string, number>;
   organizationBanner?: BookingOrganizationBannerInfo;
   organizationId?: string;
   staffId: string;
@@ -183,6 +184,7 @@ const labelClass = "mb-1.5 block text-[12px] font-medium text-(--text-secondary)
 export function Step4PaymentConfirmation({
   selectedServiceIds,
   selectedProductIds = [],
+  productQuantities = {},
   organizationBanner,
   organizationId,
   staffId,
@@ -206,7 +208,10 @@ export function Step4PaymentConfirmation({
     selectedProductIds.length > 0 && selectedServiceIds.length === 0;
 
   const serviceTotals = calcServicesTotal(selectedServiceIds, organizationId);
-  const productTotals = calcProductsTotal(selectedProductIds);
+  const productTotals = calcProductsTotal(
+    selectedProductIds,
+    productQuantities,
+  );
   const mobileSubtotal = serviceTotals.subtotal + productTotals.subtotal;
   const mobileTax = Math.round(mobileSubtotal * TAX_RATE);
   const mobileTotal = mobileSubtotal + mobileTax;
@@ -254,7 +259,10 @@ export function Step4PaymentConfirmation({
   };
 
   const servicesTotal = selectedServices.reduce((sum, s) => sum + s.price, 0);
-  const productsTotal = selectedProducts.reduce((sum, p) => sum + p.price, 0);
+  const productsTotal = selectedProducts.reduce((sum, p) => {
+    const qty = Math.max(1, productQuantities[p.id] ?? 1);
+    return sum + p.price * qty;
+  }, 0);
   const addOnsTotal = 0;
   const lineSubtotal = servicesTotal + productsTotal + addOnsTotal;
   const taxAmount = Number((lineSubtotal * TAX_RATE).toFixed(2));
@@ -296,12 +304,22 @@ export function Step4PaymentConfirmation({
           </div>
         );
       })}
-      {selectedProducts.map((product) => (
-        <div key={product.id} className="flex justify-between gap-2 text-(--text-secondary)">
-          <span className="min-w-0 truncate">{product.name}</span>
-          <span className="shrink-0">{product.priceLabel}</span>
-        </div>
-      ))}
+      {selectedProducts.map((product) => {
+        const qty = Math.max(1, productQuantities[product.id] ?? 1);
+        return (
+          <div
+            key={product.id}
+            className="flex justify-between gap-2 text-(--text-secondary)"
+          >
+            <span className="min-w-0 truncate">
+              {product.name} × {qty}
+            </span>
+            <span className="shrink-0">
+              ${(product.price * qty).toFixed(2)}
+            </span>
+          </div>
+        );
+      })}
     </>
   );
 
@@ -340,45 +358,53 @@ export function Step4PaymentConfirmation({
               </p>
             </div>
             <div className="space-y-2 p-3">
-              {selectedProducts.map((product) => (
-                <article
-                  key={product.id}
-                  className="flex items-center gap-2.5 rounded-sm border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)] p-2"
-                >
-                  <div className="relative h-12 w-14 shrink-0 overflow-hidden rounded-sm">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      sizes="56px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[10px] font-bold text-(--text-primary)">
-                      {product.name}
-                    </p>
-                    <p className="mt-0.5 text-[8px] font-semibold text-(--text-secondary)">
-                      {product.quantity}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <p className="text-[11px] font-bold text-(--brand-gold)">
-                      {product.priceLabel}
-                    </p>
+              {selectedProducts.map((product) => {
+                const qty = Math.max(1, productQuantities[product.id] ?? 1);
+
+                return (
+                  <article
+                    key={product.id}
+                    className="relative flex items-center gap-2.5 rounded-sm border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)] p-2 pr-8"
+                  >
                     {onRemoveProduct && (
                       <button
                         type="button"
                         onClick={() => onRemoveProduct(product.id)}
                         aria-label={`Remove ${product.name}`}
-                        className="text-[8px] font-semibold text-(--text-muted)"
+                        className="
+                          absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center
+                          justify-center rounded-full border border-(--border)
+                          bg-(--bg-card) text-(--text-muted)
+                          transition-colors hover:text-(--accent-primary)
+                        "
                       >
-                        Remove
+                        <X size={11} strokeWidth={2.5} />
                       </button>
                     )}
-                  </div>
-                </article>
-              ))}
+
+                    <div className="relative h-12 w-14 shrink-0 overflow-hidden rounded-sm">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        sizes="56px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[10px] font-bold text-(--text-primary)">
+                        {product.name}
+                      </p>
+                      <p className="mt-0.5 text-[8px] font-semibold text-(--text-secondary)">
+                        {product.quantity} · Qty {qty}
+                      </p>
+                    </div>
+                    <p className="shrink-0 text-[11px] font-bold text-(--brand-gold)">
+                      ${(product.price * qty).toFixed(2)}
+                    </p>
+                  </article>
+                );
+              })}
             </div>
           </section>
         )}
@@ -718,47 +744,53 @@ export function Step4PaymentConfirmation({
                 Selected Products
               </div>
               <div className="space-y-2.5">
-                {selectedProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center gap-3 rounded-xl border border-(--border) bg-(--bg-secondary) p-3"
-                  >
-                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        sizes="56px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] font-semibold text-(--text-primary)">
-                        {product.name}
+                {selectedProducts.map((product) => {
+                  const qty = Math.max(1, productQuantities[product.id] ?? 1);
+
+                  return (
+                    <div
+                      key={product.id}
+                      className="relative flex items-center gap-3 rounded-xl border border-(--border) bg-(--bg-secondary) p-3 pr-10"
+                    >
+                      {onRemoveProduct && (
+                        <button
+                          type="button"
+                          onClick={() => onRemoveProduct(product.id)}
+                          aria-label={`Remove ${product.name}`}
+                          className="
+                            absolute right-2 top-2 flex h-7 w-7 shrink-0 items-center
+                            justify-center rounded-full border border-(--border)
+                            text-(--text-muted) transition-colors
+                            hover:text-(--accent-primary)
+                          "
+                        >
+                          <X size={13} strokeWidth={2.5} />
+                        </button>
+                      )}
+
+                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg">
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[14px] font-semibold text-(--text-primary)">
+                          {product.name}
+                        </p>
+                        <p className="mt-0.5 text-[12px] text-(--text-muted)">
+                          {product.quantity} · Qty {qty}
+                        </p>
+                      </div>
+                      <p className="shrink-0 text-[15px] font-bold text-(--text-primary)">
+                        ${money(product.price * qty)}
                       </p>
-                      <p className="mt-0.5 text-[12px] text-(--text-muted)">
-                        {product.quantity}
-                      </p>
                     </div>
-                    <p className="shrink-0 text-[15px] font-bold text-(--text-primary)">
-                      ${money(product.price)}
-                    </p>
-                    {onRemoveProduct && (
-                      <button
-                        type="button"
-                        onClick={() => onRemoveProduct(product.id)}
-                        aria-label={`Remove ${product.name}`}
-                        className="
-                          flex h-7 w-7 shrink-0 items-center justify-center
-                          rounded-full border border-(--border) text-(--text-muted)
-                          transition-colors hover:text-(--accent-primary)
-                        "
-                      >
-                        <X size={13} strokeWidth={2.5} />
-                      </button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
             )}
@@ -844,12 +876,22 @@ export function Step4PaymentConfirmation({
                       <span className="shrink-0">${money(service.price)}</span>
                     </div>
                   ))}
-                  {selectedProducts.map((product) => (
-                    <div key={product.id} className="flex justify-between gap-2">
-                      <span className="min-w-0 truncate">{product.name}</span>
-                      <span className="shrink-0">${money(product.price)}</span>
-                    </div>
-                  ))}
+                  {selectedProducts.map((product) => {
+                    const qty = Math.max(1, productQuantities[product.id] ?? 1);
+                    return (
+                      <div
+                        key={product.id}
+                        className="flex justify-between gap-2"
+                      >
+                        <span className="min-w-0 truncate">
+                          {product.name} × {qty}
+                        </span>
+                        <span className="shrink-0">
+                          ${money(product.price * qty)}
+                        </span>
+                      </div>
+                    );
+                  })}
                   {addOnsTotal > 0 && (
                     <div className="flex justify-between gap-2">
                       <span>Add-ons</span>
@@ -1320,9 +1362,13 @@ export function Step4PaymentConfirmation({
   );
 }
 
-export function getStep4Total(serviceIds: string[], productIds: string[] = []) {
+export function getStep4Total(
+  serviceIds: string[],
+  productIds: string[] = [],
+  productQuantities: Record<string, number> = {},
+) {
   const subtotal =
     calcServicesTotal(serviceIds).subtotal +
-    calcProductsTotal(productIds).subtotal;
+    calcProductsTotal(productIds, productQuantities).subtotal;
   return subtotal + Math.round(subtotal * TAX_RATE);
 }
