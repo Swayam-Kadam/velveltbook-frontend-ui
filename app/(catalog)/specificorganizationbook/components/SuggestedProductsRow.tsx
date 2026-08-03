@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Heart, Minus, Plus } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 
 import type { MenuProduct } from "@/menu/menu.data";
 
@@ -10,7 +10,7 @@ function parsePrice(price: string) {
   return Number(price.replace(/[^0-9.]/g, "")) || 0;
 }
 
-function getProductMeta(product: MenuProduct) {
+export function getProductMeta(product: MenuProduct) {
   const current = parsePrice(product.price);
   const original = Number((current * 1.35).toFixed(2));
   const discount =
@@ -26,25 +26,70 @@ function getProductMeta(product: MenuProduct) {
   };
 }
 
-function SuggestedProductCard({
-  product,
-  onAdd,
-}: {
+interface SuggestedProductCardProps {
   product: MenuProduct;
-  onAdd: (productId: string, quantity: number) => void;
-}) {
-  const [qty, setQty] = useState(1);
-  const [saved, setSaved] = useState(false);
+  quantity?: number;
+  onQuantityChange?: (quantity: number) => void;
+  onAdd?: (productId: string, quantity: number) => void;
+  onRemove?: () => void;
+  isActive?: boolean;
+  className?: string;
+}
+
+/** Shared suggestion-style product card used in preview grid and suggested row. */
+export function SuggestedProductCard({
+  product,
+  quantity,
+  onQuantityChange,
+  onAdd,
+  onRemove,
+  isActive = false,
+  className = "",
+}: SuggestedProductCardProps) {
+  const [localQty, setLocalQty] = useState(1);
   const meta = getProductMeta(product);
+  const isControlled = typeof quantity === "number" && Boolean(onQuantityChange);
+  const qty = isControlled ? quantity! : localQty;
+
+  const setQty = (next: number) => {
+    const value = Math.max(1, next);
+    if (isControlled) {
+      onQuantityChange?.(value);
+      return;
+    }
+    setLocalQty(value);
+  };
 
   return (
-    <article className="flex w-[200px] shrink-0 flex-col overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
+    <article
+      className={`
+        relative flex w-full flex-col overflow-hidden rounded-2xl border bg-(--bg-card)
+        shadow-[var(--shadow-card)]
+        ${isActive ? "border-(--brand-gold)" : "border-(--border)"}
+        ${className}
+      `}
+    >
+      {onRemove && (
+        <button
+          type="button"
+          aria-label={`Remove ${product.title}`}
+          onClick={onRemove}
+          className="
+            absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center
+            rounded-full border border-(--border) bg-(--bg-card)/95 text-(--text-muted)
+            transition-colors hover:text-(--text-primary)
+          "
+        >
+          <X size={12} strokeWidth={2.5} />
+        </button>
+      )}
+
       <div className="relative aspect-4/3 w-full overflow-hidden bg-(--bg-secondary)">
         <Image
           src={product.image}
           alt={product.title}
           fill
-          sizes="200px"
+          sizes="240px"
           className="object-cover"
         />
       </div>
@@ -79,7 +124,13 @@ function SuggestedProductCard({
             <button
               type="button"
               aria-label="Decrease quantity"
-              onClick={() => setQty((value) => Math.max(1, value - 1))}
+              onClick={() => {
+                if (isControlled && qty <= 1 && onRemove) {
+                  onRemove();
+                  return;
+                }
+                setQty(qty - 1);
+              }}
               className="flex h-7 w-7 items-center justify-center rounded-full text-(--text-primary)"
             >
               <Minus size={14} />
@@ -90,24 +141,26 @@ function SuggestedProductCard({
             <button
               type="button"
               aria-label="Increase quantity"
-              onClick={() => setQty((value) => value + 1)}
+              onClick={() => setQty(qty + 1)}
               className="flex h-7 w-7 items-center justify-center rounded-full text-(--text-primary)"
             >
               <Plus size={14} />
             </button>
           </div>
 
-          <button
-            type="button"
-            aria-label={`Add ${product.title}`}
-            onClick={() => onAdd(product.id, qty)}
-            className="
-              primary-button flex h-9 w-9 items-center justify-center
-              rounded-full text-white
-            "
-          >
-            <Plus size={18} strokeWidth={2.5} />
-          </button>
+          {onAdd && (
+            <button
+              type="button"
+              aria-label={`Add ${product.title}`}
+              onClick={() => onAdd(product.id, qty)}
+              className="
+                primary-button flex h-9 w-9 items-center justify-center
+                rounded-full text-white
+              "
+            >
+              <Plus size={18} strokeWidth={2.5} />
+            </button>
+          )}
         </div>
       </div>
     </article>
@@ -141,6 +194,7 @@ export function SuggestedProductsRow({
             key={product.id}
             product={product}
             onAdd={onAddProduct}
+            className="w-[200px] shrink-0"
           />
         ))}
       </div>

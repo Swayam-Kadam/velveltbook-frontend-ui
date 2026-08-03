@@ -10,6 +10,7 @@ interface MenuProductCardProps {
   selected?: boolean;
   onSelect?: () => void;
   largeText?: boolean;
+  ButtonText?: string;
 }
 
 export function MenuProductCard({
@@ -17,6 +18,7 @@ export function MenuProductCard({
   selected = false,
   onSelect,
   largeText = false,
+  ButtonText = "buy",
 }: MenuProductCardProps) {
   return (
     <article
@@ -79,7 +81,7 @@ export function MenuProductCard({
             `}
           >
             <Plus size={10} strokeWidth={2.5} />
-            {selected ? "Added" : "Buy"}
+            {selected ? "Added" : ButtonText === "add" ? "Add" : "Buy"}
           </button>
         </div>
       </div>

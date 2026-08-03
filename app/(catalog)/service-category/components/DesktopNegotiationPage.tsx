@@ -725,6 +725,21 @@ export function DesktopNegotiationPage({
                               </span>
                             </div>
                           )}
+
+                          <Link
+                            href="/specificorganizationbook/store-1"
+                            className="
+                              mt-1 flex h-9 w-full items-center justify-center gap-1.5
+                              rounded-full bg-white/95 text-[12px] font-semibold
+                              text-(--accent-primary) transition-opacity hover:opacity-90
+                            "
+                          >
+                            Buy Now
+                            <ArrowRight size={14} strokeWidth={2.5} />
+                          </Link>
+                          <p className="text-center text-[10px] leading-snug text-white/75">
+                            Buy now If owner is not convince
+                          </p>
                         </div>
                       ) : (
                         <span className="whitespace-pre-line">
@@ -868,6 +883,7 @@ export function DesktopNegotiationPage({
                           product={product}
                           selected={selectedProductIds.includes(product.id)}
                           onSelect={() => toggleProduct(product.id)}
+                          ButtonText="add"
                         />
                       ))
                     ) : (

@@ -20,6 +20,7 @@ import {
   ShoppingCart,
   Star,
   UserRound,
+  X,
 } from "lucide-react";
 import { TimingsDropdown } from "@/components/TimingsDropdown";
 import { CategorySidebar } from "@/menu/components/CategorySidebar";
@@ -46,9 +47,11 @@ import {
   SelectionPreviewSidebar,
 } from "./SelectionPreviewSidebar";
 import { ServiceDateTimeModal } from "./ServiceDateTimeModal";
-import { SuggestedProductsRow } from "./SuggestedProductsRow";
+import { SuggestedProductCard } from "./SuggestedProductsRow";
 
 type MenuCatalogTab = "service" | "product";
+
+const PRODUCT_PREVIEW_PAGE_SIZE = 6;
 
 interface ExtendedOrganizationProfileProps {
   organization: ExtendedOrganization;
@@ -166,8 +169,8 @@ export function ExtendedOrganizationProfile({
     Record<string, { dayId: string; time: string }>
   >({});
   const [page, setPage] = useState(1);
+  const [productPreviewPage, setProductPreviewPage] = useState(1);
   const serviceTabsScrollRef = useRef<HTMLDivElement>(null);
-  const productTabsScrollRef = useRef<HTMLDivElement>(null);
 
   const scrollPreviewTabs = (
     ref: React.RefObject<HTMLDivElement | null>,
@@ -265,6 +268,10 @@ export function ExtendedOrganizationProfile({
           const { [serviceId]: _, ...rest } = current;
           return rest;
         });
+        setServiceSchedules((current) => {
+          const { [serviceId]: _, ...rest } = current;
+          return rest;
+        });
         setAssigningServiceId((current) =>
           current === serviceId ? null : current,
         );
@@ -318,30 +325,6 @@ export function ExtendedOrganizationProfile({
       });
 
       return next;
-    });
-  };
-
-  const addSuggestedProduct = (productId: string, quantity: number) => {
-    if (menuTab !== "product") {
-      handleMenuTabChange("product");
-    }
-
-    setSelectedProductIds((prev) => {
-      if (prev.includes(productId)) {
-        setProductQuantities((current) => ({
-          ...current,
-          [productId]: (current[productId] ?? 1) + Math.max(1, quantity),
-        }));
-        setPreviewProductId(productId);
-        return prev;
-      }
-
-      setProductQuantities((current) => ({
-        ...current,
-        [productId]: Math.max(1, quantity),
-      }));
-      setPreviewProductId(productId);
-      return [...prev, productId];
     });
   };
 
@@ -402,13 +385,88 @@ export function ExtendedOrganizationProfile({
     });
   };
 
+  const isServiceFullyAssigned = (serviceId: string) =>
+    Boolean(serviceStaff[serviceId] && serviceSchedules[serviceId]);
+
+  /** First selected service that still needs staff or date/time. */
+  const getFirstIncompleteServiceId = (beforeServiceId?: string) => {
+    const stopAt = beforeServiceId
+      ? selectedServiceIds.indexOf(beforeServiceId)
+      : selectedServiceIds.length;
+
+    if (stopAt <= 0) return null;
+
+    for (let index = 0; index < stopAt; index += 1) {
+      const serviceId = selectedServiceIds[index];
+      if (serviceId && !isServiceFullyAssigned(serviceId)) {
+        return serviceId;
+      }
+    }
+
+    return null;
+  };
+
+  const focusServiceTab = (serviceId: string) => {
+    setPreviewServiceId(serviceId);
+    setAssigningServiceId(null);
+    setDateTimeModalOpen(false);
+  };
+
+  const promptCompletePriorServices = (targetServiceId: string) => {
+    const incompleteId = getFirstIncompleteServiceId(targetServiceId);
+    if (!incompleteId) return false;
+
+    const incompleteIndexes = selectedServiceIds
+      .slice(0, selectedServiceIds.indexOf(targetServiceId))
+      .map((id, index) => ({ id, index }))
+      .filter(({ id }) => !isServiceFullyAssigned(id));
+
+    const labels = incompleteIndexes.map(({ index }) => `Service ${index + 1}`);
+    const labelText =
+      labels.length === 1
+        ? labels[0]
+        : labels.length === 2
+          ? `${labels[0]} or ${labels[1]}`
+          : `${labels.slice(0, -1).join(", ")}, or ${labels[labels.length - 1]}`;
+
+    void Swal.fire({
+      icon: "warning",
+      title: "Complete previous services first",
+      text: `Please first select staff and date & time for ${labelText}.`,
+      ...swalDefaults,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        focusServiceTab(incompleteId);
+      }
+    });
+
+    return true;
+  };
+
+  const handleFocusServiceTab = (serviceId: string) => {
+    setPreviewServiceId(serviceId);
+    setAssigningServiceId(null);
+  };
+
   const handleAssignStaffRequest = (serviceId: string) => {
+    if (promptCompletePriorServices(serviceId)) return;
     setAssigningServiceId(serviceId);
     setPreviewServiceId(serviceId);
   };
 
-  const handleSelectStaffForService = (staffId: string) => {
-    if (!assigningServiceId) {
+  const handleOpenDateTimeModal = (serviceId: string) => {
+    if (promptCompletePriorServices(serviceId)) return;
+    setPreviewServiceId(serviceId);
+    setDateTimeModalOpen(true);
+  };
+
+  const handleSelectStaffForService = (
+    staffId: string,
+    serviceIdOverride?: string,
+  ) => {
+    const targetServiceId = serviceIdOverride ?? assigningServiceId;
+
+    if (!targetServiceId) {
       Swal.fire({
         icon: "info",
         title: "Choose a service first",
@@ -418,10 +476,13 @@ export function ExtendedOrganizationProfile({
       return;
     }
 
+    if (promptCompletePriorServices(targetServiceId)) return;
+
     setServiceStaff((current) => ({
       ...current,
-      [assigningServiceId]: staffId,
+      [targetServiceId]: staffId,
     }));
+    setPreviewServiceId(targetServiceId);
     setAssigningServiceId(null);
   };
 
@@ -477,6 +538,29 @@ export function ExtendedOrganizationProfile({
     [selectedProductIds],
   );
 
+  const productPreviewTotalPages = Math.max(
+    1,
+    Math.ceil(selectedProducts.length / PRODUCT_PREVIEW_PAGE_SIZE),
+  );
+  const visibleProductPreviewPage = Math.min(
+    productPreviewPage,
+    productPreviewTotalPages,
+  );
+  const paginatedPreviewProducts = useMemo(() => {
+    const start = (visibleProductPreviewPage - 1) * PRODUCT_PREVIEW_PAGE_SIZE;
+    return selectedProducts.slice(start, start + PRODUCT_PREVIEW_PAGE_SIZE);
+  }, [selectedProducts, visibleProductPreviewPage]);
+
+  useEffect(() => {
+    setProductPreviewPage(1);
+  }, [selectedProductIds.length, menuTab]);
+
+  useEffect(() => {
+    if (productPreviewPage > productPreviewTotalPages) {
+      setProductPreviewPage(productPreviewTotalPages);
+    }
+  }, [productPreviewPage, productPreviewTotalPages]);
+
   const staffById = useMemo(() => {
     const map: Record<string, (typeof organization.staff)[number]> = {};
     for (const member of organization.staff) {
@@ -498,13 +582,6 @@ export function ExtendedOrganizationProfile({
       0,
     );
   }, [menuTab, productQuantities, selectedProducts, selectedServices]);
-
-  const suggestedProducts = useMemo(() => {
-    const selected = new Set(selectedProductIds);
-    return allMenuProducts
-      .filter((product) => !selected.has(product.id))
-      .slice(0, 8);
-  }, [selectedProductIds]);
 
   const cartCount =
     menuTab === "product"
@@ -599,8 +676,34 @@ export function ExtendedOrganizationProfile({
               ? `Please select a staff member for ${names}.`
               : `Please select staff for: ${names}.`,
           ...swalDefaults,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            focusServiceTab(missingStaff[0]!.id);
+            setAssigningServiceId(missingStaff[0]!.id);
+          }
         });
-        setAssigningServiceId(missingStaff[0]?.id ?? null);
+        return;
+      }
+
+      const missingSchedule = selectedServices.filter(
+        (service) => !serviceSchedules[service.id],
+      );
+
+      if (missingSchedule.length > 0) {
+        const names = missingSchedule.map((service) => service.name).join(", ");
+        Swal.fire({
+          icon: "warning",
+          title: "Choose date & time",
+          text:
+            missingSchedule.length === 1
+              ? `Please choose a date and time for ${names}.`
+              : `Please choose date and time for: ${names}.`,
+          ...swalDefaults,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            focusServiceTab(missingSchedule[0]!.id);
+          }
+        });
         return;
       }
     }
@@ -623,7 +726,9 @@ export function ExtendedOrganizationProfile({
   const canBook = isProductFlow
     ? selectedProductIds.length > 0
     : selectedServiceIds.length > 0 &&
-      selectedServiceIds.every((id) => Boolean(serviceStaff[id]));
+      selectedServiceIds.every(
+        (id) => Boolean(serviceStaff[id]) && Boolean(serviceSchedules[id]),
+      );
 
   return (
     <>
@@ -1057,13 +1162,11 @@ export function ExtendedOrganizationProfile({
                                 const isActive = service.id === focusedService.id;
 
                                 return (
-                                  <button
+                                  <div
                                     key={service.id}
-                                    type="button"
-                                    onClick={() => setPreviewServiceId(service.id)}
                                     className={`
-                                      flex shrink-0 items-center gap-2 rounded-xl border
-                                      px-2 py-1.5 transition-all
+                                      relative flex shrink-0 items-center gap-2 rounded-xl border
+                                      px-2 py-1.5 pr-6 transition-all
                                       ${
                                         isActive
                                           ? "border-(--brand-gold) bg-(--bg-card) shadow-(--shadow-card)"
@@ -1071,33 +1174,58 @@ export function ExtendedOrganizationProfile({
                                       }
                                     `}
                                   >
-                                    <div className="relative h-8 w-8 overflow-hidden rounded-lg">
-                                      <Image
-                                        src={service.image}
-                                        alt={service.name}
-                                        fill
-                                        sizes="32px"
-                                        className="object-cover"
-                                      />
-                                    </div>
-                                    <div className="min-w-0 text-left">
-                                      <p className="text-[9px] font-semibold uppercase tracking-wide text-(--text-muted)">
-                                        Service {index + 1}
-                                      </p>
-                                      <p
-                                        className={`
-                                          max-w-[88px] truncate text-[11px] font-semibold
-                                          ${
-                                            isActive
-                                              ? "text-(--text-primary)"
-                                              : "text-(--text-secondary)"
-                                          }
-                                        `}
-                                      >
-                                        {service.name}
-                                      </p>
-                                    </div>
-                                  </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleFocusServiceTab(service.id)
+                                      }
+                                      className="flex min-w-0 items-center gap-2 text-left"
+                                    >
+                                      <div className="relative h-8 w-8 overflow-hidden rounded-lg">
+                                        <Image
+                                          src={service.image}
+                                          alt={service.name}
+                                          fill
+                                          sizes="32px"
+                                          className="object-cover"
+                                        />
+                                      </div>
+                                      <div className="min-w-0 text-left">
+                                        <p className="text-[9px] font-semibold uppercase tracking-wide text-(--text-muted)">
+                                          Service {index + 1}
+                                        </p>
+                                        <p
+                                          className={`
+                                            max-w-[88px] truncate text-[11px] font-semibold
+                                            ${
+                                              isActive
+                                                ? "text-(--text-primary)"
+                                                : "text-(--text-secondary)"
+                                            }
+                                          `}
+                                        >
+                                          {service.name}
+                                        </p>
+                                      </div>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      aria-label={`Remove ${service.name}`}
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        removeServiceFromSelection(service.id);
+                                      }}
+                                      className="
+                                        absolute right-1 top-1 flex h-4 w-4 items-center
+                                        justify-center rounded-full border border-(--border)
+                                        bg-(--bg-card) text-(--text-muted)
+                                        transition-colors hover:text-(--text-primary)
+                                      "
+                                    >
+                                      <X size={10} strokeWidth={2.5} />
+                                    </button>
+                                  </div>
                                 );
                               })}
                             </div>
@@ -1174,7 +1302,7 @@ export function ExtendedOrganizationProfile({
                                     onClick={() =>
                                       handleAssignStaffRequest(focusedService.id)
                                     }
-                                    className="shrink-0 text-[10px] font-semibold text-(--brand-gold)"
+                                    className="shrink-0 text-[10px] font-semibold text-(--brand-gold) cursor-pointer"
                                   >
                                     Change
                                   </button>
@@ -1223,9 +1351,11 @@ export function ExtendedOrganizationProfile({
                                       <button
                                         type="button"
                                         onClick={() =>
-                                          setDateTimeModalOpen(true)
+                                          handleOpenDateTimeModal(
+                                            focusedService.id,
+                                          )
                                         }
-                                        className="shrink-0 text-[10px] font-semibold text-(--brand-gold)"
+                                        className="shrink-0 text-[10px] font-semibold text-(--brand-gold) cursor-pointer"
                                       >
                                         Change
                                       </button>
@@ -1236,7 +1366,9 @@ export function ExtendedOrganizationProfile({
                                 return (
                                   <button
                                     type="button"
-                                    onClick={() => setDateTimeModalOpen(true)}
+                                    onClick={() =>
+                                      handleOpenDateTimeModal(focusedService.id)
+                                    }
                                     className="
                                       primary-button inline-flex h-9 w-fit items-center
                                       justify-center gap-2 rounded-full px-3 text-[11px]
@@ -1260,7 +1392,7 @@ export function ExtendedOrganizationProfile({
                 {isProductFlow && (
                 <section className="overflow-hidden rounded-[20px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
                   {selectedProducts.length === 0 ? (
-                    <div className="flex min-h-[245px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
+                    <div className="flex min-h-[420px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center lg:min-h-[520px]">
                       <p className="text-2xl font-bold text-(--text-primary)">
                         Product preview
                       </p>
@@ -1269,185 +1401,92 @@ export function ExtendedOrganizationProfile({
                       </p>
                     </div>
                   ) : (
-                    (() => {
-                      const focusedProduct =
-                        selectedProducts.find(
-                          (product) => product.id === previewProductId,
-                        ) ?? selectedProducts[selectedProducts.length - 1];
+                    <div className="flex min-h-[420px] flex-col bg-(--bg-secondary) lg:min-h-[520px]">
+                      <div className="flex items-center justify-between gap-2 border-b border-(--border) px-3 py-2.5">
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-semibold text-(--text-primary)">
+                            Selected Products
+                          </p>
+                          <p className="text-[11px] text-(--text-muted)">
+                            {selectedProducts.length} product
+                            {selectedProducts.length === 1 ? "" : "s"} · page{" "}
+                            {visibleProductPreviewPage} of{" "}
+                            {productPreviewTotalPages}
+                          </p>
+                        </div>
 
-                      return (
-                        <div>
-                          <div className="flex items-center gap-2 border-b border-(--border) bg-(--bg-secondary) px-3 py-2.5">
+                        {productPreviewTotalPages > 1 && (
+                          <div className="flex items-center gap-1.5">
                             <button
                               type="button"
                               onClick={() =>
-                                scrollPreviewTabs(productTabsScrollRef, "left")
+                                setProductPreviewPage((current) =>
+                                  Math.max(1, current - 1),
+                                )
                               }
-                              aria-label="Slide product cards left"
+                              disabled={visibleProductPreviewPage <= 1}
+                              aria-label="Previous product page"
                               className="
-                                flex h-8 w-8 shrink-0 items-center justify-center
-                                rounded-full border border-(--border) bg-(--bg-card)
-                                text-(--text-primary) transition-colors
-                                hover:border-(--brand-gold)
+                                flex h-8 w-8 items-center justify-center rounded-full
+                                border border-(--border) bg-(--bg-card) text-(--text-primary)
+                                transition-colors hover:border-(--brand-gold)
+                                disabled:cursor-not-allowed disabled:opacity-40
                               "
                             >
                               <ChevronLeft size={16} strokeWidth={2.5} />
                             </button>
-
-                            <div
-                              ref={productTabsScrollRef}
-                              className="scrollbar-none flex min-w-0 flex-1 gap-2 overflow-x-auto"
-                            >
-                              {selectedProducts.map((product, index) => {
-                                const isActive =
-                                  product.id === focusedProduct.id;
-
-                                return (
-                                  <button
-                                    key={product.id}
-                                    type="button"
-                                    onClick={() =>
-                                      setPreviewProductId(product.id)
-                                    }
-                                    className={`
-                                      flex shrink-0 items-center gap-2 rounded-xl border
-                                      px-2 py-1.5 transition-all
-                                      ${
-                                        isActive
-                                          ? "border-(--brand-gold) bg-(--bg-card) shadow-(--shadow-card)"
-                                          : "border-(--border) bg-(--bg-card)/70 hover:border-(--brand-gold)/50"
-                                      }
-                                    `}
-                                  >
-                                    <div className="relative h-8 w-8 overflow-hidden rounded-lg">
-                                      <Image
-                                        src={product.image}
-                                        alt={product.title}
-                                        fill
-                                        sizes="32px"
-                                        className="object-cover"
-                                      />
-                                    </div>
-                                    <div className="min-w-0 text-left">
-                                      <p className="text-[9px] font-semibold uppercase tracking-wide text-(--text-muted)">
-                                        Product {index + 1}
-                                      </p>
-                                      <p
-                                        className={`
-                                          max-w-[88px] truncate text-[11px] font-semibold
-                                          ${
-                                            isActive
-                                              ? "text-(--text-primary)"
-                                              : "text-(--text-secondary)"
-                                          }
-                                        `}
-                                      >
-                                        {product.title}
-                                      </p>
-                                    </div>
-                                  </button>
-                                );
-                              })}
-                            </div>
-
                             <button
                               type="button"
                               onClick={() =>
-                                scrollPreviewTabs(productTabsScrollRef, "right")
+                                setProductPreviewPage((current) =>
+                                  Math.min(
+                                    productPreviewTotalPages,
+                                    current + 1,
+                                  ),
+                                )
                               }
-                              aria-label="Slide product cards right"
+                              disabled={
+                                visibleProductPreviewPage >=
+                                productPreviewTotalPages
+                              }
+                              aria-label="Next product page"
                               className="
-                                flex h-8 w-8 shrink-0 items-center justify-center
-                                rounded-full border border-(--border) bg-(--bg-card)
-                                text-(--text-primary) transition-colors
-                                hover:border-(--brand-gold)
+                                flex h-8 w-8 items-center justify-center rounded-full
+                                border border-(--border) bg-(--bg-card) text-(--text-primary)
+                                transition-colors hover:border-(--brand-gold)
+                                disabled:cursor-not-allowed disabled:opacity-40
                               "
                             >
                               <ChevronRight size={16} strokeWidth={2.5} />
                             </button>
                           </div>
+                        )}
+                      </div>
 
-                          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_2fr]">
-                            <div className="relative h-[120px] sm:h-[200px] lg:min-h-[200px]">
-                              <Image
-                                src={focusedProduct.image}
-                                alt={focusedProduct.title}
-                                fill
-                                sizes="(min-width: 1000px) 420px, 100vw"
-                                className="object-cover"
-                              />
-                            </div>
+                      <div className="grid flex-1 grid-cols-1 content-start gap-3 p-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {paginatedPreviewProducts.map((product) => {
+                          const qty = productQuantities[product.id] ?? 1;
+                          const isActive = product.id === previewProductId;
 
-                            <div className="flex flex-col justify-center gap-2 bg-(--bg-secondary) p-3 lg:p-4">
-                              <div className="min-w-0">
-                                <p className="text-[10px] font-semibold uppercase tracking-wide text-(--text-muted)">
-                                  Selected product
-                                </p>
-                                <h2 className="mt-0.5 truncate text-[18px] font-semibold leading-tight text-(--text-primary)">
-                                  {focusedProduct.title}
-                                </h2>
-                                <p className="mt-1 text-[12px] text-(--text-secondary)">
-                                  {[focusedProduct.quantity, focusedProduct.price]
-                                    .filter(Boolean)
-                                    .join(" · ")}
-                                </p>
-                              </div>
-
-                              <div className="flex flex-wrap items-center gap-3">
-                                <div className="inline-flex h-9 items-center rounded-full border border-(--border) bg-(--bg-card) px-1">
-                                  <button
-                                    type="button"
-                                    aria-label="Decrease quantity"
-                                    onClick={() =>
-                                      updateProductQuantity(
-                                        focusedProduct.id,
-                                        (productQuantities[focusedProduct.id] ??
-                                          1) - 1,
-                                      )
-                                    }
-                                    className="flex h-7 w-7 items-center justify-center rounded-full text-(--text-primary)"
-                                  >
-                                    <Minus size={14} />
-                                  </button>
-                                  <span className="min-w-6 text-center text-[13px] font-semibold text-(--text-primary)">
-                                    {productQuantities[focusedProduct.id] ?? 1}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    aria-label="Increase quantity"
-                                    onClick={() =>
-                                      updateProductQuantity(
-                                        focusedProduct.id,
-                                        (productQuantities[focusedProduct.id] ??
-                                          1) + 1,
-                                      )
-                                    }
-                                    className="flex h-7 w-7 items-center justify-center rounded-full text-(--text-primary)"
-                                  >
-                                    <Plus size={14} />
-                                  </button>
-                                </div>
-
-                                <p className="text-[11px] text-(--text-muted)">
-                                  {selectedProductIds.length === 1
-                                    ? "1 product in your cart"
-                                    : `${selectedProductIds.length} products in your cart`}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()
+                          return (
+                            <SuggestedProductCard
+                              key={product.id}
+                              product={product}
+                              quantity={qty}
+                              isActive={isActive}
+                              onQuantityChange={(nextQty) =>
+                                updateProductQuantity(product.id, nextQty)
+                              }
+                              onRemove={() =>
+                                removeProductFromSelection(product.id)
+                              }
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
                   )}
                 </section>
-                )}
-
-                {isProductFlow && (
-                  <SuggestedProductsRow
-                    products={suggestedProducts}
-                    onAddProduct={addSuggestedProduct}
-                  />
                 )}
 
                 {!isProductFlow && (
@@ -1464,90 +1503,90 @@ export function ExtendedOrganizationProfile({
                     </p>
                   )}
                   <div className="grid grid-cols-2 gap-1.5 xl:grid-cols-4">
-                    {organization.staff.map((member, index) => {
-                      const isAssignedSomewhere = Object.values(
-                        serviceStaff,
-                      ).includes(member.id);
-                      const isActiveAssignment =
-                        assigningServiceId != null &&
-                        serviceStaff[assigningServiceId] === member.id;
-                      const highlight =
-                        isActiveAssignment ||
-                        (!assigningServiceId && isAssignedSomewhere);
+                    {(() => {
+                      const focusedStaffServiceId =
+                        assigningServiceId ??
+                        previewServiceId ??
+                        selectedServiceIds[selectedServiceIds.length - 1] ??
+                        null;
 
-                      return (
-                      <article
-                        key={member.id}
-                        className={`flex h-full w-full flex-col overflow-hidden rounded-[16px] border bg-(--bg-card) shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 ${
-                          highlight
-                            ? "border-(--accent-primary) ring-1 ring-(--accent-primary)"
-                            : assigningServiceId
-                              ? "border-(--brand-gold)/40"
-                              : "border-(--border)"
-                        }`}
-                      >
-                        <div className="relative h-[96px] overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
-                          <span className="absolute left-2 top-2 z-10 h-2 w-2 rounded-full bg-(--success)" />
-                          <Image
-                            src={member.image}
-                            alt={member.name}
-                            fill
-                            sizes="160px"
-                            className="object-cover"
-                          />
-                        </div>
+                      return organization.staff.map((member, index) => {
+                        const isAssignedToFocusedService =
+                          focusedStaffServiceId != null &&
+                          serviceStaff[focusedStaffServiceId] === member.id;
 
-                        <div className="flex flex-1 flex-col px-2 pb-2 pt-2 text-center">
-                          <h3 className="line-clamp-1 text-[13px] font-semibold text-(--text-primary)">
-                            {member.name}
-                          </h3>
-                          <p className="mt-0.5 line-clamp-1 text-[10px] text-(--text-secondary)">
-                            {index === 0
-                              ? "Massage Expert"
-                              : index === 1
-                                ? "Spa Therapist"
-                                : index === 2
-                                  ? "Wellness Coach"
-                                  : "Thai Specialist"}
-                          </p>
-
-                          <div className="mt-1 flex items-center justify-center gap-0.5 text-[11px] font-medium text-(--text-secondary)">
-                            <Star
-                              size={11}
-                              className="fill-(--brand-gold) text-(--brand-gold)"
-                            />
-                            <span>{(4.9 - index * 0.1).toFixed(1)}</span>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleSelectStaffForService(member.id)}
-                            className={
-                              isActiveAssignment || (isAssignedSomewhere && !assigningServiceId)
-                                ? "primary-button mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold text-white"
-                                : "secondary-button mt-2 flex h-8 w-full items-center justify-center rounded-lg text-[11px] font-semibold"
-                            }
+                        return (
+                          <article
+                            key={member.id}
+                            className={`flex h-full w-full flex-col overflow-hidden rounded-[16px] border bg-(--bg-card) shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 ${
+                              isAssignedToFocusedService
+                                ? "border-(--accent-primary) ring-1 ring-(--accent-primary)"
+                                : assigningServiceId
+                                  ? "border-(--brand-gold)/40"
+                                  : "border-(--border)"
+                            }`}
                           >
-                            {isActiveAssignment ? (
-                              <>
-                                <Check size={13} />
-                                Selected
-                              </>
-                            ) : assigningServiceId ? (
-                              "Select"
-                            ) : isAssignedSomewhere ? (
-                              <>
-                                <Check size={13} />
-                                Assigned
-                              </>
-                            ) : (
-                              "Select"
-                            )}
-                          </button>
-                        </div>
-                      </article>
-                      );
-                    })}
+                            <div className="relative h-[96px] overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
+                              <span className="absolute left-2 top-2 z-10 h-2 w-2 rounded-full bg-(--success)" />
+                              <Image
+                                src={member.image}
+                                alt={member.name}
+                                fill
+                                sizes="160px"
+                                className="object-cover"
+                              />
+                            </div>
+
+                            <div className="flex flex-1 flex-col px-2 pb-2 pt-2 text-center">
+                              <h3 className="line-clamp-1 text-[13px] font-semibold text-(--text-primary)">
+                                {member.name}
+                              </h3>
+                              <p className="mt-0.5 line-clamp-1 text-[10px] text-(--text-secondary)">
+                                {index === 0
+                                  ? "Massage Expert"
+                                  : index === 1
+                                    ? "Spa Therapist"
+                                    : index === 2
+                                      ? "Wellness Coach"
+                                      : "Thai Specialist"}
+                              </p>
+
+                              <div className="mt-1 flex items-center justify-center gap-0.5 text-[11px] font-medium text-(--text-secondary)">
+                                <Star
+                                  size={11}
+                                  className="fill-(--brand-gold) text-(--brand-gold)"
+                                />
+                                <span>{(4.9 - index * 0.1).toFixed(1)}</span>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleSelectStaffForService(
+                                    member.id,
+                                    focusedStaffServiceId ?? undefined,
+                                  )
+                                }
+                                className={
+                                  isAssignedToFocusedService
+                                    ? "primary-button mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold text-white"
+                                    : "secondary-button mt-2 flex h-8 w-full items-center justify-center rounded-lg text-[11px] font-semibold"
+                                }
+                              >
+                                {isAssignedToFocusedService ? (
+                                  <>
+                                    <Check size={13} strokeWidth={2.5} />
+                                    Assigned
+                                  </>
+                                ) : (
+                                  "Select"
+                                )}
+                              </button>
+                            </div>
+                          </article>
+                        );
+                      });
+                    })()}
                   </div>
                 </section>
                 )}

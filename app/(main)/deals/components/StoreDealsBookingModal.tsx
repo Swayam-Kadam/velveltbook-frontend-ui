@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
-import { Check, MapPin, Star, Store, X } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Check, ChevronLeft, ChevronRight, MapPin, Star, Store, X } from "lucide-react";
 import { buildBookingUrl } from "@/booking/booking.navigation";
 import type { BookingPackageService } from "./desktopBookingPackages";
 import { useStoreDealsBooking } from "../hooks/useStoreDealsBooking";
@@ -128,6 +128,7 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
   const {
     isOpen,
     isLoading,
+    clickedDeal,
     store,
     packages,
     activePackageId,
@@ -139,6 +140,17 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
     setActivePackage,
     toggleService,
   } = booking;
+
+  const packageScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollPackages = (direction: "left" | "right") => {
+    const el = packageScrollRef.current;
+    if (!el) return;
+    el.scrollBy({
+      left: direction === "left" ? -el.clientWidth : el.clientWidth,
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -166,7 +178,15 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
         })
       : "#";
 
-  const packageLabels = ["package 1", "package 2", "package 3", "package 4"];
+  const tabPrefix = clickedDeal?.type === "single" ? "Single" : "Package";
+  const packageLabels = [
+    `${tabPrefix} 1`,
+    `${tabPrefix} 2`,
+    `${tabPrefix} 3`,
+    `${tabPrefix} 4`,
+    `${tabPrefix} 5`,
+    `${tabPrefix} 6`,
+  ];
   const originalUnitPrice =
     activePackage && activePackage.services.length > 0
       ? Number(
@@ -264,34 +284,68 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
                 Select discounted services from this store
               </p>
 
-              <div className="flex justify-between items-center gap-1">
-                {packageLabels.map((label, index) => {
-                  const pkg = packages[index];
-                  const isActive = Boolean(
-                    pkg && pkg.id === (activePackage?.id ?? activePackageId),
-                  );
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => scrollPackages("left")}
+                  aria-label="Scroll packages left"
+                  className="
+                    flex h-5 w-5 shrink-0 items-center justify-center rounded-full
+                    border border-(--border) bg-(--bg-card) text-(--text-primary)
+                    transition-colors hover:bg-(--bg-card-hover)
+                  "
+                >
+                  <ChevronLeft size={12} strokeWidth={2.5} />
+                </button>
 
-                  return (
-                    <button
-                      key={label}
-                      type="button"
-                      disabled={!pkg}
-                      onClick={() => {
-                        if (pkg) setActivePackage(pkg.id);
-                      }}
-                      className={`
-                        text-[10px] font-medium border border-(--border) rounded-xs px-2 py-1
-                        ${
-                          isActive
-                            ? "primary-button text-white"
-                            : "bg-(--bg-card) text-(--text-primary)"
-                        }
-                      `}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
+                <div
+                  ref={packageScrollRef}
+                  className="flex min-w-0 flex-1 gap-1 overflow-x-auto scroll-smooth scrollbar-none"
+                >
+                  {packageLabels.map((label, index) => {
+                    const pkg = packages[index];
+                    const isActive = Boolean(
+                      pkg && pkg.id === (activePackage?.id ?? activePackageId),
+                    );
+
+                    return (
+                      <button
+                        key={label}
+                        type="button"
+                        disabled={!pkg}
+                        onClick={() => {
+                          if (pkg) setActivePackage(pkg.id);
+                        }}
+                        className={`
+                          shrink-0 basis-[calc((100%-0.75rem)/4)] truncate
+                          rounded-xs border border-(--border) py-1
+                          text-center text-[10px] font-medium
+                          disabled:cursor-not-allowed disabled:opacity-40
+                          ${
+                            isActive
+                              ? "primary-button text-white"
+                              : "bg-(--bg-card) text-(--text-primary)"
+                          }
+                        `}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => scrollPackages("right")}
+                  aria-label="Scroll packages right"
+                  className="
+                    flex h-5 w-5 shrink-0 items-center justify-center rounded-full
+                    border border-(--border) bg-(--bg-card) text-(--text-primary)
+                    transition-colors hover:bg-(--bg-card-hover)
+                  "
+                >
+                  <ChevronRight size={12} strokeWidth={2.5} />
+                </button>
               </div>
 
               {activePackage?.services.map((service) => (

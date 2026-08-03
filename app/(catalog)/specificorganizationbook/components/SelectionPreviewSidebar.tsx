@@ -138,12 +138,32 @@ export function SelectionPreviewSidebar({
 
   const suggestionItems = suggestions?.items ?? [];
   const suggestionMeta = suggestions?.meta;
+  const hasSelection = itemCount > 0;
 
   return (
     <aside className="order-2 xl:order-none">
-      <div className="flex flex-col gap-3 xl:sticky xl:top-24 xl:h-[calc(100dvh-7.5rem)] xl:min-h-[680px]">
-        {/* ========== TOP HALF: Your Selection ========== */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
+      <div
+        className={
+          hasSelection
+            ? "flex flex-col gap-3"
+            : "flex flex-col gap-3 xl:sticky xl:top-24 xl:h-[calc(100dvh-7.5rem)] xl:min-h-[680px]"
+        }
+      >
+        {/* ========== TOP: Your Selection ========== */}
+        <div
+          className={
+            hasSelection
+              ? `
+                flex h-[calc(100dvh-7.5rem)] min-h-[680px] shrink-0 flex-col
+                overflow-hidden rounded-[22px] border border-(--border)
+                bg-(--bg-card) shadow-[var(--shadow-card)]
+              `
+              : `
+                flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px]
+                border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]
+              `
+          }
+        >
           <div className="shrink-0 px-4 pt-4 pb-2">
             <h2 className="text-base font-semibold text-(--text-primary) lg:text-lg">
               Your Selection
@@ -381,8 +401,20 @@ export function SelectionPreviewSidebar({
           </div>
         </div>
 
-        {/* ========== BOTTOM HALF: Suggestions (negotiation-page UI) ========== */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
+        {/* ========== BOTTOM: Suggestions ========== */}
+        <div
+          className={
+            hasSelection
+              ? `
+                flex h-[360px] shrink-0 flex-col overflow-hidden rounded-[22px]
+                border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]
+              `
+              : `
+                flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px]
+                border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]
+              `
+          }
+        >
           <div className="flex shrink-0 items-center justify-between px-4 pt-4 pb-3">
             <h2 className="font-[family-name:var(--font-heading)] text-[18px] font-semibold text-(--text-primary) xl:text-[20px]">
               {suggestionMeta?.title ?? "Suggestions"}

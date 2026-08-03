@@ -62,8 +62,8 @@ function formatTimeParts(time: string) {
 
 function  tabClassName(complete: boolean, active: boolean) {
   const fill = complete
-    ? "bg-(--success) text-white"
-    : "bg-yellow-500 text-(--text-primary)";
+    ? "bg-(--accent-primary) text-white"
+    : "bg-(--accent-primary) text-white";
 
   const border = active
     ? "border-2 border-(--brand-gold) shadow-(--shadow-glow)"

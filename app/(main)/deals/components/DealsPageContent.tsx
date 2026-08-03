@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   BadgeCheck,
   Check,
+  ChevronLeft,
+  ChevronRight,
   CreditCard,
   Headphones,
   Heart,
@@ -51,6 +53,7 @@ function getDealTags(deal: Deal) {
 
 function DesktopSalonSidebar({
   deals,
+  dealType,
   bookingDeal,
   packages,
   activePackageId,
@@ -60,6 +63,7 @@ function DesktopSalonSidebar({
   onToggleService,
 }: {
   deals: Deal[];
+  dealType: Deal["type"];
   bookingDeal: Deal | null;
   packages: BookingPackage[];
   activePackageId: string;
@@ -71,6 +75,7 @@ function DesktopSalonSidebar({
   const isBooking = Boolean(bookingDeal);
   const featured = bookingDeal ?? deals[0];
   const listDeals = deals.slice(0, 4);
+  const packageScrollRef = useRef<HTMLDivElement>(null);
 
   const activePackage =
     packages.find((pkg) => pkg.id === activePackageId) ?? packages[0] ?? null;
@@ -81,7 +86,24 @@ function DesktopSalonSidebar({
 
   if (!featured) return null;
 
-  const packageLabels = ["Package 1", "Package 2", "Package 3", "Package 4"];
+  const tabPrefix = dealType === "single" ? "Single" : "Package";
+  const packageLabels = [
+    `${tabPrefix} 1`,
+    `${tabPrefix} 2`,
+    `${tabPrefix} 3`,
+    `${tabPrefix} 4`,
+    `${tabPrefix} 5`,
+    `${tabPrefix} 6`,
+  ];
+
+  const scrollPackages = (direction: "left" | "right") => {
+    const el = packageScrollRef.current;
+    if (!el) return;
+    el.scrollBy({
+      left: direction === "left" ? -el.clientWidth : el.clientWidth,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <aside className="space-y-3">
@@ -167,31 +189,67 @@ function DesktopSalonSidebar({
         </div>
       </section>
 
-      <div className="grid grid-cols-4 gap-1.5">
-        {packageLabels.map((label, index) => {
-          const pkg = packages[index];
-          const isActive = isBooking
-            ? Boolean(pkg && pkg.id === activePackage?.id)
-            : index === 0;
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => scrollPackages("left")}
+          aria-label="Scroll packages left"
+          className="
+            flex h-7 w-7 shrink-0 items-center justify-center rounded-full
+            border border-(--border) bg-(--bg-card) text-(--text-primary)
+            transition-colors hover:bg-(--bg-card-hover)
+          "
+        >
+          <ChevronLeft size={14} strokeWidth={2.5} />
+        </button>
 
-          return (
-            <button
-              key={label}
-              type="button"
-              disabled={!isBooking || !pkg}
-              onClick={() => {
-                if (pkg) onActivePackageChange(pkg.id);
-              }}
-              className={`h-9 rounded-xl border text-[11px] font-semibold transition-colors ${
-                isActive
-                  ? "border-(--accent-primary) bg-(--accent-primary) text-white"
-                  : "border-(--border) bg-(--bg-card) text-(--text-primary)"
-              } ${!isBooking || !pkg ? "cursor-default" : ""}`}
-            >
-              {label}
-            </button>
-          );
-        })}
+        <div
+          ref={packageScrollRef}
+          className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto scroll-smooth scrollbar-none"
+        >
+          {packageLabels.map((label, index) => {
+            const pkg = packages[index];
+            const isActive = isBooking
+              ? Boolean(pkg && pkg.id === activePackage?.id)
+              : index === 0;
+
+            return (
+              <button
+                key={label}
+                type="button"
+                disabled={!isBooking || !pkg}
+                onClick={() => {
+                  if (pkg) onActivePackageChange(pkg.id);
+                }}
+                className={`
+                  h-9 shrink-0 basis-[calc((100%-1.125rem)/4)] truncate
+                  rounded-xl border text-[11px] font-semibold transition-colors
+                  ${
+                    isActive
+                      ? "border-(--accent-primary) bg-(--accent-primary) text-white"
+                      : "border-(--border) bg-(--bg-card) text-(--text-primary)"
+                  }
+                  ${!isBooking || !pkg ? "cursor-default" : ""}
+                `}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => scrollPackages("right")}
+          aria-label="Scroll packages right"
+          className="
+            flex h-7 w-7 shrink-0 items-center justify-center rounded-full
+            border border-(--border) bg-(--bg-card) text-(--text-primary)
+            transition-colors hover:bg-(--bg-card-hover)
+          "
+        >
+          <ChevronRight size={14} strokeWidth={2.5} />
+        </button>
       </div>
 
       <section className="space-y-2.5">
@@ -249,7 +307,9 @@ function DesktopSalonSidebar({
                     </div>
 
                     <p className="mt-0.5 text-[10px] text-(--text-muted)">
-                      Package service
+                      {dealType === "single"
+                        ? "Single deal"
+                        : "Package service"}
                     </p>
                   </div>
 
@@ -263,10 +323,10 @@ function DesktopSalonSidebar({
                         ? `Remove ${service.label}`
                         : `Add ${service.label}`
                     }
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white ${
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full cursor-pointer ${
                       isSelected
-                        ? "bg-(--success)"
-                        : "bg-(--accent-primary)"
+                        ? "bg-(--accent-primary) text-white"
+                        : "bg-white text-(--accent-primary) border border-(--border) border-3"
                     }`}
                   >
                     {isSelected ? (
@@ -535,16 +595,23 @@ export function DealsPageContent() {
     setSelectedServicesByPackage(createDefaultServiceSelection(packages));
   };
 
-  // Desktop default: first card + Package 1 + all its services selected.
+  // Keep desktop sidebar options in sync with Single / Package toggle.
   useEffect(() => {
-    if (desktopBookingDeal || allDeals.length === 0) return;
+    if (allDeals.length === 0) {
+      setDesktopBookingDeal(null);
+      setDesktopPackages([]);
+      setActivePackageId("");
+      setSelectedServicesByPackage({});
+      return;
+    }
+
     const firstDeal = allDeals[0];
     const packages = buildDesktopBookingPackages(firstDeal, allDeals);
     setDesktopBookingDeal(firstDeal);
     setDesktopPackages(packages);
     setActivePackageId(packages[0]?.id ?? "");
     setSelectedServicesByPackage(createDefaultServiceSelection(packages));
-  }, [allDeals, desktopBookingDeal]);
+  }, [allDeals, filters.dealType]);
 
   const toggleDesktopService = (packageId: string, serviceId: string) => {
     setSelectedServicesByPackage((current) => {
@@ -618,6 +685,7 @@ export function DealsPageContent() {
       <div className="hidden lg:grid lg:grid-cols-[380px_minmax(0,1fr)] lg:items-start lg:gap-5">
         <DesktopSalonSidebar
           deals={allDeals}
+          dealType={filters.dealType}
           bookingDeal={desktopBookingDeal}
           packages={desktopPackages}
           activePackageId={activePackageId}

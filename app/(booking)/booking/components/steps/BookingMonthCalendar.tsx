@@ -172,7 +172,7 @@ export function BookingMonthCalendar({
                 if (bookingDay) onSelectDay(bookingDay.id);
               }}
               className={`
-                flex h-8 items-center justify-center rounded-full text-[11px]
+                flex h-5 items-center justify-center rounded-xs text-[11px]
                 font-semibold transition-all
                 ${
                   active
