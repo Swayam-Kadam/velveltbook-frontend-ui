@@ -25,6 +25,7 @@ import {
 import { TimingsDropdown } from "@/components/TimingsDropdown";
 import { CategorySidebar } from "@/menu/components/CategorySidebar";
 import { MenuProductCard } from "@/menu/components/MenuProductCard";
+import { MenuProductGalleryModal } from "./MenuProductGalleryModal";
 import { ServiceCard } from "@/menu/components/ServiceCard";
 import {
   SERVICES_PER_PAGE,
@@ -151,6 +152,7 @@ export function ExtendedOrganizationProfile({
   organization,
   suggestions,
 }: ExtendedOrganizationProfileProps) {
+  const menuSectionRef = useRef<HTMLDivElement>(null);
   const [activeCategory, setActiveCategory] = useState("massage");
   const [menuTab, setMenuTab] = useState<MenuCatalogTab>("service");
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
@@ -170,7 +172,49 @@ export function ExtendedOrganizationProfile({
   >({});
   const [page, setPage] = useState(1);
   const [productPreviewPage, setProductPreviewPage] = useState(1);
+  const [showAllReviews, setShowAllReviews] = useState(false);
+  const [galleryProduct, setGalleryProduct] = useState<
+    (typeof allMenuProducts)[number] | null
+  >(null);
   const serviceTabsScrollRef = useRef<HTMLDivElement>(null);
+
+  const reviewStats = useMemo(() => {
+    const reviews = organization.reviews ?? [];
+    const count = reviews.length;
+    const average =
+      count > 0
+        ? reviews.reduce((sum, review) => sum + review.rating, 0) / count
+        : 4.8;
+    const distribution = [5, 4, 3, 2, 1].map((star) => {
+      const starCount = reviews.filter(
+        (review) => Math.round(review.rating) === star,
+      ).length;
+      return {
+        star,
+        starCount,
+        percent: count > 0 ? Math.round((starCount / count) * 100) : 0,
+      };
+    });
+    return {
+      count,
+      average: Number(average.toFixed(1)),
+      distribution,
+    };
+  }, [organization.reviews]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#menu-section") return;
+
+    const timer = window.setTimeout(() => {
+      menuSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const scrollPreviewTabs = (
     ref: React.RefObject<HTMLDivElement | null>,
@@ -743,7 +787,11 @@ export function ExtendedOrganizationProfile({
           onBookNow={handleBookNowMobile}
         />
 
-        <div className="space-y-2">
+        <div
+          id="menu-section"
+          ref={menuSectionRef}
+          className="scroll-mt-20 space-y-2"
+        >
           <div
             className="
               inline-flex w-full rounded-full border border-(--border)
@@ -846,6 +894,7 @@ export function ExtendedOrganizationProfile({
                         product={product}
                         selected={selectedProductIds.includes(product.id)}
                         onSelect={() => toggleProduct(product.id)}
+                        onTitleClick={() => setGalleryProduct(product)}
                       />
                     ))
                   ) : (
@@ -922,6 +971,151 @@ export function ExtendedOrganizationProfile({
           </div>
         </div>
         </div>
+
+        <section className="space-y-3 pt-1 lg:hidden">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-[13px] font-bold text-(--text-primary)">
+                Customer Reviews
+              </h2>
+              <p className="text-[9px] font-semibold text-(--text-muted)">
+                What guests say about {organization.name}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="
+                inline-flex items-center gap-1 rounded-full border
+                border-(--brand-gold)/50
+                bg-[color-mix(in_srgb,var(--brand-gold)_8%,transparent)]
+                px-2.5 py-1.5 text-[10px] font-semibold text-(--brand-gold)
+              "
+            >
+              <Plus size={12} strokeWidth={2.5} />
+              Write a review
+            </button>
+          </div>
+
+          <div className="feature-card rounded-xl p-3">
+            <div className="flex items-center gap-4">
+              <div className="flex shrink-0 flex-col items-center">
+                <span className="text-[26px] font-bold leading-none text-(--text-primary)">
+                  {reviewStats.average.toFixed(1)}
+                </span>
+                <div className="mt-1 flex items-center gap-0.5">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Star
+                      key={index}
+                      size={11}
+                      className={
+                        index < Math.round(reviewStats.average)
+                          ? "fill-(--brand-gold) text-(--brand-gold)"
+                          : "text-(--border)"
+                      }
+                    />
+                  ))}
+                </div>
+                <span className="mt-1 text-[8px] font-semibold text-(--text-muted)">
+                  {reviewStats.count > 0
+                    ? `${reviewStats.count} review${reviewStats.count === 1 ? "" : "s"}`
+                    : "120+ reviews"}
+                </span>
+              </div>
+
+              <div className="min-w-0 flex-1 space-y-1">
+                {reviewStats.distribution.map((row) => (
+                  <div key={row.star} className="flex items-center gap-2">
+                    <span className="flex w-5 shrink-0 items-center gap-0.5 text-[8px] font-semibold text-(--text-muted)">
+                      {row.star}
+                      <Star
+                        size={8}
+                        className="fill-(--brand-gold) text-(--brand-gold)"
+                      />
+                    </span>
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-(--bg-secondary)">
+                      <div
+                        className="h-full rounded-full bg-(--brand-gold)"
+                        style={{ width: `${row.percent}%` }}
+                      />
+                    </div>
+                    <span className="w-6 shrink-0 text-right text-[8px] font-semibold text-(--text-muted)">
+                      {row.percent}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {organization.reviews && organization.reviews.length > 0 && (
+            <div className="space-y-2">
+              {(showAllReviews
+                ? organization.reviews
+                : organization.reviews.slice(0, 3)
+              ).map((review) => (
+                <article
+                  key={review.id}
+                  className="feature-card rounded-xl p-3"
+                >
+                  <div className="flex items-start gap-2.5">
+                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-(--border)">
+                      <Image
+                        src={review.avatar}
+                        alt={review.name}
+                        fill
+                        sizes="36px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="truncate text-[11px] font-bold text-(--text-primary)">
+                          {review.name}
+                        </p>
+                        <span className="shrink-0 text-[8px] font-semibold text-(--text-muted)">
+                          {review.date}
+                        </span>
+                      </div>
+                      <div className="mt-0.5 flex items-center gap-0.5">
+                        {Array.from({ length: 5 }).map((_, index) => (
+                          <Star
+                            key={index}
+                            size={10}
+                            className={
+                              index < Math.floor(review.rating)
+                                ? "fill-(--brand-gold) text-(--brand-gold)"
+                                : "text-(--border)"
+                            }
+                          />
+                        ))}
+                      </div>
+                      <p className="mt-1.5 text-[10px] leading-relaxed text-(--text-secondary)">
+                        {review.text}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+
+              {organization.reviews.length > 3 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllReviews((value) => !value)}
+                  className="
+                    flex w-full items-center justify-center gap-1 rounded-xl
+                    border border-(--border) bg-(--bg-card) py-2 text-[10px]
+                    font-semibold text-(--text-primary)
+                  "
+                >
+                  {showAllReviews
+                    ? "Show less"
+                    : `Show all ${organization.reviews.length} reviews`}
+                  <ChevronRight size={12} strokeWidth={2.5} />
+                </button>
+              )}
+            </div>
+          )}
+        </section>
 
         <div
           className="
@@ -1645,7 +1839,7 @@ export function ExtendedOrganizationProfile({
               </div>
 
               <aside className="order-3 xl:order-none">
-                <div className="space-y-5 xl:sticky xl:top-24">
+                <div className="space-y-5">
                   <div className="rounded-[var(--radius-lg)] border border-(--border) bg-(--bg-card) p-4 shadow-[var(--shadow-card)] lg:p-5">
                     <MenuCatalogTabs
                       active={menuTab}
@@ -1711,6 +1905,9 @@ export function ExtendedOrganizationProfile({
                                       product.id,
                                     )}
                                     onSelect={() => toggleProduct(product.id)}
+                                    onTitleClick={() =>
+                                      setGalleryProduct(product)
+                                    }
                                   />
                                 ))
                               ) : (
@@ -1904,6 +2101,13 @@ export function ExtendedOrganizationProfile({
           setDateTimeModalOpen(false);
         }}
       />
+
+      {galleryProduct && (
+        <MenuProductGalleryModal
+          product={galleryProduct}
+          onClose={() => setGalleryProduct(null)}
+        />
+      )}
     </>
   );
 }

@@ -250,7 +250,8 @@ export function BookingFlow() {
         totalLabel: `$${servicesTotal}`,
         buttonLabel: "Continue to Payment",
         onAction: () => {
-          if (seatConfirmed) setStep(4);
+          // Seat selection removed — proceed without seat confirmation.
+          setStep(4);
         },
       };
     }
@@ -399,9 +400,7 @@ export function BookingFlow() {
           buttonLabel={footer.buttonLabel}
           onAction={footer.onAction}
           showLock={footer.showLock}
-          disabled={
-            isProductFlow ? false : step === 3 && !seatConfirmed
-          }
+          disabled={false}
           buttonSubtext={"buttonSubtext" in footer ? footer.buttonSubtext : undefined}
         />
       )}

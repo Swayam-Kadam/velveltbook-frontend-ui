@@ -29,6 +29,9 @@ export function SalonInfoCard({ organization }: SalonInfoCardProps) {
         <div className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold">
           <MapPin size={9} className="text-(--success)" />
           <span className="text-(--success)">{organization.status}</span>
+
+          <MapPin size={9} className="text-(--primary) ml-3" />
+          <span className="text-(--primary)">{organization.address ?organization.address : "142 Springvale Rd, Cheltenham"}</span>
         </div>
       </div>
 

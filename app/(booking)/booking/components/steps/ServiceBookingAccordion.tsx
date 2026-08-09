@@ -11,6 +11,7 @@ import {
   Star,
   Trash2,
   UserRound,
+  X,
 } from "lucide-react";
 
 import type { ExpertType } from "@/menu/components/ExpertSelection";
@@ -247,6 +248,9 @@ export function ServiceBookingAccordion({
   const [activeTabByService, setActiveTabByService] = useState<
     Record<string, PanelTab>
   >({});
+  const [dateTimeModalServiceId, setDateTimeModalServiceId] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     if (selectedServiceIds.length === 0) {
@@ -292,6 +296,13 @@ export function ServiceBookingAccordion({
   const scheduledCount = selectedServiceIds.filter((id) =>
     isServiceScheduleComplete(schedules[id]),
   ).length;
+
+  const dateTimeModalService = dateTimeModalServiceId
+    ? selectedServices.find((service) => service.id === dateTimeModalServiceId)
+    : undefined;
+  const dateTimeModalSchedule = dateTimeModalServiceId
+    ? schedules[dateTimeModalServiceId] ?? createDefaultServiceSchedule()
+    : undefined;
 
   return (
     <section className="feature-card overflow-hidden rounded-xl">
@@ -453,14 +464,14 @@ export function ServiceBookingAccordion({
                       <span className="flex items-center gap-1">
                         <UserRound size={11} />
                         <span> {staffDone && assignedStaff
-                          ? assignedStaff.name
+                          ? assignedStaff.name +" (Staff)"
                           : "Select Staff"}</span>
                       </span>
                       {activeTab !== "staff" ? <ChevronDown size={11} /> : <ChevronUp size={11} />}
                     </button>
                     <button
                       type="button"
-                      onClick={() => setActiveTab(service.id, "datetime")}
+                      onClick={() => setDateTimeModalServiceId(service.id)}
                       className={tabClassName(
                         scheduleDone,
                         activeTab === "datetime",
@@ -474,9 +485,8 @@ export function ServiceBookingAccordion({
                     </button>
                   </div>
 
-                  {activeTab === "staff" ? (
-                    <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
-                      {staffForService.map((therapist) => {
+                  <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
+                    {staffForService.map((therapist) => {
                         const active = therapist.id === assignedStaffId;
 
                         return (
@@ -536,31 +546,86 @@ export function ServiceBookingAccordion({
                           </button>
                         );
                       })}
-                    </div>
-                  ) : (
-                    <div className="space-y-2.5">
-                      <BookingMonthCalendar
-                        days={bookingDays}
-                        activeDayId={schedule.dayId}
-                        onSelectDay={(dayId) =>
-                          onSelectDay(service.id, dayId)
-                        }
-                      />
-                      <MobileTimeSlots
-                        activeDayId={schedule.dayId}
-                        activeTime={schedule.time}
-                        onSelectTime={(time) =>
-                          onSelectTime(service.id, time)
-                        }
-                      />
-                    </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
           );
         })}
       </div>
+
+      {dateTimeModalServiceId && dateTimeModalService && dateTimeModalSchedule && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-3 pb-25"
+          onClick={() => setDateTimeModalServiceId(null)}
+          role="presentation"
+        >
+          <div
+            className="
+              flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden
+              rounded-2xl bg-(--bg-primary) shadow-(--shadow-glow)
+              sm:rounded-2xl
+            "
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="service-datetime-title"
+          >
+            <div className="flex items-center justify-between gap-2 border-b border-(--border) px-4 py-3">
+              <div className="min-w-0">
+                <h3
+                  id="service-datetime-title"
+                  className="truncate text-sm font-bold text-(--text-primary)"
+                >
+                  Select Date &amp; Time
+                </h3>
+                <p className="mt-0.5 truncate text-[11px] text-(--text-muted)">
+                  {dateTimeModalService.name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDateTimeModalServiceId(null)}
+                aria-label="Close"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-(--border) text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)"
+              >
+                <X size={14} strokeWidth={2.5} />
+              </button>
+            </div>
+
+            <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto p-4">
+              <BookingMonthCalendar
+                days={bookingDays}
+                activeDayId={dateTimeModalSchedule.dayId}
+                onSelectDay={(dayId) =>
+                  onSelectDay(dateTimeModalServiceId, dayId)
+                }
+              />
+              <MobileTimeSlots
+                activeDayId={dateTimeModalSchedule.dayId}
+                activeTime={dateTimeModalSchedule.time}
+                onSelectTime={(time) =>
+                  onSelectTime(dateTimeModalServiceId, time)
+                }
+              />
+            </div>
+
+            <div className="shrink-0 border-t border-(--border) p-3.5">
+              <button
+                type="button"
+                onClick={() => setDateTimeModalServiceId(null)}
+                className="
+                  primary-button flex h-11 w-full items-center justify-center gap-2
+                  rounded-xl text-[14px] font-semibold text-white
+                  transition-opacity hover:opacity-90
+                "
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

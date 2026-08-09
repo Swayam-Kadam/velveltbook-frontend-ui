@@ -193,13 +193,14 @@ export function Step2StaffSelection({
       return;
     }
 
-    if (!seatConfirmed) {
-      await showBookingWarning(
-        "Confirm your seat",
-        "Please select a seat before continuing.",
-      );
-      return;
-    }
+    // Seat selection removed — no seat confirmation required.
+    // if (!seatConfirmed) {
+    //   await showBookingWarning(
+    //     "Confirm your seat",
+    //     "Please select a seat before continuing.",
+    //   );
+    //   return;
+    // }
 
     onNext();
   };
@@ -221,15 +222,16 @@ export function Step2StaffSelection({
     />
   );
 
-  const renderSeatSection = () => (
-    <SelectSeat
-      seats={bookingSeats}
-      selectedSeatId={selectedSeatId}
-      seatConfirmed={seatConfirmed}
-      onSelectSeat={onSelectSeat}
-      onConfirmSeat={onConfirmSeat}
-    />
-  );
+  // Seat selection removed.
+  // const renderSeatSection = () => (
+  //   <SelectSeat
+  //     seats={bookingSeats}
+  //     selectedSeatId={selectedSeatId}
+  //     seatConfirmed={seatConfirmed}
+  //     onSelectSeat={onSelectSeat}
+  //     onConfirmSeat={onConfirmSeat}
+  //   />
+  // );
 
   return (
     <>
@@ -248,7 +250,7 @@ export function Step2StaffSelection({
         />
 
         {renderMobileBookingAccordion()}
-        {renderSeatSection()}
+        {/* Seat selection removed */}
 
         <section className="feature-card grid grid-cols-[1fr_auto_auto] items-center gap-2 rounded-[14px] p-2.5 sm:p-3">
           <div className="min-w-0">
@@ -508,7 +510,7 @@ export function Step2StaffSelection({
                 onRemoveService ? handleRemoveService : undefined
               }
             />
-            {renderSeatSection()}
+            {/* Seat selection removed */}
           </div>
         </section>
       </div>

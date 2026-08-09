@@ -20,6 +20,7 @@ interface SelectableStoreServiceCardProps {
   originalUnitPrice: number;
   isSelected: boolean;
   onToggle: () => void;
+  locked?: boolean;
 }
 
 function SelectableStoreServiceCard({
@@ -30,14 +31,17 @@ function SelectableStoreServiceCard({
   originalUnitPrice,
   isSelected,
   onToggle,
+  locked = false,
 }: SelectableStoreServiceCardProps) {
   return (
     <button
       type="button"
-      onClick={onToggle}
+      onClick={locked ? undefined : onToggle}
+      aria-disabled={locked}
       className={`
         feature-card w-full overflow-hidden rounded-xl text-left
         transition-all duration-200
+        ${locked ? "cursor-default" : ""}
         ${isSelected
           ? "border-(--brand-gold) shadow-(--shadow-glow)"
           : "border-(--border)"
@@ -170,15 +174,19 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
 
   if (!isOpen) return null;
 
+  const bookingServiceIds = Array.from(
+    new Set(selectedServices.map((service) => service.menuServiceId)),
+  );
   const bookingHref =
-    selectedServiceIds.length > 0
+    bookingServiceIds.length > 0
       ? buildBookingUrl({
-          serviceIds: selectedServiceIds,
+          serviceIds: bookingServiceIds,
           step: 2,
         })
       : "#";
 
   const tabPrefix = clickedDeal?.type === "single" ? "Single" : "Package";
+  const isPackageFlow = clickedDeal?.type !== "single";
   const packageLabels = [
     `${tabPrefix} 1`,
     `${tabPrefix} 2`,
@@ -356,10 +364,13 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
                   packageTitle={activePackage.title}
                   discountPercent={activePackage.discountPercent}
                   originalUnitPrice={originalUnitPrice}
-                  isSelected={selectedServiceIds.includes(service.id)}
+                  isSelected={
+                    isPackageFlow || selectedServiceIds.includes(service.id)
+                  }
                   onToggle={() =>
                     toggleService(activePackage.id, service.id)
                   }
+                  locked={isPackageFlow}
                 />
               ))}
             </div>

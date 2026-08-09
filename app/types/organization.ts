@@ -60,6 +60,7 @@ export interface ExtendedOrganization {
   id: string;
   name: string;
   status: string;
+  address?: string;
   thumbnail: string;
   heroImages: string[];
   availability: string;

@@ -471,6 +471,7 @@ export const extendedOrganizations: Record<string, ExtendedOrganization> = {
     id: "org-trending-2",
     name: "lori massage parlour",
     status: "Online",
+    address: "18 Puckle St, Moonee Ponds",
     thumbnail:
       "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200&h=200&fit=crop",
     heroImages: [
@@ -497,6 +498,7 @@ export const extendedOrganizations: Record<string, ExtendedOrganization> = {
     id: "store-1",
     name: "Glamour Salon",
     status: "Online",
+    address: "42 Mount Alexander Rd, Ascot Vale",
     thumbnail:
       "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=200&h=200&fit=crop",
     heroImages: [

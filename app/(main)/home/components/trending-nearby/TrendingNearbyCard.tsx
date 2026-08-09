@@ -16,6 +16,7 @@ import {
     Flower2,
     HeartHandshake,
     Droplets,
+    Play,
 } from "lucide-react";
 
 import { TrendingNearbyActions } from "./TrendingNearbyActions";
@@ -69,11 +70,19 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
                                 type="trending-nearby"
                             />
 
-                            <button className="flex h-5 w-5 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md">
-                                <PlayCircle size={12} />
+                            <button className=" primary-button flex h-5 px-2 items-center justify-center rounded-[4px]  text-white ">
+                                <Play size={10} />
                             </button>
 
-                            <button className="flex h-5 w-5 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md">
+                            {/* <button className="flex h-5 w-5 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md">
+                                <Share2 size={12} />
+                            </button> */}
+
+                        </div>
+
+                        <div className="absolute right-2 top-39 z-30">
+
+                            <button className="flex primary-button h-5 w-5 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md">
                                 <Share2 size={12} />
                             </button>
 
@@ -95,18 +104,19 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
 
                             <div>
 
-                                <p className="text-[10px] font-medium h-7">
+                                <p className="text-[10px] font-medium h-7 w-17">
                                     {item.name}
                                 </p>
 
-                                <p className="text-[8px] text-(--text-secondary)">
-                                    {item.service}
+                                <p className="text-[8px] flex text-(--text-primary) gap-1">
+                                <MapPin size={10} className="mt-0.5 text-bold" />{item.address ?? item.service}
                                 </p>
+                                
 
-                                <div className="mt-1 flex items-center gap-1 text-[8px]">
+                                {/* <div className="mt-1 flex items-center gap-1 text-[8px]">
                                     <MapPin size={8} />
                                     {item.distance}
-                                </div>
+                                </div> */}
 
                             </div>
 

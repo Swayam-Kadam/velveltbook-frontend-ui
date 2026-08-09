@@ -44,7 +44,7 @@ export function HeroSlide({
 
   return (
     <div className="relative overflow-hidden rounded-xl border border-(--border) dark:border-white/10 lg:rounded-[8px]">
-      <div className="relative min-h-[200px] w-full lg:min-h-[330px] xl:min-h-[330px]">
+      <div className="relative min-h-[170px] w-full lg:min-h-[330px] xl:min-h-[330px]">
         <Image
           src={image}
           alt={title}

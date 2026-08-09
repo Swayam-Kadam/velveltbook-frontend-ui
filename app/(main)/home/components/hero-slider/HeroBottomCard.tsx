@@ -33,7 +33,8 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
       `}
         >
             <Link
-                href={organizationHref}
+                // href={organizationHref}
+                href={"#"}
                 className="flex items-center gap-4 transition-opacity duration-200 hover:opacity-90 lg:gap-3"
             >
                 <div className="relative h-10 w-10 overflow-hidden rounded-xl lg:h-14 lg:w-14 lg:rounded-[8px]">
@@ -51,18 +52,23 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                         {store.name}
                     </p>
 
-                    <div className="mt-1 flex items-center gap-2 text-[8px] lg:text-[10px]">
+                    <div className="mt-1 flex items-center  gap-2 text-[8px] lg:text-[10px]">
                         <span className="h-1 w-1 rounded-full bg-green-500" />
 
                         <span className="text-green-400">
                             {store.status}
                         </span>
-                    </div>
 
-                    <div className="mt-1 flex items-center gap-1 text-[8px] text-(--text-secondary) lg:text-[10px]">
+                        <div className=" flex items-center gap-1 text-[10px] text-(--text-secondary) lg:text-[10px]">
                         <MapPin size={8} />
                         <span>{store.location}</span>
                     </div>
+                    </div>
+
+                    {/* <div className="mt-1 flex items-center gap-1 text-[8px] text-(--text-secondary) lg:text-[10px]">
+                        <MapPin size={8} />
+                        <span>{store.location}</span>
+                    </div> */}
                 </div>
 
                 <Button
@@ -91,8 +97,7 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                 <div className="block lg:hidden">
             <div className="mt-4 grid grid-cols-3 gap-3 lg:grid-cols-2 lg:gap-2">
                 <Link
-                    // href={organizationHref}
-                    href={"#"}
+                    href="/specificorganizationbook/store-1#menu-section"
                     className="
     secondary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium
@@ -105,7 +110,11 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                     Services
                 </Link>
 
-                <Link href={organizationHref} className="
+                <Link 
+                // href={organizationHref} 
+                href={"#"}
+                
+                className="
     secondary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium
     text-(--text-primary) transition-all duration-300
@@ -148,7 +157,11 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                     Services
                 </Link>
 
-                <Link href={organizationHref} className="
+                <Link 
+                // href={organizationHref} 
+                href={"#"}
+                
+                className="
     secondary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium
     text-(--text-primary) transition-all duration-300

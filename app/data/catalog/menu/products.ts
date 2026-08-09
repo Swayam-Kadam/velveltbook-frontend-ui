@@ -19,6 +19,8 @@ export interface MenuProduct {
   price: string;
   quantity: string;
   image: string;
+  /** Optional gallery images shown in the product preview modal. */
+  images?: string[];
 }
 
 /** Sidebar categories for Product catalog (ids match product.categoryId). */

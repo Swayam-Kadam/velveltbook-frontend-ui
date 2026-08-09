@@ -6,6 +6,8 @@ export interface BookingPackageService {
   id: string;
   label: string;
   price: number;
+  /** Underlying real menu service id used to preselect this service in booking. */
+  menuServiceId: string;
 }
 
 export interface BookingPackage {
@@ -53,6 +55,7 @@ function toBookingPackageFromSingle(
         id: `${deal.id}-${menu.id}-${index}`,
         label,
         price: unit,
+        menuServiceId: menu.id,
       };
     }),
   };
@@ -94,6 +97,7 @@ function toBookingPackageFromPackage(
         id: `${deal.id}-${menu.id}-${index}`,
         label: service.label,
         price: unit,
+        menuServiceId: menu.id,
       };
     }),
   };

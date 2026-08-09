@@ -9,6 +9,7 @@ interface MenuProductCardProps {
   product: MenuProduct;
   selected?: boolean;
   onSelect?: () => void;
+  onTitleClick?: () => void;
   largeText?: boolean;
   ButtonText?: string;
 }
@@ -17,6 +18,7 @@ export function MenuProductCard({
   product,
   selected = false,
   onSelect,
+  onTitleClick,
   largeText = false,
   ButtonText = "buy",
 }: MenuProductCardProps) {
@@ -30,7 +32,7 @@ export function MenuProductCard({
         ${selected ? "border-(--accent-primary) shadow-(--shadow-glow)" : ""}
       `}
     >
-      <div className="relative h-[88px] shrink-0 overflow-hidden rounded-t-xl bg-(--bg-secondary)">
+      <div className="relative h-[88px] shrink-0 overflow-hidden rounded-t-xl bg-(--bg-secondary)" onClick={onTitleClick}>
         <Image
           src={product.image}
           alt={product.title}
@@ -46,7 +48,17 @@ export function MenuProductCard({
             largeText ? "min-h-[34px] text-[15px]" : "min-h-[24px] text-[10px]"
           }`}
         >
-          {product.title}
+          {onTitleClick ? (
+            <button
+              type="button"
+              onClick={onTitleClick}
+              className="text-left transition-colors hover:text-(--brand-gold)"
+            >
+              {product.title}
+            </button>
+          ) : (
+            product.title
+          )}
         </h3>
 
         <p

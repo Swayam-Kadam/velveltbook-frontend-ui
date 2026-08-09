@@ -14,6 +14,7 @@ export interface TrendingNearbyItem {
   image: string;
   avatar: string;
   service: string;
+  address?: string;
   desktopService?: string;
   rating?: number;
   reviews?: string;

@@ -175,7 +175,9 @@ export function Header() {
                 <NavigationMenu className="lg:flex-1 lg:gap-5 xl:gap-8" />
 
                 <div className="flex items-center gap-2 lg:shrink-0">
-                    <ThemeToggle />
+                    <div className="hidden lg:block">
+                        <ThemeToggle />
+                    </div>
 
                     <div className="relative" ref={notificationRef}>
                         <button
@@ -304,7 +306,7 @@ export function Header() {
                                     role="menuitem"
                                     onClick={() => {
                                         setMenuOpen(false);
-                                        router.push("/help");
+                                        // router.push("/help");
                                     }}
                                     className="
                                         flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]

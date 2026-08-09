@@ -146,7 +146,7 @@ export function SelectionPreviewSidebar({
         className={
           hasSelection
             ? "flex flex-col gap-3"
-            : "flex flex-col gap-3 xl:sticky xl:top-24 xl:h-[calc(100dvh-7.5rem)] xl:min-h-[680px]"
+            : "flex flex-col gap-3 xl:h-[calc(100dvh-7.5rem)] xl:min-h-[680px]"
         }
       >
         {/* ========== TOP: Your Selection ========== */}
@@ -154,7 +154,7 @@ export function SelectionPreviewSidebar({
           className={
             hasSelection
               ? `
-                flex h-[calc(100dvh-7.5rem)] min-h-[680px] shrink-0 flex-col
+                flex max-h-[calc(100dvh-7.5rem)] shrink-0 flex-col
                 overflow-hidden rounded-[22px] border border-(--border)
                 bg-(--bg-card) shadow-[var(--shadow-card)]
               `

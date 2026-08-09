@@ -87,6 +87,7 @@ function DesktopSalonSidebar({
   if (!featured) return null;
 
   const tabPrefix = dealType === "single" ? "Single" : "Package";
+  const isPackageFlow = dealType !== "single";
   const packageLabels = [
     `${tabPrefix} 1`,
     `${tabPrefix} 2`,
@@ -255,7 +256,9 @@ function DesktopSalonSidebar({
       <section className="space-y-2.5">
         {isBooking && activePackage
           ? activePackage.services.map((service) => {
-              const isSelected = selectedServiceIds.includes(service.id);
+              const isSelected = isPackageFlow
+                ? true
+                : selectedServiceIds.includes(service.id);
 
               return (
                 <article
@@ -313,28 +316,37 @@ function DesktopSalonSidebar({
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      onToggleService(activePackage.id, service.id)
-                    }
-                    aria-label={
-                      isSelected
-                        ? `Remove ${service.label}`
-                        : `Add ${service.label}`
-                    }
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full cursor-pointer ${
-                      isSelected
-                        ? "bg-(--accent-primary) text-white"
-                        : "bg-white text-(--accent-primary) border border-(--border) border-3"
-                    }`}
-                  >
-                    {isSelected ? (
+                  {isPackageFlow ? (
+                    <span
+                      aria-hidden="true"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--accent-primary) text-white"
+                    >
                       <Check size={16} strokeWidth={2.5} />
-                    ) : (
-                      <Plus size={16} strokeWidth={2.5} />
-                    )}
-                  </button>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onToggleService(activePackage.id, service.id)
+                      }
+                      aria-label={
+                        isSelected
+                          ? `Remove ${service.label}`
+                          : `Add ${service.label}`
+                      }
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full cursor-pointer ${
+                        isSelected
+                          ? "bg-(--accent-primary) text-white"
+                          : "bg-white text-(--accent-primary) border border-(--border) border-3"
+                      }`}
+                    >
+                      {isSelected ? (
+                        <Check size={16} strokeWidth={2.5} />
+                      ) : (
+                        <Plus size={16} strokeWidth={2.5} />
+                      )}
+                    </button>
+                  )}
                 </article>
               );
             })
@@ -643,10 +655,19 @@ export function DealsPageContent() {
         .filter((service) => selectedServiceIds.includes(service.id))
         .reduce((sum, service) => sum + service.price, 0) ?? 0)
     : browseDeals.reduce((sum, deal) => sum + deal.currentPrice, 0);
+  const bookingServiceIds = activePackage
+    ? Array.from(
+        new Set(
+          activePackage.services
+            .filter((service) => selectedServiceIds.includes(service.id))
+            .map((service) => service.menuServiceId),
+        ),
+      )
+    : [];
   const bookingHref =
-    selectedServiceIds.length > 0
+    bookingServiceIds.length > 0
       ? buildBookingUrl({
-          serviceIds: selectedServiceIds,
+          serviceIds: bookingServiceIds,
           step: 2,
         })
       : "#";

@@ -36,8 +36,17 @@ import {
   type ServiceSubTab,
   type SuggestedService,
 } from "@/data/booking/my-bookings";
+import { buildBookingUrl } from "@/booking/booking.navigation";
+import { allMenuServices } from "@/data/catalog/menu/services";
 
 type CardStatusTab = "upcoming" | HistorySubTab;
+
+function getRebookServiceId(serviceName: string): string | undefined {
+  const normalized = serviceName.trim().toLowerCase();
+  return allMenuServices.find(
+    (service) => service.title.trim().toLowerCase() === normalized,
+  )?.id;
+}
 
 const statusStyles: Record<
   CardStatusTab,
@@ -451,6 +460,12 @@ function BookingCard({
   const status = statusStyles[tab];
   const showViewButton = tab === "upcoming" && serviceSubTab === "booked";
 
+  const rebookServiceId = getRebookServiceId(booking.service);
+  const bookAgainHref = buildBookingUrl({
+    serviceIds: rebookServiceId ? [rebookServiceId] : [],
+    step: 2,
+  });
+
   return (
     <article className="feature-card overflow-hidden rounded-xl">
       <OrganizationBanner organization={booking.organization} />
@@ -540,7 +555,7 @@ function BookingCard({
           </button>
         ) : (
           <Link
-            href="/booking"
+            href={bookAgainHref}
             className="
               flex flex-1 items-center justify-center gap-1 rounded-lg
               border border-(--border) py-1.5 text-[10px] font-bold

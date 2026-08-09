@@ -24,7 +24,13 @@ import {
 import { Button } from "@/components/Button";
 import { initialProfile, type ProfileFormState } from "@/data/account/profile";
 
-function ProfileTopBar() {
+function ProfileTopBar({
+    isEditing,
+    onToggleEdit,
+}: {
+    isEditing: boolean;
+    onToggleEdit: () => void;
+}) {
     const router = useRouter();
 
     return (
@@ -43,7 +49,14 @@ function ProfileTopBar() {
                     Profile
                 </h1>
 
-                <span aria-hidden="true" className="h-10 w-10" />
+                <button
+                    type="button"
+                    onClick={onToggleEdit}
+                    aria-pressed={isEditing}
+                    className="flex h-10 min-w-10 items-center justify-end rounded-sm px-3 text-[14px] font-semibold bg-(--accent-primary) text-white transition-opacity duration-200 hover:opacity-80"
+                >
+                    {isEditing ? "Done" : "Edit"}
+                </button>
             </div>
         </div>
     );
@@ -82,6 +95,7 @@ function ProfileFieldCard({
     type = "text",
     inputMode,
     autoComplete,
+    readOnly = false,
 }: {
     icon: ElementType;
     label: string;
@@ -90,6 +104,7 @@ function ProfileFieldCard({
     type?: HTMLInputTypeAttribute;
     inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
     autoComplete?: string;
+    readOnly?: boolean;
 }) {
     const inputId = useId();
 
@@ -115,12 +130,14 @@ function ProfileFieldCard({
                         onChange={(event) => onChange(event.target.value)}
                         autoComplete={autoComplete}
                         inputMode={inputMode}
-                        className="
+                        readOnly={readOnly}
+                        className={`
                             mt-1 w-full min-w-0 bg-transparent
                             text-[15px] font-medium text-(--text-primary)
                             outline-none placeholder:text-(--text-muted)
                             focus-visible:ring-0
-                        "
+                            ${readOnly ? "cursor-default text-(--text-secondary)" : ""}
+                        `}
                     />
                 </div>
 
@@ -187,6 +204,7 @@ export default function ProfilePage() {
     const [form, setForm] = useState<ProfileFormState>(initialProfile);
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -194,6 +212,7 @@ export default function ProfilePage() {
 
         try {
             // Preserve the existing save flow placeholder; hook the current update logic here.
+            setIsEditing(false);
         } finally {
             setIsSaving(false);
         }
@@ -207,7 +226,10 @@ export default function ProfilePage() {
             />
 
             <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col px-3 pb-[calc(8rem+env(safe-area-inset-bottom))] sm:px-4">
-                <ProfileTopBar />
+                <ProfileTopBar
+                    isEditing={isEditing}
+                    onToggleEdit={() => setIsEditing((current) => !current)}
+                />
 
                 <form id="profile-form" onSubmit={handleSubmit} className="flex flex-1 flex-col gap-4 pt-3">
                     <section className="feature-card rounded-[28px] border border-[color-mix(in_srgb,var(--border)_88%,transparent)] p-5 shadow-[var(--shadow-card)]">
@@ -224,13 +246,15 @@ export default function ProfilePage() {
                                     />
                                 </div>
 
-                                <button
-                                    type="button"
-                                    aria-label="Change profile picture"
-                                    className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--accent-primary)_45%,transparent)] bg-(--accent-primary) text-white shadow-[0_10px_20px_rgba(61,28,77,0.18)] transition-transform duration-200 hover:scale-105"
-                                >
-                                    <Camera size={14} strokeWidth={2} />
-                                </button>
+                                {isEditing && (
+                                    <button
+                                        type="button"
+                                        aria-label="Change profile picture"
+                                        className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--accent-primary)_45%,transparent)] bg-(--accent-primary) text-white shadow-[0_10px_20px_rgba(61,28,77,0.18)] transition-transform duration-200 hover:scale-105"
+                                    >
+                                        <Camera size={14} strokeWidth={2} />
+                                    </button>
+                                )}
                             </div>
 
                             <h2 className="mt-4 text-[22px] font-semibold tracking-[0.01em] text-(--text-primary)">
@@ -258,6 +282,7 @@ export default function ProfilePage() {
                                     setForm((current) => ({ ...current, fullName: value }))
                                 }
                                 autoComplete="name"
+                                readOnly={!isEditing}
                             />
 
                             <ProfileFieldCard
@@ -270,6 +295,7 @@ export default function ProfilePage() {
                                 type="email"
                                 autoComplete="email"
                                 inputMode="email"
+                                readOnly={!isEditing}
                             />
 
                             <ProfileFieldCard
@@ -282,6 +308,7 @@ export default function ProfilePage() {
                                 type="tel"
                                 autoComplete="tel"
                                 inputMode="tel"
+                                readOnly={!isEditing}
                             />
 
                             <ProfileFieldCard
@@ -292,6 +319,7 @@ export default function ProfilePage() {
                                     setForm((current) => ({ ...current, dateOfBirth: value }))
                                 }
                                 type="date"
+                                readOnly={!isEditing}
                             />
                         </div>
                     </section>
@@ -308,7 +336,7 @@ export default function ProfilePage() {
                     type="submit"
                     form="profile-form"
                     fullWidth
-                    disabled={isSaving}
+                    disabled={isSaving || !isEditing}
                     className="
                         rounded-2xl px-4 py-3.5 text-[15px] font-semibold tracking-[0.02em]
                         shadow-[var(--shadow-glow)]

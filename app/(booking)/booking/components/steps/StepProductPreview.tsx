@@ -45,11 +45,11 @@ const PLATFORM_FEATURES = [
     title: "7-Day Replace",
     subtitle: "Easy product replacement",
   },
-  {
-    icon: Leaf,
-    title: "Natural Products",
-    subtitle: "Clean & organic picks",
-  },
+  // {
+  //   icon: Leaf,
+  //   title: "Natural Products",
+  //   subtitle: "Clean & organic picks",
+  // },
   {
     icon: ShieldCheck,
     title: "Verified Quality",
@@ -60,11 +60,11 @@ const PLATFORM_FEATURES = [
     title: "Fast Delivery",
     subtitle: "Quick store pickup",
   },
-  {
-    icon: Sparkles,
-    title: "Spa Grade",
-    subtitle: "Professional formulas",
-  },
+  // {
+  //   icon: Sparkles,
+  //   title: "Spa Grade",
+  //   subtitle: "Professional formulas",
+  // },
 ] as const;
 
 function PlatformFeaturesRow() {
@@ -75,7 +75,7 @@ function PlatformFeaturesRow() {
           <article
             key={title}
             className="
-              flex w-[148px] shrink-0 items-start gap-2.5 rounded-xl border
+              flex w-[168px] shrink-0 items-start gap-2.5 rounded-xl border
               border-(--border) bg-(--bg-secondary) px-3 py-2.5
               lg:w-auto lg:shrink
             "
@@ -223,7 +223,8 @@ export function StepProductPreview({
 }: StepProductPreviewProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [liked, setLiked] = useState(false);
-  const cardsScrollRef = useRef<HTMLDivElement>(null);
+  const [activePreviewIndex, setActivePreviewIndex] = useState(0);
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
 
   const selectedProducts = getSelectedProducts(selectedProductIds);
   const { subtotal, total } = calcProductsTotal(
@@ -241,14 +242,34 @@ export function StepProductPreview({
     address: bookingLocation.address,
   };
 
-  const scrollPreviewCards = (direction: "left" | "right") => {
-    const container = cardsScrollRef.current;
+  const activeIndex =
+    selectedProducts.length > 0
+      ? Math.min(activePreviewIndex, selectedProducts.length - 1)
+      : 0;
+  const activeProduct = selectedProducts[activeIndex];
+
+  const scrollTabIntoView = (index: number) => {
+    const container = tabsScrollRef.current;
     if (!container) return;
-    const step = Math.max(220, Math.floor(container.clientWidth * 0.7));
-    container.scrollBy({
-      left: direction === "left" ? -step : step,
-      behavior: "smooth",
-    });
+    const child = container.children[index] as HTMLElement | undefined;
+    if (!child) return;
+    const containerRect = container.getBoundingClientRect();
+    const childRect = child.getBoundingClientRect();
+    const delta =
+      childRect.left -
+      containerRect.left -
+      (container.clientWidth - child.clientWidth) / 2;
+    container.scrollBy({ left: delta, behavior: "smooth" });
+  };
+
+  const scrollPreviewTabs = (direction: "left" | "right") => {
+    if (selectedProducts.length === 0) return;
+    const nextIndex =
+      direction === "left"
+        ? Math.max(0, activeIndex - 1)
+        : Math.min(selectedProducts.length - 1, activeIndex + 1);
+    setActivePreviewIndex(nextIndex);
+    scrollTabIntoView(nextIndex);
   };
 
   const handleNext = async () => {
@@ -268,60 +289,85 @@ export function StepProductPreview({
     setShowAddModal(true);
   };
 
-  const previewCards = (
-    <div
-      ref={cardsScrollRef}
-      className="scrollbar-none flex gap-3 overflow-x-auto pb-1"
-    >
-      {selectedProducts.map((product) => (
-        <SelectedProductCard
-          key={product.id}
-          id={product.id}
-          name={product.name}
-          sizeLabel={product.quantity}
-          price={product.price}
-          priceLabel={product.priceLabel}
-          image={product.image}
-          quantity={productQuantities[product.id] ?? 1}
-          onUpdateQuantity={onUpdateQuantity}
-          onRemove={onRemoveProduct}
-        />
-      ))}
+  const previewTabs = (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => scrollPreviewTabs("left")}
+        aria-label="Scroll product tabs left"
+        className="
+          flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+          border border-(--border) bg-(--bg-card) text-(--text-primary)
+          transition-colors hover:border-(--brand-gold)
+          lg:h-9 lg:w-9
+        "
+      >
+        <ChevronLeft size={16} strokeWidth={2.5} />
+      </button>
+
+      <div
+        ref={tabsScrollRef}
+        className="scrollbar-none flex min-w-0 flex-1 gap-2 overflow-x-auto scroll-smooth"
+      >
+        {selectedProducts.map((product, index) => {
+          const active = index === activeIndex;
+          return (
+            <button
+              key={product.id}
+              type="button"
+              onClick={() => setActivePreviewIndex(index)}
+              aria-pressed={active}
+              className={`
+                shrink-0 rounded-lg border px-3 py-1.5 text-[11px] font-semibold
+                transition-colors lg:text-[12px]
+                ${
+                  active
+                    ? "border-(--brand-gold) bg-[color-mix(in_srgb,var(--brand-gold)_14%,transparent)] text-(--brand-gold)"
+                    : "border-(--border) bg-(--bg-card) text-(--text-secondary) hover:border-(--brand-gold)/50"
+                }
+              `}
+            >
+              Product {index + 1}
+            </button>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => scrollPreviewTabs("right")}
+        aria-label="Scroll product tabs right"
+        className="
+          flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+          border border-(--border) bg-(--bg-card) text-(--text-primary)
+          transition-colors hover:border-(--brand-gold)
+          lg:h-9 lg:w-9
+        "
+      >
+        <ChevronRight size={16} strokeWidth={2.5} />
+      </button>
     </div>
   );
 
-  const scrollControls = (
-    <div className="flex items-center justify-end gap-2">
-      <button
-        type="button"
-        onClick={() => scrollPreviewCards("left")}
-        aria-label="Scroll products left"
-        disabled={!hasSelection}
-        className="
-          flex h-9 w-9 shrink-0 items-center justify-center rounded-xl
-          border border-(--border) bg-(--bg-card) text-(--text-primary)
-          transition-colors hover:border-(--brand-gold)
-          disabled:cursor-not-allowed disabled:opacity-40
-          lg:h-10 lg:w-10
-        "
-      >
-        <ChevronLeft size={18} strokeWidth={2.5} />
-      </button>
-      <button
-        type="button"
-        onClick={() => scrollPreviewCards("right")}
-        aria-label="Scroll products right"
-        disabled={!hasSelection}
-        className="
-          flex h-9 w-9 shrink-0 items-center justify-center rounded-xl
-          border border-(--border) bg-(--bg-card) text-(--text-primary)
-          transition-colors hover:border-(--brand-gold)
-          disabled:cursor-not-allowed disabled:opacity-40
-          lg:h-10 lg:w-10
-        "
-      >
-        <ChevronRight size={18} strokeWidth={2.5} />
-      </button>
+  const previewSection = (
+    <div className="space-y-3">
+      {previewTabs}
+      {activeProduct && (
+        <div className="flex justify-center">
+          <SelectedProductCard
+            key={activeProduct.id}
+            id={activeProduct.id}
+            name={activeProduct.name}
+            sizeLabel={activeProduct.quantity}
+            price={activeProduct.price}
+            priceLabel={activeProduct.priceLabel}
+            image={activeProduct.image}
+            quantity={productQuantities[activeProduct.id] ?? 1}
+            onUpdateQuantity={onUpdateQuantity}
+            onRemove={onRemoveProduct}
+          />
+        </div>
+      )}
     </div>
   );
 
@@ -435,10 +481,7 @@ export function StepProductPreview({
 
           <div className="space-y-3 p-3">
             {hasSelection ? (
-              <>
-                {scrollControls}
-                {previewCards}
-              </>
+              previewSection
             ) : (
               <p className="py-4 text-center text-[9px] font-medium text-(--text-muted)">
                 Add products to continue to payment
@@ -481,10 +524,7 @@ export function StepProductPreview({
             </div>
 
             {hasSelection ? (
-              <div className="space-y-3">
-                {scrollControls}
-                {previewCards}
-              </div>
+              previewSection
             ) : (
               <div className="rounded-xl border border-dashed border-(--border) bg-(--bg-secondary) px-4 py-12 text-center">
                 <p className="text-sm font-semibold text-(--text-primary)">

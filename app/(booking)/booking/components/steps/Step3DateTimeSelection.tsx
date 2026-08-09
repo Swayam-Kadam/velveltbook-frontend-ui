@@ -23,7 +23,6 @@ import {
   BookingOrganizationBanner,
   type BookingOrganizationBannerInfo,
 } from "../BookingOrganizationBanner";
-import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import {
   bookingLocation,
   bookingSeats,
@@ -201,15 +200,16 @@ export function Step3DateTimeSelection({
   };
 
   const handleContinue = async () => {
-    if (!seatConfirmed) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Confirm your seat",
-        text: "Please select and confirm a seat before continuing.",
-        ...swalDefaults,
-      });
-      return;
-    }
+    // Seat selection removed — no seat confirmation required.
+    // if (!seatConfirmed) {
+    //   await Swal.fire({
+    //     icon: "warning",
+    //     title: "Confirm your seat",
+    //     text: "Please select and confirm a seat before continuing.",
+    //     ...swalDefaults,
+    //   });
+    //   return;
+    // }
     onNext();
   };
 
@@ -231,6 +231,7 @@ export function Step3DateTimeSelection({
         </BookingModal>
       )}
 
+      {/* Seat selection removed
       {showSeatModal && (
         <BookingModal
           title="Change Seat"
@@ -246,6 +247,7 @@ export function Step3DateTimeSelection({
           />
         </BookingModal>
       )}
+      */}
 
       {showTherapistModal && (
         <BookingModal
@@ -274,148 +276,131 @@ export function Step3DateTimeSelection({
           organization={organizationBanner}
           serviceLabels={selectedServices.map((service) => service.name)}
         />
-        <BookingSelectedServicesPanel
-          selectedServiceIds={selectedServiceIds}
-          organization={organizationBanner}
-          onRemoveService={onRemoveService}
-          showOrganizationBanner={false}
-        />
-
-        <section className="grid grid-cols-2 gap-2">
-          <div className="min-w-0">
-            <h2 className="mb-2 text-sm font-bold text-(--text-primary)">
-              Selected Therapists
-            </h2>
-            <article className="feature-card rounded-xl">
-              <div className="flex h-full flex-col">
-                <div className="relative h-27 w-full shrink-0 overflow-hidden rounded-t-sm">
-                  <Image
-                    src={staff.image}
-                    alt={staff.name}
-                    fill
-                    sizes="160px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex flex-1 flex-col px-2 pt-2">
-                  <div className="min-h-16 space-y-1.5">
-                    {selectedServices.map((service) => {
-                      const assignedId = serviceStaff[service.id];
-                      const assigned = assignedId
-                        ? getStaff(assignedId)
-                        : null;
-
-                      return (
-                        <div key={service.id} className="min-w-0">
-                          <p className="truncate text-[8px] font-semibold text-(--text-muted)">
-                            {service.name}
-                          </p>
-                          <p className="truncate text-[9px] font-bold text-(--text-primary)">
-                            {assigned?.name ?? "Not selected"}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowTherapistModal(true)}
-                    className="mt-auto flex items-center justify-center gap-0.5 pb-2 pt-3 text-[8px] font-bold text-(--accent-secondary)"
-                  >
-                    <Pencil size={10} /> Change Therapist
-                  </button>
-                </div>
-              </div>
-            </article>
-          </div>
-          <div className="min-w-0 space-y-2">
+        <section className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
             <h2 className="text-sm font-bold text-(--text-primary)">
-              Schedule &amp; Seat
+              Selected Services
             </h2>
-
-            <article className="feature-card rounded-xl px-2 pt-2">
-              <div className="min-h-16 space-y-2 pb-1">
-                {selectedServices.map((service) => {
-                  const schedule = serviceSchedules[service.id];
-                  const scheduled = isServiceScheduleComplete(schedule);
-
-                  return (
-                    <div key={service.id} className="min-w-0">
-                      <p className="truncate text-[8px] font-semibold text-(--text-muted)">
-                        {service.name}
-                      </p>
-                      {scheduled ? (
-                        <div className="mt-0.5 space-y-0.5">
-                          <div className="flex items-start gap-1.5">
-                            <CalendarDays
-                              size={10}
-                              className="mt-0.5 shrink-0 text-(--accent-primary)"
-                            />
-                            <p className="text-[9px] font-bold text-(--text-primary)">
-                              {getBookingDay(schedule.dayId).weekday},{" "}
-                              {getBookingDay(schedule.dayId).date}
-                            </p>
-                          </div>
-                          <div className="flex items-start gap-1.5">
-                            <Clock3
-                              size={10}
-                              className="mt-0.5 shrink-0 text-(--accent-primary)"
-                            />
-                            <p className="text-[9px] font-bold text-(--text-primary)">
-                              {schedule.time}
-                            </p>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="mt-0.5 text-[9px] font-semibold text-(--text-muted)">
-                          Not scheduled yet
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowTherapistModal(true)}
+                className="flex items-center gap-0.5 text-[9px] font-bold text-(--accent-secondary)"
+              >
+                <Pencil size={10} /> Staff
+              </button>
               <button
                 type="button"
                 onClick={() => setShowDateTimeModal(true)}
-                className="flex w-full items-center justify-center gap-0.5 border-t border-(--border) py-2 text-[8px] font-bold text-(--accent-secondary)"
+                className="flex items-center gap-0.5 text-[9px] font-bold text-(--accent-secondary)"
               >
-                <Pencil size={10} /> Change Date &amp; Time
+                <Pencil size={10} /> Time
               </button>
-            </article>
+            </div>
+          </div>
 
-            <article className="feature-card rounded-xl px-2 pt-2">
-              <div className="flex items-start gap-1.5 pb-1">
-                <Armchair
-                  size={12}
-                  className="mt-0.5 shrink-0 text-(--accent-primary)"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[8px] font-semibold text-(--text-muted)">
-                    Selected Seat
-                  </p>
-                  <p className="text-[10px] font-bold text-(--text-primary)">
-                    {selectedSeat.label}
-                  </p>
-                  <p
-                    className={`mt-0.5 text-[8px] font-semibold ${
-                      seatConfirmed ? "text-(--success)" : "text-(--text-muted)"
-                    }`}
+          <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
+            {selectedServices.map((service) => {
+              const assignedId = serviceStaff[service.id];
+              const assigned = assignedId ? getStaff(assignedId) : null;
+              const schedule = serviceSchedules[service.id];
+              const scheduled = isServiceScheduleComplete(schedule);
+
+              return (
+                <article
+                  key={service.id}
+                  className="feature-card relative rounded-sm p-2"
+                >
+                  <button
+                    type="button"
+                    aria-label={`Remove ${service.name}`}
+                    onClick={() => handleRemoveService(service.id)}
+                    className="absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-(--bg-card)/90 text-(--text-secondary) shadow-(--shadow-card) transition-colors hover:text-(--text-primary)"
                   >
-                    {seatConfirmed ? "Seat confirmed" : "Not confirmed yet"}
-                  </p>
-                </div>
-              </div>
+                    <X size={11} strokeWidth={2.5} />
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => setShowSeatModal(true)}
-                className="flex w-full items-center justify-center gap-0.5 border-t border-(--border) py-2 text-[8px] font-bold text-(--accent-secondary)"
-              >
-                <Pencil size={10} /> Change Seat
-              </button>
-            </article>
+                  <div className="flex gap-1.5">
+                    <div className="relative h-14 flex-1 overflow-hidden rounded-sm">
+                      <Image
+                        src={service.image}
+                        alt={service.name}
+                        fill
+                        sizes="140px"
+                        className="object-cover"
+                      />
+                      <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
+                        Service
+                      </span>
+                    </div>
+                    <div className="relative h-14 flex-1 overflow-hidden rounded-sm">
+                      <Image
+                        src={assigned?.image ?? staff.image}
+                        alt={assigned?.name ?? "Therapist"}
+                        fill
+                        sizes="140px"
+                        className="object-cover"
+                      />
+                      <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
+                        Therapist
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* <p className="mt-1.5 truncate pr-6 text-[11px] font-bold text-(--text-primary)">
+                    {service.name} 
+                  </p> */}
+                  <div className="mt-0.5 flex items-center gap-1 text-[11px] font-semibold text-(--text-primary)">
+                    
+                  <p className=" truncate pr-6 text-[11px] font-bold text-(--text-primary)">
+                    {service.name} 
+                  </p>
+                    
+                    <span className="truncate">
+                      with {assigned?.name ?? "Not selected"}
+                    </span>
+                    {assigned && (
+                      <span className="flex shrink-0 items-center gap-0.5 text-(--text-secondary)">
+                        <Star
+                          size={9}
+                          className="fill-(--brand-gold) text-(--brand-gold)"
+                        />
+                        {assigned.rating}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-1 flex items-center justify-between gap-2">
+                    {scheduled ? (
+                      <div className="flex items-center gap-2 text-[9px] font-bold text-(--text-primary)">
+                        <span className="flex items-center gap-1">
+                          <CalendarDays
+                            size={10}
+                            className="text-(--accent-primary)"
+                          />
+                          {getBookingDay(schedule.dayId).weekday},{" "}
+                          {getBookingDay(schedule.dayId).date}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock3
+                            size={10}
+                            className="text-(--accent-primary)"
+                          />
+                          {schedule.time}
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="text-[9px] font-semibold text-(--text-muted)">
+                        Not scheduled yet
+                      </p>
+                    )}
+                    <p className="shrink-0 text-[11px] font-bold text-(--brand-gold)">
+                      {service.priceLabel}
+                    </p>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
 
@@ -636,9 +621,10 @@ export function Step3DateTimeSelection({
                 Review Booking Details
               </h2>
               <p className="mt-0.5 text-[13px] text-(--text-muted)">
-                Confirm therapists, schedule, and seat before payment
+                Confirm therapists and schedule before payment
               </p>
             </div>
+            {/* Seat selection removed
             <p
               className={`text-[13px] font-semibold ${
                 seatConfirmed ? "text-(--success)" : "text-(--text-muted)"
@@ -646,6 +632,7 @@ export function Step3DateTimeSelection({
             >
               {seatConfirmed ? "Seat confirmed" : "Seat pending"}
             </p>
+            */}
           </div>
 
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-(--bg-secondary) p-4 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
@@ -793,7 +780,7 @@ export function Step3DateTimeSelection({
               </div>
             </article>
 
-            {/* Seat */}
+            {/* Seat selection removed
             <article className="overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-card)">
               <div className="flex items-center justify-between border-b border-(--border) px-4 py-3.5">
                 <div className="flex items-center gap-2.5">
@@ -837,6 +824,7 @@ export function Step3DateTimeSelection({
                 </div>
               </div>
             </article>
+            */}
           </div>
         </section>
       </div>

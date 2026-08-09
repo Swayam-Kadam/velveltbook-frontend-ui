@@ -15,7 +15,7 @@ const items = [
     { label: "Home", icon: Home, href: "/home" },
     { label: "Deals", icon: Tag, href: "/deals" },
     // { label: "Bookings", icon: Calendar, href: "/mybooking" },
-    { label: "Negotiate", icon: MessageCircle, href: "/service-category/barber" },
+    // { label: "Negotiate", icon: MessageCircle, href: "/service-category/barber" },
     // { label: "Help", icon: CircleHelp, href: "/help" },
 ];
 
@@ -42,7 +42,7 @@ export function BottomNavigation() {
         lg:hidden
       "
         >
-            <ul className="flex items-center justify-between">
+            <ul className="flex items-center justify-around">
                 {items.map(({ label, icon: Icon, href }) => {
                     const active = href !== null && pathname === href;
 

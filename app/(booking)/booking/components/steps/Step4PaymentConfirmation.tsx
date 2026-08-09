@@ -13,6 +13,7 @@ import {
   CreditCard,
   Lock,
   MapPin,
+  Navigation2,
   ShieldCheck,
   Sparkles,
   Star,
@@ -48,7 +49,6 @@ import type {
   ServiceStaffAssignments,
 } from "../../booking.types";
 import {
-  BookingOrganizationBanner,
   type BookingOrganizationBannerInfo,
 } from "../BookingOrganizationBanner";
 import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
@@ -287,7 +287,7 @@ export function Step4PaymentConfirmation({
           ? getStaff(assignedStaffId)
           : getStaff(staffId);
 
-        return (
+  return (
           <div key={service.id} className="space-y-0.5">
             <div className="flex justify-between gap-2 text-(--text-secondary)">
               <span className="min-w-0 truncate">{service.name}</span>
@@ -327,14 +327,62 @@ export function Step4PaymentConfirmation({
     <>
       {/* ================= MOBILE (unchanged) ================= */}
       <div className="space-y-3 pb-2 lg:hidden">
-        <BookingOrganizationBanner
-          organization={organizationBanner}
-          serviceLabels={
-            isProductOnly
-              ? selectedProducts.map((product) => product.name)
-              : selectedServices.map((service) => service.name)
-          }
-        />
+        {isProductOnly && (
+          <section className="feature-card overflow-hidden rounded-xl">
+            <div className="relative h-[88px] w-full">
+              <Image
+                src={org.banner}
+                alt={org.name}
+                fill
+                sizes="100vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-linear-to-t from-black/45 to-transparent" />
+              <div className="absolute left-2 top-2 flex items-center gap-1.5">
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-full border border-white/80 bg-(--success) shadow-sm"
+                  aria-label="Store open"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 px-2.5 py-2">
+              <div className="relative h-13 w-13 shrink-0 overflow-hidden rounded-xl border-2 border-white">
+                <Image
+                  src={org.thumbnail ?? org.banner}
+                  alt={org.name}
+                  fill
+                  sizes="52px"
+                  className="object-cover"
+                />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[12px] font-bold text-(--text-primary)">
+                  {org.name}
+                </p>
+                <div className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold">
+                  <MapPin size={9} className="shrink-0 text-(--text-secondary)" />
+                  <span className="truncate text-(--text-secondary)">
+                    {org.address ?? bookingLocation.address}
+                  </span>
+                </div>
+              </div>
+
+                <button
+                  type="button"
+                aria-label="Get directions"
+                  className="
+                  flex h-8 w-8 shrink-0 items-center justify-center rounded-full
+                  border border-(--border) bg-(--bg-card)
+                  text-(--accent-primary)
+                "
+              >
+                <Navigation2 size={14} strokeWidth={1.6} />
+                </button>
+              </div>
+          </section>
+        )}
 
         {!isProductOnly && (
           <BookingSelectedServicesPanel
@@ -357,51 +405,51 @@ export function Step4PaymentConfirmation({
                 {selectedProducts.length === 1 ? "" : "s"}
               </p>
             </div>
-            <div className="space-y-2 p-3">
+            <div className="grid grid-cols-4 gap-2 p-3">
               {selectedProducts.map((product) => {
                 const qty = Math.max(1, productQuantities[product.id] ?? 1);
 
                 return (
                   <article
                     key={product.id}
-                    className="relative flex items-center gap-2.5 rounded-sm border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)] p-2 pr-8"
+                    className="relative overflow-hidden rounded-sm border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)]"
                   >
                     {onRemoveProduct && (
-                      <button
-                        type="button"
+            <button
+              type="button"
                         onClick={() => onRemoveProduct(product.id)}
                         aria-label={`Remove ${product.name}`}
-                        className="
-                          absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center
+              className="
+                          absolute right-1 top-1 z-10 flex h-4 w-4 items-center
                           justify-center rounded-full border border-(--border)
                           bg-(--bg-card) text-(--text-muted)
                           transition-colors hover:text-(--accent-primary)
                         "
                       >
-                        <X size={11} strokeWidth={2.5} />
-                      </button>
+                        <X size={9} strokeWidth={2.5} />
+            </button>
                     )}
 
-                    <div className="relative h-12 w-14 shrink-0 overflow-hidden rounded-sm">
+                    <div className="relative h-14 w-full overflow-hidden">
                       <Image
                         src={product.image}
                         alt={product.name}
                         fill
-                        sizes="56px"
+                        sizes="80px"
                         className="object-cover"
                       />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[10px] font-bold text-(--text-primary)">
+        </div>
+                    <div className="p-1.5">
+                      <p className="truncate text-[8px] font-bold text-(--text-primary)">
                         {product.name}
                       </p>
-                      <p className="mt-0.5 text-[8px] font-semibold text-(--text-secondary)">
-                        {product.quantity} · Qty {qty}
+                      <p className="mt-0.5 text-[7px] font-semibold text-(--text-secondary)">
+                        Qty {qty}
+                      </p>
+                      <p className="mt-0.5 text-[9px] font-bold text-(--brand-gold)">
+                        ${(product.price * qty).toFixed(2)}
                       </p>
                     </div>
-                    <p className="shrink-0 text-[11px] font-bold text-(--brand-gold)">
-                      ${(product.price * qty).toFixed(2)}
-                    </p>
                   </article>
                 );
               })}
@@ -409,163 +457,163 @@ export function Step4PaymentConfirmation({
           </section>
         )}
 
-        <div className="grid grid-cols-2 gap-2">
-          <section className="feature-card rounded-xl p-2.5">
-            <div className="mb-2 flex items-center gap-1.5">
+      <div className="grid grid-cols-2 gap-2">
+        <section className="feature-card rounded-xl p-2.5">
+          <div className="mb-2 flex items-center gap-1.5">
               <Tag
                 size={12}
                 className="text-(--accent-primary)"
                 strokeWidth={2}
               />
-              <h3 className="text-[9px] font-semibold text-(--text-primary)">
-                Pricing Summary
-              </h3>
-            </div>
+            <h3 className="text-[9px] font-semibold text-(--text-primary)">
+              Pricing Summary
+            </h3>
+          </div>
 
-            <div className="space-y-1 text-[8px]">
+          <div className="space-y-1 text-[8px]">
               {pricingRows}
-              <div className="flex justify-between border-t border-(--border) pt-1 text-(--text-secondary)">
-                <span>Subtotal</span>
+            <div className="flex justify-between border-t border-(--border) pt-1 text-(--text-secondary)">
+              <span>Subtotal</span>
                 <span>${mobileSubtotal}</span>
-              </div>
-              <div className="flex justify-between text-(--text-secondary)">
-                <span>Taxes & Fees</span>
-                <span>${mobileTax}</span>
-              </div>
-              <div className="flex justify-between text-(--text-secondary)">
-                <span>Additional Charges</span>
-                <span>$0</span>
-              </div>
             </div>
+            <div className="flex justify-between text-(--text-secondary)">
+              <span>Taxes & Fees</span>
+                <span>${mobileTax}</span>
+            </div>
+            <div className="flex justify-between text-(--text-secondary)">
+              <span>Additional Charges</span>
+              <span>$0</span>
+            </div>
+          </div>
 
             <div className="mt-2 flex items-center justify-between border-t border-(--border) pt-2">
-              <span className="text-[9px] font-semibold text-(--text-primary)">
-                Total Amount
-              </span>
-              <span className="text-lg font-bold text-(--accent-primary)">
+            <span className="text-[9px] font-semibold text-(--text-primary)">
+              Total Amount
+            </span>
+            <span className="text-lg font-bold text-(--accent-primary)">
                 ${mobileTotal}
-              </span>
-            </div>
-          </section>
+            </span>
+          </div>
+        </section>
 
           <section className="feature-card flex flex-col items-center justify-center rounded-xl p-2.5 text-center">
             <div className="mb-1.5 flex h-10 w-10 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent-primary)_12%,transparent)]">
-              <ShieldCheck
-                size={20}
-                className="text-(--accent-primary)"
-                strokeWidth={1.8}
-              />
-            </div>
-            <p className="text-[8px] font-semibold text-(--text-primary)">
-              Secure & Trusted
-            </p>
-            <p className="mt-0.5 text-[6px] leading-snug text-(--text-muted)">
-              Your payment is protected with 256-bit encryption
-            </p>
-            <div className="mt-1.5 flex items-center gap-1.5">
-              {["PCI DSS", "SSL", "VISA"].map((badge) => (
-                <span
-                  key={badge}
+            <ShieldCheck
+              size={20}
+              className="text-(--accent-primary)"
+              strokeWidth={1.8}
+            />
+          </div>
+          <p className="text-[8px] font-semibold text-(--text-primary)">
+            Secure & Trusted
+          </p>
+          <p className="mt-0.5 text-[6px] leading-snug text-(--text-muted)">
+            Your payment is protected with 256-bit encryption
+          </p>
+          <div className="mt-1.5 flex items-center gap-1.5">
+            {["PCI DSS", "SSL", "VISA"].map((badge) => (
+              <span
+                key={badge}
                   className="rounded border border-(--border) px-1 py-0.5 text-[5px] font-bold tracking-wide text-(--text-muted)"
-                >
-                  {badge}
-                </span>
-              ))}
-            </div>
-          </section>
+              >
+                {badge}
+              </span>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <section>
+        <div className="mb-2 flex items-center gap-1.5">
+          <CreditCard
+            size={12}
+            className="text-(--accent-primary)"
+            strokeWidth={2}
+          />
+          <h3 className="text-[9px] font-semibold text-(--text-primary)">
+            Choose Payment Method
+          </h3>
         </div>
 
-        <section>
-          <div className="mb-2 flex items-center gap-1.5">
+        <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
+          {paymentOptions.map((option) => {
+            const active = paymentMethod === option.id;
+              const Icon = option.icon;
+
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => onPaymentMethodChange(option.id)}
+                className={`
+                  feature-card flex min-w-[108px] shrink-0 flex-col rounded-xl
+                  p-2 text-left transition-all duration-200
+                  ${
+                    active
+                      ? "border-(--accent-primary) shadow-(--shadow-glow)"
+                      : "hover:border-[color-mix(in_srgb,var(--accent-primary)_30%,var(--border))]"
+                  }
+                `}
+              >
+                <div className="mb-1.5 flex items-start justify-between gap-1">
+                  <span
+                    className={`
+                      flex h-3 w-3 shrink-0 items-center justify-center
+                      rounded-full border-2
+                      ${
+                        active
+                          ? "border-(--accent-primary) bg-(--accent-primary)"
+                          : "border-(--text-muted)"
+                      }
+                    `}
+                  >
+                    {active && (
+                      <span className="h-1 w-1 rounded-full bg-white" />
+                    )}
+                  </span>
+                    <Icon className="text-xl text-(--text-primary)" />
+                </div>
+                <span className="text-[8px] font-semibold text-(--text-primary)">
+                  {option.label}
+                </span>
+                <span className="mt-0.5 text-[6px] leading-tight text-(--text-muted)">
+                  {option.sublabel}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+        {showMobileCardForm && (
+        <section className="feature-card rounded-xl p-3">
+          <div className="mb-2.5 flex items-center gap-1.5">
             <CreditCard
               size={12}
               className="text-(--accent-primary)"
               strokeWidth={2}
             />
             <h3 className="text-[9px] font-semibold text-(--text-primary)">
-              Choose Payment Method
+              Enter Card Details
             </h3>
           </div>
 
-          <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
-            {paymentOptions.map((option) => {
-              const active = paymentMethod === option.id;
-              const Icon = option.icon;
-
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => onPaymentMethodChange(option.id)}
-                  className={`
-                    feature-card flex min-w-[108px] shrink-0 flex-col rounded-xl
-                    p-2 text-left transition-all duration-200
-                    ${
-                      active
-                        ? "border-(--accent-primary) shadow-(--shadow-glow)"
-                        : "hover:border-[color-mix(in_srgb,var(--accent-primary)_30%,var(--border))]"
-                    }
-                  `}
-                >
-                  <div className="mb-1.5 flex items-start justify-between gap-1">
-                    <span
-                      className={`
-                        flex h-3 w-3 shrink-0 items-center justify-center
-                        rounded-full border-2
-                        ${
-                          active
-                            ? "border-(--accent-primary) bg-(--accent-primary)"
-                            : "border-(--text-muted)"
-                        }
-                      `}
-                    >
-                      {active && (
-                        <span className="h-1 w-1 rounded-full bg-white" />
-                      )}
-                    </span>
-                    <Icon className="text-xl text-(--text-primary)" />
-                  </div>
-                  <span className="text-[8px] font-semibold text-(--text-primary)">
-                    {option.label}
-                  </span>
-                  <span className="mt-0.5 text-[6px] leading-tight text-(--text-muted)">
-                    {option.sublabel}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {showMobileCardForm && (
-          <section className="feature-card rounded-xl p-3">
-            <div className="mb-2.5 flex items-center gap-1.5">
-              <CreditCard
-                size={12}
-                className="text-(--accent-primary)"
-                strokeWidth={2}
-              />
-              <h3 className="text-[9px] font-semibold text-(--text-primary)">
-                Enter Card Details
-              </h3>
-            </div>
-
-            <div className="space-y-2">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
-                  placeholder="Card Number"
-                  maxLength={19}
+          <div className="space-y-2">
+            <div className="relative">
+              <input
+                type="text"
+                value={cardNumber}
+                onChange={(e) => setCardNumber(e.target.value)}
+                placeholder="Card Number"
+                maxLength={19}
                   className="search-glass w-full rounded-lg border py-2 pr-24 pl-3 text-[9px] text-(--text-primary) placeholder:text-(--text-muted) focus:ring-1 focus:ring-(--accent-primary)/30 focus:outline-none"
                 />
                 <div className="absolute top-1/2 right-4 -translate-y-1/2">
-                  <CardBrandIcons />
-                </div>
+                <CardBrandIcons />
               </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2">
                 <input
                   type="text"
                   value={expiry}
@@ -582,7 +630,7 @@ export function Step4PaymentConfirmation({
                   maxLength={4}
                   className="search-glass w-full rounded-lg border px-2 py-2 text-[9px] text-(--text-primary) placeholder:text-(--text-muted) focus:ring-1 focus:ring-(--accent-primary)/30 focus:outline-none"
                 />
-              </div>
+            </div>
 
               <input
                 type="text"
@@ -591,36 +639,36 @@ export function Step4PaymentConfirmation({
                 placeholder="Cardholder Name"
                 className="search-glass w-full rounded-lg border px-2 py-2 text-[9px] text-(--text-primary) placeholder:text-(--text-muted) focus:ring-1 focus:ring-(--accent-primary)/30 focus:outline-none"
               />
-            </div>
-          </section>
-        )}
-
-        <section className="flex items-center justify-between gap-2 rounded-xl bg-[color-mix(in_srgb,var(--accent-primary)_8%,var(--bg-card))] px-3 py-2">
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2
-              size={12}
-              className="shrink-0 text-(--success)"
-              strokeWidth={2}
-            />
-            <p className="text-[7px] leading-snug text-(--text-secondary)">
-              Free cancellation up to 24 hours before appointment
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-1 rounded-full bg-(--accent-primary) px-2 py-1">
-            <Zap size={9} className="text-white" fill="white" strokeWidth={0} />
-            <span className="text-[6px] font-semibold text-white">
-              Instant Confirmation
-            </span>
           </div>
         </section>
+      )}
 
-        <button
-          type="button"
-          onClick={onBack}
-          className="secondary-button w-full rounded-xl py-2 text-[9px] font-medium"
-        >
-          BACK
-        </button>
+        <section className="flex items-center justify-between gap-2 rounded-xl bg-[color-mix(in_srgb,var(--accent-primary)_8%,var(--bg-card))] px-3 py-2">
+        <div className="flex items-center gap-1.5">
+          <CheckCircle2
+            size={12}
+            className="shrink-0 text-(--success)"
+            strokeWidth={2}
+          />
+          <p className="text-[7px] leading-snug text-(--text-secondary)">
+            Free cancellation up to 24 hours before appointment
+          </p>
+        </div>
+          <div className="flex shrink-0 items-center gap-1 rounded-full bg-(--accent-primary) px-2 py-1">
+          <Zap size={9} className="text-white" fill="white" strokeWidth={0} />
+          <span className="text-[6px] font-semibold text-white">
+            Instant Confirmation
+          </span>
+        </div>
+      </section>
+
+      <button
+        type="button"
+        onClick={onBack}
+        className="secondary-button w-full rounded-xl py-2 text-[9px] font-medium"
+      >
+        BACK
+      </button>
       </div>
 
       {/* ================= DESKTOP (matches reference) ================= */}
@@ -729,8 +777,8 @@ export function Step4PaymentConfirmation({
                       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-(--accent-primary) text-[11px] font-bold text-white">
                         {index + 1}
                       </span>
-                    </div>
-                  );
+    </div>
+  );
                 })}
               </div>
             </div>

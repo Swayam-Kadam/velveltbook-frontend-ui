@@ -65,7 +65,7 @@ export function TopCategoriesSidebar({
             We&apos;re here to help you find the right expert.
           </p>
           <Link
-            href="/help"
+            href="#"
             className="mt-3 flex h-9 w-full items-center justify-center rounded-lg border border-(--border) text-xs font-medium text-(--text-primary) transition-colors hover:border-(--accent-primary)"
           >
             Contact Support
