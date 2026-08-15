@@ -24,6 +24,7 @@ import { Step1ServiceSelection } from "./steps/Step1ServiceSelection";
 import { Step2StaffSelection } from "./steps/Step2StaffSelection";
 import { Step3DateTimeSelection } from "./steps/Step3DateTimeSelection";
 import { StepProductPreview } from "./steps/StepProductPreview";
+import { BookingConfirmedScreen } from "./BookingConfirmedScreen";
 import {
   getStep4Total,
   Step4PaymentConfirmation,
@@ -96,6 +97,7 @@ export function BookingFlow() {
   const [billingName, setBillingName] = useState("");
   const [billingEmail, setBillingEmail] = useState("");
   const [billingPhone, setBillingPhone] = useState("");
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const setSelectedServices = (updater: (current: string[]) => string[]) => {
     setServiceIds((current) => {
@@ -169,6 +171,7 @@ export function BookingFlow() {
       availability: org.availability,
       status: org.status,
       thumbnail: org.thumbnail,
+      address: org.address,
     };
   }, [organizationId]);
 
@@ -223,6 +226,8 @@ export function BookingFlow() {
   };
 
   const footerConfig = () => {
+    if (isConfirmed) return null;
+
     if (isProductFlow) {
       if (step === 2) {
         return {
@@ -230,7 +235,7 @@ export function BookingFlow() {
           buttonLabel: "Pay Now & Confirm Order",
           buttonSubtext: "You'll receive a confirmation instantly",
           showLock: true,
-          onAction: () => alert("Order confirmed!"),
+          onAction: () => setIsConfirmed(true),
         };
       }
       return null;
@@ -242,7 +247,7 @@ export function BookingFlow() {
         buttonLabel: "Pay Now & Confirm Booking",
         buttonSubtext: "You'll receive a confirmation instantly",
         showLock: true,
-        onAction: () => alert("Booking confirmed!"),
+        onAction: () => setIsConfirmed(true),
       };
     }
     if (step === 3) {
@@ -259,6 +264,48 @@ export function BookingFlow() {
   };
 
   const footer = footerConfig();
+
+  if (isConfirmed) {
+    return (
+      <BookingConfirmedScreen
+        selectedServiceIds={serviceIds}
+        selectedProductIds={productIds}
+        productQuantities={productQuantities}
+        organizationId={organizationId}
+        organizationBanner={organizationBanner}
+        staffId={getPrimaryStaffId(serviceStaff, serviceIds, staffId)}
+        serviceStaff={serviceStaff}
+        serviceSchedules={serviceSchedules}
+        expertType={expertType}
+        billingName={billingName}
+        billingPhone={billingPhone}
+        paymentMethod={paymentMethod}
+        onSave={(next) => {
+          setServiceIds(next.serviceIds);
+          setServiceStaff(
+            syncServiceStaffAssignments(next.staff, next.serviceIds),
+          );
+          setServiceSchedules(
+            syncServiceSchedules(next.schedules, next.serviceIds),
+          );
+          setStaffId(
+            getPrimaryStaffId(next.staff, next.serviceIds, staffId),
+          );
+        }}
+        onReschedule={(serviceId, dayId, time) => {
+          setServiceSchedules((current) => ({
+            ...current,
+            [serviceId]: {
+              ...(current[serviceId] ?? createDefaultServiceSchedule()),
+              dayId,
+              time,
+              isSet: true,
+            },
+          }));
+        }}
+      />
+    );
+  }
 
   return (
     <div className="relative pb-[140px] lg:pb-10 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
@@ -302,7 +349,7 @@ export function BookingFlow() {
                 onBillingChange={handleBillingChange}
                 onRemoveProduct={removeProduct}
                 onBack={() => setStep(1)}
-                onConfirm={() => alert("Order confirmed!")}
+                onConfirm={() => setIsConfirmed(true)}
                 onEditService={() => setStep(1)}
               />
             )}
@@ -384,7 +431,7 @@ export function BookingFlow() {
                 onRemoveService={removeService}
                 onRemoveProduct={removeProduct}
                 onBack={() => setStep(3)}
-                onConfirm={() => alert("Booking confirmed!")}
+                onConfirm={() => setIsConfirmed(true)}
                 onEditService={() => setStep(1)}
                 onChangeStaff={() => setStep(2)}
                 onChangeTime={() => setStep(3)}

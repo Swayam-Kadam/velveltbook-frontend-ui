@@ -40,6 +40,7 @@ export type ExpertLocationId =
   | "box-hill"
   | "south-yarra"
   | "richmond"
+  | "southbank"
   | "carlton"
   | "st-kilda"
   | "footscray"
@@ -55,4 +56,29 @@ export interface ExpertLocationOption {
 /** Store card shape matches Trending Nearby, filtered by location. */
 export interface ExpertProvider extends TrendingNearbyItem {
   location: Exclude<ExpertLocationId, "more">;
+}
+
+export type NationalityId =
+  | "aussie"
+  | "vietnamese"
+  | "chinese"
+  | "thai"
+  | "indian"
+  | "korean"
+  | "japanese"
+  | "philippines"
+  | "mix"
+  | "indonesian"
+  | "malaysian"
+  | "more";
+
+export interface NationalityOption {
+  id: NationalityId;
+  label: string;
+  image: string;
+}
+
+/** Store card shape matches Trending Nearby, filtered by nationality. */
+export interface NationalityProvider extends TrendingNearbyItem {
+  nationality: Exclude<NationalityId, "more">;
 }

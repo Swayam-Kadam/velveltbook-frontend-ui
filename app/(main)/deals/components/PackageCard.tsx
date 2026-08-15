@@ -41,7 +41,7 @@ export function PackageCard({
           )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-2 p-3.5">
+        <div className="flex flex-1 flex-col gap-2  px-3.5 py-1.5">
           <h3 className="line-clamp-1 text-[16px] font-semibold text-(--text-primary)">
             {deal.title}
           </h3>

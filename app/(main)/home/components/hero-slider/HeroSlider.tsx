@@ -55,9 +55,9 @@ export function HeroSlider({
                     }}
                     className="lg:rounded-[8px]"
                 >
-                    {heroSlides.map((slide) => (
+                    {heroSlides.map((slide, index) => (
                         <SwiperSlide key={slide.id}>
-                            <HeroSlide {...slide} />
+                            <HeroSlide {...slide} isActive={activeIndex === index} />
                         </SwiperSlide>
                     ))}
                 </Swiper>

@@ -32,6 +32,7 @@ import type {
   ServiceSchedules,
   ServiceStaffAssignments,
 } from "../../booking.types";
+import { useRouter } from "next/navigation";
 
 interface ServiceScheduleRowsProps {
   selectedServiceIds: string[];
@@ -530,7 +531,7 @@ export function ServiceScheduleRows({
     () => selectedServiceIds[0] ?? "",
   );
   const [staffModalOpen, setStaffModalOpen] = useState(false);
-
+  const router = useRouter();
   useEffect(() => {
     if (selectedServiceIds.length === 0) {
       setActiveServiceId("");
@@ -698,11 +699,12 @@ export function ServiceScheduleRows({
                   : "Select a therapist"}
               </p>
             </div>
+            <div className="flex items-center gap-2 flex-1">
             <button
               type="button"
               onClick={() => setStaffModalOpen(true)}
               className="
-                shrink-0 rounded-lg border border-(--border) bg-(--bg-card)
+                shrink-0 rounded-sm border border-(--border) bg-(--bg-card)
                 px-3 py-1.5 text-[12px] font-semibold text-(--text-primary)
                 transition-colors hover:border-(--brand-gold)
                 hover:text-(--brand-gold)
@@ -710,6 +712,7 @@ export function ServiceScheduleRows({
             >
               {staff ? "Change" : "Select"}
             </button>
+            </div>
           </div>
         </div>
 

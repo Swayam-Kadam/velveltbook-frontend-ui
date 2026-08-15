@@ -12,7 +12,7 @@ interface SalonInfoCardProps {
 export function SalonInfoCard({ organization }: SalonInfoCardProps) {
   return (
     <div className="flex items-center gap-3 px-2">
-      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl">
+      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-sm">
         <Image
           src={organization.thumbnail}
           alt={organization.name}
@@ -27,10 +27,10 @@ export function SalonInfoCard({ organization }: SalonInfoCardProps) {
           {organization.name}
         </p>
         <div className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold">
-          <MapPin size={9} className="text-(--success)" />
-          <span className="text-(--success)">{organization.status}</span>
+          {/* <MapPin size={9} className="text-(--success)" />
+          <span className="text-(--success)">{organization.status}</span> */}
 
-          <MapPin size={9} className="text-(--primary) ml-3" />
+          <MapPin size={9} className="text-(--primary)" />
           <span className="text-(--primary)">{organization.address ?organization.address : "142 Springvale Rd, Cheltenham"}</span>
         </div>
       </div>

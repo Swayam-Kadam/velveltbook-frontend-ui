@@ -80,7 +80,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
 
                         </div>
 
-                        <div className="absolute right-2 top-39 z-30">
+                        <div className="absolute right-2 top-39 z-10">
 
                             <button className="flex primary-button h-5 w-5 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md">
                                 <Share2 size={12} />
@@ -108,7 +108,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
                                     {item.name}
                                 </p>
 
-                                <p className="text-[8px] flex text-(--text-primary) gap-1">
+                                <p className="text-[8px] flex text-(--text-primary) gap-1 h-2">
                                 <MapPin size={10} className="mt-0.5 text-bold" />{item.address ?? item.service}
                                 </p>
                                 

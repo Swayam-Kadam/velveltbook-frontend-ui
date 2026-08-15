@@ -24,6 +24,7 @@ export interface MenuService {
   price: string;
   duration: string;
   image: string;
+  images?: string[];
 }
 
 export const SERVICES_PER_PAGE = 9;

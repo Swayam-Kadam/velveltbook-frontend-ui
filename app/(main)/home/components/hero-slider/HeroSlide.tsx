@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { ChevronDown, Share2 } from "lucide-react";
 
@@ -15,36 +16,69 @@ interface HeroSlideProps {
   description: string;
   time: string;
   timings: SlideTiming[];
+  isActive?: boolean;
 }
 
 export function HeroSlide({
   image,
   title,
   description,
-  time,
   timings,
+  isActive = true,
 }: HeroSlideProps) {
   const titleLines = title.split("\n");
   const [isTimingsOpen, setIsTimingsOpen] = useState(false);
+  const [panelPos, setPanelPos] = useState({ top: 0, right: 0 });
+  const [mounted, setMounted] = useState(false);
   const timingsRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        timingsRef.current &&
-        !timingsRef.current.contains(event.target as Node)
-      ) {
-        setIsTimingsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!isActive) setIsTimingsOpen(false);
+  }, [isActive]);
+
+  useEffect(() => {
+    const updatePanelPos = () => {
+      const rect = timingsRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setPanelPos({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      });
+    };
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        timingsRef.current?.contains(target) ||
+        panelRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setIsTimingsOpen(false);
+    };
+
+    if (isTimingsOpen) {
+      updatePanelPos();
+      window.addEventListener("resize", updatePanelPos);
+      window.addEventListener("scroll", updatePanelPos, true);
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("resize", updatePanelPos);
+      window.removeEventListener("scroll", updatePanelPos, true);
+    };
+  }, [isTimingsOpen]);
+
   return (
-    <div className="relative overflow-hidden rounded-xl border border-(--border) dark:border-white/10 lg:rounded-[8px]">
-      <div className="relative min-h-[170px] w-full lg:min-h-[330px] xl:min-h-[330px]">
+    <div className="relative overflow-visible rounded-xl lg:rounded-[8px]">
+      <div className="relative min-h-[170px] w-full overflow-hidden rounded-xl border border-(--border) dark:border-white/10 lg:min-h-[330px] lg:rounded-[8px] xl:min-h-[330px]">
         <Image
           src={image}
           alt={title}
@@ -65,6 +99,8 @@ export function HeroSlide({
 
         {/* Dark theme overlays */}
         <div className="absolute inset-0 hidden bg-black/20 [.dark_&]:block" />
+
+        <span className="absolute bottom-2 right-2 h-3 w-3 rounded-full bg-green-500" />
 
         <div
           className="
@@ -118,27 +154,6 @@ export function HeroSlide({
                   className={`transition-transform duration-200 ${isTimingsOpen ? "rotate-180" : ""}`}
                 />
               </button>
-
-              {isTimingsOpen && (
-                <div className="absolute right-0 top-full z-20 mt-2 w-[190px] rounded-xl border border-white/20 bg-black/70 p-2 text-white shadow-lg backdrop-blur-xl">
-                  {/* <div className="mb-1 border-b border-white/10 px-2 pb-1 text-[10px] font-semibold">
-                    {time}
-                  </div> */}
-                  <div className="space-y-1">
-                    {timings.map((timing) => (
-                      <div
-                        key={timing.day}
-                        className="flex items-center justify-between gap-3 rounded-lg px-2 text-[10px]"
-                      >
-                        <span className="text-white/85">{timing.day}</span>
-                        <span className="text-right text-white/70">
-                          {timing.hours}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
             <button className="flex h-5 w-5 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md">
               <Share2 size={12} />
@@ -171,6 +186,31 @@ export function HeroSlide({
           </div>
         </div>
       </div>
+
+      {mounted &&
+        isTimingsOpen &&
+        createPortal(
+          <div
+            ref={panelRef}
+            style={{ top: panelPos.top, right: panelPos.right }}
+            className="fixed z-[200] w-[190px] rounded-xl border border-white/20 bg-black/80 p-2 text-white shadow-lg backdrop-blur-xl"
+          >
+            <div className="space-y-1">
+              {timings.map((timing) => (
+                <div
+                  key={timing.day}
+                  className="flex items-center justify-between gap-3 rounded-lg px-2 py-0.5 text-[10px]"
+                >
+                  <span className="text-white/85">{timing.day}</span>
+                  <span className="text-right text-white/70">
+                    {timing.hours}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

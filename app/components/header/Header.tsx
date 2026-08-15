@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, ChevronDown, LogOut, UserRound, Sparkle, ShoppingBag, CreditCard, ShieldCheck, FileText, Calendar, HelpCircle } from "lucide-react";
+import { Bell, ChevronDown, LogOut, UserRound, Sparkle, ShoppingBag, CreditCard, ShieldCheck, FileText, Calendar, HelpCircle, Heart } from "lucide-react";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { usePathname, useRouter } from "next/navigation";
@@ -298,7 +298,58 @@ export function Header() {
                                     "
                                 >
                                     <Calendar size={15} className="text-(--accent-primary)" />
-                                    My Bookings
+                                    My Services
+                                </button>
+
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        router.push("/mybooking");
+                                    }}
+                                    className="
+                                        flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
+                                        font-semibold text-(--text-primary)
+                                        transition-colors hover:bg-(--bg-card-hover)
+                                    "
+                                >
+                                    <Calendar size={15} className="text-(--accent-primary)" />
+                                    My Products
+                                </button>
+
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    // onClick={() => {
+                                    //     setMenuOpen(false);
+                                    //     router.push("/mybooking");
+                                    // }}
+                                    className="
+                                        flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
+                                        font-semibold text-(--text-primary)
+                                        transition-colors hover:bg-(--bg-card-hover)
+                                    "
+                                >
+                                    <Heart size={15} className="text-(--accent-primary)" />
+                                    Favourite  Stores
+                                </button>
+
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        router.push("/payment-method");
+                                    }}
+                                    className="
+                                        flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
+                                        font-semibold text-(--text-primary)
+                                        transition-colors hover:bg-(--bg-card-hover)
+                                    "
+                                >
+                                    <CreditCard size={15} className="text-(--accent-primary)" />
+                                    Payment Methods
                                 </button>
 
                                 <button
@@ -315,7 +366,7 @@ export function Header() {
                                     "
                                 >
                                     <HelpCircle size={15} className="text-(--accent-primary)" />
-                                    Help & Support
+                                    Help
                                 </button>
 
                                 {/* <button
@@ -350,7 +401,7 @@ export function Header() {
                                     Privacy Policy
                                 </button>
 
-                                <button
+                                {/* <button
                                     type="button"
                                     role="menuitem"
                                     onClick={() => {
@@ -364,7 +415,7 @@ export function Header() {
                                 >
                                     <FileText size={15} className="text-(--accent-primary)" />
                                     Legal (T&C)
-                                </button>
+                                </button> */}
 
                                 <div className="h-px bg-(--border)" />
 

@@ -1115,7 +1115,7 @@ export function Step4PaymentConfirmation({
                     />
                   </div>
 
-                  <div>
+                  {/* <div>
                     <label className={labelClass} htmlFor="card-country">
                       Country / Region
                     </label>
@@ -1131,7 +1131,7 @@ export function Step4PaymentConfirmation({
                       <option value="United States">🇺🇸 United States</option>
                       <option value="United Kingdom">🇬🇧 United Kingdom</option>
                     </select>
-                  </div>
+                  </div> */}
 
                   <div className="pt-1">
                     <p className="mb-2.5 text-[13px] font-semibold text-(--text-primary)">
@@ -1140,7 +1140,7 @@ export function Step4PaymentConfirmation({
                     <div className="space-y-3">
                       <div>
                         <label className={labelClass} htmlFor="addr1">
-                          Address Line 1
+                          Address
                         </label>
                         <input
                           id="addr1"
@@ -1151,7 +1151,7 @@ export function Step4PaymentConfirmation({
                           className={fieldClass}
                         />
                       </div>
-                      <div>
+                      {/* <div>
                         <label className={labelClass} htmlFor="addr2">
                           Address Line 2 (Optional)
                         </label>
@@ -1163,7 +1163,7 @@ export function Step4PaymentConfirmation({
                           placeholder="Apartment, suite, etc."
                           className={fieldClass}
                         />
-                      </div>
+                      </div> */}
                       <div className="grid grid-cols-3 gap-3">
                         <div>
                           <label className={labelClass} htmlFor="suburb">

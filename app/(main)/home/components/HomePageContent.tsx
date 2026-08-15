@@ -15,6 +15,7 @@ import { ExpertProviders } from "./expert-providers/ExpertProviders";
 import { HomeFilterSidebar } from "./filter-sidebar/HomeFilterSidebar";
 import { HeroSlider } from "./hero-slider/HeroSlider";
 import type { HomeCategory } from "@/types/home";
+import { NationalityProviders } from "./nationality-providers/NationalityProviders";
 import { TrendingNearby } from "./trending-nearby/TrendingNearby";
 
 const DEFAULT_MOBILE_FILTERS = {
@@ -96,6 +97,7 @@ export function HomePageContent() {
           />
           <TrendingNearby selectedCategory={selectedCategory} />
           <ExpertProviders />
+          <NationalityProviders />
         </div>
       </div>
 

@@ -18,6 +18,7 @@ import {
   RotateCcw,
   Sparkles,
   Star,
+  Undo2,
   UserRound,
 } from "lucide-react";
 
@@ -38,6 +39,7 @@ import {
 } from "@/data/booking/my-bookings";
 import { buildBookingUrl } from "@/booking/booking.navigation";
 import { allMenuServices } from "@/data/catalog/menu/services";
+import { SHARED_STAFF } from "@/data/shared/staff";
 
 type CardStatusTab = "upcoming" | HistorySubTab;
 
@@ -46,6 +48,27 @@ function getRebookServiceId(serviceName: string): string | undefined {
   return allMenuServices.find(
     (service) => service.title.trim().toLowerCase() === normalized,
   )?.id;
+}
+
+function getStaffForBooking(therapistName: string) {
+  const normalized = therapistName.trim().toLowerCase();
+  return (
+    SHARED_STAFF.find(
+      (staff) => staff.name.trim().toLowerCase() === normalized,
+    ) ?? SHARED_STAFF[0]
+  );
+}
+
+function getBookingWeekday(dateLabel: string) {
+  const parsed = new Date(dateLabel);
+  if (Number.isNaN(parsed.getTime())) return "Booked";
+  return parsed.toLocaleDateString("en-US", { weekday: "short" });
+}
+
+function getBookingDateShort(dateLabel: string) {
+  const parsed = new Date(dateLabel);
+  if (Number.isNaN(parsed.getTime())) return dateLabel;
+  return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 const statusStyles: Record<
@@ -89,7 +112,7 @@ function OrganizationBanner({
 }) {
   return (
     <div className="border-b border-(--border)">
-      <div className="relative h-[88px] w-full">
+      <div className="relative h-[115px] w-full">
         <Image
           src={organization.banner}
           alt={organization.name}
@@ -466,67 +489,87 @@ function BookingCard({
     step: 2,
   });
 
+  const staff = getStaffForBooking(booking.therapist);
+
   return (
     <article className="feature-card overflow-hidden rounded-xl">
       <OrganizationBanner organization={booking.organization} />
 
       <div className="p-2.5">
-      <div className="flex gap-3">
-        <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-sm">
-          <Image
-            src={booking.image}
-            alt={booking.service}
-            fill
-            sizes="72px"
-            className="object-cover"
-          />
+      {tab !== "upcoming" && (
+        <div className="mb-2 flex justify-end">
+          <span
+            className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold"
+            style={{ color: status.color, background: status.bg }}
+          >
+            {status.label}
+          </span>
+        </div>
+      )}
+
+      <div className="grid grid-cols-3 gap-1">
+        <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
+          <div className="relative aspect-square w-full overflow-hidden">
+            <Image
+              src={booking.image}
+              alt={booking.service}
+              fill
+              sizes="120px"
+              className="object-cover"
+            />
+            <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
+              Service
+            </span>
+          </div>
+          <p className="break-words px-1 py-1 text-center text-[9px] font-bold leading-tight text-(--text-primary)">
+            {booking.service}
+          </p>
         </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="truncate text-[13px] font-bold text-(--text-primary)">
-              {booking.service}
-            </h3>
-            {showViewButton && (
-              <span
-                className="flex shrink-0 items-center gap-1 rounded-full bg-(--text-primary) px-2 py-0.5 text-[10px] font-bold text-white"
-              >
-                view <ChevronDown size={12} />
-              </span>
-            )}
-            <span
-              className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold"
-              style={{ color: status.color, background: status.bg }}
-            >
-              {tab === "upcoming" ? "Cancel" : status.label}
+        <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
+          <div className="relative aspect-square w-full overflow-hidden">
+            <Image
+              src={staff.image}
+              alt={staff.name}
+              fill
+              sizes="120px"
+              className="object-cover"
+            />
+            <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
+              Therapist
             </span>
           </div>
+          <p className="break-words px-1 py-1 text-center text-[10px] font-bold leading-tight text-(--text-primary)">
+            {booking.therapist}
+          </p>
+        </div>
 
-          <div className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-(--text-secondary)">
-            <UserRound size={11} className="text-(--accent-primary)" />
-            <span className="truncate">with {booking.therapist}</span>
-          </div>
-
-
-          <div className="mt-1 flex items-center justify-between gap-2">
-            {/* <span className="flex min-w-0 items-center gap-1 text-[9px] font-semibold text-(--text-muted)">
-              <MapPin size={10} className="shrink-0 text-(--accent-primary)" />
-              <span className="truncate">{booking.location}</span>
-            </span> */}
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[9px] font-semibold text-(--text-secondary)">
-            <span className="flex items-center gap-1">
-              <CalendarDays size={10} className="text-(--accent-primary)" />
-              {booking.date}
+        <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
+          <div className="relative flex aspect-square w-full flex-col items-center justify-center gap-0.5 px-1">
+            <span className="flex items-center gap-0.5 text-[10px] font-bold text-(--text-primary)">
+              <CalendarDays
+                size={10}
+                className="shrink-0 text-(--accent-primary)"
+              />
+              {getBookingWeekday(booking.date)}
             </span>
-            <span className="flex items-center gap-1">
-              <Clock3 size={10} className="text-(--accent-primary)" />
+            <span className="text-[10px] font-semibold text-(--text-primary)">
+              {getBookingDateShort(booking.date)}
+            </span>
+            <span className="flex items-center gap-0.5 text-[10px] font-bold text-(--text-primary)">
+              <Clock3
+                size={10}
+                className="shrink-0 text-(--accent-primary)"
+              />
               {booking.time}
             </span>
-          </div>
-            <span className="shrink-0 text-[13px] font-bold text-(--brand-gold)">
-              {booking.price}
+            <span className="absolute bottom-1 w-full rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-center text-[8px] font-semibold text-(--text-primary)">
+              Date & Time
             </span>
           </div>
+          <p className="break-words px-1 py-1 text-center text-[13px] font-bold leading-tight text-(--brand-gold)">
+            {booking.price}
+          </p>
         </div>
       </div>
 
@@ -539,7 +582,7 @@ function BookingCard({
             text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
           "
         >
-          {tab === "upcoming" ? "Ongoing" : status.label}
+          {tab === "upcoming" ? "Cancel" : status.label}
         </button>
         {tab === "upcoming" ? (
           <button
@@ -553,7 +596,7 @@ function BookingCard({
             <CalendarPlus size={12} />
             Change
           </button>
-        ) : (
+        ) : tab === "completed" ? (
           <Link
             href={bookAgainHref}
             className="
@@ -565,6 +608,20 @@ function BookingCard({
             <RotateCcw size={12} />
             Book Again
           </Link>
+        ) : null}
+
+        {tab === "upcoming" && (
+          <button
+            type="button"
+            className="
+              flex flex-1 items-center justify-center gap-1 rounded-lg
+              border border-(--border) py-1.5 text-[10px] font-bold
+              text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
+            "
+          >
+            <Undo2 size={12} />
+            Reschedule
+          </button>
         )}
       </div>
       </div>

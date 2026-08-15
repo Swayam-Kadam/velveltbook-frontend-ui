@@ -309,94 +309,89 @@ export function Step3DateTimeSelection({
               return (
                 <article
                   key={service.id}
-                  className="feature-card relative rounded-sm p-2"
+                  className="feature-card relative overflow-visible rounded-sm p-1"
                 >
                   <button
                     type="button"
                     aria-label={`Remove ${service.name}`}
                     onClick={() => handleRemoveService(service.id)}
-                    className="absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-(--bg-card)/90 text-(--text-secondary) shadow-(--shadow-card) transition-colors hover:text-(--text-primary)"
+                    className="absolute -right-1 -top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-(--bg-card) text-(--text-secondary) shadow-(--shadow-card) transition-colors hover:text-(--text-primary)"
                   >
                     <X size={11} strokeWidth={2.5} />
                   </button>
 
-                  <div className="flex gap-1.5">
-                    <div className="relative h-14 flex-1 overflow-hidden rounded-sm">
-                      <Image
-                        src={service.image}
-                        alt={service.name}
-                        fill
-                        sizes="140px"
-                        className="object-cover"
-                      />
-                      <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
-                        Service
-                      </span>
-                    </div>
-                    <div className="relative h-14 flex-1 overflow-hidden rounded-sm">
-                      <Image
-                        src={assigned?.image ?? staff.image}
-                        alt={assigned?.name ?? "Therapist"}
-                        fill
-                        sizes="140px"
-                        className="object-cover"
-                      />
-                      <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
-                        Therapist
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* <p className="mt-1.5 truncate pr-6 text-[11px] font-bold text-(--text-primary)">
-                    {service.name} 
-                  </p> */}
-                  <div className="mt-0.5 flex items-center gap-1 text-[11px] font-semibold text-(--text-primary)">
-                    
-                  <p className=" truncate pr-6 text-[11px] font-bold text-(--text-primary)">
-                    {service.name} 
-                  </p>
-                    
-                    <span className="truncate">
-                      with {assigned?.name ?? "Not selected"}
-                    </span>
-                    {assigned && (
-                      <span className="flex shrink-0 items-center gap-0.5 text-(--text-secondary)">
-                        <Star
-                          size={9}
-                          className="fill-(--brand-gold) text-(--brand-gold)"
+                  <div className="grid grid-cols-3 gap-1">
+                    <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
+                      <div className="relative aspect-square w-full overflow-hidden">
+                        <Image
+                          src={service.image}
+                          alt={service.name}
+                          fill
+                          sizes="120px"
+                          className="object-cover"
                         />
-                        {assigned.rating}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-1 flex items-center justify-between gap-2">
-                    {scheduled ? (
-                      <div className="flex items-center gap-2 text-[9px] font-bold text-(--text-primary)">
-                        <span className="flex items-center gap-1">
-                          <CalendarDays
-                            size={10}
-                            className="text-(--accent-primary)"
-                          />
-                          {getBookingDay(schedule.dayId).weekday},{" "}
-                          {getBookingDay(schedule.dayId).date}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock3
-                            size={10}
-                            className="text-(--accent-primary)"
-                          />
-                          {schedule.time}
+                        <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
+                          Service
                         </span>
                       </div>
-                    ) : (
-                      <p className="text-[9px] font-semibold text-(--text-muted)">
-                        Not scheduled yet
+                      <p className="break-words px-1 py-1 text-[9px] font-bold leading-tight text-(--text-primary) text-center">
+                        {service.name}
                       </p>
-                    )}
-                    <p className="shrink-0 text-[11px] font-bold text-(--brand-gold)">
-                      {service.priceLabel}
-                    </p>
+                    </div>
+
+                    <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
+                      <div className="relative aspect-square w-full overflow-hidden">
+                        <Image
+                          src={assigned?.image ?? staff.image}
+                          alt={assigned?.name ?? "Therapist"}
+                          fill
+                          sizes="120px"
+                          className="object-cover"
+                        />
+                        <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
+                          Therapist
+                        </span>
+                      </div>
+                      <p className="break-words px-1 py-1 text-[10px] font-bold leading-tight text-(--text-primary) text-center">
+                        {assigned?.name ?? "Not selected"}
+                      </p>
+                    </div>
+
+                    <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
+                      <div className="relative flex aspect-square w-full flex-col items-center justify-center gap-0.5 px-1">
+                        {scheduled ? (
+                          <>
+                            <span className="flex items-center gap-0.5 text-[10px] font-bold text-(--text-primary)">
+                              <CalendarDays
+                                size={10}
+                                className="shrink-0 text-(--accent-primary)"
+                              />
+                              {getBookingDay(schedule.dayId).weekday}
+                            </span>
+                            <span className="text-[10px] font-semibold text-(--text-primary)">
+                              {getBookingDay(schedule.dayId).date}
+                            </span>
+                            <span className="flex items-center gap-0.5 text-[10px] font-bold text-(--text-primary)">
+                              <Clock3
+                                size={10}
+                                className="shrink-0 text-(--accent-primary)"
+                              />
+                              {schedule.time}
+                            </span>
+                          </>
+                        ) : (
+                          <p className="text-center text-[8px] font-semibold leading-tight text-(--text-muted)">
+                            Not scheduled
+                          </p>
+                        )}
+                        <span className="absolute bottom-1  rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[8px] font-semibold text-(--text-primary) text-center w-full">
+                          Date & Time
+                        </span>
+                      </div>
+                      <p className="break-words px-1 py-1 text-[13px] font-bold leading-tight text-(--brand-gold) text-center">
+                        {service.priceLabel}
+                      </p>
+                    </div>
                   </div>
                 </article>
               );

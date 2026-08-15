@@ -42,6 +42,12 @@ export const expertLocations: ExpertLocationOption[] = [
       "https://images.unsplash.com/photo-1624138784614-87fd1b6528f8?auto=format&fit=crop&w=240&h=240&q=80",
   },
   {
+    id: "southbank",
+    label: "Southbank",
+    image:
+      "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=240&h=240&q=80&sat=-10",
+  },
+  {
     id: "carlton",
     label: "Carlton",
     image:
@@ -187,6 +193,24 @@ export const expertProviders: ExpertProvider[] = [
     description:
       "Quiet Richmond spa focused on aromatherapy and restorative body treatments.",
     desktopService: "Aromatherapy",
+    desktopServices,
+  },
+  {
+    id: "expert-7b",
+    name: "Southbank Glow Spa",
+    image: "/spa-header.png",
+    avatar: "/massage.webp",
+    service: "Relaxation Massage",
+    availability: "9AM - 7PM",
+    distance: "1.0km away",
+    organizationId: "org-expert-7b",
+    category: "spa",
+    location: "southbank",
+    rating: 4.8,
+    reviews: "119+",
+    description:
+      "Southbank spa with river views, relaxation massage, and evening wellness sessions.",
+    desktopService: "Relaxation Massage",
     desktopServices,
   },
   {

@@ -1,8 +1,8 @@
 import { TrendingNearbyCard } from "../trending-nearby/TrendingNearbyCard";
-import type { ExpertProvider } from "./expert-providers.types";
+import type { TrendingNearbyItem } from "../trending-nearby/trending-nearby.types";
 
 interface ExpertProviderCardProps {
-  provider: ExpertProvider;
+  provider: TrendingNearbyItem;
 }
 
 export function ExpertProviderCard({ provider }: ExpertProviderCardProps) {

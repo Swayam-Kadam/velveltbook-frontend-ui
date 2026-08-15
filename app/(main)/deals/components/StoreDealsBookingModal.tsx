@@ -33,21 +33,17 @@ function SelectableStoreServiceCard({
   onToggle,
   locked = false,
 }: SelectableStoreServiceCardProps) {
-  return (
-    <button
-      type="button"
-      onClick={locked ? undefined : onToggle}
-      aria-disabled={locked}
-      className={`
-        feature-card w-full overflow-hidden rounded-xl text-left
-        transition-all duration-200
-        ${locked ? "cursor-default" : ""}
-        ${isSelected
-          ? "border-(--brand-gold) shadow-(--shadow-glow)"
-          : "border-(--border)"
-        }
-      `}
-    >
+  const cardClassName = `
+    feature-card w-full overflow-hidden rounded-xl text-left
+    transition-all duration-200
+    ${locked ? "cursor-default" : ""}
+    ${!locked && isSelected
+      ? "border-(--brand-gold) shadow-(--shadow-glow)"
+      : "border-(--border)"
+    }
+  `;
+
+  const cardBody = (
       <div className="flex gap-1.5 p-1.5">
         <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-sm">
           <Image
@@ -64,18 +60,20 @@ function SelectableStoreServiceCard({
             <p className="line-clamp-2 text-[11px] font-semibold leading-tight text-(--text-primary)">
               {service.label}
             </p>
-            <span
-              className={`
-                flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border
-                transition-colors duration-200
-                ${isSelected
-                  ? "primary-button border-transparent text-white"
-                  : "border-(--border) bg-(--bg-card) text-transparent"
-                }
-              `}
-            >
-              {isSelected && <Check size={10} strokeWidth={2.5} />}
-            </span>
+            {!locked && (
+              <span
+                className={`
+                  flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border
+                  transition-colors duration-200
+                  ${isSelected
+                    ? "primary-button border-transparent text-white"
+                    : "border-(--border) bg-(--bg-card) text-transparent"
+                  }
+                `}
+              >
+                {isSelected && <Check size={10} strokeWidth={2.5} />}
+              </span>
+            )}
           </div>
 
           <div className="mt-0.5 flex items-start gap-1.5">
@@ -120,6 +118,15 @@ function SelectableStoreServiceCard({
           </div>
         </div>
       </div>
+  );
+
+  if (locked) {
+    return <div className={cardClassName}>{cardBody}</div>;
+  }
+
+  return (
+    <button type="button" onClick={onToggle} className={cardClassName}>
+      {cardBody}
     </button>
   );
 }

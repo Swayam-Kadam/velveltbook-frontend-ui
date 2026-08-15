@@ -1,4 +1,5 @@
-import { CalendarDays, Store } from "lucide-react";
+import { Button } from "@/components/Button";
+import { Bookmark, CalendarDays, Store } from "lucide-react";
 import Link from "next/link";
 
 interface TrendingNearbyActionsProps {
@@ -19,6 +20,10 @@ export function TrendingNearbyActions({ orgHref }: TrendingNearbyActionsProps) {
                 <CalendarDays size={12} />
                 <span>Book Now</span>
             </Link>
+
+            <Button variant="" >
+                <Bookmark size={14}  className="text-(--text-primary)"/>
+            </Button>
 
             {/* <Link
                 href={orgHref}

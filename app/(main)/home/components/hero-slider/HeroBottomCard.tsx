@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Calendar, Navigation, MapPin, Play, Store } from "lucide-react";
 
 import { Button } from "@/components/Button";
+import DirectionsIcon from '@mui/icons-material/Directions';
 
 interface HeroBottomCardProps {
     store: {
@@ -53,11 +54,11 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                     </p>
 
                     <div className="mt-1 flex items-center  gap-2 text-[8px] lg:text-[10px]">
-                        <span className="h-1 w-1 rounded-full bg-green-500" />
+                        {/* <span className="h-1 w-1 rounded-full bg-green-500" /> */}
 
-                        <span className="text-green-400">
+                        {/* <span className="text-green-400">
                             {store.status}
-                        </span>
+                        </span> */}
 
                         <div className=" flex items-center gap-1 text-[10px] text-(--text-secondary) lg:text-[10px]">
                         <MapPin size={8} />
@@ -71,27 +72,18 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                     </div> */}
                 </div>
 
-                <Button
-                    variant="icon"
-                    className="
-    relative
-    h-8 w-8
-    p-0
-    rotate-45
-    rounded-lg
-    border border-purple-500/20
-    bg-purple-500/10
-    text-purple-400
-    hover:bg-purple-500/20
-    transition-all duration-300
-    lg:h-10 lg:w-10
-  "
-                >
-                    <Navigation
-                        size={12}
-                        className="-rotate-45 shrink-0"
-                    />
-                </Button>
+                <button
+        type="button"
+        aria-label="Share salon"
+        className="
+          flex h-8 w-8 shrink-0 items-center justify-center rounded-full
+           bg-(--bg-card)
+          text-(--accent-primary)
+        "
+      >
+        {/* <Share2 size={14} strokeWidth={1.6} /> */}
+        <DirectionsIcon className="h-2 w-2 " />
+      </button>
             </Link>
                 {/* Mobile View */}
                 <div className="block lg:hidden">

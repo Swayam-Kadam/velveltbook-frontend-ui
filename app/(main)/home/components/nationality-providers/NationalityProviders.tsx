@@ -5,29 +5,32 @@ import { ArrowRight, Star } from "lucide-react";
 import { Autoplay, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { ExpertProviderCard } from "./ExpertProviderCard";
-import { LocationSlider } from "./LocationSlider";
-import { expertLocations, expertProviders } from "./expert-providers.data";
-import type { ExpertLocationId } from "./expert-providers.types";
+import { LocationSlider } from "../expert-providers/LocationSlider";
+import { ExpertProviderCard } from "../expert-providers/ExpertProviderCard";
+import {
+  nationalityOptions,
+  nationalityProviders,
+} from "./nationality-providers.data";
+import type { NationalityId } from "./nationality-providers.types";
 
 import "swiper/css";
 import "swiper/css/pagination";
 
-export function ExpertProviders() {
-  const [selectedLocation, setSelectedLocation] =
-    useState<ExpertLocationId | null>(null);
+export function NationalityProviders() {
+  const [selectedNationality, setSelectedNationality] =
+    useState<NationalityId | null>(null);
 
   const filteredProviders = useMemo(() => {
-    if (!selectedLocation || selectedLocation === "more") {
-      return expertProviders;
+    if (!selectedNationality || selectedNationality === "more") {
+      return nationalityProviders;
     }
 
-    const matches = expertProviders.filter(
-      (provider) => provider.location === selectedLocation,
+    const matches = nationalityProviders.filter(
+      (provider) => provider.nationality === selectedNationality,
     );
 
-    return matches.length > 0 ? matches : expertProviders;
-  }, [selectedLocation]);
+    return matches.length > 0 ? matches : nationalityProviders;
+  }, [selectedNationality]);
 
   return (
     <section className="relative pb-3">
@@ -39,12 +42,12 @@ export function ExpertProviders() {
               size={16}
             />
             <h2 className="text-xs font-medium text-(--text-primary) lg:text-[18px]">
-              Suburbs Organizations
+              Nationality Organizations
             </h2>
           </div>
 
           <p className="mt-0.5 text-[8px] text-(--text-muted) lg:text-[11px]">
-            Top rated organizations in your area
+            Top rated organizations by nationality
           </p>
         </div>
 
@@ -60,17 +63,17 @@ export function ExpertProviders() {
 
       <div className="mb-4">
         <LocationSlider
-          filterLabel="Suburbs"
-          locations={expertLocations}
-          selectedLocation={selectedLocation}
+          filterLabel="Nationality"
+          locations={nationalityOptions}
+          selectedLocation={selectedNationality}
           onSelectLocation={(id) =>
-            setSelectedLocation(id as ExpertLocationId)
+            setSelectedNationality(id as NationalityId)
           }
         />
       </div>
 
       <Swiper
-        key={selectedLocation ?? "all"}
+        key={selectedNationality ?? "all"}
         modules={[Pagination, Autoplay]}
         loop={filteredProviders.length > 2}
         centeredSlides={false}

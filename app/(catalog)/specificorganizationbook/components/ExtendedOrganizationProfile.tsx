@@ -1328,6 +1328,9 @@ export function ExtendedOrganizationProfile({
                       const focusedStaff = focusedStaffId
                         ? staffById[focusedStaffId]
                         : undefined;
+                      const isFocusedServiceReady = isServiceFullyAssigned(
+                        focusedService.id,
+                      );
 
                       return (
                         <div>
@@ -1459,9 +1462,14 @@ export function ExtendedOrganizationProfile({
 
                             <div className="flex flex-col justify-center gap-2 bg-(--bg-secondary) p-3 lg:p-4">
                               <div className="min-w-0">
+                                <div className="flex items-center justify-between gap-2">
                                 <p className="text-[10px] font-semibold uppercase tracking-wide text-(--text-muted)">
                                   Selected service
                                 </p>
+                                <p className={`text-[10px] font-semibold uppercase tracking-wide ${isFocusedServiceReady ? "text-green-600" : "text-red-600"}`}>
+                                  {isFocusedServiceReady ? "Ready" : "Pending"}
+                                </p>
+                                </div>
                                 <h2 className="mt-0.5 truncate text-[18px] font-semibold leading-tight text-(--text-primary)">
                                   {focusedService.name}
                                 </h2>

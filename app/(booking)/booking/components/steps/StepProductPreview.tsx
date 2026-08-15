@@ -212,6 +212,183 @@ function SelectedProductCard({
   );
 }
 
+function ProductPreviewCarousel({
+  selectedProducts,
+  productQuantities,
+  onUpdateQuantity,
+  onRemoveProduct,
+}: {
+  selectedProducts: ReturnType<typeof getSelectedProducts>;
+  productQuantities: Record<string, number>;
+  onUpdateQuantity: (id: string, quantity: number) => void;
+  onRemoveProduct: (id: string) => void;
+}) {
+  const [activePreviewIndex, setActivePreviewIndex] = useState(0);
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
+  const cardsScrollRef = useRef<HTMLDivElement>(null);
+
+  const activeIndex =
+    selectedProducts.length > 0
+      ? Math.min(activePreviewIndex, selectedProducts.length - 1)
+      : 0;
+
+  const scrollStrip = (
+    container: HTMLDivElement | null,
+    direction: "left" | "right",
+    minStep: number,
+  ) => {
+    if (!container) return;
+    const delta =
+      (direction === "left" ? -1 : 1) *
+      Math.max(minStep, Math.floor(container.clientWidth * 0.7));
+    const next = Math.max(
+      0,
+      Math.min(
+        container.scrollWidth - container.clientWidth,
+        container.scrollLeft + delta,
+      ),
+    );
+    container.scrollTo({ left: next, behavior: "smooth" });
+  };
+
+  const scrollChildIntoView = (
+    container: HTMLDivElement | null,
+    index: number,
+  ) => {
+    if (!container) return;
+    const child = container.children[index] as HTMLElement | undefined;
+    if (!child) return;
+    const containerRect = container.getBoundingClientRect();
+    const childRect = child.getBoundingClientRect();
+    const delta =
+      childRect.left -
+      containerRect.left -
+      (container.clientWidth - child.clientWidth) / 2;
+    container.scrollTo({
+      left: container.scrollLeft + delta,
+      behavior: "smooth",
+    });
+  };
+
+  const handleTabClick = (index: number) => {
+    setActivePreviewIndex(index);
+    scrollChildIntoView(tabsScrollRef.current, index);
+    scrollChildIntoView(cardsScrollRef.current, index);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => scrollStrip(tabsScrollRef.current, "left", 120)}
+          aria-label="Scroll product tabs left"
+          className="
+            flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+            border border-(--border) bg-(--bg-card) text-(--text-primary)
+            transition-colors hover:border-(--brand-gold)
+            lg:h-9 lg:w-9
+          "
+        >
+          <ChevronLeft size={16} strokeWidth={2.5} />
+        </button>
+
+        <div
+          ref={tabsScrollRef}
+          className="scrollbar-none flex min-w-0 flex-1 gap-2 overflow-x-auto overflow-y-hidden scroll-smooth"
+        >
+          {selectedProducts.map((product, index) => {
+            const active = index === activeIndex;
+            return (
+              <button
+                key={product.id}
+                type="button"
+                onClick={() => handleTabClick(index)}
+                aria-pressed={active}
+                className={`
+                  shrink-0 rounded-lg border px-3 py-1.5 text-[11px] font-semibold
+                  transition-colors lg:text-[12px]
+                  ${
+                    active
+                      ? "border-(--brand-gold) bg-[color-mix(in_srgb,var(--brand-gold)_14%,transparent)] text-(--brand-gold)"
+                      : "border-(--border) bg-(--bg-card) text-(--text-secondary) hover:border-(--brand-gold)/50"
+                  }
+                `}
+              >
+                Product {index + 1}
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => scrollStrip(tabsScrollRef.current, "right", 120)}
+          aria-label="Scroll product tabs right"
+          className="
+            flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+            border border-(--border) bg-(--bg-card) text-(--text-primary)
+            transition-colors hover:border-(--brand-gold)
+            lg:h-9 lg:w-9
+          "
+        >
+          <ChevronRight size={16} strokeWidth={2.5} />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => scrollStrip(cardsScrollRef.current, "left", 220)}
+          aria-label="Scroll products left"
+          className="
+            flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+            border border-(--border) bg-(--bg-card) text-(--text-primary)
+            transition-colors hover:border-(--brand-gold)
+            lg:h-9 lg:w-9
+          "
+        >
+          <ChevronLeft size={16} strokeWidth={2.5} />
+        </button>
+
+        <div
+          ref={cardsScrollRef}
+          className="scrollbar-none flex min-w-0 flex-1 gap-3 overflow-x-auto overflow-y-hidden scroll-smooth"
+        >
+          {selectedProducts.map((product) => (
+            <SelectedProductCard
+              key={product.id}
+              id={product.id}
+              name={product.name}
+              sizeLabel={product.quantity}
+              price={product.price}
+              priceLabel={product.priceLabel}
+              image={product.image}
+              quantity={productQuantities[product.id] ?? 1}
+              onUpdateQuantity={onUpdateQuantity}
+              onRemove={onRemoveProduct}
+            />
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => scrollStrip(cardsScrollRef.current, "right", 220)}
+          aria-label="Scroll products right"
+          className="
+            flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+            border border-(--border) bg-(--bg-card) text-(--text-primary)
+            transition-colors hover:border-(--brand-gold)
+            lg:h-9 lg:w-9
+          "
+        >
+          <ChevronRight size={16} strokeWidth={2.5} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function StepProductPreview({
   selectedProductIds,
   productQuantities,
@@ -223,8 +400,6 @@ export function StepProductPreview({
 }: StepProductPreviewProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [liked, setLiked] = useState(false);
-  const [activePreviewIndex, setActivePreviewIndex] = useState(0);
-  const tabsScrollRef = useRef<HTMLDivElement>(null);
 
   const selectedProducts = getSelectedProducts(selectedProductIds);
   const { subtotal, total } = calcProductsTotal(
@@ -240,36 +415,6 @@ export function StepProductPreview({
     status: bookingLocation.status,
     thumbnail: bookingLocation.image,
     address: bookingLocation.address,
-  };
-
-  const activeIndex =
-    selectedProducts.length > 0
-      ? Math.min(activePreviewIndex, selectedProducts.length - 1)
-      : 0;
-  const activeProduct = selectedProducts[activeIndex];
-
-  const scrollTabIntoView = (index: number) => {
-    const container = tabsScrollRef.current;
-    if (!container) return;
-    const child = container.children[index] as HTMLElement | undefined;
-    if (!child) return;
-    const containerRect = container.getBoundingClientRect();
-    const childRect = child.getBoundingClientRect();
-    const delta =
-      childRect.left -
-      containerRect.left -
-      (container.clientWidth - child.clientWidth) / 2;
-    container.scrollBy({ left: delta, behavior: "smooth" });
-  };
-
-  const scrollPreviewTabs = (direction: "left" | "right") => {
-    if (selectedProducts.length === 0) return;
-    const nextIndex =
-      direction === "left"
-        ? Math.max(0, activeIndex - 1)
-        : Math.min(selectedProducts.length - 1, activeIndex + 1);
-    setActivePreviewIndex(nextIndex);
-    scrollTabIntoView(nextIndex);
   };
 
   const handleNext = async () => {
@@ -289,86 +434,13 @@ export function StepProductPreview({
     setShowAddModal(true);
   };
 
-  const previewTabs = (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={() => scrollPreviewTabs("left")}
-        aria-label="Scroll product tabs left"
-        className="
-          flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
-          border border-(--border) bg-(--bg-card) text-(--text-primary)
-          transition-colors hover:border-(--brand-gold)
-          lg:h-9 lg:w-9
-        "
-      >
-        <ChevronLeft size={16} strokeWidth={2.5} />
-      </button>
-
-      <div
-        ref={tabsScrollRef}
-        className="scrollbar-none flex min-w-0 flex-1 gap-2 overflow-x-auto scroll-smooth"
-      >
-        {selectedProducts.map((product, index) => {
-          const active = index === activeIndex;
-          return (
-            <button
-              key={product.id}
-              type="button"
-              onClick={() => setActivePreviewIndex(index)}
-              aria-pressed={active}
-              className={`
-                shrink-0 rounded-lg border px-3 py-1.5 text-[11px] font-semibold
-                transition-colors lg:text-[12px]
-                ${
-                  active
-                    ? "border-(--brand-gold) bg-[color-mix(in_srgb,var(--brand-gold)_14%,transparent)] text-(--brand-gold)"
-                    : "border-(--border) bg-(--bg-card) text-(--text-secondary) hover:border-(--brand-gold)/50"
-                }
-              `}
-            >
-              Product {index + 1}
-            </button>
-          );
-        })}
-      </div>
-
-      <button
-        type="button"
-        onClick={() => scrollPreviewTabs("right")}
-        aria-label="Scroll product tabs right"
-        className="
-          flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
-          border border-(--border) bg-(--bg-card) text-(--text-primary)
-          transition-colors hover:border-(--brand-gold)
-          lg:h-9 lg:w-9
-        "
-      >
-        <ChevronRight size={16} strokeWidth={2.5} />
-      </button>
-    </div>
-  );
-
-  const previewSection = (
-    <div className="space-y-3">
-      {previewTabs}
-      {activeProduct && (
-        <div className="flex justify-center">
-          <SelectedProductCard
-            key={activeProduct.id}
-            id={activeProduct.id}
-            name={activeProduct.name}
-            sizeLabel={activeProduct.quantity}
-            price={activeProduct.price}
-            priceLabel={activeProduct.priceLabel}
-            image={activeProduct.image}
-            quantity={productQuantities[activeProduct.id] ?? 1}
-            onUpdateQuantity={onUpdateQuantity}
-            onRemove={onRemoveProduct}
-          />
-        </div>
-      )}
-    </div>
+  const previewCarousel = (
+    <ProductPreviewCarousel
+      selectedProducts={selectedProducts}
+      productQuantities={productQuantities}
+      onUpdateQuantity={onUpdateQuantity}
+      onRemoveProduct={onRemoveProduct}
+    />
   );
 
   const bottomBar = (
@@ -481,7 +553,7 @@ export function StepProductPreview({
 
           <div className="space-y-3 p-3">
             {hasSelection ? (
-              previewSection
+              previewCarousel
             ) : (
               <p className="py-4 text-center text-[9px] font-medium text-(--text-muted)">
                 Add products to continue to payment
@@ -524,7 +596,7 @@ export function StepProductPreview({
             </div>
 
             {hasSelection ? (
-              previewSection
+              previewCarousel
             ) : (
               <div className="rounded-xl border border-dashed border-(--border) bg-(--bg-secondary) px-4 py-12 text-center">
                 <p className="text-sm font-semibold text-(--text-primary)">

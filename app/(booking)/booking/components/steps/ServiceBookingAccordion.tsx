@@ -32,6 +32,7 @@ import type {
   ServiceStaffAssignments,
 } from "../../booking.types";
 import { BookingMonthCalendar } from "./BookingMonthCalendar";
+import { useRouter } from "next/navigation";
 
 type PanelTab = "staff" | "datetime";
 type TimePeriod = "AM" | "PM";
@@ -202,7 +203,7 @@ export function ServiceBookingAccordion({
     organizationId,
   );
   const bookingDays = useMemo(() => buildBookingDays(new Date()), []);
-
+  const router = useRouter();
   const visibleStaff = useMemo(() => {
     let therapists = getOrganizationStaff(organizationId);
 
@@ -543,6 +544,16 @@ export function ServiceBookingAccordion({
                             <p className="mt-0.5 text-[10px] font-semibold text-(--text-muted)">
                               {therapist.experience}
                             </p>
+                            
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => router.push(`/specificexpert/${therapist.id}`)}
+                                className="text-[10px] font-semibold uppercase tracking-wide text-white bg-(--accent-primary) rounded-sm px-2 w-full"
+                              >
+                                View
+                              </button>
+                            </div>
                           </button>
                         );
                       })}
@@ -556,13 +567,13 @@ export function ServiceBookingAccordion({
 
       {dateTimeModalServiceId && dateTimeModalService && dateTimeModalSchedule && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-3 pb-25"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 sm:items-center sm:p-3"
           onClick={() => setDateTimeModalServiceId(null)}
           role="presentation"
         >
           <div
             className="
-              flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden
+              flex max-h-[92dvh] w-[95%] max-w-md flex-col overflow-hidden
               rounded-2xl bg-(--bg-primary) shadow-(--shadow-glow)
               sm:rounded-2xl
             "

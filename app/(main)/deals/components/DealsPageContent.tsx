@@ -8,6 +8,7 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  CirclePlay,
   CreditCard,
   Headphones,
   Heart,
@@ -131,28 +132,32 @@ function DesktopSalonSidebar({
           </div>
 
           <div className="absolute right-3 top-3 flex items-center gap-2">
-            <button
+            {/* <button
               type="button"
               aria-label="Share"
               className="flex h-8 w-8 items-center justify-center rounded-full bg-(--accent-primary) text-white shadow-lg"
             >
               <Send size={14} />
-            </button>
+            </button> */}
             <button
               type="button"
               aria-label="Save"
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-(--accent-primary) text-white shadow-lg"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-(--accent-primary) text-white shadow-lg cursor-pointer"
             >
-              <Heart size={14} />
+              <CirclePlay size={24} className="cursor-pointer" />
             </button>
+          </div>
+
+          <div className="absolute w-full h-full">
+            <span className="absolute bottom-2 right-2 h-3 w-3 rounded-full bg-green-500" />
           </div>
         </div>
 
-        <div className="space-y-3 p-4">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-(--accent-primary) px-3 py-1.5 text-[11px] font-semibold text-white">
+        <div className="space-y-1 p-4">
+          {/* <div className="inline-flex items-center gap-1.5 rounded-full bg-(--accent-primary) px-3 py-1.5 text-[11px] font-semibold text-white">
             <Star size={12} className="fill-(--brand-gold) text-(--brand-gold)" />
             {featured.rating} ({featured.reviewCount} reviews)
-          </div>
+          </div> */}
 
           <div className="flex items-center gap-2">
             <h2 className="text-[24px] font-semibold leading-tight text-(--text-primary)">
@@ -170,23 +175,23 @@ function DesktopSalonSidebar({
           </p>
 
           <div className="flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--bg-secondary) px-3 py-1.5 text-[11px] font-medium text-(--text-primary)">
+            {/* <span className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--bg-secondary) px-3 py-1.5 text-[11px] font-medium text-(--text-primary)">
               <span className="h-2 w-2 rounded-full bg-(--success)" />
               Online
-            </span>
+            </span> */}
             <span className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--bg-secondary) px-3 py-1.5 text-[11px] font-medium text-(--text-secondary)">
               <MapPin size={13} />
               Indore, India
             </span>
           </div>
 
-          <button
+          {/* <button
             type="button"
             className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-(--border) bg-(--bg-secondary) px-4 text-[12px] font-semibold text-(--text-primary)"
           >
             <PlayCircle size={15} />
             Watch Video
-          </button>
+          </button> */}
         </div>
       </section>
 
@@ -253,18 +258,16 @@ function DesktopSalonSidebar({
         </button>
       </div>
 
-      <section className="space-y-2.5">
+      <section className="space-y-1">
         {isBooking && activePackage
           ? activePackage.services.map((service) => {
-              const isSelected = isPackageFlow
-                ? true
-                : selectedServiceIds.includes(service.id);
+              const isSelected = selectedServiceIds.includes(service.id);
 
               return (
                 <article
                   key={service.id}
                   className={`flex items-center gap-3 rounded-2xl border bg-(--bg-card) p-2.5 shadow-[var(--shadow-card)] ${
-                    isSelected
+                    !isPackageFlow && isSelected
                       ? "border-(--brand-gold)"
                       : "border-(--border)"
                   }`}
@@ -316,14 +319,7 @@ function DesktopSalonSidebar({
                     </p>
                   </div>
 
-                  {isPackageFlow ? (
-                    <span
-                      aria-hidden="true"
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--accent-primary) text-white"
-                    >
-                      <Check size={16} strokeWidth={2.5} />
-                    </span>
-                  ) : (
+                  {!isPackageFlow && (
                     <button
                       type="button"
                       onClick={() =>
@@ -429,7 +425,7 @@ function DesktopDealsCartBar({
   bookingHref: string;
 }) {
   return (
-    <div className="flex w-full max-w-[420px] items-center gap-3 rounded-2xl border border-(--border) bg-(--bg-card) p-3 shadow-[var(--shadow-card)]">
+    <div className="flex w-full max-w-[420px] items-center gap-3 rounded-2xl border border-(--border) bg-(--bg-card) p-2 shadow-[var(--shadow-card)]">
       <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-(--accent-primary) text-white">
         <ShoppingCart size={22} />
         <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-(--brand-gold) px-1 text-[10px] font-bold text-(--text-primary)">

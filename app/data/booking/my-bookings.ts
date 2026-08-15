@@ -77,7 +77,7 @@ export const historySubTabs: { id: HistorySubTab; label: string }[] = [
 
 export const serviceSubTabs: { id: ServiceSubTab; label: string }[] = [
   { id: "booked", label: "Booked" },
-  { id: "reschedule", label: "Reschedule" },
+  // { id: "reschedule", label: "Reschedule" },
 ];
 
 export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {

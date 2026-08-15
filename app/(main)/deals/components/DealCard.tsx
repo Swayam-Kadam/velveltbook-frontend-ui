@@ -37,7 +37,7 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
           )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-2 p-3.5">
+        <div className="flex flex-1 flex-col gap-2 px-3.5 py-1.5">
           <h3 className="line-clamp-1 text-[19px] text-(--text-primary) cursor-pointer font-bold hover:text-(--brand-gold)" onClick={() => onBookClick?.(deal)}>
             {deal.title}
           </h3>

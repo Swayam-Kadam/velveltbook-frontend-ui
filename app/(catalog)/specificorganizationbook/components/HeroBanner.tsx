@@ -33,8 +33,8 @@ export function HeroBanner({
   const next = () => setIndex((i) => (i === images.length - 1 ? 0 : i + 1));
 
   return (
-    <div className="relative overflow-hidden rounded-t-xl border border-(--border) rounded-b-xl">
-      <div className="relative h-[130px] w-full mb-2">
+    <div className="relative rounded-xl border border-(--border)">
+      <div className="relative mb-2 h-[130px] w-full overflow-hidden rounded-t-xl">
         <Image
           src={images[index]}
           alt={salonName}
@@ -44,7 +44,7 @@ export function HeroBanner({
           priority
         />
 
-        <div className="absolute right-2 top-2 flex items-center gap-1">
+        <div className="absolute right-2 top-2 z-20 flex items-center gap-1">
           <TimingsDropdown
             summary={availability}
             buttonClassName="primary-button flex items-center gap-1 rounded-full px-3 py-1 text-[8px] font-medium text-white"
@@ -56,6 +56,10 @@ export function HeroBanner({
           >
             <Share2 size={12} />
           </button>
+        </div>
+
+        <div className="pointer-events-none absolute inset-0">
+          <span className="absolute left-2 top-2 h-3 w-3 rounded-full bg-green-500" />
         </div>
       </div>
 
