@@ -21,9 +21,9 @@ export function TrendingNearbyActions({ orgHref }: TrendingNearbyActionsProps) {
                 <span>Book Now</span>
             </Link>
 
-            <Button variant="" >
+            <button >
                 <Bookmark size={14}  className="text-(--text-primary)"/>
-            </Button>
+            </button>
 
             {/* <Link
                 href={orgHref}
