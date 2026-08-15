@@ -20,6 +20,8 @@ import {
   ShoppingCart,
   Star,
   UserRound,
+  Mars,
+  Venus,
   X,
 } from "lucide-react";
 import { TimingsDropdown } from "@/components/TimingsDropdown";
@@ -51,6 +53,7 @@ import { ServiceDateTimeModal } from "./ServiceDateTimeModal";
 import { SuggestedProductCard } from "./SuggestedProductsRow";
 
 type MenuCatalogTab = "service" | "product";
+type MenuGender = "male" | "female";
 
 const PRODUCT_PREVIEW_PAGE_SIZE = 6;
 
@@ -127,6 +130,52 @@ function MenuCatalogTabs({
   );
 }
 
+function MenuGenderToggle({
+  value,
+  onChange,
+}: {
+  value: MenuGender;
+  onChange: (value: MenuGender) => void;
+}) {
+  return (
+    <div
+      className="inline-flex shrink-0 overflow-hidden rounded-lg border border-(--border) bg-(--bg-card)"
+      role="group"
+      aria-label="Select gender"
+    >
+      {([
+        { id: "male", label: "Male", icon: Mars },
+        { id: "female", label: "Female", icon: Venus },
+      ] as const).map((option, index) => {
+        const active = value === option.id;
+        const Icon = option.icon;
+
+        return (
+          <button
+            key={option.id}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onChange(option.id)}
+            className={`
+              inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-medium
+              lg:px-3.5 lg:py-2 lg:text-[12px]
+              ${index > 0 ? "border-l border-(--border)" : ""}
+              ${
+                active
+                  ? "bg-(--bg-card-hover) text-(--text-primary)"
+                  : "text-(--text-secondary) hover:text-(--text-primary)"
+              }
+            `}
+          >
+            <Icon size={12} strokeWidth={1.8} className="lg:h-3.5 lg:w-3.5" />
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function DesktopSectionHeader({
   title,
   actionLabel = "View All",
@@ -155,6 +204,8 @@ export function ExtendedOrganizationProfile({
   const menuSectionRef = useRef<HTMLDivElement>(null);
   const [activeCategory, setActiveCategory] = useState("massage");
   const [menuTab, setMenuTab] = useState<MenuCatalogTab>("service");
+  const [menuGender, setMenuGender] = useState<MenuGender>("male");
+  const showMenuGenderToggle = organization.id === "store-1";
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [serviceStaff, setServiceStaff] = useState<Record<string, string>>({});
@@ -840,7 +891,7 @@ export function ExtendedOrganizationProfile({
           <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary)">
             <div className="flex-1 overflow-y-auto scrollbar-none">
               <div className="px-2 pb-3 pt-3">
-                <div className="mb-3 flex items-center justify-between">
+                <div className="mb-3 flex items-start justify-between gap-2">
                   <div>
                     <h1 className="text-xs font-medium text-(--text-primary)">
                       {menuTab === "service"
@@ -857,17 +908,24 @@ export function ExtendedOrganizationProfile({
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    className="
-                      flex items-center gap-0.5 text-[8px]
-                      text-(--brand-gold) transition-opacity duration-200
-                      hover:opacity-80
-                    "
-                  >
-                    <span>View All</span>
-                    <ArrowRight size={10} strokeWidth={2} />
-                  </button>
+                  {showMenuGenderToggle ? (
+                    <MenuGenderToggle
+                      value={menuGender}
+                      onChange={setMenuGender}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      className="
+                        flex items-center gap-0.5 text-[8px]
+                        text-(--brand-gold) transition-opacity duration-200
+                        hover:opacity-80
+                      "
+                    >
+                      <span>View All</span>
+                      <ArrowRight size={10} strokeWidth={2} />
+                    </button>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-3 gap-1.5">
@@ -1866,21 +1924,30 @@ export function ExtendedOrganizationProfile({
                       <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary)">
                         <div className="flex-1 overflow-y-auto scrollbar-none">
                           <div className="px-2 pb-3 pt-3">
-                            <div className="mb-3">
-                              <h3 className="text-sm font-semibold text-(--text-primary)">
-                                {menuTab === "service"
-                                  ? "Select Services"
-                                  : "Select Products"}
-                              </h3>
-                              <p className="text-[11px] text-(--text-muted)">
-                                {activeCategoryLabel} · {catalogItems.length}{" "}
-                                available
-                                {menuTab === "service"
-                                  ? selectedServiceIds.length > 0 &&
-                                    ` · ${selectedServiceIds.length} selected`
-                                  : selectedProductIds.length > 0 &&
-                                    ` · ${selectedProductIds.length} selected`}
-                              </p>
+                            <div className="mb-3 flex items-start justify-between gap-3">
+                              <div>
+                                <h3 className="text-sm font-semibold text-(--text-primary)">
+                                  {menuTab === "service"
+                                    ? "Select Services"
+                                    : "Select Products"}
+                                </h3>
+                                <p className="text-[11px] text-(--text-muted)">
+                                  {activeCategoryLabel} · {catalogItems.length}{" "}
+                                  available
+                                  {menuTab === "service"
+                                    ? selectedServiceIds.length > 0 &&
+                                      ` · ${selectedServiceIds.length} selected`
+                                    : selectedProductIds.length > 0 &&
+                                      ` · ${selectedProductIds.length} selected`}
+                                </p>
+                              </div>
+
+                              {showMenuGenderToggle && (
+                                <MenuGenderToggle
+                                  value={menuGender}
+                                  onChange={setMenuGender}
+                                />
+                              )}
                             </div>
 
                             <div className="grid grid-cols-3 gap-2">
