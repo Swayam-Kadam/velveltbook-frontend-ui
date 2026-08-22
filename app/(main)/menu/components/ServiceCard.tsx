@@ -71,14 +71,22 @@ export function ServiceCard({
             >
               <button
                 type="button"
-                onClick={openGallery}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onSelect?.();
+                }}
                 className="text-left transition-colors hover:text-(--brand-gold)"
               >
                 {service.title}
               </button>
             </h3>
 
-            <div className="mt-auto flex shrink-0 items-center justify-between gap-1">
+            <div className="mt-auto flex shrink-0 items-center justify-between gap-1" 
+            onClick={(event) => {
+              event.stopPropagation();
+              onSelect?.();
+            }}
+            >
               <div className="flex min-w-0 flex-col items-start justify-start gap-0.5">
                 <p
                   className={

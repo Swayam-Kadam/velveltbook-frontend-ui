@@ -43,8 +43,8 @@ export function LocationSlider({
         <div className="scrollbar-none flex items-center gap-2 overflow-x-auto pb-0.5">
           <button
             type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[#2D1659] px-3 py-2 text-[11px] font-semibold text-white"
+            // onClick={() => setMenuOpen((open) => !open)}
+            className="inline-flex shrink-0 items-center gap-1 rounded-sm primary-button px-3 py-2 text-[14px] font-semibold text-white"
           >
             {filterLabel}
             <ChevronDown
@@ -62,11 +62,11 @@ export function LocationSlider({
                 type="button"
                 onClick={() => onSelectLocation(location.id)}
                 className={`
-                  shrink-0 rounded-md border px-3 py-2 text-[11px] font-medium
+                  shrink-0 rounded-sm border px-3 py-2 text-[11px] font-medium
                   whitespace-nowrap
                   ${
                     active
-                      ? "border-[#2D1659] bg-[#2D1659] text-white"
+                      ? "border-[#2D1659] border border-(--text-primary) text-(--text-primary)"
                       : "border-(--border) bg-white text-(--text-primary)"
                   }
                 `}

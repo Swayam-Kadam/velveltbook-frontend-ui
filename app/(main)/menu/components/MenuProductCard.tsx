@@ -51,7 +51,7 @@ export function MenuProductCard({
           {onTitleClick ? (
             <button
               type="button"
-              onClick={onTitleClick}
+              onClick={() => onSelect?.()}
               className="text-left transition-colors hover:text-(--brand-gold)"
             >
               {product.title}
@@ -66,6 +66,7 @@ export function MenuProductCard({
             text-(--text-muted)
             ${largeText ? "text-[9px]" : "text-[8px]"}
           `}
+          onClick={() => onSelect?.()}
         >
           {product.quantity}
         </p>
@@ -76,6 +77,7 @@ export function MenuProductCard({
               font-bold text-(--brand-gold)
               ${largeText ? "text-[14px]" : "text-[11px]"}
             `}
+            onClick={() => onSelect?.()}
           >
             {product.price}
           </span>

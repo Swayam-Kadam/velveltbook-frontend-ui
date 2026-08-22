@@ -124,6 +124,40 @@ export function BookingFlow() {
     setSelectedServices((current) => current.filter((serviceId) => serviceId !== id));
   };
 
+  const replaceService = (oldId: string, newId: string) => {
+    if (oldId === newId) return;
+
+    setServiceIds((current) => {
+      if (!current.includes(oldId) || current.includes(newId)) return current;
+
+      const next = current.map((id) => (id === oldId ? newId : id));
+
+      setServiceStaff((staff) => {
+        const updated = { ...staff };
+        if (updated[oldId]) {
+          updated[newId] = updated[oldId];
+          delete updated[oldId];
+        }
+        return syncServiceStaffAssignments(
+          updated,
+          next,
+          lockStaffSelection ? staffId : undefined,
+        );
+      });
+
+      setServiceSchedules((schedules) => {
+        const updated = { ...schedules };
+        if (updated[oldId]) {
+          updated[newId] = { ...updated[oldId] };
+          delete updated[oldId];
+        }
+        return syncServiceSchedules(updated, next);
+      });
+
+      return next;
+    });
+  };
+
   const toggleProduct = (id: string) => {
     setProductIds((current) => {
       if (current.includes(id)) {
@@ -407,6 +441,7 @@ export function BookingFlow() {
                 onBack={() => setStep(2)}
                 onNext={() => setStep(4)}
                 onEditService={() => setStep(1)}
+                onReplaceService={replaceService}
               />
             )}
 

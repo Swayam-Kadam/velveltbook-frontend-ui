@@ -29,54 +29,54 @@ export function ExpertHeroSection({ expert }: ExpertHeroSectionProps) {
       />
 
       <div className="relative flex flex-col items-center">
-        <div className="flex justify-between items-center w-full">
+        <div className="flex w-full items-start gap-3">
+          <div className="relative shrink-0">
+            <div
+              className="
+                relative h-24 w-24 overflow-hidden rounded-full
+                border-2 border-(--brand-gold)
+              "
+            >
+              <Image
+                src={expert.image}
+                alt={expert.name}
+                fill
+                sizes="96px"
+                className="object-cover"
+                priority
+              />
+            </div>
 
-        <div className="relative">
-          <div
-            className="
-              relative h-24 w-24 overflow-hidden rounded-full
-              border-2 border-(--brand-gold)
-            "
-          >
-            <Image
-              src={expert.image}
-              alt={expert.name}
-              fill
-              sizes="96px"
-              className="object-cover"
-              priority
-            />
+            <button
+              type="button"
+              aria-label="Play expert video"
+              className="
+                primary-button absolute -bottom-1 left-1/2 flex h-7 w-7
+                -translate-x-1/2 items-center justify-center rounded-full
+              "
+            >
+              <Play size={12} className="ml-0.5 fill-white text-white" />
+            </button>
           </div>
 
-          <button
-            type="button"
-            aria-label="Play expert video"
-            className="
-              primary-button absolute -bottom-1 left-1/2 flex h-7 w-7
-              -translate-x-1/2 items-center justify-center rounded-full
-            "
-          >
-            <Play size={12} className="ml-0.5 fill-white text-white" />
-          </button>
-        </div>
-
-        <div className="w-[225px]">
-          <p className="text-[10px] font-bold leading-relaxed text-(--text-primary)">
-            {expert.description}
-          </p>
-
-        </div>
+          <div className="min-w-0 flex-1 pt-1">
+            <p className="text-[10px] font-bold leading-relaxed text-(--text-primary)">
+              {expert.description}
+            </p>
+          </div>
         </div>
 
         <div className="mt-3 flex items-center justify-left w-full gap-1">
-          <h1 className="text-lg font-semibold text-(--text-primary) w-[103px]">
+          <h1 className="text-lg font-semibold text-(--text-primary) flex items-center justify-center w-[103px]">
+            <span className="flex items-center justify-center ml-[2rem]">
             {expert.name}
-          </h1>
-          <BadgeCheck
+            <BadgeCheck
             size={16}
-            className="text-(--brand-gold)"
+            className="text-(--brand-gold) ml-[2rem]"
             strokeWidth={1.8}
           />
+          </span>
+          </h1>
         </div>
 
         <div className="mt-1.5 flex w-full items-center gap-2 px-4">

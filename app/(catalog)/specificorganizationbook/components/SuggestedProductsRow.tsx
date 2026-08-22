@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Minus, Plus, X } from "lucide-react";
+import { Minus, Plus, Trash2, X } from "lucide-react";
 
 import type { MenuProduct } from "@/menu/menu.data";
 
@@ -75,12 +75,12 @@ export function SuggestedProductCard({
           aria-label={`Remove ${product.title}`}
           onClick={onRemove}
           className="
-            absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center
-            rounded-full border border-(--border) bg-(--bg-card)/95 text-(--text-muted)
-            transition-colors hover:text-(--text-primary)
+            absolute right-2 bottom-5 z-10 flex h-6 w-6 items-center justify-center
+            rounded-full border border-(--border) bg-(--bg-card)/95 text-red-500
+            transition-colors hover:text-text-800 cursor-pointer
           "
         >
-          <X size={12} strokeWidth={2.5} />
+          <Trash2 size={14} strokeWidth={2.5} />
         </button>
       )}
 

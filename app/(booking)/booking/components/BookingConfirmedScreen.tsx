@@ -48,6 +48,7 @@ import {
   TAX_RATE,
   timeSlots,
 } from "../booking.data";
+import { ExpertProfileModal } from "./ExpertProfileModal";
 import type {
   ServiceSchedule,
   ServiceSchedules,
@@ -294,7 +295,9 @@ function ConfirmedServiceMenuModal({
               {mode === "add" ? "Add More Service" : "Change Service"}
             </h3>
             <p className="mt-0.5 text-[10px] text-(--text-muted)">
-              Browse categories and tap a service
+              {mode === "add"
+                ? "Select one service, then staff and date/time"
+                : "Browse categories and tap a service"}
             </p>
           </div>
           <button
@@ -319,7 +322,7 @@ function ConfirmedServiceMenuModal({
             <div className="flex-1 overflow-y-auto px-2 pt-3 pb-3 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
               <div className="mb-3">
                 <h4 className="text-xs font-medium text-(--text-primary)">
-                  Select Services
+                  {mode === "add" ? "Select a Service" : "Select Services"}
                 </h4>
                 <p className="text-[8px] text-(--text-muted)">
                   {activeCategoryLabel} · {categoryServices.length} available
@@ -352,7 +355,9 @@ function ConfirmedServiceMenuModal({
             onClick={onClose}
             className="primary-button w-full rounded-xl py-2.5 text-[12px] font-semibold text-white"
           >
-            Done ({selectedServiceIds.length} selected)
+            {mode === "add"
+              ? "Cancel"
+              : `Done (${selectedServiceIds.length} selected)`}
           </button>
         </div>
       </div>
@@ -590,6 +595,8 @@ export function BookingConfirmedScreen({
   const [editPanel, setEditPanel] = useState<EditPanel>(null);
   const [servicePickerMode, setServicePickerMode] =
     useState<ServicePickerMode>("replace");
+  const [addFlowServiceId, setAddFlowServiceId] = useState<string | null>(null);
+  const [viewExpertId, setViewExpertId] = useState<string | null>(null);
   const [detailView, setDetailView] = useState<DetailView>("services");
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
@@ -705,11 +712,15 @@ export function BookingConfirmedScreen({
 
   const activeItem = items[activeIndex] ?? items[0];
   const targetServiceId =
-    activeItem?.kind === "service"
-      ? activeItem.id
-      : (displayServiceIds[0] ?? "");
+    addFlowServiceId && displayServiceIds.includes(addFlowServiceId)
+      ? addFlowServiceId
+      : activeItem?.kind === "service"
+        ? activeItem.id
+        : (displayServiceIds[0] ?? "");
   const targetSchedule: ServiceSchedule =
     displaySchedules[targetServiceId] ?? createDefaultServiceSchedule();
+  const isAddServiceFlow = Boolean(addFlowServiceId);
+  const viewExpert = viewExpertId ? getStaff(viewExpertId) : null;
   const storeTitle = org.name.toLowerCase().includes("melbourne")
     ? org.name
     : `${org.name}, Melbourne`;
@@ -802,6 +813,14 @@ export function BookingConfirmedScreen({
     setHistory([]);
     pendingSnapshot.current = null;
     setEditPanel(null);
+    setAddFlowServiceId(null);
+  };
+
+  const closeEditPanel = () => {
+    pendingSnapshot.current = null;
+    setAddFlowServiceId(null);
+    setViewExpertId(null);
+    setEditPanel(null);
   };
 
   const handleUndo = () => {
@@ -855,22 +874,21 @@ export function BookingConfirmedScreen({
       if (live.serviceIds.includes(serviceId)) {
         pendingSnapshot.current = null;
         setActiveIndex(live.serviceIds.indexOf(serviceId));
+        setAddFlowServiceId(null);
+        setEditPanel(null);
         return;
       }
       applyDraft({
         serviceIds: [...live.serviceIds, serviceId],
-        staff: {
-          ...live.staff,
-          [serviceId]: live.staff[targetServiceId] ?? staffId,
-        },
+        staff: { ...live.staff },
         schedules: {
           ...live.schedules,
-          [serviceId]: live.schedules[targetServiceId]
-            ? { ...live.schedules[targetServiceId] }
-            : createDefaultServiceSchedule(),
+          [serviceId]: createDefaultServiceSchedule(),
         },
       });
       setActiveIndex(live.serviceIds.length);
+      setAddFlowServiceId(serviceId);
+      setEditPanel("staff");
       return;
     }
 
@@ -918,6 +936,11 @@ export function BookingConfirmedScreen({
         [targetServiceId]: nextStaffId,
       },
     });
+    if (isAddServiceFlow) {
+      beginChange();
+      setEditPanel("datetime");
+      return;
+    }
     setEditPanel(null);
   };
 
@@ -946,6 +969,7 @@ export function BookingConfirmedScreen({
 
   const openServicePicker = (mode: ServicePickerMode) => {
     setServicePickerMode(mode);
+    setAddFlowServiceId(null);
     setEditPanel("services");
   };
 
@@ -1412,14 +1436,14 @@ export function BookingConfirmedScreen({
           selectedServiceIds={displayServiceIds}
           currentServiceId={targetServiceId}
           onPick={handlePickService}
-          onClose={() => setEditPanel(null)}
+          onClose={closeEditPanel}
         />
       )}
 
       {editPanel === "staff" && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3"
-          onClick={() => setEditPanel(null)}
+          onClick={closeEditPanel}
           role="presentation"
         >
           <div
@@ -1431,73 +1455,105 @@ export function BookingConfirmedScreen({
             <div className="flex items-center justify-between border-b border-(--border) px-4 py-3">
               <div>
                 <h3 className="text-sm font-bold text-(--text-primary)">
-                  Change Staff / Therapist
+                  {isAddServiceFlow
+                    ? "Select Staff / Therapist"
+                    : "Change Staff / Therapist"}
                 </h3>
                 <p className="mt-0.5 text-[11px] text-(--text-muted)">
-                  Choose a therapist for this service
+                  {isAddServiceFlow
+                    ? "Choose a therapist, then pick date & time"
+                    : "Choose a therapist for this service"}
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setEditPanel(null)}
+                onClick={closeEditPanel}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border)"
                 aria-label="Close"
               >
                 <X size={14} />
               </button>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-2 overflow-y-auto p-3">
-              {therapists.map((therapist) => {
-                const active = displayStaff[targetServiceId] === therapist.id;
-                return (
-                  <button
-                    key={therapist.id}
-                    type="button"
-                    onClick={() => handlePickStaff(therapist.id)}
-                    className={`
-                      w-[104px] shrink-0 rounded-xl border p-1.5 text-left
-                      ${
-                        active
-                          ? "border-[#2D1659] shadow-(--shadow-glow)"
-                          : "border-(--border)"
-                      }
-                    `}
-                  >
-                    <div className="relative h-[90px] overflow-hidden rounded-md">
-                      <Image
-                        src={therapist.image}
-                        alt={therapist.name}
-                        fill
-                        sizes="104px"
-                        className="object-cover object-top"
-                      />
-                      {active && (
-                        <span className="primary-button absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full text-white">
-                          <Check size={11} strokeWidth={2.5} />
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-1.5 truncate text-[12px] font-bold text-(--text-primary)">
-                      {therapist.name}
-                    </p>
-                    <p className="text-[10px] text-(--text-muted)">
-                      {therapist.experience}
-                    </p>
-                  </button>
-                );
-              })}
+            <div className="p-3">
+              <div className="rounded-xl border border-(--border) bg-(--bg-secondary) p-2">
+                <div className="scrollbar-none flex gap-2 overflow-x-auto pb-0.5">
+                  {therapists.map((therapist) => {
+                    const active =
+                      displayStaff[targetServiceId] === therapist.id;
+                    return (
+                      <button
+                        key={therapist.id}
+                        type="button"
+                        onClick={() => handlePickStaff(therapist.id)}
+                        className={`
+                          feature-card w-[96px] shrink-0 rounded-xl p-1.5 text-left
+                          transition-all duration-200
+                          ${
+                            active
+                              ? "border-(--accent-primary) shadow-(--shadow-glow)"
+                              : "hover:border-[color-mix(in_srgb,var(--accent-primary)_30%,var(--border))]"
+                          }
+                        `}
+                      >
+                        <div className="relative h-[78px] overflow-hidden rounded-sm">
+                          <Image
+                            src={therapist.image}
+                            alt={therapist.name}
+                            fill
+                            sizes="96px"
+                            className="object-cover"
+                          />
+                          {active && (
+                            <span className="border-3 border-white primary-button absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full text-white">
+                              <Check size={10} strokeWidth={2.5} />
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="mt-1.5 truncate text-[13px] font-bold text-(--text-primary)">
+                          {therapist.name}
+                        </p>
+
+                        <div className="mt-1 flex items-center gap-2">
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setViewExpertId(therapist.id);
+                            }}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.stopPropagation();
+                                setViewExpertId(therapist.id);
+                              }
+                            }}
+                            className="w-full rounded-sm bg-(--accent-primary) px-2 text-center text-[10px] font-semibold uppercase tracking-wide text-white"
+                          >
+                            View
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
 
+      {viewExpert && (
+        <ExpertProfileModal
+          staff={viewExpert}
+          onClose={() => setViewExpertId(null)}
+        />
+      )}
+
       {editPanel === "datetime" && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 sm:p-3"
-          onClick={() => {
-            pendingSnapshot.current = null;
-            setEditPanel(null);
-          }}
+          onClick={closeEditPanel}
           role="presentation"
         >
           <div
@@ -1509,18 +1565,18 @@ export function BookingConfirmedScreen({
             <div className="flex items-center justify-between border-b border-(--border) px-4 py-3">
               <div>
                 <h3 className="text-sm font-bold text-(--text-primary)">
-                  Change Date & Time
+                  {isAddServiceFlow
+                    ? "Select Date & Time"
+                    : "Change Date & Time"}
                 </h3>
                 <p className="mt-0.5 text-[11px] text-(--text-muted)">
-                  {activeItem?.name}
+                  {items.find((item) => item.id === targetServiceId)?.name ??
+                    activeItem?.name}
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  pendingSnapshot.current = null;
-                  setEditPanel(null);
-                }}
+                onClick={closeEditPanel}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border)"
                 aria-label="Close"
               >
@@ -1550,6 +1606,7 @@ export function BookingConfirmedScreen({
                 type="button"
                 onClick={() => {
                   pendingSnapshot.current = null;
+                  setAddFlowServiceId(null);
                   setEditPanel(null);
                 }}
                 className="primary-button h-11 w-full rounded-xl text-[14px] font-semibold text-white"

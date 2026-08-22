@@ -111,21 +111,28 @@ export function MenuProductGalleryModal({
           </button>
         </div>
 
-        <div className="p-4">
-          <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-(--bg-secondary)">
-            {images.map((src, index) => (
-              <Image
-                key={`${src}-${index}`}
-                src={src}
-                alt={`${product.title} image ${index + 1}`}
-                fill
-                sizes="(max-width: 768px) 90vw, 420px"
-                className={`object-cover transition-opacity duration-500 ${
-                  index === activeIndex ? "opacity-100" : "opacity-0"
-                }`}
-                priority={index === 0}
-              />
-            ))}
+        <div >
+          <div className="relative aspect-4/3 w-full overflow-hidden rounded-xs bg-(--bg-secondary)">
+            <div
+              className="flex h-full w-full transition-transform duration-500 ease-out"
+              style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+            >
+              {images.map((src, index) => (
+                <div
+                  key={`${src}-${index}`}
+                  className="relative h-full w-full shrink-0"
+                >
+                  <Image
+                    src={src}
+                    alt={`${product.title} image ${index + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 90vw, 420px"
+                    className="object-cover"
+                    priority={index === 0}
+                  />
+                </div>
+              ))}
+            </div>
 
             {images.length > 1 && (
               <>
@@ -134,7 +141,7 @@ export function MenuProductGalleryModal({
                   onClick={() => goTo(activeIndex - 1)}
                   aria-label="Previous image"
                   className="
-                    absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2
+                    absolute left-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2
                     items-center justify-center rounded-full bg-black/45
                     text-white backdrop-blur-sm transition-colors hover:bg-black/65
                   "
@@ -146,7 +153,7 @@ export function MenuProductGalleryModal({
                   onClick={() => goTo(activeIndex + 1)}
                   aria-label="Next image"
                   className="
-                    absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2
+                    absolute right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2
                     items-center justify-center rounded-full bg-black/45
                     text-white backdrop-blur-sm transition-colors hover:bg-black/65
                   "
@@ -154,14 +161,14 @@ export function MenuProductGalleryModal({
                   <ChevronRight size={16} strokeWidth={2.5} />
                 </button>
 
-                <span className="absolute bottom-2 right-2 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
+                <span className="absolute bottom-2 right-2 z-10 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
                   {activeIndex + 1} / {images.length}
                 </span>
               </>
             )}
           </div>
 
-          <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none">
+          <div className="mt-3 flex gap-0.5 overflow-x-auto scrollbar-none">
             {images.map((src, index) => {
               const active = index === activeIndex;
               return (
@@ -172,7 +179,7 @@ export function MenuProductGalleryModal({
                   aria-label={`View image ${index + 1}`}
                   aria-current={active}
                   className={`
-                    relative h-14 w-14 shrink-0 overflow-hidden rounded-sm border-2
+                    relative h-14 w-14 shrink-0 overflow-hidden rounded-xs border-2
                     transition-all
                     ${
                       active

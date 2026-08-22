@@ -34,32 +34,32 @@ export function NationalityProviders() {
 
   return (
     <section className="relative pb-3">
-      <div className="mb-4 flex items-start justify-between lg:mb-5">
-        <div>
-          <div className="flex items-center gap-2">
-            <Star
-              className="fill-(--brand-gold) text-(--brand-gold)"
-              size={16}
-            />
-            <h2 className="text-xs font-medium text-(--text-primary) lg:text-[18px]">
-              Nationality Organizations
-            </h2>
+        {/* <div className="mb-4 flex items-start justify-between lg:mb-5">
+          <div>
+            <div className="flex items-center gap-2">
+              <Star
+                className="fill-(--brand-gold) text-(--brand-gold)"
+                size={16}
+              />
+              <h2 className="text-xs font-medium text-(--text-primary) lg:text-[18px]">
+                Nationality Organizations
+              </h2>
+            </div>
+
+            <p className="mt-0.5 text-[8px] text-(--text-muted) lg:text-[11px]">
+              Top rated organizations by nationality
+            </p>
           </div>
 
-          <p className="mt-0.5 text-[8px] text-(--text-muted) lg:text-[11px]">
-            Top rated organizations by nationality
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="flex items-center gap-1 text-[8px] text-(--accent-secondary) lg:text-[12px]"
-        >
-          <span className="lg:hidden">View All</span>
-          <span className="hidden lg:inline">View all</span>
-          <ArrowRight size={10} className="lg:h-4 lg:w-4" />
-        </button>
-      </div>
+          <button
+            type="button"
+            className="flex items-center gap-1 text-[8px] text-(--accent-secondary) lg:text-[12px]"
+          >
+            <span className="lg:hidden">View All</span>
+            <span className="hidden lg:inline">View all</span>
+            <ArrowRight size={10} className="lg:h-4 lg:w-4" />
+          </button>
+        </div> */}
 
       <div className="mb-4">
         <LocationSlider

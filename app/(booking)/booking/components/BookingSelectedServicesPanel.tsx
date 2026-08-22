@@ -3,8 +3,15 @@ import { Clock3, ShoppingBag, X } from "lucide-react";
 import {
   bookingLocation,
   calcServicesTotal,
+  formatServiceSchedule,
   getSelectedServices,
+  getStaff,
+  isServiceScheduleComplete,
 } from "../booking.data";
+import type {
+  ServiceSchedules,
+  ServiceStaffAssignments,
+} from "../booking.types";
 
 interface OrganizationBannerInfo {
   name: string;
@@ -20,6 +27,8 @@ interface BookingSelectedServicesPanelProps {
   organization?: OrganizationBannerInfo;
   organizationId?: string;
   title?: string;
+  serviceStaff?: ServiceStaffAssignments;
+  serviceSchedules?: ServiceSchedules;
   onRemoveService?: (id: string) => void;
   showOrganizationBanner?: boolean;
 }
@@ -29,6 +38,8 @@ export function BookingSelectedServicesPanel({
   organization,
   organizationId,
   title = "Selected Services",
+  serviceStaff = {},
+  serviceSchedules = {},
   onRemoveService,
   showOrganizationBanner = true,
 }: BookingSelectedServicesPanelProps) {
@@ -104,53 +115,68 @@ export function BookingSelectedServicesPanel({
 
         {hasSelection ? (
           <div className="grid grid-cols-4 gap-2 p-3">
-            {selectedServices.map((service) => (
-              <article
-                key={service.id}
-                className="
-                  overflow-hidden rounded-sm border border-(--border)
-                  bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)]
-                "
-              >
-                <div className="relative h-14 w-full">
-                  <Image
-                    src={service.image}
-                    alt={service.name}
-                    fill
-                    sizes="80px"
-                    className="object-cover"
-                  />
-                  {onRemoveService && (
-                    <button
-                      type="button"
-                      onClick={() => onRemoveService(service.id)}
-                      aria-label={`Remove ${service.name}`}
-                      className="
-                        absolute right-0.5 top-0.5 flex h-4 w-4 items-center
-                        justify-center rounded-full border border-(--border)
-                        bg-(--bg-card)/95 text-(--text-muted)
-                        transition-colors hover:border-(--accent-primary)
-                        hover:text-(--accent-primary)
-                      "
-                    >
-                      <X size={8} strokeWidth={2.5} />
-                    </button>
-                  )}
-                </div>
-                <div className="space-y-0.5 p-1.5">
-                  <p className="line-clamp-2 min-h-6 text-[8.5px] font-bold leading-tight text-(--text-primary)">
-                    {service.name}
-                  </p>
-                  <div className="flex items-center gap-0.5 text-[8px] font-semibold text-(--text-primary)">
-                    <Clock3 size={6} />
-                    <span className="truncate">{service.duration}</span>
+            {selectedServices.map((service) => {
+              const assignedStaffId = serviceStaff[service.id];
+              const assignedStaff = assignedStaffId
+                ? getStaff(assignedStaffId)
+                : null;
+              const schedule = serviceSchedules[service.id];
+              const scheduled = isServiceScheduleComplete(schedule);
+
+              return (
+                <article
+                  key={service.id}
+                  className="
+                    overflow-hidden rounded-sm border border-(--border)
+                    bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)]
+                  "
+                >
+                  <div className="relative h-14 w-full">
+                    <Image
+                      src={service.image}
+                      alt={service.name}
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                    />
+                    {onRemoveService && (
+                      <button
+                        type="button"
+                        onClick={() => onRemoveService(service.id)}
+                        aria-label={`Remove ${service.name}`}
+                        className="
+                          absolute right-0.5 top-0.5 flex h-4 w-4 items-center
+                          justify-center rounded-full border border-(--border)
+                          bg-(--bg-card)/95 text-(--text-muted)
+                          transition-colors hover:border-(--accent-primary)
+                          hover:text-(--accent-primary)
+                        "
+                      >
+                        <X size={8} strokeWidth={2.5} />
+                      </button>
+                    )}
                   </div>
-                  <p className="text-[10px] font-bold text-(--brand-gold)">
-                    {service.priceLabel}
-                  </p>
-                </div>
-              </article>
-            ))}
+                  <div className="space-y-0.5 pt-1.5">
+                    <p className="line-clamp-2 min-h-6 text-[8.5px] font-bold leading-tight text-(--text-primary) px-1.5">
+                      {service.name}
+                    </p>
+                    <div className="flex items-center gap-0.5 text-[8px] font-semibold text-(--text-primary) px-1.5">
+                      <Clock3 size={6} />
+                      <span className="truncate">{service.duration}</span>
+                    </div>
+                    <p className="text-[10px] font-bold text-(--brand-gold) px-1.5">
+                      {service.priceLabel}
+                    </p>
+                    <p className="truncate px-1 text-[7px] font-bold text-white bg-(--text-primary) text-center">
+                      {assignedStaff?.name ?? "Staff"}
+                    </p>
+                    <p className="truncate px-1 text-[7px] font-bold text-white bg-(--text-primary) text-center">
+                      {scheduled ? formatServiceSchedule(schedule) : "Date & time"}
+                    </p>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         ) : (
           <p className="px-3 py-4 text-center text-[9px] font-medium text-(--text-muted)">

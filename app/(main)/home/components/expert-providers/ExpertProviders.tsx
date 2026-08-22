@@ -31,7 +31,7 @@ export function ExpertProviders() {
 
   return (
     <section className="relative pb-3">
-      <div className="mb-4 flex items-start justify-between lg:mb-5">
+      {/* <div className="mb-4 flex items-start justify-between lg:mb-5">
         <div>
           <div className="flex items-center gap-2">
             <Star
@@ -56,7 +56,7 @@ export function ExpertProviders() {
           <span className="hidden lg:inline">View all</span>
           <ArrowRight size={10} className="lg:h-4 lg:w-4" />
         </button>
-      </div>
+      </div> */}
 
       <div className="mb-4">
         <LocationSlider

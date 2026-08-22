@@ -19,7 +19,7 @@ export const SHARED_STAFF: BookingStaff[] = [
     experience: "5 Years Exp",
     rating: 4.8,
     reviews: 198,
-    specialties: "Specializes in: Deep Tissue, Sports",
+    specialties: "Specializing, designed",
     image:
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=400&fit=crop",
     gender: "female",

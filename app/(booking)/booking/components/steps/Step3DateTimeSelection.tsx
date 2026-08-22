@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Swal from "sweetalert2";
 import {
-  Armchair,
   BadgeCheck,
   CalendarDays,
+  Check,
   ChevronRight,
   Clock3,
   MapPin,
@@ -17,7 +17,14 @@ import {
   X,
 } from "lucide-react";
 
+import { CategorySidebar } from "@/menu/components/CategorySidebar";
 import type { ExpertType } from "@/menu/components/ExpertSelection";
+import { ServiceCard } from "@/menu/components/ServiceCard";
+import {
+  allMenuServices,
+  getServicesByCategory,
+  menuCategories,
+} from "@/menu/menu.data";
 import { TimingsDropdown } from "@/components/TimingsDropdown";
 import {
   BookingOrganizationBanner,
@@ -25,23 +32,24 @@ import {
 } from "../BookingOrganizationBanner";
 import {
   bookingLocation,
-  bookingSeats,
+  buildBookingDays,
   calcServicesTotal,
+  createDefaultServiceSchedule,
+  getAvailableTimeSlots,
   getBookingDay,
-  getBookingSeat,
+  getOrganizationStaff,
   getPrimaryStaffId,
   getSelectedServices,
   getStaff,
   isServiceScheduleComplete,
+  timeSlots,
 } from "../../booking.data";
 import type {
   ServiceSchedules,
   ServiceStaffAssignments,
 } from "../../booking.types";
-import { ServiceScheduleAccordion } from "./ServiceScheduleAccordion";
-import { ServiceStaffAccordion } from "./ServiceStaffAccordion";
-import SelectSeat from "./SelectSeat";
-import "./SelectSeat/SelectSeat.css";
+import { filterTimesByPeriod, getTimePeriod } from "../../lib/scheduleUtils";
+import { BookingMonthCalendar } from "./BookingMonthCalendar";
 
 interface Step3DateTimeSelectionProps {
   selectedServiceIds: string[];
@@ -61,6 +69,7 @@ interface Step3DateTimeSelectionProps {
   onBack: () => void;
   onNext: () => void;
   onEditService: () => void;
+  onReplaceService?: (oldServiceId: string, newServiceId: string) => void;
 }
 
 const swalDefaults = {
@@ -72,66 +81,221 @@ const swalDefaults = {
   allowEscapeKey: false,
 } as const;
 
-function BookingModal({
-  title,
-  titleId,
-  onClose,
-  children,
-  onDone,
+function ChangeBoxButton({
+  visible,
+  onClick,
 }: {
-  title: string;
-  titleId: string;
-  onClose: () => void;
-  children: ReactNode;
-  onDone?: () => void;
+  visible: boolean;
+  onClick: () => void;
 }) {
+  if (!visible) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center justify-center gap-1 bg-(--text-primary) text-[12px] font-bold text-white"
+    >
+      <Pencil size={12} />
+      Change
+    </button>
+  );
+}
+
+function ChangeServiceMenuModal({
+  selectedServiceIds,
+  currentServiceId,
+  onPick,
+  onClose,
+}: {
+  selectedServiceIds: string[];
+  currentServiceId: string;
+  onPick: (id: string) => void;
+  onClose: () => void;
+}) {
+  const [activeCategory, setActiveCategory] = useState(() => {
+    return (
+      allMenuServices.find((service) => service.id === currentServiceId)
+        ?.categoryId ??
+      menuCategories[0]?.id ??
+      "massage"
+    );
+  });
+
+  const categoryServices = useMemo(
+    () => getServicesByCategory(activeCategory),
+    [activeCategory],
+  );
+
+  const selectedCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const id of selectedServiceIds) {
+      const menuService = allMenuServices.find((service) => service.id === id);
+      if (menuService) {
+        counts[menuService.categoryId] =
+          (counts[menuService.categoryId] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }, [selectedServiceIds]);
+
+  const activeCategoryLabel =
+    menuCategories.find((category) => category.id === activeCategory)?.label ??
+    "Services";
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="
-          max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-2xl
-          bg-(--bg-primary) p-3 shadow-(--shadow-glow) scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)
-          lg:max-w-2xl lg:p-5
-        "
-        onClick={(e) => e.stopPropagation()}
+        className="flex h-[70dvh] w-full max-w-[430px] flex-col overflow-hidden rounded-2xl bg-(--bg-primary) shadow-(--shadow-glow)"
+        onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
       >
-        <div className="mb-3 flex items-center justify-between gap-2 lg:mb-4">
-          <h3
-            id={titleId}
-            className="text-sm font-bold text-(--text-primary) lg:text-[18px]"
-          >
-            {title}
-          </h3>
+        <div className="flex items-center justify-between gap-2 border-b border-(--border) px-3 py-3">
+          <div>
+            <h3 className="text-sm font-bold text-(--text-primary)">
+              Change Service
+            </h3>
+            <p className="mt-0.5 text-[10px] text-(--text-muted)">
+              Browse categories and tap a service
+            </p>
+          </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="
-              flex h-7 w-7 items-center justify-center rounded-full
-              border border-(--border) text-(--text-muted)
-              transition-colors hover:text-(--text-primary)
-              lg:h-9 lg:w-9
-            "
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border)"
           >
-            <X size={14} strokeWidth={2} />
+            <X size={14} />
           </button>
         </div>
 
-        {children}
-        <button
-          type="button"
-          onClick={onDone ?? onClose}
-          className="primary-button mt-3 w-full rounded-xl py-2.5 text-[11px] font-semibold text-white lg:mt-4 lg:py-3.5 lg:text-[14px]"
-        >
-          Done
-        </button>
+        <div className="flex min-h-0 flex-1 overflow-hidden">
+          <CategorySidebar
+            categories={menuCategories}
+            activeId={activeCategory}
+            onSelect={setActiveCategory}
+            selectedCounts={selectedCounts}
+          />
+
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary)">
+            <div className="flex-1 overflow-y-auto px-2 pt-3 pb-3 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
+              <div className="mb-3">
+                <h4 className="text-xs font-medium text-(--text-primary)">
+                  Select a Service
+                </h4>
+                <p className="text-[8px] text-(--text-muted)">
+                  {activeCategoryLabel} · {categoryServices.length} available
+                </p>
+              </div>
+
+              {categoryServices.length > 0 ? (
+                <div className="grid grid-cols-3 gap-1.5">
+                  {categoryServices.map((service) => (
+                    <ServiceCard
+                      key={service.id}
+                      service={service}
+                      selected={selectedServiceIds.includes(service.id)}
+                      onSelect={() => onPick(service.id)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="py-8 text-center text-[10px] text-(--text-muted)">
+                  No services in this category yet.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Step3TimeSlotPicker({
+  activeDayId,
+  activeTime,
+  onSelectTime,
+}: {
+  activeDayId: string;
+  activeTime: string;
+  onSelectTime: (time: string) => void;
+}) {
+  const [timePeriod, setTimePeriod] = useState<"AM" | "PM">(() =>
+    getTimePeriod(activeTime || "9:00 AM"),
+  );
+
+  const availableTimes = useMemo(
+    () => getAvailableTimeSlots(activeDayId, timeSlots),
+    [activeDayId],
+  );
+  const filteredTimes = useMemo(
+    () => filterTimesByPeriod(availableTimes, timePeriod),
+    [availableTimes, timePeriod],
+  );
+
+  useEffect(() => {
+    if (activeTime) setTimePeriod(getTimePeriod(activeTime));
+  }, [activeTime]);
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <p className="text-[11px] font-semibold text-(--text-secondary)">
+          Select Time
+        </p>
+        <div className="flex items-center gap-0.5 rounded-lg border border-(--border) p-0.5">
+          {(["AM", "PM"] as const).map((period) => (
+            <button
+              key={period}
+              type="button"
+              onClick={() => setTimePeriod(period)}
+              className={`
+                rounded-md px-2 py-0.5 text-[10px] font-semibold
+                ${
+                  timePeriod === period
+                    ? "primary-button text-white"
+                    : "text-(--text-secondary)"
+                }
+              `}
+            >
+              {period}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="scrollbar-none flex gap-1.5 overflow-x-auto pb-0.5">
+        {filteredTimes.map((time) => {
+          const active = time === activeTime;
+          const match = time.match(/^(.+?)\s+(AM|PM)$/i);
+          const clock = match?.[1] ?? time;
+          const period = match?.[2] ?? getTimePeriod(time);
+
+          return (
+            <button
+              key={time}
+              type="button"
+              onClick={() => onSelectTime(time)}
+              className={`
+                flex h-10 w-[4.6rem] shrink-0 flex-col items-center justify-center
+                rounded-lg border text-center font-medium tabular-nums
+                ${
+                  active
+                    ? "primary-button border-transparent text-white"
+                    : "border-(--border) bg-(--bg-card) text-(--text-primary)"
+                }
+              `}
+            >
+              <span className="text-[10px]">{clock}</span>
+              <span className="text-[8px] font-semibold">{period}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -155,9 +319,11 @@ export function Step3DateTimeSelection({
   onBack,
   onNext,
   onEditService,
+  onReplaceService,
 }: Step3DateTimeSelectionProps) {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [showServiceModal, setShowServiceModal] = useState(false);
   const [showDateTimeModal, setShowDateTimeModal] = useState(false);
-  const [showSeatModal, setShowSeatModal] = useState(false);
   const [showTherapistModal, setShowTherapistModal] = useState(false);
 
   const primaryStaffId = getPrimaryStaffId(serviceStaff, selectedServiceIds);
@@ -166,9 +332,19 @@ export function Step3DateTimeSelection({
     selectedServiceIds,
     organizationId,
   );
-  const selectedSeat = getBookingSeat(selectedSeatId);
+  const bookingDays = useMemo(() => buildBookingDays(new Date()), []);
+  const therapists = useMemo(() => {
+    let list = getOrganizationStaff(organizationId);
+    if (expertType === "male" || expertType === "female") {
+      list = list.filter((member) => member.gender === expertType);
+    }
+    return list.length > 0 ? list : getOrganizationStaff(organizationId);
+  }, [expertType, organizationId]);
   const { subtotal } = calcServicesTotal(selectedServiceIds, organizationId);
   const hasSelection = selectedServices.length > 0;
+  const [activePreviewServiceId, setActivePreviewServiceId] = useState<
+    string | null
+  >(selectedServiceIds[0] ?? null);
 
   const org = organizationBanner ?? {
     name: bookingLocation.name,
@@ -213,57 +389,224 @@ export function Step3DateTimeSelection({
     onNext();
   };
 
+  useEffect(() => {
+    if (selectedServices.length === 0) {
+      setActivePreviewServiceId(null);
+      return;
+    }
+
+    setActivePreviewServiceId((current) =>
+      current && selectedServices.some((service) => service.id === current)
+        ? current
+        : selectedServices[0].id,
+    );
+  }, [selectedServices]);
+
+  const activePreviewSchedule =
+    activePreviewServiceId != null
+      ? (serviceSchedules[activePreviewServiceId] ??
+        createDefaultServiceSchedule())
+      : createDefaultServiceSchedule();
+
+  const handleReplaceService = (newServiceId: string) => {
+    if (!activePreviewServiceId) {
+      setShowServiceModal(false);
+      return;
+    }
+
+    if (newServiceId === activePreviewServiceId) {
+      setShowServiceModal(false);
+      return;
+    }
+
+    if (selectedServiceIds.includes(newServiceId)) {
+      setActivePreviewServiceId(newServiceId);
+      setShowServiceModal(false);
+      return;
+    }
+
+    onReplaceService?.(activePreviewServiceId, newServiceId);
+    setActivePreviewServiceId(newServiceId);
+    setShowServiceModal(false);
+  };
+
+  const handlePickStaff = (staffId: string) => {
+    if (!activePreviewServiceId) return;
+    onSelectServiceStaff(activePreviewServiceId, staffId);
+    setShowTherapistModal(false);
+  };
+
   const modals = (
     <>
-      {showDateTimeModal && (
-        <BookingModal
-          title="Change Date & Time"
-          titleId="datetime-modal-title"
-          onClose={() => setShowDateTimeModal(false)}
-        >
-          <ServiceScheduleAccordion
-            selectedServiceIds={selectedServiceIds}
-            schedules={serviceSchedules}
-            onSelectDay={onSelectServiceDay}
-            onSelectTime={onSelectServiceTime}
-            onRemoveService={handleRemoveService}
-          />
-        </BookingModal>
+      {showServiceModal && activePreviewServiceId && (
+        <ChangeServiceMenuModal
+          selectedServiceIds={selectedServiceIds}
+          currentServiceId={activePreviewServiceId}
+          onPick={handleReplaceService}
+          onClose={() => setShowServiceModal(false)}
+        />
       )}
 
-      {/* Seat selection removed
-      {showSeatModal && (
-        <BookingModal
-          title="Change Seat"
-          titleId="seat-modal-title"
-          onClose={() => setShowSeatModal(false)}
+      {showTherapistModal && activePreviewServiceId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3"
+          onClick={() => setShowTherapistModal(false)}
+          role="presentation"
         >
-          <SelectSeat
-            seats={bookingSeats}
-            selectedSeatId={selectedSeatId}
-            seatConfirmed={seatConfirmed}
-            onSelectSeat={onSelectSeat}
-            onConfirmSeat={onConfirmSeat}
-          />
-        </BookingModal>
-      )}
-      */}
+          <div
+            className="flex max-h-[88dvh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-(--bg-primary) shadow-(--shadow-glow)"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between border-b border-(--border) px-4 py-3">
+              <div>
+                <h3 className="text-sm font-bold text-(--text-primary)">
+                  Change Staff / Therapist
+                </h3>
+                <p className="mt-0.5 text-[11px] text-(--text-muted)">
+                  Choose a therapist for this service
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTherapistModal(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border)"
+                aria-label="Close"
+              >
+                <X size={14} />
+              </button>
+            </div>
+            <div className="p-3">
+              <div className="rounded-xl border border-(--border) bg-(--bg-secondary) p-2">
+                <div className="scrollbar-none flex gap-2 overflow-x-auto pb-0.5">
+                  {therapists.map((therapist) => {
+                    const active =
+                      serviceStaff[activePreviewServiceId] === therapist.id;
 
-      {showTherapistModal && (
-        <BookingModal
-          title="Change Therapist"
-          titleId="therapist-modal-title"
-          onClose={() => setShowTherapistModal(false)}
+                    return (
+                      <button
+                        key={therapist.id}
+                        type="button"
+                        onClick={() => handlePickStaff(therapist.id)}
+                        className={`
+                          feature-card w-[96px] shrink-0 rounded-xl p-1.5 text-left
+                          transition-all duration-200
+                          ${
+                            active
+                              ? "border-(--accent-primary) shadow-(--shadow-glow)"
+                              : "hover:border-[color-mix(in_srgb,var(--accent-primary)_30%,var(--border))]"
+                          }
+                        `}
+                      >
+                        <div className="relative h-[78px] overflow-hidden rounded-sm">
+                          <Image
+                            src={therapist.image}
+                            alt={therapist.name}
+                            fill
+                            sizes="96px"
+                            className="object-cover"
+                          />
+                          {active && (
+                            <span className="border-3 border-white primary-button absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full text-white">
+                              <Check size={10} strokeWidth={2.5} />
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1.5 truncate text-[13px] font-bold text-(--text-primary)">
+                          {therapist.name}
+                        </p>
+                        <div className="mt-0.5 flex items-center gap-0.5">
+                          <Star
+                            size={9}
+                            className="fill-(--brand-gold) text-(--brand-gold)"
+                          />
+                          <span className="text-[10px] font-bold text-(--text-primary)">
+                            {therapist.rating}
+                          </span>
+                          <span className="text-[10px] text-(--text-muted)">
+                            ({therapist.reviews})
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-[10px] font-semibold text-(--text-muted)">
+                          {therapist.experience}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDateTimeModal && activePreviewServiceId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 sm:p-3"
+          onClick={() => setShowDateTimeModal(false)}
+          role="presentation"
         >
-          <ServiceStaffAccordion
-            selectedServiceIds={selectedServiceIds}
-            organizationId={organizationId}
-            expertType={expertType}
-            assignments={serviceStaff}
-            onSelectStaff={onSelectServiceStaff}
-            onRemoveService={handleRemoveService}
-          />
-        </BookingModal>
+          <div
+            className="flex max-h-[92dvh] w-[95%] max-w-md flex-col overflow-hidden rounded-2xl bg-(--bg-primary) shadow-(--shadow-glow)"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between border-b border-(--border) px-4 py-3">
+              <div>
+                <h3 className="text-sm font-bold text-(--text-primary)">
+                  Change Date &amp; Time
+                </h3>
+                <p className="mt-0.5 text-[11px] text-(--text-muted)">
+                  {selectedServices.find(
+                    (service) => service.id === activePreviewServiceId,
+                  )?.name ?? "Service"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDateTimeModal(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border)"
+                aria-label="Close"
+              >
+                <X size={14} />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+              <BookingMonthCalendar
+                days={bookingDays}
+                activeDayId={activePreviewSchedule.dayId}
+                onSelectDay={(dayId) => {
+                  onSelectServiceDay(activePreviewServiceId, dayId);
+                  const times = getAvailableTimeSlots(dayId, timeSlots);
+                  const time = times.includes(activePreviewSchedule.time)
+                    ? activePreviewSchedule.time
+                    : (times[0] ?? activePreviewSchedule.time);
+                  if (time) {
+                    onSelectServiceTime(activePreviewServiceId, time);
+                  }
+                }}
+              />
+              <Step3TimeSlotPicker
+                activeDayId={activePreviewSchedule.dayId}
+                activeTime={activePreviewSchedule.time}
+                onSelectTime={(time) =>
+                  onSelectServiceTime(activePreviewServiceId, time)
+                }
+              />
+            </div>
+            <div className="border-t border-(--border) p-3.5">
+              <button
+                type="button"
+                onClick={() => setShowDateTimeModal(false)}
+                className="primary-button h-11 w-full rounded-xl text-[14px] font-semibold text-white"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
@@ -281,7 +624,7 @@ export function Step3DateTimeSelection({
             <h2 className="text-sm font-bold text-(--text-primary)">
               Selected Services
             </h2>
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setShowTherapistModal(true)}
@@ -296,106 +639,198 @@ export function Step3DateTimeSelection({
               >
                 <Pencil size={10} /> Time
               </button>
-            </div>
+            </div> */}
           </div>
 
-          <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
-            {selectedServices.map((service) => {
-              const assignedId = serviceStaff[service.id];
-              const assigned = assignedId ? getStaff(assignedId) : null;
-              const schedule = serviceSchedules[service.id];
-              const scheduled = isServiceScheduleComplete(schedule);
+          <div className="space-y-2">
+            {hasSelection && (
+              <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
+                {selectedServices.map((service, index) => {
+                  const active = activePreviewServiceId === service.id;
 
-              return (
-                <article
-                  key={service.id}
-                  className="feature-card relative overflow-visible rounded-sm p-1"
-                >
-                  <button
-                    type="button"
-                    aria-label={`Remove ${service.name}`}
-                    onClick={() => handleRemoveService(service.id)}
-                    className="absolute -right-1 -top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-(--bg-card) text-(--text-secondary) shadow-(--shadow-card) transition-colors hover:text-(--text-primary)"
-                  >
-                    <X size={11} strokeWidth={2.5} />
-                  </button>
+                  return (
+                    <button
+                      key={service.id}
+                      type="button"
+                      onClick={() => setActivePreviewServiceId(service.id)}
+                      className={`
+                        shrink-0 rounded-xl border px-3 py-2 text-[10px] font-semibold
+                        transition-all duration-200
+                        ${
+                          active
+                            ? "primary-button border-transparent text-white"
+                            : "border-(--border) bg-(--bg-card) text-(--text-primary)"
+                        }
+                      `}
+                    >
+                      {`Service - ${index + 1}`}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
-                  <div className="grid grid-cols-3 gap-1">
-                    <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
-                      <div className="relative aspect-square w-full overflow-hidden">
-                        <Image
-                          src={service.image}
-                          alt={service.name}
-                          fill
-                          sizes="120px"
-                          className="object-cover"
-                        />
-                        <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
-                          Service
-                        </span>
+            {hasSelection && activePreviewServiceId ? (
+              (() => {
+                const service =
+                  selectedServices.find(
+                    (item) => item.id === activePreviewServiceId,
+                  ) ?? selectedServices[0];
+                const assignedId = serviceStaff[service.id];
+                const assigned = assignedId ? getStaff(assignedId) : null;
+                const schedule = serviceSchedules[service.id];
+                const scheduled = isServiceScheduleComplete(schedule);
+                const bookingDay = scheduled
+                  ? getBookingDay(schedule.dayId)
+                  : null;
+
+                return (
+                  <article className="feature-card overflow-hidden rounded-2xl border border-(--border) p-2">
+                    <div className="mb-2 flex items-center justify-between gap-2 border-b border-(--border) pb-2">
+                      <div className="primary-button inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[10px] font-semibold text-white">
+                        <span className="h-2 w-2 rounded-full bg-(--success)" />
+                        {`Service - ${selectedServices.findIndex((item) => item.id === service.id) + 1}`}
                       </div>
-                      <p className="break-words px-1 py-1 text-[9px] font-bold leading-tight text-(--text-primary) text-center">
-                        {service.name}
-                      </p>
+
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setIsEditMode((current) => !current)}
+                          className="flex items-center gap-0.5 rounded-full border border-(--border) px-3 py-1.5 text-[12px] font-bold text-(--accent-secondary)"
+                        >
+                          {isEditMode ? (
+                            "Done"
+                          ) : (
+                            <>
+                              <Pencil size={14} /> Edit
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
-                      <div className="relative aspect-square w-full overflow-hidden">
-                        <Image
-                          src={assigned?.image ?? staff.image}
-                          alt={assigned?.name ?? "Therapist"}
-                          fill
-                          sizes="120px"
-                          className="object-cover"
-                        />
-                        <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
-                          Therapist
-                        </span>
-                      </div>
-                      <p className="break-words px-1 py-1 text-[10px] font-bold leading-tight text-(--text-primary) text-center">
-                        {assigned?.name ?? "Not selected"}
-                      </p>
-                    </div>
-
-                    <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
-                      <div className="relative flex aspect-square w-full flex-col items-center justify-center gap-0.5 px-1">
-                        {scheduled ? (
-                          <>
-                            <span className="flex items-center gap-0.5 text-[10px] font-bold text-(--text-primary)">
-                              <CalendarDays
-                                size={10}
-                                className="shrink-0 text-(--accent-primary)"
-                              />
-                              {getBookingDay(schedule.dayId).weekday}
-                            </span>
-                            <span className="text-[10px] font-semibold text-(--text-primary)">
-                              {getBookingDay(schedule.dayId).date}
-                            </span>
-                            <span className="flex items-center gap-0.5 text-[10px] font-bold text-(--text-primary)">
-                              <Clock3
-                                size={10}
-                                className="shrink-0 text-(--accent-primary)"
-                              />
-                              {schedule.time}
-                            </span>
-                          </>
-                        ) : (
-                          <p className="text-center text-[8px] font-semibold leading-tight text-(--text-muted)">
-                            Not scheduled
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">
+                        <div className="relative h-[100px] w-full overflow-hidden bg-(--bg-card-hover)">
+                          <Image
+                            src={service.image}
+                            alt={service.name}
+                            width={240}
+                            height={180}
+                            sizes="140px"
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-1 flex-col space-y-2 p-2 pt-2">
+                          <p className="min-h-[2.8rem] text-[10px] font-bold leading-tight text-(--text-primary)">
+                            {service.name}
                           </p>
-                        )}
-                        <span className="absolute bottom-1  rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[8px] font-semibold text-(--text-primary) text-center w-full">
-                          Date & Time
-                        </span>
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
+                              <Clock3 size={10} className="shrink-0" />
+                              {service.duration}
+                            </span>
+                            <span className="text-[12px] font-bold text-(--brand-gold)">
+                              {service.priceLabel}
+                            </span>
+                          </div>
+                        </div>
+                        <ChangeBoxButton
+                          visible={isEditMode}
+                          onClick={() => setShowServiceModal(true)}
+                        />
                       </div>
-                      <p className="break-words px-1 py-1 text-[13px] font-bold leading-tight text-(--brand-gold) text-center">
-                        {service.priceLabel}
-                      </p>
+
+                      <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">
+                        <div className="relative h-[100px] w-full overflow-hidden bg-(--bg-card-hover)">
+                          <Image
+                            src={assigned?.image ?? staff.image}
+                            alt={assigned?.name ?? "Therapist"}
+                            width={240}
+                            height={180}
+                            sizes="140px"
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-1 flex-col p-2 pt-2">
+                          <p className="text-center text-[11px] font-bold text-(--text-primary)">
+                            {assigned?.name ?? "Not selected"}
+                          </p>
+                        </div>
+                        <ChangeBoxButton
+                          visible={isEditMode}
+                          onClick={() => setShowTherapistModal(true)}
+                        />
+                      </div>
+
+                      <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">
+                        <div className="flex flex-1 flex-col overflow-hidden">
+                          <div className="bg-(--accent-primary) px-2 py-2 text-center">
+                            <p className="text-[8px] font-semibold uppercase tracking-wide text-white">
+                              {bookingDay
+                                ? new Date(
+                                    `${bookingDay.date}, ${new Date().getFullYear()}`,
+                                  ).toLocaleDateString("en-US", {
+                                    month: "long",
+                                    year: "numeric",
+                                  })
+                                : "Date & Time"}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-1 flex-col items-center justify-center bg-(--bg-card) py-2 text-center">
+                            {scheduled && bookingDay ? (
+                              <>
+                                <span className="mt-4 mb-4 text-[34px] font-bold leading-none text-(--accent-primary)">
+                                  {bookingDay.date}
+                                </span>
+                                <span className="mt-2 w-full bg-(--accent-primary) px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+                                  {bookingDay.weekday}
+                                </span>
+                                <span className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-(--text-primary)">
+                                  <Clock3
+                                    size={10}
+                                    className="shrink-0 text-(--accent-primary)"
+                                  />
+                                  {schedule.time}
+                                </span>
+                              </>
+                            ) : (
+                              <p className="px-2 text-[9px] font-semibold leading-tight text-(--text-muted)">
+                                Not scheduled
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <ChangeBoxButton
+                          visible={isEditMode}
+                          onClick={() => setShowDateTimeModal(true)}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </article>
-              );
-            })}
+
+                    <div className="mt-3 flex items-center justify-between border-t border-(--border) pt-2">
+                      <div className="flex items-center gap-1 text-[9px] font-semibold text-(--text-primary)">
+                        <span>Total Amount</span>
+                      </div>
+                      <span className="text-[16px] font-bold text-(--accent-primary)">
+                        {service.priceLabel}
+                      </span>
+                    </div>
+                  </article>
+                );
+              })()
+            ) : (
+              <div className="flex min-h-[180px] flex-col items-center justify-center rounded-2xl border border-dashed border-(--border) px-4 text-center">
+                <ShoppingBag
+                  size={28}
+                  className="mb-3 text-(--text-muted) opacity-50"
+                />
+                <p className="text-[14px] font-medium text-(--text-primary)">
+                  No services selected
+                </p>
+              </div>
+            )}
           </div>
         </section>
 

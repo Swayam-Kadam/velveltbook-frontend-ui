@@ -126,7 +126,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
                 </Link>
 
                 <div className="p-2 pt-0">
-                    <TrendingNearbyActions orgHref={orgHref} />
+                    <TrendingNearbyActions store={item} />
                 </div>
             </article>
 

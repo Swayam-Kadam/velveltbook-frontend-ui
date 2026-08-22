@@ -321,10 +321,10 @@ export function Header() {
                                 <button
                                     type="button"
                                     role="menuitem"
-                                    // onClick={() => {
-                                    //     setMenuOpen(false);
-                                    //     router.push("/mybooking");
-                                    // }}
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        router.push("/favoritestore");
+                                    }}
                                     className="
                                         flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
                                         font-semibold text-(--text-primary)

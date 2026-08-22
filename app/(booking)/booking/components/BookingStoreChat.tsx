@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, CheckCheck, Send } from "lucide-react";
-
+import { ArrowLeft, CheckCheck, FileText, ImageIcon, Plus, Send } from "lucide-react";
 interface ChatMessage {
   id: string;
   text: string;
@@ -23,8 +22,8 @@ export function BookingStoreChat({
   onBack,
 }: BookingStoreChatProps) {
   const [text, setText] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
+  const [attachOpen, setAttachOpen] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([    {
       id: "welcome",
       text: `Hi! Thanks for your booking with ${storeName}. How can we help?`,
       time: "now",
@@ -32,6 +31,9 @@ export function BookingStoreChat({
     },
   ]);
   const listRef = useRef<HTMLDivElement>(null);
+  const attachRef = useRef<HTMLDivElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     listRef.current?.scrollTo({
@@ -40,6 +42,21 @@ export function BookingStoreChat({
     });
   }, [messages.length]);
 
+  useEffect(() => {
+    if (!attachOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        attachRef.current &&
+        !attachRef.current.contains(event.target as Node)
+      ) {
+        setAttachOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [attachOpen]);
   const sendMessage = () => {
     const next = text.trim();
     if (!next) return;
@@ -55,8 +72,38 @@ export function BookingStoreChat({
     setText("");
   };
 
-  return (
-    <section className="overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)">
+  const sendAttachment = (label: string) => {
+    setMessages((current) => [
+      ...current,
+      {
+        id: `out-${Date.now()}`,
+        text: label,
+        time: "now",
+        outgoing: true,
+      },
+    ]);
+    setAttachOpen(false);
+  };
+
+  const handlePhotoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      sendAttachment(`Photo: ${file.name}`);
+    }
+    event.target.value = "";
+  };
+
+  const handleDocumentSelect = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      sendAttachment(`Document: ${file.name}`);
+    }
+    event.target.value = "";
+  };
+
+  return (    <section className="overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)">
       <header className="flex items-center gap-2 border-b border-(--border) px-2.5 py-2">
         <button
           type="button"
@@ -123,17 +170,74 @@ export function BookingStoreChat({
       </div>
 
       <div className="flex items-center gap-2 border-t border-(--border) p-2">
-        <input
-          type="text"
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") sendMessage();
-          }}
-          placeholder="Type a message..."
-          className="h-10 min-w-0 flex-1 rounded-lg border border-(--border) bg-(--bg-primary) px-3 text-[12px] text-(--text-primary) outline-none"
-        />
-        <button
+        <div className="relative min-w-0 flex-1 ">
+          <input
+            type="text"
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") sendMessage();
+            }}
+            placeholder="Type a message..."
+            className="h-10 w-full max-w-full min-w-0 rounded-lg border border-(--border) bg-(--bg-primary) pr-3 text-[12px] text-(--text-primary) outline-none"
+            style={{
+              paddingLeft: "35px",
+            }}
+          />
+
+          <div ref={attachRef} className="absolute left-1 top-1/2 -translate-y-1/2">
+            <button
+              type="button"
+              onClick={() => setAttachOpen((current) => !current)}
+              aria-label="Attach file"
+              aria-expanded={attachOpen}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-(--text-primary)   transition-colors hover:bg-(--bg-secondary) hover:text-(--text-primary)"
+            >
+              <Plus size={20} />
+            </button>
+
+            {attachOpen && (
+              <div
+                className="absolute bottom-full left-0 z-20 mb-1.5 min-w-[140px] overflow-hidden rounded-xl border border-(--border) bg-(--bg-card) py-1 shadow-(--shadow-card)"
+                role="menu"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => photoInputRef.current?.click()}
+                  className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[12px] font-medium text-(--text-primary) transition-colors hover:bg-(--bg-secondary)"
+                >
+                  <ImageIcon size={15} className="text-(--accent-primary)" />
+                  Photos
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => documentInputRef.current?.click()}
+                  className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[12px] font-medium text-(--text-primary) transition-colors hover:bg-(--bg-secondary)"
+                >
+                  <FileText size={15} className="text-(--accent-primary)" />
+                  Document
+                </button>
+              </div>
+            )}
+
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoSelect}
+            />
+            <input
+              ref={documentInputRef}
+              type="file"
+              accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,application/pdf,application/msword"
+              className="hidden"
+              onChange={handleDocumentSelect}
+            />
+          </div>
+        </div>        <button
           type="button"
           onClick={sendMessage}
           aria-label="Send message"

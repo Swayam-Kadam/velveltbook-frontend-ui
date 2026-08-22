@@ -389,6 +389,8 @@ export function Step4PaymentConfirmation({
             selectedServiceIds={selectedServiceIds}
             organization={organizationBanner}
             organizationId={organizationId}
+            serviceStaff={serviceStaff}
+            serviceSchedules={serviceSchedules}
             onRemoveService={onRemoveService}
             showOrganizationBanner={false}
           />

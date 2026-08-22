@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Calendar,
   Check,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ChevronUp,
   Clock3,
-  Star,
   Trash2,
   UserRound,
   X,
@@ -32,7 +33,7 @@ import type {
   ServiceStaffAssignments,
 } from "../../booking.types";
 import { BookingMonthCalendar } from "./BookingMonthCalendar";
-import { useRouter } from "next/navigation";
+import { ExpertProfileModal } from "../ExpertProfileModal";
 
 type PanelTab = "staff" | "datetime";
 type TimePeriod = "AM" | "PM";
@@ -203,7 +204,6 @@ export function ServiceBookingAccordion({
     organizationId,
   );
   const bookingDays = useMemo(() => buildBookingDays(new Date()), []);
-  const router = useRouter();
   const visibleStaff = useMemo(() => {
     let therapists = getOrganizationStaff(organizationId);
 
@@ -252,6 +252,9 @@ export function ServiceBookingAccordion({
   const [dateTimeModalServiceId, setDateTimeModalServiceId] = useState<
     string | null
   >(null);
+  const [viewExpertId, setViewExpertId] = useState<string | null>(null);
+  const viewExpert = viewExpertId ? getStaff(viewExpertId) : null;
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (selectedServiceIds.length === 0) {
@@ -277,10 +280,6 @@ export function ServiceBookingAccordion({
     }));
   };
 
-  const toggleService = (serviceId: string) => {
-    setOpenServiceId((current) => (current === serviceId ? null : serviceId));
-  };
-
   const handleRemoveService = (serviceId: string) => {
     onRemoveService(serviceId);
     setOpenServiceId(null);
@@ -289,6 +288,37 @@ export function ServiceBookingAccordion({
   const handlePickStaff = (serviceId: string, staffId: string) => {
     if (lockStaffSelection) return;
     onSelectStaff(serviceId, staffId);
+  };
+
+  const scrollTabs = (direction: "left" | "right") => {
+    const container = tabsScrollRef.current;
+    if (!container) return;
+    const delta =
+      (direction === "left" ? -1 : 1) *
+      Math.max(120, Math.floor(container.clientWidth * 0.6));
+    container.scrollTo({
+      left: container.scrollLeft + delta,
+      behavior: "smooth",
+    });
+  };
+
+  const selectServiceTab = (serviceId: string) => {
+    setOpenServiceId(serviceId);
+    const index = selectedServiceIds.indexOf(serviceId);
+    const container = tabsScrollRef.current;
+    if (!container || index < 0) return;
+    const child = container.children[index] as HTMLElement | undefined;
+    if (!child) return;
+    const containerRect = container.getBoundingClientRect();
+    const childRect = child.getBoundingClientRect();
+    const delta =
+      childRect.left -
+      containerRect.left -
+      (container.clientWidth - child.clientWidth) / 2;
+    container.scrollTo({
+      left: container.scrollLeft + delta,
+      behavior: "smooth",
+    });
   };
 
   const assignedCount = selectedServiceIds.filter((id) =>
@@ -304,6 +334,34 @@ export function ServiceBookingAccordion({
   const dateTimeModalSchedule = dateTimeModalServiceId
     ? schedules[dateTimeModalServiceId] ?? createDefaultServiceSchedule()
     : undefined;
+
+  const activeService =
+    selectedServices.find((service) => service.id === openServiceId) ??
+    selectedServices[0];
+
+  const assignedStaffId = activeService
+    ? assignments[activeService.id]
+    : undefined;
+  const assignedStaff = assignedStaffId ? getStaff(assignedStaffId) : null;
+  const schedule = activeService
+    ? schedules[activeService.id] ?? createDefaultServiceSchedule()
+    : createDefaultServiceSchedule();
+  const staffDone = activeService
+    ? isServiceStaffAssigned(assignments, activeService.id)
+    : false;
+  const scheduleDone = isServiceScheduleComplete(schedule);
+  const isReady = staffDone && scheduleDone;
+  const activePanel = activeService
+    ? getActiveTab(activeService.id)
+    : "staff";
+  const staffForService = lockStaffSelection
+    ? visibleStaff.filter(
+        (therapist) => !assignedStaffId || therapist.id === assignedStaffId,
+      )
+    : visibleStaff;
+  const activeServiceIndex = activeService
+    ? selectedServices.findIndex((service) => service.id === activeService.id)
+    : 0;
 
   return (
     <section className="feature-card overflow-hidden rounded-xl">
@@ -332,310 +390,359 @@ export function ServiceBookingAccordion({
         </div>
       </div>
 
-      <div>
-        {selectedServices.map((service) => {
-          const assignedStaffId = assignments[service.id];
-          const assignedStaff = assignedStaffId
-            ? getStaff(assignedStaffId)
-            : null;
-          const schedule =
-            schedules[service.id] ?? createDefaultServiceSchedule();
-          const isOpen = openServiceId === service.id;
-          const staffDone = isServiceStaffAssigned(assignments, service.id);
-          const scheduleDone = isServiceScheduleComplete(schedule);
-          const activeTab = getActiveTab(service.id);
-
-          const staffForService = lockStaffSelection
-            ? visibleStaff.filter(
-                (therapist) =>
-                  !assignedStaffId || therapist.id === assignedStaffId,
-              )
-            : visibleStaff;
-
-          return (
-            <div
-              key={service.id}
-              className="border-b border-(--border) last:border-b-0"
-            >
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => handleRemoveService(service.id)}
-                  aria-label={`Remove ${service.name}`}
-                  className="
-                    absolute top-2 right-2 z-10 flex h-7 w-7 items-center
-                    justify-center rounded-full text-red-500
-                    transition-colors hover:bg-red-500/10
-                  "
-                >
-                  <Trash2 size={15} />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => toggleService(service.id)}
-                  aria-expanded={isOpen}
-                  className="
-                    flex w-full items-center gap-2 px-3 py-2.5 pr-10 text-left
-                    transition-colors hover:bg-(--bg-card-hover)
-                  "
-                >
-                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg">
-                    <Image
-                      src={service.image}
-                      alt={service.name}
-                      fill
-                      sizes="40px"
-                      className="object-cover"
-                    />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[11px] font-bold text-(--text-primary)">
-                      {service.name}
-                    </p>
-                    <p className="text-[8px] font-semibold text-(--text-muted)">
-                      {service.duration} · {service.priceLabel}
-                    </p>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                      <span className="inline-flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
-                        <UserRound
-                          size={9}
-                          className="shrink-0 text-(--accent-primary)"
-                        />
-                        {staffDone && assignedStaff
-                          ? assignedStaff.name
-                          : "Pick staff"}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
-                        <Clock3
-                          size={9}
-                          className="shrink-0 text-(--accent-primary)"
-                        />
-                        {scheduleDone
-                          ? formatServiceSchedule(schedule)
-                          : "Select date & time"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex shrink-0 flex-col items-end gap-1">
-                    <span
-                      className={`text-[7px] font-semibold ${
-                        staffDone && scheduleDone
-                          ? "text-(--success)"
-                          : "text-(--text-muted)"
-                      }`}
-                    >
-                      {staffDone && scheduleDone ? (
-                        <span className="flex items-center gap-0.5">
-                          <Check size={8} strokeWidth={2.5} />
-                          Ready
-                        </span>
-                      ) : (
-                        "Pending"
-                      )}
-                    </span>
-                    <ChevronDown
-                      size={14}
-                      className={`text-(--text-muted) transition-transform duration-200 ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </div>
-                </button>
-              </div>
-
-              {isOpen && (
-                <div
-                  className="
-                    border-t border-(--border)/50 px-3 pb-3 pt-2
-                    bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)]
-                  "
-                >
-                  <div className="mb-2.5 flex gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab(service.id, "staff")}
-                      className={tabClassName(
-                        staffDone,
-                        activeTab === "staff",
-                      )}
-                    >
-                      <span className="flex items-center gap-1">
-                        <UserRound size={11} />
-                        <span> {staffDone && assignedStaff
-                          ? assignedStaff.name +" (Staff)"
-                          : "Select Staff"}</span>
-                      </span>
-                      {activeTab !== "staff" ? <ChevronDown size={11} /> : <ChevronUp size={11} />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDateTimeModalServiceId(service.id)}
-                      className={tabClassName(
-                        scheduleDone,
-                        activeTab === "datetime",
-                      )}
-                    >
-                      <span className="flex items-center gap-1">
-                      <Calendar size={11} />
-                      <span> {scheduleDone ? formatServiceSchedule(schedule) : "Select Date & Time"}</span>
-                      </span>
-                      {activeTab !== "datetime" ? <ChevronDown size={11} /> : <ChevronUp size={11} />}
-                    </button>
-                  </div>
-
-                  <div className="scrollbar-none flex gap-2 overflow-x-auto pb-1">
-                    {staffForService.map((therapist) => {
-                        const active = therapist.id === assignedStaffId;
-
-                        return (
-                          <button
-                            key={therapist.id}
-                            type="button"
-                            onClick={() =>
-                              handlePickStaff(service.id, therapist.id)
-                            }
-                            disabled={lockStaffSelection}
-                            className={`
-                              feature-card w-[96px] shrink-0 rounded-xl p-1.5 text-left
-                              transition-all duration-200
-                              ${lockStaffSelection ? "cursor-default" : ""}
-                              ${
-                                active
-                                  ? "border-(--accent-primary) shadow-(--shadow-glow)"
-                                  : "hover:border-[color-mix(in_srgb,var(--accent-primary)_30%,var(--border))]"
-                              }
-                            `}
-                          >
-                            <div className="relative h-[78px] overflow-hidden rounded-sm">
-                              <Image
-                                src={therapist.image}
-                                alt={therapist.name}
-                                fill
-                                sizes="96px"
-                                className="object-cover"
-                              />
-                              {active && (
-                                <span className="border-3 border-white primary-button absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full text-white">
-                                  <Check size={10} strokeWidth={2.5} />
-                                </span>
-                              )}
-                            </div>
-
-                            <p className="mt-1.5 truncate text-[13px] font-bold text-(--text-primary)">
-                              {therapist.name}
-                            </p>
-
-                            {/* <div className="mt-0.5 flex items-center gap-0.5">
-                              <Star
-                                size={9}
-                                className="fill-(--brand-gold) text-(--brand-gold)"
-                              />
-                              <span className="text-[10px] font-bold text-(--text-primary)">
-                                {therapist.rating}
-                              </span>
-                              <span className="text-[10px] text-(--text-muted)">
-                                ({therapist.reviews})
-                              </span>
-                            </div> */}
-
-                            <p className="mt-0.5 text-[10px] font-semibold text-(--text-muted)">
-                              {therapist.experience}
-                            </p>
-                            
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => router.push(`/specificexpert/${therapist.id}`)}
-                                className="text-[10px] font-semibold uppercase tracking-wide text-white bg-(--accent-primary) rounded-sm px-2 w-full"
-                              >
-                                View
-                              </button>
-                            </div>
-                          </button>
-                        );
-                      })}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {dateTimeModalServiceId && dateTimeModalService && dateTimeModalSchedule && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 sm:items-center sm:p-3"
-          onClick={() => setDateTimeModalServiceId(null)}
-          role="presentation"
-        >
-          <div
-            className="
-              flex max-h-[92dvh] w-[95%] max-w-md flex-col overflow-hidden
-              rounded-2xl bg-(--bg-primary) shadow-(--shadow-glow)
-              sm:rounded-2xl
-            "
-            onClick={(event) => event.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="service-datetime-title"
-          >
-            <div className="flex items-center justify-between gap-2 border-b border-(--border) px-4 py-3">
-              <div className="min-w-0">
-                <h3
-                  id="service-datetime-title"
-                  className="truncate text-sm font-bold text-(--text-primary)"
-                >
-                  Select Date &amp; Time
-                </h3>
-                <p className="mt-0.5 truncate text-[11px] text-(--text-muted)">
-                  {dateTimeModalService.name}
-                </p>
-              </div>
+      {selectedServices.length > 0 && (
+        <div className="relative border-b border-(--border) px-8 py-2.5">
+          {selectedServices.length > 1 && (
+            <>
               <button
                 type="button"
-                onClick={() => setDateTimeModalServiceId(null)}
-                aria-label="Close"
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-(--border) text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)"
-              >
-                <X size={14} strokeWidth={2.5} />
-              </button>
-            </div>
-
-            <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto p-4">
-              <BookingMonthCalendar
-                days={bookingDays}
-                activeDayId={dateTimeModalSchedule.dayId}
-                onSelectDay={(dayId) =>
-                  onSelectDay(dateTimeModalServiceId, dayId)
-                }
-              />
-              <MobileTimeSlots
-                activeDayId={dateTimeModalSchedule.dayId}
-                activeTime={dateTimeModalSchedule.time}
-                onSelectTime={(time) =>
-                  onSelectTime(dateTimeModalServiceId, time)
-                }
-              />
-            </div>
-
-            <div className="shrink-0 border-t border-(--border) p-3.5">
-              <button
-                type="button"
-                onClick={() => setDateTimeModalServiceId(null)}
+                onClick={() => scrollTabs("left")}
+                aria-label="Scroll service tabs left"
                 className="
-                  primary-button flex h-11 w-full items-center justify-center gap-2
-                  rounded-xl text-[14px] font-semibold text-white
-                  transition-opacity hover:opacity-90
+                  absolute left-1 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2
+                  items-center justify-center rounded-full border border-(--border)
+                  bg-(--bg-card) text-(--text-primary) shadow-[var(--shadow-card)]
                 "
               >
-                Done
+                <ChevronLeft size={14} strokeWidth={2.5} />
               </button>
-            </div>
+              <button
+                type="button"
+                onClick={() => scrollTabs("right")}
+                aria-label="Scroll service tabs right"
+                className="
+                  absolute right-1 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2
+                  items-center justify-center rounded-full border border-(--border)
+                  bg-(--bg-card) text-(--text-primary) shadow-[var(--shadow-card)]
+                "
+              >
+                <ChevronRight size={14} strokeWidth={2.5} />
+              </button>
+            </>
+          )}
+
+          <div
+            ref={tabsScrollRef}
+            className={`scrollbar-none flex gap-0.5 overflow-x-auto overflow-y-hidden scroll-smooth ${
+              selectedServices.length > 1 ? "px-9" : "px-1"
+            }`}
+          >
+            {selectedServices.map((service, index) => {
+              const ready =
+                isServiceStaffAssigned(assignments, service.id) &&
+                isServiceScheduleComplete(schedules[service.id]);
+              const active = service.id === activeService?.id;
+
+              return (
+                <button
+                  key={service.id}
+                  type="button"
+                  onClick={() => selectServiceTab(service.id)}
+                  aria-pressed={active}
+                  className={`
+                    relative shrink-0 rounded-xl border px-3 py-2 text-[10px]
+                    font-semibold transition-all duration-200
+                    ${
+                      active
+                        ? "primary-button border-transparent text-white"
+                        : "border-(--border) bg-(--bg-card) text-(--text-primary)"
+                    }
+                  `}
+                >
+                  <span
+                    className={`absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full ${
+                      ready ? "bg-(--success)" : "bg-(--danger)"
+                    }`}
+                  />
+                  {`Service - ${index + 1}`}
+                </button>
+              );
+            })}
           </div>
         </div>
+      )}
+
+      {activeService ? (
+        <div className="p-3">
+          <div className="relative mb-2.5 overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)">
+            <button
+              type="button"
+              onClick={() => handleRemoveService(activeService.id)}
+              aria-label={`Remove ${activeService.name}`}
+              className="
+                absolute top-2 right-2 z-10 flex h-7 w-7 items-center
+                justify-center rounded-full text-red-500
+                transition-colors hover:bg-red-500/10
+              "
+            >
+              <Trash2 size={15} />
+            </button>
+
+            <div className="flex items-center gap-2 px-3 py-2.5 pr-10">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xs">
+                <Image
+                  src={activeService.image}
+                  alt={activeService.name}
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[12px] font-bold text-(--text-primary)">
+                  {activeService.name}
+                </p>
+                <p className="text-[9px] font-semibold text-(--text-muted)">
+                  {activeService.duration} · {activeService.priceLabel}
+                </p>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  <span className="inline-flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
+                    <UserRound
+                      size={9}
+                      className="shrink-0 text-(--accent-primary)"
+                    />
+                    {staffDone && assignedStaff
+                      ? assignedStaff.name
+                      : "Pick staff"}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
+                    <Clock3
+                      size={9}
+                      className="shrink-0 text-(--accent-primary)"
+                    />
+                    {scheduleDone
+                      ? formatServiceSchedule(schedule)
+                      : "Select date & time"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                <span
+                  className={`
+                    rounded-xs px-2 py-1 text-[8px] font-bold
+                    ${
+                      isReady
+                        ? "bg-(--accent-primary) text-(--success) ring-1 ring-(--success)/40"
+                        : "bg-(--accent-primary) text-red-500 ring-1 ring-red-500"
+                    }
+                  `}
+                >
+                  {isReady ? "Ready" : "Pending"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-2.5 flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => setActiveTab(activeService.id, "staff")}
+              className={tabClassName(staffDone, activePanel === "staff")}
+            >
+              <span className="flex items-center gap-1">
+                <UserRound size={11} />
+                <span>
+                  {staffDone && assignedStaff
+                    ? `${assignedStaff.name} (Staff)`
+                    : "Select Staff"}
+                </span>
+              </span>
+              {activePanel !== "staff" ? (
+                <ChevronDown size={11} />
+              ) : (
+                <ChevronUp size={11} />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab(activeService.id, "datetime");
+                setDateTimeModalServiceId(activeService.id);
+              }}
+              className={tabClassName(
+                scheduleDone,
+                activePanel === "datetime",
+              )}
+            >
+              <span className="flex items-center gap-1">
+                <Calendar size={11} />
+                <span>
+                  {scheduleDone
+                    ? formatServiceSchedule(schedule)
+                    : "Select Date & Time"}
+                </span>
+              </span>
+              {activePanel !== "datetime" ? (
+                <ChevronDown size={11} />
+              ) : (
+                <ChevronUp size={11} />
+              )}
+            </button>
+          </div>
+
+          {activePanel === "staff" && (
+            <div className="rounded-xl border border-(--border) bg-(--bg-secondary) p-2">
+              <div className="scrollbar-none flex gap-2 overflow-x-auto pb-0.5">
+                {staffForService.map((therapist) => {
+                  const active = therapist.id === assignedStaffId;
+
+                  return (
+                    <button
+                      key={therapist.id}
+                      type="button"
+                      onClick={() =>
+                        handlePickStaff(activeService.id, therapist.id)
+                      }
+                      disabled={lockStaffSelection}
+                      className={`
+                        feature-card w-[96px] shrink-0 rounded-xl p-1.5 text-left
+                        transition-all duration-200
+                        ${lockStaffSelection ? "cursor-default" : ""}
+                        ${
+                          active
+                            ? "border-(--accent-primary) shadow-(--shadow-glow)"
+                            : "hover:border-[color-mix(in_srgb,var(--accent-primary)_30%,var(--border))]"
+                        }
+                      `}
+                    >
+                      <div className="relative h-[78px] overflow-hidden rounded-sm">
+                        <Image
+                          src={therapist.image}
+                          alt={therapist.name}
+                          fill
+                          sizes="96px"
+                          className="object-cover"
+                        />
+                        {active && (
+                          <span className="border-3 border-white primary-button absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full text-white">
+                            <Check size={10} strokeWidth={2.5} />
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="mt-1.5 truncate text-[13px] font-bold text-(--text-primary)">
+                        {therapist.name}
+                      </p>
+
+                      <div className="mt-1 flex items-center gap-2">
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setViewExpertId(therapist.id);
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.stopPropagation();
+                              setViewExpertId(therapist.id);
+                            }
+                          }}
+                          className="w-full rounded-sm bg-(--accent-primary) px-2 text-center text-[10px] font-semibold uppercase tracking-wide text-white"
+                        >
+                          View
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <p className="mt-2 text-center text-[8px] font-semibold text-(--text-muted)">
+            Showing Service - {activeServiceIndex + 1} of{" "}
+            {selectedServices.length}
+          </p>
+        </div>
+      ) : (
+        <div className="px-3 py-8 text-center text-[11px] font-medium text-(--text-muted)">
+          No services selected
+        </div>
+      )}
+
+      {dateTimeModalServiceId &&
+        dateTimeModalService &&
+        dateTimeModalSchedule && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 sm:items-center sm:p-3"
+            onClick={() => setDateTimeModalServiceId(null)}
+            role="presentation"
+          >
+            <div
+              className="
+                flex max-h-[92dvh] w-[95%] max-w-md flex-col overflow-hidden
+                rounded-2xl bg-(--bg-primary) shadow-(--shadow-glow)
+                sm:rounded-2xl
+              "
+              onClick={(event) => event.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="service-datetime-title"
+            >
+              <div className="flex items-center justify-between gap-2 border-b border-(--border) px-4 py-3">
+                <div className="min-w-0">
+                  <h3
+                    id="service-datetime-title"
+                    className="truncate text-sm font-bold text-(--text-primary)"
+                  >
+                    Select Date &amp; Time
+                  </h3>
+                  <p className="mt-0.5 truncate text-[11px] text-(--text-muted)">
+                    {dateTimeModalService.name}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDateTimeModalServiceId(null)}
+                  aria-label="Close"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-(--border) text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)"
+                >
+                  <X size={14} strokeWidth={2.5} />
+                </button>
+              </div>
+
+              <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto p-4">
+                <BookingMonthCalendar
+                  days={bookingDays}
+                  activeDayId={dateTimeModalSchedule.dayId}
+                  onSelectDay={(dayId) =>
+                    onSelectDay(dateTimeModalServiceId, dayId)
+                  }
+                />
+                <MobileTimeSlots
+                  activeDayId={dateTimeModalSchedule.dayId}
+                  activeTime={dateTimeModalSchedule.time}
+                  onSelectTime={(time) =>
+                    onSelectTime(dateTimeModalServiceId, time)
+                  }
+                />
+              </div>
+
+              <div className="shrink-0 border-t border-(--border) p-3.5">
+                <button
+                  type="button"
+                  onClick={() => setDateTimeModalServiceId(null)}
+                  className="
+                    primary-button flex h-11 w-full items-center justify-center gap-2
+                    rounded-xl text-[14px] font-semibold text-white
+                    transition-opacity hover:opacity-90
+                  "
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+      {viewExpert && (
+        <ExpertProfileModal
+          staff={viewExpert}
+          onClose={() => setViewExpertId(null)}
+        />
       )}
     </section>
   );

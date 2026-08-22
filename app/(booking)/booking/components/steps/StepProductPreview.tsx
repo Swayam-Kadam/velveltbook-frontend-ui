@@ -278,16 +278,16 @@ function ProductPreviewCarousel({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2">
+      <div className="relative">
         <button
           type="button"
           onClick={() => scrollStrip(tabsScrollRef.current, "left", 120)}
           aria-label="Scroll product tabs left"
           className="
-            flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+            absolute left-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full
             border border-(--border) bg-(--bg-card) text-(--text-primary)
-            transition-colors hover:border-(--brand-gold)
-            lg:h-9 lg:w-9
+            shadow-[var(--shadow-card)] transition-colors hover:border-(--brand-gold)
+            lg:left-0 lg:h-9 lg:w-9
           "
         >
           <ChevronLeft size={16} strokeWidth={2.5} />
@@ -295,7 +295,7 @@ function ProductPreviewCarousel({
 
         <div
           ref={tabsScrollRef}
-          className="scrollbar-none flex min-w-0 flex-1 gap-2 overflow-x-auto overflow-y-hidden scroll-smooth"
+          className="scrollbar-none flex min-w-0 gap-2 overflow-x-auto overflow-y-hidden px-10 scroll-smooth"
         >
           {selectedProducts.map((product, index) => {
             const active = index === activeIndex;
@@ -326,26 +326,26 @@ function ProductPreviewCarousel({
           onClick={() => scrollStrip(tabsScrollRef.current, "right", 120)}
           aria-label="Scroll product tabs right"
           className="
-            flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+            absolute right-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full
             border border-(--border) bg-(--bg-card) text-(--text-primary)
-            transition-colors hover:border-(--brand-gold)
-            lg:h-9 lg:w-9
+            shadow-[var(--shadow-card)] transition-colors hover:border-(--brand-gold)
+            lg:right-0 lg:h-9 lg:w-9
           "
         >
           <ChevronRight size={16} strokeWidth={2.5} />
         </button>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="relative">
         <button
           type="button"
           onClick={() => scrollStrip(cardsScrollRef.current, "left", 220)}
           aria-label="Scroll products left"
           className="
-            flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+            absolute left-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full
             border border-(--border) bg-(--bg-card) text-(--text-primary)
-            transition-colors hover:border-(--brand-gold)
-            lg:h-9 lg:w-9
+            shadow-[var(--shadow-card)] transition-colors hover:border-(--brand-gold)
+            lg:left-0 lg:h-9 lg:w-9
           "
         >
           <ChevronLeft size={16} strokeWidth={2.5} />
@@ -353,7 +353,7 @@ function ProductPreviewCarousel({
 
         <div
           ref={cardsScrollRef}
-          className="scrollbar-none flex min-w-0 flex-1 gap-3 overflow-x-auto overflow-y-hidden scroll-smooth"
+          className="scrollbar-none flex min-w-0 gap-3 overflow-x-auto overflow-y-hidden px-10 scroll-smooth"
         >
           {selectedProducts.map((product) => (
             <SelectedProductCard
@@ -376,10 +376,10 @@ function ProductPreviewCarousel({
           onClick={() => scrollStrip(cardsScrollRef.current, "right", 220)}
           aria-label="Scroll products right"
           className="
-            flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+            absolute right-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full
             border border-(--border) bg-(--bg-card) text-(--text-primary)
-            transition-colors hover:border-(--brand-gold)
-            lg:h-9 lg:w-9
+            shadow-[var(--shadow-card)] transition-colors hover:border-(--brand-gold)
+            lg:right-0 lg:h-9 lg:w-9
           "
         >
           <ChevronRight size={16} strokeWidth={2.5} />

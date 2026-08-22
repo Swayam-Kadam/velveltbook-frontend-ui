@@ -245,6 +245,8 @@ export function Step2StaffSelection({
           selectedServiceIds={selectedServiceIds}
           organization={organizationBanner}
           organizationId={organizationId}
+          serviceStaff={serviceStaff}
+          serviceSchedules={serviceSchedules}
           onRemoveService={onRemoveService ? handleRemoveService : undefined}
           showOrganizationBanner={false}
         />

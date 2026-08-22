@@ -23,6 +23,7 @@ import {
   Mars,
   Venus,
   X,
+  Trash2,
 } from "lucide-react";
 import { TimingsDropdown } from "@/components/TimingsDropdown";
 import { CategorySidebar } from "@/menu/components/CategorySidebar";
@@ -55,7 +56,7 @@ import { SuggestedProductCard } from "./SuggestedProductsRow";
 type MenuCatalogTab = "service" | "product";
 type MenuGender = "male" | "female";
 
-const PRODUCT_PREVIEW_PAGE_SIZE = 6;
+const PRODUCT_PREVIEW_PAGE_SIZE = 3;
 
 interface ExtendedOrganizationProfileProps {
   organization: ExtendedOrganization;
@@ -228,6 +229,7 @@ export function ExtendedOrganizationProfile({
     (typeof allMenuProducts)[number] | null
   >(null);
   const serviceTabsScrollRef = useRef<HTMLDivElement>(null);
+  const productPreviewTabsScrollRef = useRef<HTMLDivElement>(null);
 
   const reviewStats = useMemo(() => {
     const reviews = organization.reviews ?? [];
@@ -1415,6 +1417,7 @@ export function ExtendedOrganizationProfile({
                             >
                               {selectedServices.map((service, index) => {
                                 const isActive = service.id === focusedService.id;
+                                const isReady = isServiceFullyAssigned(service.id);
 
                                 return (
                                   <div
@@ -1423,9 +1426,14 @@ export function ExtendedOrganizationProfile({
                                       relative flex shrink-0 items-center gap-2 rounded-xl border
                                       px-2 py-1.5 pr-6 transition-all
                                       ${
+                                        isReady
+                                          ? "border-(--success)"
+                                          : "border-(--danger)"
+                                      }
+                                      ${
                                         isActive
-                                          ? "border-(--brand-gold) bg-(--bg-card) shadow-(--shadow-card)"
-                                          : "border-(--border) bg-(--bg-card)/70 hover:border-(--brand-gold)/50"
+                                          ? "bg-(--bg-card) shadow-(--shadow-card) ring-1 ring-(--brand-gold)"
+                                          : "bg-(--bg-card)/70"
                                       }
                                     `}
                                   >
@@ -1451,7 +1459,7 @@ export function ExtendedOrganizationProfile({
                                         </p>
                                         <p
                                           className={`
-                                            max-w-[88px] truncate text-[11px] font-semibold
+                                            max-w-[88px] text-[11px] font-semibold
                                             ${
                                               isActive
                                                 ? "text-(--text-primary)"
@@ -1480,6 +1488,14 @@ export function ExtendedOrganizationProfile({
                                     >
                                       <X size={10} strokeWidth={2.5} />
                                     </button>
+
+                                    <span
+                                      aria-label={isReady ? "Ready" : "Pending"}
+                                      className={`
+                                        absolute right-5 top-1.5 h-2 w-2 rounded-full
+                                        ${isReady ? "bg-(--success)" : "bg-(--danger)"}
+                                      `}
+                                    />
                                   </div>
                                 );
                               })}
@@ -1537,7 +1553,8 @@ export function ExtendedOrganizationProfile({
                                     .join(" · ")}
                                 </p>
                               </div>
-
+                              
+                              
                               {focusedStaff ? (
                                 <div className="flex items-center gap-2 rounded-xl border border-(--border) bg-(--bg-card) px-2 py-1.5">
                                   <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
@@ -1584,6 +1601,8 @@ export function ExtendedOrganizationProfile({
                                 </button>
                               )}
 
+                              
+                            <div className="flex justify-between items-center gap-2 mt-2">
                               {(() => {
                                 const schedule =
                                   serviceSchedules[focusedService.id];
@@ -1640,6 +1659,12 @@ export function ExtendedOrganizationProfile({
                                   </button>
                                 );
                               })()}
+                              <div onClick={() => removeServiceFromSelection(focusedService.id)}
+                                className="cursor-pointer hover:text-red-700 bg-red-500 p-2 rounded-full"
+                              >
+                                <Trash2 size={17} className="text-red-500 cursor-pointer" />
+                              </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1652,7 +1677,7 @@ export function ExtendedOrganizationProfile({
                 {isProductFlow && (
                 <section className="overflow-hidden rounded-[20px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
                   {selectedProducts.length === 0 ? (
-                    <div className="flex min-h-[420px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center lg:min-h-[520px]">
+                    <div className="flex min-h-[420px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center lg:min-h-[380px]">
                       <p className="text-2xl font-bold text-(--text-primary)">
                         Product preview
                       </p>
@@ -1661,60 +1686,87 @@ export function ExtendedOrganizationProfile({
                       </p>
                     </div>
                   ) : (
-                    <div className="flex min-h-[420px] flex-col bg-(--bg-secondary) lg:min-h-[520px]">
-                      <div className="flex items-center justify-between gap-2 border-b border-(--border) px-3 py-2.5">
-                        <div className="min-w-0">
+                    <div className="flex min-h-[420px] flex-col bg-(--bg-secondary) lg:min-h-[380px]">
+                      <div className="flex items-center gap-2 border-b border-(--border) px-3 py-2.5">
+                        <div className="min-w-0 shrink-0">
                           <p className="text-[13px] font-semibold text-(--text-primary)">
                             Selected Products
                           </p>
                           <p className="text-[11px] text-(--text-muted)">
                             {selectedProducts.length} product
-                            {selectedProducts.length === 1 ? "" : "s"} · page{" "}
-                            {visibleProductPreviewPage} of{" "}
-                            {productPreviewTotalPages}
+                            {selectedProducts.length === 1 ? "" : "s"}
                           </p>
                         </div>
 
                         {productPreviewTotalPages > 1 && (
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex min-w-0 flex-1 items-center gap-1.5">
                             <button
                               type="button"
                               onClick={() =>
-                                setProductPreviewPage((current) =>
-                                  Math.max(1, current - 1),
+                                scrollPreviewTabs(
+                                  productPreviewTabsScrollRef,
+                                  "left",
                                 )
                               }
-                              disabled={visibleProductPreviewPage <= 1}
-                              aria-label="Previous product page"
+                              aria-label="Scroll product pages left"
                               className="
-                                flex h-8 w-8 items-center justify-center rounded-full
+                                flex h-8 w-8 shrink-0 items-center justify-center rounded-full
                                 border border-(--border) bg-(--bg-card) text-(--text-primary)
                                 transition-colors hover:border-(--brand-gold)
-                                disabled:cursor-not-allowed disabled:opacity-40
                               "
                             >
                               <ChevronLeft size={16} strokeWidth={2.5} />
                             </button>
+
+                            <div
+                              ref={productPreviewTabsScrollRef}
+                              className="scrollbar-none flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto scroll-smooth"
+                            >
+                              {Array.from(
+                                { length: productPreviewTotalPages },
+                                (_, index) => {
+                                  const page = index + 1;
+                                  const active =
+                                    page === visibleProductPreviewPage;
+
+                                  return (
+                                    <button
+                                      key={page}
+                                      type="button"
+                                      onClick={() =>
+                                        setProductPreviewPage(page)
+                                      }
+                                      aria-pressed={active}
+                                      className={`
+                                        shrink-0 rounded-full border px-2.5 py-1
+                                        text-[11px] font-semibold transition-colors
+                                        ${
+                                          active
+                                            ? "border-(--brand-gold) bg-[color-mix(in_srgb,var(--brand-gold)_14%,transparent)] text-(--brand-gold)"
+                                            : "border-(--border) bg-(--bg-card) text-(--text-secondary) hover:border-(--brand-gold)/50 hover:text-(--text-primary)"
+                                        }
+                                      `}
+                                    >
+                                      Page-{page}
+                                    </button>
+                                  );
+                                },
+                              )}
+                            </div>
+
                             <button
                               type="button"
                               onClick={() =>
-                                setProductPreviewPage((current) =>
-                                  Math.min(
-                                    productPreviewTotalPages,
-                                    current + 1,
-                                  ),
+                                scrollPreviewTabs(
+                                  productPreviewTabsScrollRef,
+                                  "right",
                                 )
                               }
-                              disabled={
-                                visibleProductPreviewPage >=
-                                productPreviewTotalPages
-                              }
-                              aria-label="Next product page"
+                              aria-label="Scroll product pages right"
                               className="
-                                flex h-8 w-8 items-center justify-center rounded-full
+                                flex h-8 w-8 shrink-0 items-center justify-center rounded-full
                                 border border-(--border) bg-(--bg-card) text-(--text-primary)
                                 transition-colors hover:border-(--brand-gold)
-                                disabled:cursor-not-allowed disabled:opacity-40
                               "
                             >
                               <ChevronRight size={16} strokeWidth={2.5} />
@@ -1762,13 +1814,18 @@ export function ExtendedOrganizationProfile({
                       . Tap Select on a staff card.
                     </p>
                   )}
-                  <div className="grid grid-cols-2 gap-1.5 xl:grid-cols-4">
+                  <div
+                    className={`grid grid-cols-2 gap-1.5 xl:grid-cols-4 ${
+                      assigningServiceId ? "rounded-2xl p-1" : ""
+                    }`}
+                  >
                     {(() => {
                       const focusedStaffServiceId =
                         assigningServiceId ??
                         previewServiceId ??
                         selectedServiceIds[selectedServiceIds.length - 1] ??
                         null;
+                      const isSelectingStaff = Boolean(assigningServiceId);
 
                       return organization.staff.map((member, index) => {
                         const isAssignedToFocusedService =
@@ -1778,16 +1835,26 @@ export function ExtendedOrganizationProfile({
                         return (
                           <article
                             key={member.id}
-                            className={`flex h-full w-full flex-col overflow-hidden rounded-[16px] border bg-(--bg-card) shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 ${
-                              isAssignedToFocusedService
-                                ? "border-(--accent-primary) ring-1 ring-(--accent-primary)"
-                                : assigningServiceId
-                                  ? "border-(--brand-gold)/40"
-                                  : "border-(--border)"
-                            }`}
+                            className={`
+                              flex h-full w-full flex-col overflow-hidden rounded-[16px] border
+                              bg-(--bg-card) transition-all duration-300
+                              ${
+                                isAssignedToFocusedService
+                                  ? "border-(--accent-primary) shadow-(--shadow-glow) ring-2 ring-(--accent-primary)/50 -translate-y-0.5"
+                                  : isSelectingStaff
+                                    ? "border-(--brand-gold) shadow-[0_0_0_1px_color-mix(in_srgb,var(--brand-gold)_35%,transparent),0_8px_28px_color-mix(in_srgb,var(--brand-gold)_28%,transparent)] hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--brand-gold),0_10px_32px_color-mix(in_srgb,var(--brand-gold)_40%,transparent)]"
+                                    : "border-(--border) shadow-[var(--shadow-card)] hover:-translate-y-0.5"
+                              }
+                            `}
                           >
                             <div className="relative h-[96px] overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
                               <span className="absolute left-2 top-2 z-10 h-2 w-2 rounded-full bg-(--success)" />
+                              {isSelectingStaff && !isAssignedToFocusedService && (
+                                <div className="pointer-events-none absolute inset-0 bg-[color-mix(in_srgb,var(--brand-gold)_12%,transparent)]" />
+                              )}
+                              {isAssignedToFocusedService && (
+                                <div className="pointer-events-none absolute inset-0 bg-[color-mix(in_srgb,var(--accent-primary)_18%,transparent)]" />
+                              )}
                               <Image
                                 src={member.image}
                                 alt={member.name}
@@ -1829,8 +1896,10 @@ export function ExtendedOrganizationProfile({
                                 }
                                 className={
                                   isAssignedToFocusedService
-                                    ? "primary-button mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold text-white"
-                                    : "secondary-button mt-2 flex h-8 w-full items-center justify-center rounded-lg text-[11px] font-semibold"
+                                    ? "primary-button mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold text-white shadow-(--shadow-glow)"
+                                    : isSelectingStaff
+                                      ? "mt-2 flex h-8 w-full items-center justify-center rounded-lg border border-(--brand-gold) bg-[color-mix(in_srgb,var(--brand-gold)_14%,transparent)] text-[11px] font-semibold text-(--text-primary) transition-all hover:bg-[color-mix(in_srgb,var(--brand-gold)_24%,transparent)]"
+                                      : "secondary-button mt-2 flex h-8 w-full items-center justify-center rounded-lg text-[11px] font-semibold"
                                 }
                               >
                                 {isAssignedToFocusedService ? (
