@@ -354,7 +354,7 @@ function ProductPreviewCarousel({
 
         <div
           ref={cardsScrollRef}
-          className="scrollbar-none flex min-w-0 gap-1 overflow-x-auto overflow-y-hidden px-10 scroll-smooth"
+          className="scrollbar-none flex min-w-0 gap-1 overflow-x-auto overflow-y-hidden scroll-smooth"
         >
           {selectedProducts.map((product) => (
             <SelectedProductCard
