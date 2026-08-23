@@ -178,7 +178,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
 
                     <div className="absolute right-4 top-4 flex gap-2">
 
-                        <Link href="/#"
+                        <button
                             className="
                 flex
                 h-9
@@ -186,33 +186,18 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
                 items-center
                 justify-center
                 rounded-full
-                bg-black/35
-                backdrop-blur-md
+                primary-button
             "
                         >
                             <Share2
                                 size={16}
                                 className="text-white"
                             />
-                        </Link>
+                        </button>
 
-                        <Link href="/#"
-                            className="
-                flex
-                h-9
-                w-9
-                items-center
-                justify-center
-                rounded-full
-                bg-black/35
-                backdrop-blur-md
-            "
-                        >
-                            <PlayCircle
-                                size={18}
-                                className="text-white"
-                            />
-                        </Link>
+                        <button className="mt-1 primary-button flex h-7 w-10 px-2 items-center justify-center rounded-[4px]  text-white ">
+                                <Play size={16} />
+                            </button>
 
                     </div>
 

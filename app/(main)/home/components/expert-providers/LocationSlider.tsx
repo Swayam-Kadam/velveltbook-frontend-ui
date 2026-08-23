@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { ChevronDown } from "lucide-react";
 
 export interface FilterChipOption {
@@ -15,6 +14,36 @@ interface LocationSliderProps {
   selectedLocation: string | null;
   onSelectLocation: (location: string) => void;
   filterLabel: string;
+}
+
+function LocationTab({
+  location,
+  active,
+  onSelect,
+  fit,
+}: {
+  location: FilterChipOption;
+  active: boolean;
+  onSelect: (id: string) => void;
+  fit?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(location.id)}
+      className={`
+        rounded-sm border px-3 py-2 text-[11px] font-medium
+        ${fit ? "min-w-0 flex-1 truncate text-center" : "shrink-0 whitespace-nowrap"}
+        ${
+          active
+            ? "border-[#2D1659] border-(--text-primary) text-(--text-primary)"
+            : "border-(--border) bg-white text-(--text-primary)"
+        }
+      `}
+    >
+      {location.label}
+    </button>
+  );
 }
 
 export function LocationSlider({
@@ -53,28 +82,14 @@ export function LocationSlider({
             />
           </button>
 
-          {locations.map((location) => {
-            const active = selectedLocation === location.id;
-
-            return (
-              <button
-                key={location.id}
-                type="button"
-                onClick={() => onSelectLocation(location.id)}
-                className={`
-                  shrink-0 rounded-sm border px-3 py-2 text-[11px] font-medium
-                  whitespace-nowrap
-                  ${
-                    active
-                      ? "border-[#2D1659] border border-(--text-primary) text-(--text-primary)"
-                      : "border-(--border) bg-white text-(--text-primary)"
-                  }
-                `}
-              >
-                {location.label}
-              </button>
-            );
-          })}
+          {locations.map((location) => (
+            <LocationTab
+              key={location.id}
+              location={location}
+              active={selectedLocation === location.id}
+              onSelect={onSelectLocation}
+            />
+          ))}
         </div>
 
         {menuOpen && (
@@ -106,53 +121,24 @@ export function LocationSlider({
         )}
       </div>
 
-      <div className="hidden lg:grid lg:grid-cols-12 lg:gap-2">
-        {locations.map((location) => {
-          const active = selectedLocation === location.id;
+      <div className="hidden w-full items-center gap-2 overflow-hidden lg:flex">
+        <button
+          type="button"
+          className="inline-flex shrink-0 items-center gap-1 rounded-sm primary-button px-3 py-2 text-[14px] font-semibold text-white"
+        >
+          {filterLabel}
+          <ChevronDown size={12} />
+        </button>
 
-          return (
-            <button
-              key={location.id}
-              type="button"
-              onClick={() => onSelectLocation(location.id)}
-              className={`
-                group flex min-w-0 w-full flex-col items-center justify-center gap-1.5
-                rounded-[8px] border bg-(--bg-card) px-1.5 py-2 shadow-(--shadow-card)
-                transition-all duration-300 hover:-translate-y-[1px]
-                hover:border-(--brand-gold)
-                ${active ? "border-(--brand-gold)" : "border-(--border)"}
-              `}
-            >
-              <span
-                className={`
-                  relative aspect-square w-full overflow-hidden rounded-[6px] border
-                  ${active ? "border-(--brand-gold)" : "border-(--border) group-hover:border-(--brand-gold)/60"}
-                `}
-              >
-                <Image
-                  src={location.image}
-                  alt={location.label}
-                  fill
-                  sizes="80px"
-                  className="object-cover"
-                />
-              </span>
-
-              <span
-                className={`
-                  w-full truncate text-center text-[10px] font-medium
-                  ${
-                    active
-                      ? "text-(--text-primary)"
-                      : "text-(--text-secondary) group-hover:text-(--text-primary)"
-                  }
-                `}
-              >
-                {location.label}
-              </span>
-            </button>
-          );
-        })}
+        {locations.map((location) => (
+          <LocationTab
+            key={location.id}
+            location={location}
+            active={selectedLocation === location.id}
+            onSelect={onSelectLocation}
+            fit
+          />
+        ))}
       </div>
     </>
   );
