@@ -66,7 +66,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
 
                             <TimingsDropdown
                                 summary={item.availability}
-                                buttonClassName="primary-button flex items-center gap-1 rounded-full bg-white/15 px-4 py-1 text-[8px] text-white backdrop-blur-md"
+                                buttonClassName="primary-button flex items-center gap-1 rounded-full bg-white/15 px-2 py-1 text-[8px] text-white backdrop-blur-md"
                                 type="trending-nearby"
                             />
 
@@ -74,19 +74,19 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
                                 <Play size={10} />
                             </button>
 
-                            {/* <button className="flex h-5 w-5 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md">
-                                <Share2 size={12} />
-                            </button> */}
-
-                        </div>
-
-                        <div className="absolute right-2 top-39 z-10">
-
                             <button className="flex primary-button h-5 w-5 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md">
                                 <Share2 size={12} />
                             </button>
 
                         </div>
+
+                        {/* <div className="absolute right-2 top-39 z-10">
+
+                            <button className="flex primary-button h-5 w-5 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md">
+                                <Share2 size={12} />
+                            </button>
+
+                        </div> */}
                     </div>
 
                     <div className="p-2 pb-0">
@@ -104,7 +104,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
 
                             <div>
 
-                                <p className="text-[10px] font-medium h-7 w-17">
+                                <p className="text-[10px] font-medium h-7 w-19">
                                     {item.name}
                                 </p>
 

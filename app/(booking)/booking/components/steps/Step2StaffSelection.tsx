@@ -71,11 +71,36 @@ const swalDefaults = {
   allowEscapeKey: false,
 } as const;
 
-function showBookingWarning(title: string, text: string) {
+function getServiceNumbers(
+  pendingServices: { id: string }[],
+  allServiceIds: string[],
+) {
+  return pendingServices
+    .map((service) => allServiceIds.indexOf(service.id) + 1)
+    .filter((number) => number > 0);
+}
+
+function showBookingWarning(
+  title: string,
+  text: string,
+  serviceNumbers: number[] = [],
+) {
+  const badgesHtml =
+    serviceNumbers.length > 0
+      ? `<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 12px;">
+          ${serviceNumbers
+            .map(
+              (number) =>
+                `<span style="display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:#ffffff;color:#111111;padding:4px 10px;font-size:12px;font-weight:700;line-height:1;">Service-${number}</span>`,
+            )
+            .join("")}
+        </div>`
+      : "";
+
   return Swal.fire({
     icon: "warning",
     title,
-    text,
+    html: `${badgesHtml}<p style="margin:0;font-size:14px;line-height:1.45;">${text}</p>`,
     ...swalDefaults,
   });
 }
@@ -176,6 +201,7 @@ export function Step2StaffSelection({
         pendingStaffServices.length === 1
           ? `Please choose a therapist for ${pendingNames}.`
           : `Please choose a therapist for: ${pendingNames}.`,
+        getServiceNumbers(pendingStaffServices, selectedServiceIds),
       );
       return;
     }
@@ -185,10 +211,11 @@ export function Step2StaffSelection({
         .map((service) => service.name)
         .join(", ");
       await showBookingWarning(
-        "Schedule all services",
+        "Schedule services",
         pendingScheduleServices.length === 1
           ? `Please set a date and time for ${pendingNames}.`
           : `Please set a date and time for: ${pendingNames}.`,
+        getServiceNumbers(pendingScheduleServices, selectedServiceIds),
       );
       return;
     }

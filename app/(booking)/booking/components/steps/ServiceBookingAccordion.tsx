@@ -470,7 +470,7 @@ export function ServiceBookingAccordion({
               onClick={() => handleRemoveService(activeService.id)}
               aria-label={`Remove ${activeService.name}`}
               className="
-                absolute top-2 right-2 z-10 flex h-7 w-7 items-center
+                absolute top-6 right-2 z-10 flex h-7 w-7 items-center
                 justify-center rounded-full text-red-500
                 transition-colors hover:bg-red-500/10
               "

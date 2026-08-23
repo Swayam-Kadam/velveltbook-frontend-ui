@@ -21,6 +21,7 @@ import {
   BookingOrganizationBanner,
   type BookingOrganizationBannerInfo,
 } from "../BookingOrganizationBanner";
+import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import {
   allMenuServices,
   getServicesByCategory,
@@ -193,81 +194,12 @@ export function Step1ServiceSelection({
           serviceLabels={selectedServices.map((service) => service.name)}
         />
 
-        <section className="feature-card overflow-hidden rounded-xl">
-          <div className="flex items-center justify-between border-b border-(--border) px-3 py-2.5">
-            <div className="flex items-center gap-2">
-              <span className="primary-button flex h-7 w-7 items-center justify-center rounded-full">
-                <ShoppingBag size={13} strokeWidth={2} className="text-white" />
-              </span>
-              <div>
-                <p className="text-[11px] font-bold text-(--text-primary)">
-                  Your Cart
-                </p>
-                <p className="text-[8px] font-semibold text-(--text-muted)">
-                  {hasSelection
-                    ? `${selectedServices.length} service${selectedServices.length > 1 ? "s" : ""} added`
-                    : "No services added yet"}
-                </p>
-              </div>
-            </div>
-            {hasSelection && (
-              <p className="text-[12px] font-bold text-(--brand-gold)">
-                ${subtotal}
-              </p>
-            )}
-          </div>
-
-          {hasSelection ? (
-            <div className="space-y-2 p-3">
-              {selectedServices.map((service) => (
-                <article
-                  key={service.id}
-                  className="flex items-center gap-2.5 rounded-sm border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)] p-2"
-                >
-                  <div className="relative h-12 w-14 shrink-0 overflow-hidden rounded-sm">
-                    <Image
-                      src={service.image}
-                      alt={service.name}
-                      fill
-                      sizes="56px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[10px] font-bold text-(--text-primary)">
-                      {service.name}
-                    </p>
-                    <div className="mt-0.5 flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
-                      <Clock3 size={8} />
-                      <span>{service.duration}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="mt-0.5 text-[11px] font-bold text-(--brand-gold)">
-                      {service.priceLabel}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => onToggleService(service.id)}
-                      aria-label={`Remove ${service.name}`}
-                      className="
-                        flex h-6 w-6 shrink-0 items-center justify-center rounded-full
-                        border border-(--border) text-(--text-muted)
-                        transition-colors hover:border-(--accent-primary) hover:text-(--accent-primary)
-                      "
-                    >
-                      <X size={12} strokeWidth={2.5} />
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="px-3 py-4 text-center text-[9px] font-medium text-(--text-muted)">
-              Tap a service below to add to your cart
-            </p>
-          )}
-        </section>
+        <BookingSelectedServicesPanel
+          selectedServiceIds={selectedServiceIds}
+          title="Your Cart"
+          onRemoveService={onToggleService}
+          showOrganizationBanner={false}
+        />
 
         <Button
           variant="primary"

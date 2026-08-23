@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { ShoppingBag, ShoppingBasket, ShoppingCart, X } from "lucide-react";
 
 import { CategorySidebar } from "@/menu/components/CategorySidebar";
 import { MenuProductCard } from "@/menu/components/MenuProductCard";
@@ -43,15 +43,14 @@ export function ProductAddMoreModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-3"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3"
       onClick={onClose}
       role="presentation"
     >
       <div
         className="
-          flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden
-          rounded-t-2xl bg-(--bg-primary) shadow-(--shadow-glow)
-          sm:rounded-2xl
+          flex h-[70dvh] w-full max-w-3xl flex-col overflow-hidden
+          rounded-2xl bg-(--bg-primary) shadow-(--shadow-glow)
         "
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -119,15 +118,24 @@ export function ProductAddMoreModal({
           </div>
         </div>
 
-        <div className="border-t border-(--border) px-3 py-3 lg:px-5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="primary-button w-full rounded-xl py-2.5 text-[12px] font-semibold text-white lg:py-3.5 lg:text-[14px]"
-          >
-            Done ({selectedProductIds.length} selected)
-          </button>
-        </div>
+        <div className="border-t border-(--border) px-3 py-3 lg:px-5 flex items-center gap-3">
+  <div className="flex items-center justify-center relative flex-shrink-0 bg-(--text-primary) p-0.5 rounded-[6px]">
+    <ShoppingCart size={24} className="text-white" />
+    {selectedProductIds.length > 0 && (
+      <span className="absolute -top-1 -right-2 text-[10px] font-semibold text-black bg-(--brand-gold) rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1.5">
+        {selectedProductIds.length}
+      </span>
+    )}
+  </div>
+  
+  <button
+    type="button"
+    onClick={onClose}
+    className="primary-button flex-1 rounded-xl py-2.5 text-[13px] font-semibold text-white lg:py-3.5 lg:text-[15px]"
+  >
+    Done
+  </button>
+</div>
       </div>
     </div>
   );

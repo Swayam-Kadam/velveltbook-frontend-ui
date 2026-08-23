@@ -19,6 +19,10 @@ import {
   Share2,
   ShoppingCart,
   Star,
+  Truck,
+  ShieldCheck,
+  RotateCcw,
+  BadgeCheck,
   UserRound,
   Mars,
   Venus,
@@ -55,8 +59,6 @@ import { SuggestedProductCard } from "./SuggestedProductsRow";
 
 type MenuCatalogTab = "service" | "product";
 type MenuGender = "male" | "female";
-
-const PRODUCT_PREVIEW_PAGE_SIZE = 3;
 
 interface ExtendedOrganizationProfileProps {
   organization: ExtendedOrganization;
@@ -223,13 +225,13 @@ export function ExtendedOrganizationProfile({
     Record<string, { dayId: string; time: string }>
   >({});
   const [page, setPage] = useState(1);
-  const [productPreviewPage, setProductPreviewPage] = useState(1);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [galleryProduct, setGalleryProduct] = useState<
     (typeof allMenuProducts)[number] | null
   >(null);
   const serviceTabsScrollRef = useRef<HTMLDivElement>(null);
   const productPreviewTabsScrollRef = useRef<HTMLDivElement>(null);
+  const productPreviewCardsScrollRef = useRef<HTMLDivElement>(null);
 
   const reviewStats = useMemo(() => {
     const reviews = organization.reviews ?? [];
@@ -275,8 +277,34 @@ export function ExtendedOrganizationProfile({
   ) => {
     const container = ref.current;
     if (!container) return;
-    container.scrollBy({
-      left: direction === "left" ? -180 : 180,
+    const delta =
+      (direction === "left" ? -1 : 1) *
+      Math.max(120, Math.floor(container.clientWidth * 0.65));
+    const next = Math.max(
+      0,
+      Math.min(
+        container.scrollWidth - container.clientWidth,
+        container.scrollLeft + delta,
+      ),
+    );
+    container.scrollTo({ left: next, behavior: "smooth" });
+  };
+
+  const scrollChildIntoView = (
+    container: HTMLDivElement | null,
+    index: number,
+  ) => {
+    if (!container) return;
+    const child = container.children[index] as HTMLElement | undefined;
+    if (!child) return;
+    const containerRect = container.getBoundingClientRect();
+    const childRect = child.getBoundingClientRect();
+    const delta =
+      childRect.left -
+      containerRect.left -
+      (container.clientWidth - child.clientWidth) / 2;
+    container.scrollTo({
+      left: container.scrollLeft + delta,
       behavior: "smooth",
     });
   };
@@ -635,28 +663,20 @@ export function ExtendedOrganizationProfile({
     [selectedProductIds],
   );
 
-  const productPreviewTotalPages = Math.max(
-    1,
-    Math.ceil(selectedProducts.length / PRODUCT_PREVIEW_PAGE_SIZE),
-  );
-  const visibleProductPreviewPage = Math.min(
-    productPreviewPage,
-    productPreviewTotalPages,
-  );
-  const paginatedPreviewProducts = useMemo(() => {
-    const start = (visibleProductPreviewPage - 1) * PRODUCT_PREVIEW_PAGE_SIZE;
-    return selectedProducts.slice(start, start + PRODUCT_PREVIEW_PAGE_SIZE);
-  }, [selectedProducts, visibleProductPreviewPage]);
+  const handleFocusProductTab = (productId: string) => {
+    setPreviewProductId(productId);
+  };
 
   useEffect(() => {
-    setProductPreviewPage(1);
-  }, [selectedProductIds.length, menuTab]);
+    if (!previewProductId) return;
+    const productIndex = selectedProducts.findIndex(
+      (product) => product.id === previewProductId,
+    );
+    if (productIndex < 0) return;
 
-  useEffect(() => {
-    if (productPreviewPage > productPreviewTotalPages) {
-      setProductPreviewPage(productPreviewTotalPages);
-    }
-  }, [productPreviewPage, productPreviewTotalPages]);
+    scrollChildIntoView(productPreviewTabsScrollRef.current, productIndex);
+    scrollChildIntoView(productPreviewCardsScrollRef.current, productIndex);
+  }, [previewProductId, selectedProducts]);
 
   const staffById = useMemo(() => {
     const map: Record<string, (typeof organization.staff)[number]> = {};
@@ -689,12 +709,12 @@ export function ExtendedOrganizationProfile({
     const counts: Record<string, number> = {};
 
     if (menuTab === "service") {
-      for (const service of selectedServices) {
+    for (const service of selectedServices) {
         if (service.categoryId) {
-          counts[service.categoryId] = (counts[service.categoryId] ?? 0) + 1;
+      counts[service.categoryId] = (counts[service.categoryId] ?? 0) + 1;
         }
-      }
-      return counts;
+    }
+    return counts;
     }
 
     for (const productId of selectedProductIds) {
@@ -830,11 +850,11 @@ export function ExtendedOrganizationProfile({
   return (
     <>
       <div className="space-y-4 px-2 pb-32 pt-2 lg:hidden">
-        <HeroBanner
-          images={organization.heroImages}
-          availability={organization.availability}
-          salonName={organization.name}
-          organization={organization}
+      <HeroBanner
+        images={organization.heroImages}
+        availability={organization.availability}
+        salonName={organization.name}
+        organization={organization}
           canBook={canBookMobile}
           bookingUrl={bookingUrl}
           onBookNow={handleBookNowMobile}
@@ -882,33 +902,33 @@ export function ExtendedOrganizationProfile({
             })}
           </div>
 
-        <div className="flex min-h-[420px] overflow-hidden rounded-xl border border-(--border)">
-          <CategorySidebar
+      <div className="flex min-h-[420px] overflow-hidden rounded-xl border border-(--border)">
+        <CategorySidebar
             categories={catalogCategories}
-            activeId={activeCategory}
-            onSelect={handleCategorySelect}
-            selectedCounts={categorySelectedCounts}
-          />
+          activeId={activeCategory}
+          onSelect={handleCategorySelect}
+          selectedCounts={categorySelectedCounts}
+        />
 
-          <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary)">
-            <div className="flex-1 overflow-y-auto scrollbar-none">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary)">
+          <div className="flex-1 overflow-y-auto scrollbar-none">
               <div className="px-2 pb-3 pt-3">
                 <div className="mb-3 flex items-start justify-between gap-2">
-                  <div>
-                    <h1 className="text-xs font-medium text-(--text-primary)">
+                <div>
+                  <h1 className="text-xs font-medium text-(--text-primary)">
                       {menuTab === "service"
                         ? "Select Services"
                         : "Select Products"}
-                    </h1>
-                    <p className="text-[8px] text-(--text-muted)">
+                  </h1>
+                  <p className="text-[8px] text-(--text-muted)">
                       {activeCategoryLabel} · {catalogItems.length} available
                       {menuTab === "service"
                         ? selectedServiceIds.length > 0 &&
                           ` · ${selectedServiceIds.length} selected`
                         : selectedProductIds.length > 0 &&
                           ` · ${selectedProductIds.length} selected`}
-                    </p>
-                  </div>
+                  </p>
+                </div>
 
                   {showMenuGenderToggle ? (
                     <MenuGenderToggle
@@ -916,35 +936,35 @@ export function ExtendedOrganizationProfile({
                       onChange={setMenuGender}
                     />
                   ) : (
-                    <button
-                      type="button"
-                      className="
-                        flex items-center gap-0.5 text-[8px]
-                        text-(--brand-gold) transition-opacity duration-200
-                        hover:opacity-80
-                      "
-                    >
-                      <span>View All</span>
-                      <ArrowRight size={10} strokeWidth={2} />
-                    </button>
+                <button
+                  type="button"
+                  className="
+                    flex items-center gap-0.5 text-[8px]
+                    text-(--brand-gold) transition-opacity duration-200
+                    hover:opacity-80
+                  "
+                >
+                  <span>View All</span>
+                  <ArrowRight size={10} strokeWidth={2} />
+                </button>
                   )}
-                </div>
+              </div>
 
-                <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-3 gap-1.5">
                   {menuTab === "service" ? (
                     paginatedServices.length > 0 ? (
-                      paginatedServices.map((service) => (
-                        <ServiceCard
-                          key={service.id}
-                          compact
-                          service={service}
-                          selected={selectedServiceIds.includes(service.id)}
-                          onSelect={() => toggleService(service.id)}
-                        />
-                      ))
-                    ) : (
-                      <p className="col-span-3 py-8 text-center text-[10px] text-(--text-muted)">
-                        No services in this category yet.
+                  paginatedServices.map((service) => (
+                    <ServiceCard
+                      key={service.id}
+                      compact
+                      service={service}
+                      selected={selectedServiceIds.includes(service.id)}
+                      onSelect={() => toggleService(service.id)}
+                    />
+                  ))
+                ) : (
+                  <p className="col-span-3 py-8 text-center text-[10px] text-(--text-muted)">
+                    No services in this category yet.
                       </p>
                     )
                   ) : paginatedProducts.length > 0 ? (
@@ -960,77 +980,77 @@ export function ExtendedOrganizationProfile({
                   ) : (
                     <p className="col-span-3 py-8 text-center text-[10px] text-(--text-muted)">
                       No products in this category yet.
-                    </p>
-                  )}
-                </div>
-
-                {totalPages > 1 && (
-                  <div className="mt-3 flex items-center justify-end gap-2 pr-1">
-                    <button
-                      type="button"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page === 1}
-                      aria-label="Previous page"
-                      className="
-                        flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px]
-                        font-semibold text-(--text-primary) transition-colors
-                        duration-200 hover:bg-(--bg-primary)
-                        disabled:cursor-not-allowed disabled:opacity-40
-                        disabled:hover:bg-transparent
-                      "
-                    >
-                      <ChevronLeft size={14} strokeWidth={2.5} />
-                      Back
-                    </button>
-
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                        (p) => (
-                          <button
-                            key={p}
-                            type="button"
-                            onClick={() => setPage(p)}
-                            aria-label={`Go to page ${p}`}
-                            aria-current={page === p ? "page" : undefined}
-                            className={`
-                              flex h-6 w-6 items-center justify-center rounded-md
-                              text-[11px] font-bold transition-colors duration-200
-                              ${
-                                page === p
-                                  ? "bg-(--text-primary) text-(--brand-gold)"
-                                  : "text-(--text-primary) hover:bg-(--bg-primary)"
-                              }
-                            `}
-                          >
-                            {p}
-                          </button>
-                        ),
-                      )}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={page === totalPages}
-                      aria-label="Next page"
-                      className="
-                        flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px]
-                        font-semibold text-(--text-primary) transition-colors
-                        duration-200 hover:bg-(--bg-primary)
-                        disabled:cursor-not-allowed disabled:opacity-40
-                        disabled:hover:bg-transparent
-                      "
-                    >
-                      Next
-                      <ChevronRight size={14} strokeWidth={2.5} />
-                    </button>
-                  </div>
+                  </p>
                 )}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="mt-3 flex items-center justify-end gap-2 pr-1">
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    aria-label="Previous page"
+                    className="
+                      flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px]
+                      font-semibold text-(--text-primary) transition-colors
+                      duration-200 hover:bg-(--bg-primary)
+                      disabled:cursor-not-allowed disabled:opacity-40
+                      disabled:hover:bg-transparent
+                    "
+                  >
+                    <ChevronLeft size={14} strokeWidth={2.5} />
+                    Back
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setPage(p)}
+                          aria-label={`Go to page ${p}`}
+                          aria-current={page === p ? "page" : undefined}
+                          className={`
+                            flex h-6 w-6 items-center justify-center rounded-md
+                            text-[11px] font-bold transition-colors duration-200
+                            ${
+                              page === p
+                                ? "bg-(--text-primary) text-(--brand-gold)"
+                                : "text-(--text-primary) hover:bg-(--bg-primary)"
+                            }
+                          `}
+                        >
+                          {p}
+                        </button>
+                      ),
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    aria-label="Next page"
+                    className="
+                      flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px]
+                      font-semibold text-(--text-primary) transition-colors
+                      duration-200 hover:bg-(--bg-primary)
+                      disabled:cursor-not-allowed disabled:opacity-40
+                      disabled:hover:bg-transparent
+                    "
+                  >
+                    Next
+                    <ChevronRight size={14} strokeWidth={2.5} />
+                  </button>
+                </div>
+              )}
               </div>
             </div>
           </div>
         </div>
-        </div>
+      </div>
 
         <section className="space-y-3 pt-1 lg:hidden">
           <div className="flex items-center justify-between">
@@ -1177,55 +1197,55 @@ export function ExtendedOrganizationProfile({
           )}
         </section>
 
-        <div
-          className="
-            fixed inset-x-2 bottom-[85px] z-40 overflow-hidden rounded-xl
-            border border-(--border) bg-(--bg-card)/95 shadow-(--shadow-card)
-            backdrop-blur-xl
-          "
-        >
-          <div className="flex items-stretch">
-            <div className="flex items-center gap-2.5 px-3 py-2.5">
-              <div className="relative shrink-0">
-                <span
-                  className="
-                    primary-button flex h-10 w-10 items-center justify-center
-                    rounded-xl
-                  "
-                >
-                  <ShoppingCart size={18} strokeWidth={2} className="text-white" />
-                </span>
-                {cartCount > 0 && (
-                  <span
-                    className="
-                      absolute -right-1 -top-1 flex h-4 min-w-4 items-center
-                      justify-center rounded-full bg-(--brand-gold) px-1
-                      text-[8px] font-bold text-(--text-primary)
-                    "
-                    aria-label={`${cartCount} items in cart`}
-                  >
-                    {cartCount}
-                  </span>
-                )}
-              </div>
-
-              <div className="min-w-0">
-                {cartCount > 0 && (
-                  <span className="text-sm font-semibold text-(--brand-gold)">
-                    ${totalPrice}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {canBookMobile ? (
-              <Link
-                href={bookingUrl}
+      <div
+        className="
+          fixed inset-x-2 bottom-[85px] z-40 overflow-hidden rounded-xl
+          border border-(--border) bg-(--bg-card)/95 shadow-(--shadow-card)
+          backdrop-blur-xl
+        "
+      >
+        <div className="flex items-stretch">
+          <div className="flex items-center gap-2.5 px-3 py-2.5">
+            <div className="relative shrink-0">
+              <span
                 className="
-                  primary-button flex flex-1 items-center justify-center
-                  rounded-none px-3 py-3 text-[11px] font-semibold text-white
+                  primary-button flex h-10 w-10 items-center justify-center
+                  rounded-xl
                 "
               >
+                <ShoppingCart size={18} strokeWidth={2} className="text-white" />
+              </span>
+                {cartCount > 0 && (
+                <span
+                  className="
+                    absolute -right-1 -top-1 flex h-4 min-w-4 items-center
+                    justify-center rounded-full bg-(--brand-gold) px-1
+                    text-[8px] font-bold text-(--text-primary)
+                  "
+                    aria-label={`${cartCount} items in cart`}
+                >
+                    {cartCount}
+                </span>
+              )}
+            </div>
+
+            <div className="min-w-0">
+                {cartCount > 0 && (
+                <span className="text-sm font-semibold text-(--brand-gold)">
+                  ${totalPrice}
+                </span>
+              )}
+            </div>
+          </div>
+
+            {canBookMobile ? (
+            <Link
+              href={bookingUrl}
+              className="
+                primary-button flex flex-1 items-center justify-center
+                rounded-none px-3 py-3 text-[11px] font-semibold text-white
+              "
+            >
                 Next <ArrowRight size={14} strokeWidth={2.5} />
               </Link>
             ) : (
@@ -1698,7 +1718,7 @@ export function ExtendedOrganizationProfile({
                           </p>
                         </div>
 
-                        {productPreviewTotalPages > 1 && (
+                        {selectedProducts.length > 0 && (
                           <div className="flex min-w-0 flex-1 items-center gap-1.5">
                             <button
                               type="button"
@@ -1708,7 +1728,7 @@ export function ExtendedOrganizationProfile({
                                   "left",
                                 )
                               }
-                              aria-label="Scroll product pages left"
+                              aria-label="Scroll product tabs left"
                               className="
                                 flex h-8 w-8 shrink-0 items-center justify-center rounded-full
                                 border border-(--border) bg-(--bg-card) text-(--text-primary)
@@ -1720,38 +1740,36 @@ export function ExtendedOrganizationProfile({
 
                             <div
                               ref={productPreviewTabsScrollRef}
-                              className="scrollbar-none flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto scroll-smooth"
+                              className="
+                                scrollbar-none scrollbar-thumb-(--accent-primary)
+                                scrollbar-track-transparent flex min-w-0 flex-1
+                                snap-x snap-mandatory items-center gap-1.5 overflow-x-auto
+                                overflow-y-hidden scroll-smooth pb-1
+                              "
                             >
-                              {Array.from(
-                                { length: productPreviewTotalPages },
-                                (_, index) => {
-                                  const page = index + 1;
-                                  const active =
-                                    page === visibleProductPreviewPage;
+                              {selectedProducts.map((product, index) => {
+                                const isActive = product.id === previewProductId;
 
-                                  return (
-                                    <button
-                                      key={page}
-                                      type="button"
-                                      onClick={() =>
-                                        setProductPreviewPage(page)
+                                return (
+                                  <button
+                                    key={product.id}
+                                    type="button"
+                                    onClick={() => handleFocusProductTab(product.id)}
+                                    aria-pressed={isActive}
+                                    className={`
+                                      shrink-0 snap-start rounded-full border px-2.5 py-1
+                                      text-[11px] font-semibold transition-colors
+                                      ${
+                                        isActive
+                                          ? "border-(--brand-gold) bg-[color-mix(in_srgb,var(--brand-gold)_14%,transparent)] text-(--brand-gold)"
+                                          : "border-(--border) bg-(--bg-card) text-(--text-secondary) hover:border-(--brand-gold)/50 hover:text-(--text-primary)"
                                       }
-                                      aria-pressed={active}
-                                      className={`
-                                        shrink-0 rounded-full border px-2.5 py-1
-                                        text-[11px] font-semibold transition-colors
-                                        ${
-                                          active
-                                            ? "border-(--brand-gold) bg-[color-mix(in_srgb,var(--brand-gold)_14%,transparent)] text-(--brand-gold)"
-                                            : "border-(--border) bg-(--bg-card) text-(--text-secondary) hover:border-(--brand-gold)/50 hover:text-(--text-primary)"
-                                        }
-                                      `}
-                                    >
-                                      Page-{page}
-                                    </button>
-                                  );
-                                },
-                              )}
+                                    `}
+                                  >
+                                    Product-{index + 1}
+                                  </button>
+                                );
+                              })}
                             </div>
 
                             <button
@@ -1762,7 +1780,7 @@ export function ExtendedOrganizationProfile({
                                   "right",
                                 )
                               }
-                              aria-label="Scroll product pages right"
+                              aria-label="Scroll product tabs right"
                               className="
                                 flex h-8 w-8 shrink-0 items-center justify-center rounded-full
                                 border border-(--border) bg-(--bg-card) text-(--text-primary)
@@ -1775,30 +1793,126 @@ export function ExtendedOrganizationProfile({
                         )}
                       </div>
 
-                      <div className="grid flex-1 grid-cols-1 content-start gap-3 p-3 sm:grid-cols-2 lg:grid-cols-3">
-                        {paginatedPreviewProducts.map((product) => {
-                          const qty = productQuantities[product.id] ?? 1;
-                          const isActive = product.id === previewProductId;
+                      <div className="flex min-h-0 flex-1 items-stretch gap-1.5 p-3 pt-0">
+                        {/* <button
+                          type="button"
+                          onClick={() =>
+                            scrollPreviewTabs(
+                              productPreviewCardsScrollRef,
+                              "left",
+                            )
+                          }
+                          aria-label="Scroll products left"
+                          className="
+                            mb-1 flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full
+                            border border-(--border) bg-(--bg-card) text-(--text-primary)
+                            transition-colors hover:border-(--brand-gold)
+                          "
+                        >
+                          <ChevronLeft size={16} strokeWidth={2.5} />
+                        </button> */}
 
-                          return (
-                            <SuggestedProductCard
-                              key={product.id}
-                              product={product}
-                              quantity={qty}
-                              isActive={isActive}
-                              onQuantityChange={(nextQty) =>
-                                updateProductQuantity(product.id, nextQty)
-                              }
-                              onRemove={() =>
-                                removeProductFromSelection(product.id)
-                              }
-                            />
-                          );
-                        })}
+                        <div
+                          ref={productPreviewCardsScrollRef}
+                          className="
+                            scrollbar-thin scrollbar-thumb-(--accent-primary)
+                            scrollbar-track-transparent flex min-h-0 min-w-0 flex-1
+                            snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden
+                            scroll-smooth pb-1
+                          "
+                        >
+                          {selectedProducts.map((product) => {
+                            const qty = productQuantities[product.id] ?? 1;
+                            const isActive = product.id === previewProductId;
+
+                            return (
+                              <SuggestedProductCard
+                                key={product.id}
+                                product={product}
+                                quantity={qty}
+                                isActive={isActive}
+                                className="
+                                  h-full min-h-[320px] shrink-0 snap-start
+                                  basis-[calc((100%-1.5rem)/3)]
+                                "
+                                onQuantityChange={(nextQty) =>
+                                  updateProductQuantity(product.id, nextQty)
+                                }
+                                onRemove={() =>
+                                  removeProductFromSelection(product.id)
+                                }
+                              />
+                            );
+                          })}
+                        </div>
+
+                        {/* <button
+                          type="button"
+                          onClick={() =>
+                            scrollPreviewTabs(
+                              productPreviewCardsScrollRef,
+                              "right",
+                            )
+                          }
+                          aria-label="Scroll products right"
+                          className="
+                            mb-1 flex h-8 w-8 shrink-0 self-center items-center justify-center rounded-full
+                            border border-(--border) bg-(--bg-card) text-(--text-primary)
+                            transition-colors hover:border-(--brand-gold)
+                          "
+                        >
+                          <ChevronRight size={16} strokeWidth={2.5} />
+                        </button> */}
                       </div>
                     </div>
                   )}
                 </section>
+                )}
+
+                {isProductFlow && (
+                  <section className="overflow-hidden rounded-[16px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
+                    <div className="grid grid-cols-4 divide-x divide-(--border)">
+                      {[
+                        {
+                          icon: Truck,
+                          title: "Free Delivery",
+                          subtitle: "On orders over $50",
+                        },
+                        {
+                          icon: BadgeCheck,
+                          title: "Genuine Products",
+                          subtitle: "100% authentic items",
+                        },
+                        {
+                          icon: RotateCcw,
+                          title: "Easy Returns",
+                          subtitle: "7-day return policy",
+                        },
+                        {
+                          icon: ShieldCheck,
+                          title: "Secure Payment",
+                          subtitle: "Safe & encrypted",
+                        },
+                      ].map(({ icon: Icon, title, subtitle }) => (
+                        <div
+                          key={title}
+                          className="flex items-center gap-2.5 px-3 py-3 xl:px-4"
+                        >
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent-primary)_10%,transparent)] text-(--accent-primary)">
+                            <Icon size={16} strokeWidth={2} />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="truncate text-[12px] font-semibold text-(--text-primary)">
+                              {title}
+                            </p>
+                            <p className="truncate text-[10px] text-(--text-muted)">
+                              {subtitle}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
                 )}
 
                 {!isProductFlow && (
@@ -1973,15 +2087,20 @@ export function ExtendedOrganizationProfile({
                 </section> */}
               </div>
 
-              <aside className="order-3 xl:order-none">
-                <div className="space-y-5">
-                  <div className="rounded-[var(--radius-lg)] border border-(--border) bg-(--bg-card) p-4 shadow-[var(--shadow-card)] lg:p-5">
+              <aside className="order-3 flex h-full min-h-0 flex-col xl:order-none">
+                <div className="flex min-h-0 flex-1 flex-col space-y-5">
+                  <div className="flex min-h-0 flex-1 flex-col rounded-[var(--radius-lg)] border border-(--border) bg-(--bg-card) p-4 shadow-[var(--shadow-card)] lg:p-5">
                     <MenuCatalogTabs
                       active={menuTab}
                       onChange={handleMenuTabChange}
                     />
 
-                    <div className="flex min-h-[520px] overflow-hidden rounded-xl border border-(--border)">
+                    <div
+                      className={`
+                        flex min-h-0 flex-1 overflow-hidden rounded-xl border border-(--border)
+                        ${isProductFlow ? "min-h-[640px]" : "min-h-[520px]"}
+                      `}
+                    >
                       <CategorySidebar
                         categories={catalogCategories}
                         activeId={activeCategory}
@@ -2191,18 +2310,18 @@ export function ExtendedOrganizationProfile({
               <button
                 type="button"
                 onClick={() => handleNext({ requireStaff: true })}
-                className="
-                  primary-button flex flex-1 items-center justify-center
-                  rounded-none px-3 py-3 text-[11px] font-semibold text-white
-                  opacity-60
-                "
-              >
+              className="
+                primary-button flex flex-1 items-center justify-center
+                rounded-none px-3 py-3 text-[11px] font-semibold text-white
+                opacity-60
+              "
+            >
                 NEXT <ArrowRight size={14} strokeWidth={2.5} />
-              </button>
-            )}
-          </div>
+            </button>
+          )}
         </div>
       </div>
+    </div>
 
       <ServiceDateTimeModal
         isOpen={dateTimeModalOpen}

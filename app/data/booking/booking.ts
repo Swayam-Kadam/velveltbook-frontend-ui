@@ -113,7 +113,7 @@ export function getBookingSeat(id: string) {
 
 export const timeSlots = [...STUDIO_BOOKING_TIME_SLOTS];
 
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MONTHS = [
   "Jan",
   "Feb",

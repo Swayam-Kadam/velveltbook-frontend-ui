@@ -441,14 +441,14 @@ export function Step4PaymentConfirmation({
                         className="object-cover"
                       />
         </div>
-                    <div className="p-1.5">
-                      <p className="truncate text-[8px] font-bold text-(--text-primary)">
+                    <div className="p-1">
+                      <p className=" text-[10px] font-bold text-(--text-primary) h-10">
                         {product.name}
                       </p>
-                      <p className="mt-0.5 text-[7px] font-semibold text-(--text-secondary)">
+                      <p className="mt-0.5 text-[9px] font-semibold text-(--text-secondary)">
                         Qty {qty}
                       </p>
-                      <p className="mt-0.5 text-[9px] font-bold text-(--brand-gold)">
+                      <p className="mt-0.5 text-[10px] font-bold text-(--brand-gold)">
                         ${(product.price * qty).toFixed(2)}
                       </p>
                     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 
 import type { MenuProduct } from "../menu.data";
 
@@ -89,13 +89,15 @@ export function MenuProductCard({
               selected ? `Remove ${product.title}` : `Add ${product.title}`
             }
             className={`
-              inline-flex h-6 items-center justify-center gap-0.5 rounded-[8px] px-2
-              text-[9px] font-semibold text-white transition-opacity hover:opacity-90
+              inline-flex h-6 items-center justify-between gap-0.5 rounded-[8px] px-2 w-full
+              text-[9px] font-semibold text-white transition-opacity hover:opacity-90 
               ${selected ? "bg-(--accent-primary)" : "bg-[#5b2a86]"}
             `}
           >
-            <Plus size={10} strokeWidth={2.5} />
             {selected ? "Added" : ButtonText === "add" ? "Add" : "Buy"}
+            <span className="bg-white p-0.5 rounded-full">
+            {selected ? <Check size={13} strokeWidth={2.5} className="bg-(--brand-gold) p-0.5 rounded-full" /> : <Plus size={13} strokeWidth={2.5} className="bg-(--brand-gold) p-0.5 rounded-full" />}
+            </span>
           </button>
         </div>
       </div>

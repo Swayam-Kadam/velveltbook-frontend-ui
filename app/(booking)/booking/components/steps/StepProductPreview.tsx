@@ -134,7 +134,7 @@ function SelectedProductCard({
     original > 0 ? Math.round(((original - price) / original) * 100) : 0;
 
   return (
-    <article className="flex w-[200px] shrink-0 flex-col overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)] lg:w-[220px]">
+    <article className="flex w-[160px] shrink-0 flex-col overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)] lg:w-[220px]">
       <div className="relative aspect-4/3 w-full overflow-hidden bg-(--bg-secondary)">
         <Image
           src={image}
@@ -295,7 +295,8 @@ function ProductPreviewCarousel({
 
         <div
           ref={tabsScrollRef}
-          className="scrollbar-none flex min-w-0 gap-2 overflow-x-auto overflow-y-hidden px-10 scroll-smooth"
+          className="scrollbar-none flex min-w-0 gap-2 overflow-x-auto overflow-y-hidden  scroll-smooth"
+          style={{ paddingLeft: "40px", paddingRight: "40px" }}
         >
           {selectedProducts.map((product, index) => {
             const active = index === activeIndex;
@@ -353,7 +354,7 @@ function ProductPreviewCarousel({
 
         <div
           ref={cardsScrollRef}
-          className="scrollbar-none flex min-w-0 gap-3 overflow-x-auto overflow-y-hidden px-10 scroll-smooth"
+          className="scrollbar-none flex min-w-0 gap-1 overflow-x-auto overflow-y-hidden px-10 scroll-smooth"
         >
           {selectedProducts.map((product) => (
             <SelectedProductCard
@@ -551,7 +552,7 @@ export function StepProductPreview({
             </div>
           </div>
 
-          <div className="space-y-3 p-3">
+          <div className="space-y-3 p-1">
             {hasSelection ? (
               previewCarousel
             ) : (

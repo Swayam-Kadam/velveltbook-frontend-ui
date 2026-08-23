@@ -38,6 +38,10 @@ import {
   type SuggestedService,
 } from "@/data/booking/my-bookings";
 import { buildBookingUrl } from "@/booking/booking.navigation";
+import {
+  BookingPreviewCards,
+  parseDateLabelForPreview,
+} from "@/booking/components/BookingPreviewCards";
 import { allMenuServices } from "@/data/catalog/menu/services";
 import { SHARED_STAFF } from "@/data/shared/staff";
 
@@ -490,6 +494,7 @@ function BookingCard({
   });
 
   const staff = getStaffForBooking(booking.therapist);
+  const datePreview = parseDateLabelForPreview(booking.date);
 
   return (
     <article className="feature-card overflow-hidden rounded-xl">
@@ -507,71 +512,20 @@ function BookingCard({
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-1">
-        <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
-          <div className="relative aspect-square w-full overflow-hidden">
-            <Image
-              src={booking.image}
-              alt={booking.service}
-              fill
-              sizes="120px"
-              className="object-cover"
-            />
-            <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
-              Service
-            </span>
-          </div>
-          <p className="break-words px-1 py-1 text-center text-[9px] font-bold leading-tight text-(--text-primary)">
-            {booking.service}
-          </p>
-        </div>
-
-        <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
-          <div className="relative aspect-square w-full overflow-hidden">
-            <Image
-              src={staff.image}
-              alt={staff.name}
-              fill
-              sizes="120px"
-              className="object-cover"
-            />
-            <span className="absolute bottom-1 left-1 rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-[7px] font-semibold text-(--text-primary)">
-              Therapist
-            </span>
-          </div>
-          <p className="break-words px-1 py-1 text-center text-[10px] font-bold leading-tight text-(--text-primary)">
-            {booking.therapist}
-          </p>
-        </div>
-
-        <div className="overflow-hidden rounded-sm border border-(--border) bg-(--bg-secondary)">
-          <div className="relative flex aspect-square w-full flex-col items-center justify-center gap-0.5 px-1">
-            <span className="flex items-center gap-0.5 text-[10px] font-bold text-(--text-primary)">
-              <CalendarDays
-                size={10}
-                className="shrink-0 text-(--accent-primary)"
-              />
-              {getBookingWeekday(booking.date)}
-            </span>
-            <span className="text-[10px] font-semibold text-(--text-primary)">
-              {getBookingDateShort(booking.date)}
-            </span>
-            <span className="flex items-center gap-0.5 text-[10px] font-bold text-(--text-primary)">
-              <Clock3
-                size={10}
-                className="shrink-0 text-(--accent-primary)"
-              />
-              {booking.time}
-            </span>
-            <span className="absolute bottom-1 w-full rounded-md bg-(--bg-card)/90 px-1 py-0.5 text-center text-[8px] font-semibold text-(--text-primary)">
-              Date & Time
-            </span>
-          </div>
-          <p className="break-words px-1 py-1 text-center text-[13px] font-bold leading-tight text-(--brand-gold)">
-            {booking.price}
-          </p>
-        </div>
-      </div>
+      <BookingPreviewCards
+        serviceName={booking.service}
+        serviceImage={booking.image}
+        serviceDuration={booking.duration ?? "—"}
+        servicePriceLabel={booking.price}
+        staffName={booking.therapist}
+        staffImage={staff.image}
+        monthLabel={datePreview.monthLabel}
+        dateLabel={datePreview.dateLabel}
+        weekdayLabel={datePreview.weekdayLabel}
+        timeLabel={booking.time}
+        scheduled={datePreview.scheduled}
+        totalAmountLabel={booking.price}
+      />
 
       <div className="mt-2.5 flex gap-2 border-t border-(--border) pt-2.5">
         <button

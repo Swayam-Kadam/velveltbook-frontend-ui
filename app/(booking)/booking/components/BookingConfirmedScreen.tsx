@@ -49,6 +49,7 @@ import {
   timeSlots,
 } from "../booking.data";
 import { ExpertProfileModal } from "./ExpertProfileModal";
+import { BookingPreviewCards } from "./BookingPreviewCards";
 import type {
   ServiceSchedule,
   ServiceSchedules,
@@ -1182,81 +1183,47 @@ export function BookingConfirmedScreen({
                 </p>
               </div>
 
-              <div className="flex items-stretch gap-2">
-                <article className="relative w-[108px] shrink-0 overflow-hidden rounded-sm">
-                  <div className="relative h-[148px] w-full">
-                    <Image
-                      src={activeItem.image}
-                      alt={activeItem.name}
-                      fill
-                      sizes="108px"
-                      className="object-cover"
-                    />
-                    {!isEditing && (
-                      <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white text-(--text-secondary) shadow-sm">
-                        <X size={9} strokeWidth={2.8} />
-                      </span>
-                    )}
-                    <div className="absolute inset-x-0 bottom-0 bg-[#EFE4D4]/92 px-1.5 py-1.5">
-                      <p className="truncate text-[11px] font-bold text-(--text-primary)">
-                        {activeItem.name}
-                      </p>
-                      <p className="mt-0.5 flex items-center justify-between gap-1 text-[10px]">
-                        <span className="inline-flex items-center gap-0.5 text-(--text-secondary)">
-                          <Clock3 size={9} />
-                          {activeItem.meta}
-                        </span>
-                        <span className="font-bold text-(--brand-gold)">
-                          ${activeItem.price}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </article>
+              {(() => {
+                const activeSchedule =
+                  activeItem.kind === "service"
+                    ? displaySchedules[activeItem.id]
+                    : undefined;
+                const activeScheduled = Boolean(
+                  activeSchedule &&
+                    isServiceScheduleComplete(activeSchedule),
+                );
+                const activeBookingDay = activeScheduled
+                  ? getBookingDay(activeSchedule!.dayId)
+                  : null;
 
-                {activeItem.staff ? (
-                  <article className="flex h-[148px] w-[86px] shrink-0 flex-col overflow-hidden rounded-sm border border-(--brand-gold)/50 bg-white">
-                    <div className="relative min-h-0 flex-1">
-                      <Image
-                        src={activeItem.staff.image}
-                        alt={activeItem.staff.name}
-                        fill
-                        sizes="86px"
-                        className="object-cover object-top"
-                      />
-                    </div>
-                    <div className="border-t border-(--brand-gold)/45 px-1 py-1.5 text-center">
-                      <p className="truncate text-[12px] font-bold text-(--text-primary)">
-                        {activeItem.staff.name}
-                      </p>
-                      <p className="text-[9px] font-medium text-(--text-muted)">
-                        {activeItem.staff.experience}
-                      </p>
-                    </div>
-                  </article>
-                ) : null}
-
-                <div className="min-w-0 flex-1 pt-0.5">
-                  {activeItem.scheduleLabel ? (
-                    <p className="mb-1.5 text-[10px] text-(--text-muted)">
-                      {activeItem.scheduleLabel}
-                    </p>
-                  ) : null}
-                  <div className="space-y-1 text-[10px] text-(--text-secondary)">
-                    <p>Subtotal (${activeItem.price})</p>
-                    <p>Taxes &amp; Fees (${activeItem.tax})</p>
-                    <p>Additional Charges (${activeItem.additional})</p>
-                  </div>
-                  <div className="mt-1.5 flex items-end justify-between border-t border-(--border) pt-1.5">
-                    <span className="text-[11px] font-semibold text-(--text-primary)">
-                      Total Amount
-                    </span>
-                    <span className="text-[18px] leading-none font-bold text-(--text-primary)">
-                      ${activeItem.total}
-                    </span>
-                  </div>
-                </div>
-              </div>
+                return (
+                  <BookingPreviewCards
+                    serviceName={activeItem.name}
+                    serviceImage={activeItem.image}
+                    serviceDuration={activeItem.meta}
+                    servicePriceLabel={`$${activeItem.price}`}
+                    staffName={activeItem.staff?.name}
+                    staffImage={activeItem.staff?.image}
+                    monthLabel={
+                      activeBookingDay
+                        ? new Date(
+                            `${activeBookingDay.date}, ${new Date().getFullYear()}`,
+                          ).toLocaleDateString("en-US", {
+                            month: "long",
+                            year: "numeric",
+                          })
+                        : "Date & Time"
+                    }
+                    dateLabel={activeBookingDay?.date}
+                    weekdayLabel={activeBookingDay?.weekday}
+                    timeLabel={
+                      activeScheduled ? activeSchedule!.time : undefined
+                    }
+                    scheduled={activeScheduled && Boolean(activeBookingDay)}
+                    totalAmountLabel={`$${activeItem.total}`}
+                  />
+                );
+              })()}
             </div>
           )}
 
@@ -1266,28 +1233,24 @@ export function BookingConfirmedScreen({
                 <button
                   type="button"
                   onClick={() => openServicePicker("replace")}
-                  className="flex min-h-[88px] flex-col items-start justify-between rounded-xl border border-[#2D1659]/70 bg-white px-2.5 py-2.5 text-left"
+                  className="flex items-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
                 >
-                  <ShoppingBag size={18} strokeWidth={1.8} className="text-[#2D1659]" />
-                  <span className="mt-2 flex w-full items-end justify-between gap-1">
-                    <span className="text-[11px] leading-tight font-semibold text-(--text-primary)">
-                      Change Services
-                    </span>
-                    <ChevronRight size={14} className="mt-0.5 shrink-0 text-[#2D1659]" />
+                  <ShoppingBag size={14} strokeWidth={2} className="shrink-0" />
+                  <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
+                    Change Service
                   </span>
+                  <ChevronRight size={12} strokeWidth={2.5} className="shrink-0" />
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditPanel("staff")}
-                  className="flex min-h-[88px] flex-col items-start justify-between rounded-xl border border-[#2D1659]/70 bg-white px-2.5 py-2.5 text-left"
+                  className="flex items-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
                 >
-                  <UserRound size={18} strokeWidth={1.8} className="text-[#2D1659]" />
-                  <span className="mt-2 flex w-full items-end justify-between gap-1">
-                    <span className="text-[11px] leading-tight font-semibold text-(--text-primary)">
-                      Change Staff / Therapist
-                    </span>
-                    <ChevronRight size={14} className="mt-0.5 shrink-0 text-[#2D1659]" />
+                  <UserRound size={14} strokeWidth={2} className="shrink-0" />
+                  <span className="min-w-0 flex-1 text-[8px] font-semibold leading-tight">
+                    Change Staff
                   </span>
+                  <ChevronRight size={12} strokeWidth={2.5} className="shrink-0" />
                 </button>
                 <button
                   type="button"
@@ -1295,15 +1258,13 @@ export function BookingConfirmedScreen({
                     beginChange();
                     setEditPanel("datetime");
                   }}
-                  className="flex min-h-[88px] flex-col items-start justify-between rounded-xl border border-[#2D1659]/70 bg-white px-2.5 py-2.5 text-left"
+                  className="flex items-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
                 >
-                  <CalendarClock size={18} strokeWidth={1.8} className="text-[#2D1659]" />
-                  <span className="mt-2 flex w-full items-end justify-between gap-1">
-                    <span className="text-[11px] leading-tight font-semibold text-(--text-primary)">
-                      Change Date & Time
-                    </span>
-                    <ChevronRight size={14} className="mt-0.5 shrink-0 text-[#2D1659]" />
+                  <CalendarClock size={14} strokeWidth={2} className="shrink-0" />
+                  <span className="min-w-0 flex-1 text-[8px] font-semibold leading-tight">
+                    Date &amp; Time
                   </span>
+                  <ChevronRight size={12} strokeWidth={2.5} className="shrink-0" />
                 </button>
               </div>
 

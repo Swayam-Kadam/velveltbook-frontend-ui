@@ -63,7 +63,7 @@ export function TrendingNearbyActions({ store }: TrendingNearbyActionsProps) {
         className="flex h-8 w-8 items-center justify-center rounded-[4px] border border-(--border) bg-(--bg-card) transition-colors hover:border-(--accent-primary)/40"
       >
         <Bookmark
-          size={14}
+          size={23}
           className={
             saved
               ? "fill-(--accent-primary) text-(--accent-primary)"

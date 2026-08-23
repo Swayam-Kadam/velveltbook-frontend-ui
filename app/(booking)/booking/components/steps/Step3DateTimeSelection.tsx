@@ -50,6 +50,7 @@ import type {
 } from "../../booking.types";
 import { filterTimesByPeriod, getTimePeriod } from "../../lib/scheduleUtils";
 import { BookingMonthCalendar } from "./BookingMonthCalendar";
+import { BookingPreviewCards } from "../BookingPreviewCards";
 
 interface Step3DateTimeSelectionProps {
   selectedServiceIds: string[];
@@ -80,27 +81,6 @@ const swalDefaults = {
   allowOutsideClick: false,
   allowEscapeKey: false,
 } as const;
-
-function ChangeBoxButton({
-  visible,
-  onClick,
-}: {
-  visible: boolean;
-  onClick: () => void;
-}) {
-  if (!visible) return null;
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full items-center justify-center gap-1 bg-(--text-primary) text-[12px] font-bold text-white"
-    >
-      <Pencil size={12} />
-      Change
-    </button>
-  );
-}
 
 function ChangeServiceMenuModal({
   selectedServiceIds,
@@ -709,114 +689,33 @@ export function Step3DateTimeSelection({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">
-                        <div className="relative h-[100px] w-full overflow-hidden bg-(--bg-card-hover)">
-                          <Image
-                            src={service.image}
-                            alt={service.name}
-                            width={240}
-                            height={180}
-                            sizes="140px"
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                        <div className="flex flex-1 flex-col space-y-2 p-2 pt-2">
-                          <p className="min-h-[2.8rem] text-[10px] font-bold leading-tight text-(--text-primary)">
-                            {service.name}
-                          </p>
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
-                              <Clock3 size={10} className="shrink-0" />
-                              {service.duration}
-                            </span>
-                            <span className="text-[12px] font-bold text-(--brand-gold)">
-                              {service.priceLabel}
-                            </span>
-                          </div>
-                        </div>
-                        <ChangeBoxButton
-                          visible={isEditMode}
-                          onClick={() => setShowServiceModal(true)}
-                        />
-                      </div>
-
-                      <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">
-                        <div className="relative h-[100px] w-full overflow-hidden bg-(--bg-card-hover)">
-                          <Image
-                            src={assigned?.image ?? staff.image}
-                            alt={assigned?.name ?? "Therapist"}
-                            width={240}
-                            height={180}
-                            sizes="140px"
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                        <div className="flex flex-1 flex-col p-2 pt-2">
-                          <p className="text-center text-[11px] font-bold text-(--text-primary)">
-                            {assigned?.name ?? "Not selected"}
-                          </p>
-                        </div>
-                        <ChangeBoxButton
-                          visible={isEditMode}
-                          onClick={() => setShowTherapistModal(true)}
-                        />
-                      </div>
-
-                      <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">
-                        <div className="flex flex-1 flex-col overflow-hidden">
-                          <div className="bg-(--accent-primary) px-2 py-2 text-center">
-                            <p className="text-[8px] font-semibold uppercase tracking-wide text-white">
-                              {bookingDay
-                                ? new Date(
-                                    `${bookingDay.date}, ${new Date().getFullYear()}`,
-                                  ).toLocaleDateString("en-US", {
-                                    month: "long",
-                                    year: "numeric",
-                                  })
-                                : "Date & Time"}
-                            </p>
-                          </div>
-
-                          <div className="flex flex-1 flex-col items-center justify-center bg-(--bg-card) py-2 text-center">
-                            {scheduled && bookingDay ? (
-                              <>
-                                <span className="mt-4 mb-4 text-[34px] font-bold leading-none text-(--accent-primary)">
-                                  {bookingDay.date}
-                                </span>
-                                <span className="mt-2 w-full bg-(--accent-primary) px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
-                                  {bookingDay.weekday}
-                                </span>
-                                <span className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-(--text-primary)">
-                                  <Clock3
-                                    size={10}
-                                    className="shrink-0 text-(--accent-primary)"
-                                  />
-                                  {schedule.time}
-                                </span>
-                              </>
-                            ) : (
-                              <p className="px-2 text-[9px] font-semibold leading-tight text-(--text-muted)">
-                                Not scheduled
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <ChangeBoxButton
-                          visible={isEditMode}
-                          onClick={() => setShowDateTimeModal(true)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mt-3 flex items-center justify-between border-t border-(--border) pt-2">
-                      <div className="flex items-center gap-1 text-[9px] font-semibold text-(--text-primary)">
-                        <span>Total Amount</span>
-                      </div>
-                      <span className="text-[16px] font-bold text-(--accent-primary)">
-                        {service.priceLabel}
-                      </span>
-                    </div>
+                    <BookingPreviewCards
+                      serviceName={service.name}
+                      serviceImage={service.image}
+                      serviceDuration={service.duration}
+                      servicePriceLabel={service.priceLabel}
+                      staffName={assigned?.name ?? null}
+                      staffImage={assigned?.image ?? staff.image}
+                      monthLabel={
+                        bookingDay
+                          ? new Date(
+                              `${bookingDay.date}, ${new Date().getFullYear()}`,
+                            ).toLocaleDateString("en-US", {
+                              month: "long",
+                              year: "numeric",
+                            })
+                          : "Date & Time"
+                      }
+                      dateLabel={bookingDay?.date}
+                      weekdayLabel={bookingDay?.weekday}
+                      timeLabel={scheduled ? schedule.time : undefined}
+                      scheduled={scheduled && Boolean(bookingDay)}
+                      showChangeButtons={isEditMode}
+                      onChangeService={() => setShowServiceModal(true)}
+                      onChangeStaff={() => setShowTherapistModal(true)}
+                      onChangeDateTime={() => setShowDateTimeModal(true)}
+                      totalAmountLabel={service.priceLabel}
+                    />
                   </article>
                 );
               })()
