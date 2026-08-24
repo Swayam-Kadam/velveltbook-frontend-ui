@@ -1070,7 +1070,7 @@ export function BookingConfirmedScreen({
                 {org.address ?? bookingLocation.address}
               </p>
             </div>
-            {!isEditing && (
+            {!isEditing && detailView !== "chat" && (
               <button
                 type="button"
                 aria-label="Message store"

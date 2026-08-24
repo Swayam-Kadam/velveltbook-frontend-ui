@@ -118,12 +118,12 @@ export function BookingPreviewCards({
             <span className="w-full bg-(--accent-primary) px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
               Staff
             </span>
-            <div className="flex items-center justify-center gap-0.5 p-1">
+            <div className="flex items-center justify-center gap-0.5 pt-2">
             <Star
-              size={15}
+              size={10}
               className="fill-(--brand-gold) text-(--brand-gold)"
             />
-            <span className="font-medium text-(--text-primary)">
+            <span className=" text-[11px] text-(--text-primary)">
               4.5
             </span>
           </div>
@@ -142,7 +142,7 @@ export function BookingPreviewCards({
             <div className="flex flex-1 flex-col items-center justify-center bg-(--bg-card) py-2 text-center">
               {scheduled && dateLabel ? (
                 <>
-                  <span className="mt-8 mb-4 text-[25px] font-bold leading-none text-(--accent-primary) h-8">
+                  <span className="mt-6 mb-4.5 text-[25px] font-bold leading-none text-(--accent-primary) h-8">
                     {dateLabel}
                   </span>
                   {weekdayLabel ? (
