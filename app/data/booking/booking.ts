@@ -194,13 +194,13 @@ export function buildBookingDays(from = new Date()): BookingDay[] {
   ) {
     const monthLabel = MONTHS[cursor.getMonth()];
     const dayOfMonth = cursor.getDate();
-    const isToday = cursor.getTime() === startOfToday.getTime();
+    // const isToday = cursor.getTime() === startOfToday.getTime();
     const iso = formatBookingDayId(cursor);
 
     days.push({
       id: iso,
       iso,
-      weekday: isToday ? "Today" : WEEKDAYS[cursor.getDay()],
+      weekday:  WEEKDAYS[cursor.getDay()],
       date: `${monthLabel} ${dayOfMonth}`,
     });
   }
