@@ -57,6 +57,7 @@ import type {
 } from "../booking.types";
 import type { BookingOrganizationBannerInfo } from "./BookingOrganizationBanner";
 import { BookingConfirmedReceipt } from "./BookingConfirmedReceipt";
+import type { ReceiptLineItem } from "./BookingConfirmedReceipt";
 import { BookingStoreChat } from "./BookingStoreChat";
 import { BookingMonthCalendar } from "./steps/BookingMonthCalendar";
 
@@ -65,7 +66,7 @@ const CANCEL_WINDOW_SECONDS = 7 * 60;
 type TimePeriod = "AM" | "PM";
 type ServicePickerMode = "add" | "replace";
 type EditPanel = null | "services" | "staff" | "datetime";
-type DetailView = "services" | "receipt" | "chat";
+type DetailView = "services" | "chat";
 
 interface EditDraft {
   serviceIds: string[];
@@ -567,6 +568,81 @@ function RescheduleModal({
   );
 }
 
+function ReceiptModal({
+  storeName,
+  storeAddress,
+  docketNo,
+  serialNo,
+  dateLabel,
+  servedBy,
+  customerName,
+  customerPhone,
+  paymentMethod,
+  items,
+  onClose,
+}: {
+  storeName: string;
+  storeAddress: string;
+  docketNo: string;
+  serialNo: string;
+  dateLabel: string;
+  servedBy: string;
+  customerName: string;
+  customerPhone: string;
+  paymentMethod: string;
+  items: ReceiptLineItem[];
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-3"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="flex max-h-[83dvh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-(--bg-primary) shadow-(--shadow-glow)"
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="receipt-modal-title"
+      >
+        <div className="flex shrink-0 items-center justify-between border-b border-(--border) px-4 py-3">
+          <h3
+            id="receipt-modal-title"
+            className="text-[15px] font-bold text-(--text-primary)"
+          >
+            Tax Invoice
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close receipt"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border) text-(--text-primary)"
+          >
+            <X size={16} strokeWidth={2.5} />
+          </button>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
+          <BookingConfirmedReceipt
+            storeName={storeName}
+            storeAddress={storeAddress}
+            docketNo={docketNo}
+            serialNo={serialNo}
+            dateLabel={dateLabel}
+            servedBy={servedBy}
+            customerName={customerName}
+            customerPhone={customerPhone}
+            paymentMethod={paymentMethod}
+            items={items}
+            onBack={onClose}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function BookingConfirmedScreen({
   selectedServiceIds,
   selectedProductIds = [],
@@ -601,6 +677,7 @@ export function BookingConfirmedScreen({
   const [detailView, setDetailView] = useState<DetailView>("services");
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   const org = organizationBanner ?? {
     name: bookingLocation.name,
@@ -1082,21 +1159,7 @@ export function BookingConfirmedScreen({
             )}
           </div>
 
-          {detailView === "receipt" ? (
-            <BookingConfirmedReceipt
-              storeName={org.name}
-              storeAddress={org.address ?? bookingLocation.address}
-              docketNo={docketNo}
-              serialNo={serialNo}
-              dateLabel={invoiceDate}
-              servedBy={servedBy}
-              customerName={billingName}
-              customerPhone={billingPhone}
-              paymentMethod={paymentLabel}
-              items={receiptItems}
-              onBack={() => setDetailView("services")}
-            />
-          ) : detailView === "chat" ? (
+          {detailView === "chat" ? (
             <BookingStoreChat
               storeName={storeTitle}
               storeImage={org.thumbnail ?? org.banner}
@@ -1351,7 +1414,7 @@ export function BookingConfirmedScreen({
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setDetailView("receipt")}
+                onClick={() => setShowReceiptModal(true)}
                 className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-[#F3EAF8] px-1 py-3"
               >
                 <ReceiptText size={20} className="text-[#6B3FA0]" />
@@ -1588,6 +1651,22 @@ export function BookingConfirmedScreen({
             </div>
           </div>
         </div>
+      )}
+
+      {showReceiptModal && (
+        <ReceiptModal
+          storeName={org.name}
+          storeAddress={org.address ?? bookingLocation.address}
+          docketNo={docketNo}
+          serialNo={serialNo}
+          dateLabel={invoiceDate}
+          servedBy={servedBy}
+          customerName={billingName}
+          customerPhone={billingPhone}
+          paymentMethod={paymentLabel}
+          items={receiptItems}
+          onClose={() => setShowReceiptModal(false)}
+        />
       )}
 
       {showCancelModal && (
