@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Clock3, Pencil } from "lucide-react";
+import { Clock3, Pencil, Star } from "lucide-react";
 
 interface BookingPreviewCardsProps {
   serviceName: string;
@@ -84,7 +84,7 @@ export function BookingPreviewCards({
             <span className="w-full bg-(--accent-primary) px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
               Service
             </span>
-            <div className="flex items-center justify-between gap-1 px-2">
+            <div className="flex flex-col items-left justify-between gap-1 px-2">
               <span className="flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
                 <Clock3 size={10} className="shrink-0" />
                 {serviceDuration}
@@ -118,6 +118,15 @@ export function BookingPreviewCards({
             <span className="w-full bg-(--accent-primary) px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
               Staff
             </span>
+            <div className="flex items-center justify-center gap-0.5 p-1">
+            <Star
+              size={15}
+              className="fill-(--brand-gold) text-(--brand-gold)"
+            />
+            <span className="font-medium text-(--text-primary)">
+              4.5
+            </span>
+          </div>
           </div>
           <ChangeBoxButton visible={showChangeButtons} onClick={onChangeStaff} />
         </div>
@@ -133,11 +142,11 @@ export function BookingPreviewCards({
             <div className="flex flex-1 flex-col items-center justify-center bg-(--bg-card) py-2 text-center">
               {scheduled && dateLabel ? (
                 <>
-                  <span className="mt-8 mb-4 text-[34px] font-bold leading-none text-(--accent-primary)">
+                  <span className="mt-8 mb-4 text-[25px] font-bold leading-none text-(--accent-primary) h-8">
                     {dateLabel}
                   </span>
                   {weekdayLabel ? (
-                    <span className="mt-4 w-full bg-(--accent-primary) px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+                    <span className=" w-full bg-(--accent-primary) px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
                       {weekdayLabel}
                     </span>
                   ) : null}

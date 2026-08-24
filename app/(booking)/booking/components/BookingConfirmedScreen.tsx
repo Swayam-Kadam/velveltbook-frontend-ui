@@ -1149,6 +1149,17 @@ export function BookingConfirmedScreen({
                   <RotateCcw size={13} strokeWidth={2.3} />
                 </button>
               )}
+              {!isEditing && (
+                <button
+                  type="button"
+                  onClick={startEditing}
+                  // disabled={history.length === 0}
+                  className=" bg-[#2D1659] m-1.5 inline-flex shrink-0 items-center px-1 py-0.5 rounded-[4px] gap-1 text-[12px] font-semibold text-white disabled:opacity-40"
+                >
+                  <PencilLine size={13} strokeWidth={2.3} />
+                  Edit
+                </button>
+              )}
             </div>
           )}
 
@@ -1337,7 +1348,7 @@ export function BookingConfirmedScreen({
               </button>
             </div>
 
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setDetailView("receipt")}
@@ -1368,7 +1379,7 @@ export function BookingConfirmedScreen({
                   Cancel Booking
                 </span>
               </button>
-              <button
+              {/* <button
                 type="button"
                 onClick={startEditing}
                 className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-[#EAF1F7] px-1 py-3"
@@ -1377,7 +1388,7 @@ export function BookingConfirmedScreen({
                 <span className="text-center text-[10px] leading-tight font-semibold text-(--text-primary)">
                   Edit Booking
                 </span>
-              </button>
+              </button> */}
             </div>
 
             <button

@@ -71,7 +71,7 @@ export function MenuProductCard({
           {product.quantity}
         </p>
 
-        <div className="mt-auto flex flex-col items-center justify-between gap-1 pt-0.5 lg:flex-row">
+        <div className="mt-auto flex flex-col items-left justify-between gap-1 pt-0.5 lg:flex-row">
           <span
             className={`
               font-bold text-(--brand-gold)
@@ -89,9 +89,9 @@ export function MenuProductCard({
               selected ? `Remove ${product.title}` : `Add ${product.title}`
             }
             className={`
-              inline-flex h-6 items-center justify-between gap-0.5 rounded-[8px] px-2 w-full
+              primary-button inline-flex h-6 items-center justify-between gap-0.5 rounded-[8px] px-2 w-full
               text-[9px] font-semibold text-white transition-opacity hover:opacity-90 
-              ${selected ? "bg-(--accent-primary)" : "bg-[#5b2a86]"}
+              
             `}
           >
             {selected ? "Added" : ButtonText === "add" ? "Add" : "Buy"}
