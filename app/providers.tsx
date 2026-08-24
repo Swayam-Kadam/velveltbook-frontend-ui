@@ -11,7 +11,7 @@ export function Providers({
     return (
         <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
+            defaultTheme="light"
             enableSystem={false}
             storageKey="velvetbook-theme"
         >
