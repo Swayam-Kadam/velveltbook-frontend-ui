@@ -11,6 +11,12 @@ export interface BookingOrganization {
   isOpen: boolean;
 }
 
+export interface BookingPricingItem {
+  name: string;
+  quantity: string;
+  price: string;
+}
+
 export interface Booking {
   id: string;
   number: string;
@@ -28,6 +34,13 @@ export interface Booking {
   tax?: string;
   paymentMethod?: string;
   paidAt?: string;
+  customerName?: string;
+  serviceCategory?: string;
+  pricingItems?: BookingPricingItem[];
+  taxesAndFees?: string;
+  additionalCharges?: string;
+  summarySubtotal?: string;
+  summaryTotal?: string;
 }
 
 export const organizations: Record<string, BookingOrganization> = {
@@ -94,6 +107,20 @@ export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {
       image:
         "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
       organization: organizations["lomi-melbourne"],
+      duration: "60 min",
+      customerName: "Satyam Kumar",
+      serviceCategory: "Premium Wellness Package",
+      pricingItems: [
+        { name: "Lavender Massage Oil", quantity: "1 ×", price: "$18.00" },
+        { name: "Aroma Essential Oil", quantity: "1 ×", price: "$22.00" },
+        { name: "Hot Stone Kit", quantity: "1 ×", price: "$15.00" },
+        { name: "Relaxation Balm", quantity: "1 ×", price: "$12.00" },
+        { name: "Herbal Compress Pack", quantity: "1 ×", price: "$20.00" },
+      ],
+      summarySubtotal: "$87",
+      taxesAndFees: "$9",
+      additionalCharges: "$0",
+      summaryTotal: "$96",
     },
     {
       id: "u2",

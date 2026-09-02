@@ -208,6 +208,7 @@ interface Step2DateTimeSectionProps {
   onSelectDay: (id: string) => void;
   onSelectTime: (time: string) => void;
   embedded?: boolean;
+  ShowTitle?: boolean;
 }
 
 export function Step2DateTimeSection({
@@ -218,6 +219,7 @@ export function Step2DateTimeSection({
   onSelectDay,
   onSelectTime,
   embedded = false,
+  ShowTitle = true,
 }: Step2DateTimeSectionProps) {
   const calendarAnchorRef = useRef<HTMLDivElement>(null);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -427,9 +429,9 @@ export function Step2DateTimeSection({
       {/* Date */}
       <div>
         <div className="mb-2 flex items-center gap-2">
-          <p className="shrink-0 text-[9px] font-semibold text-(--text-secondary)">
+          {ShowTitle && <p className="shrink-0 text-[9px] font-semibold text-(--text-secondary)">
             Select Date
-          </p>
+          </p>}
           {embedded && (
             <div className="flex flex-1 items-center justify-center">
               {calendarDropdown("center")}
@@ -471,7 +473,7 @@ export function Step2DateTimeSection({
                   type="button"
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={() => onSelectDay(day.id)}
-                  className={`${dayPill(active)} ${scrollItemClass}`}
+                  className={`${dayPill(active)} ${scrollItemClass} min-w-12`}
                 >
                   <span className="text-[7px] font-semibold">{day.weekday}</span>
                   <span className="text-[8px] font-bold">{day.date}</span>
@@ -540,7 +542,7 @@ export function Step2DateTimeSection({
                   type="button"
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={() => onSelectTime(time)}
-                  className={`${timePill(active)} ${scrollItemClass}`}
+                  className={`${timePill(active)} ${scrollItemClass} min-w-10`}
                 >
                   <span className="text-[9px]">{clock}</span>
                   <span className="text-[7px] font-semibold">{period}</span>

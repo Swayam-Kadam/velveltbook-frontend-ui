@@ -44,6 +44,7 @@ import {
 } from "@/booking/components/BookingPreviewCards";
 import { allMenuServices } from "@/data/catalog/menu/services";
 import { SHARED_STAFF } from "@/data/shared/staff";
+import { MyBookingsDesktop } from "./MyBookingsDesktop";
 
 type CardStatusTab = "upcoming" | HistorySubTab;
 
@@ -116,7 +117,7 @@ function OrganizationBanner({
 }) {
   return (
     <div className="border-b border-(--border)">
-      <div className="relative h-[115px] w-full">
+      {/* <div className="relative h-[115px] w-full">
         <Image
           src={organization.banner}
           alt={organization.name}
@@ -140,9 +141,9 @@ function OrganizationBanner({
             </span>
           )}
         </div>
-      </div>
+      </div> */}
 
-      <div className="flex items-center gap-3 px-2.5 py-2">
+      <div className="flex items-center gap-3 px-2.5 py-2 border-t-8 border-(--accent-primary)  ">
         <div className="relative h-13 w-13 shrink-0 overflow-hidden rounded-xl  border-2 border-white">
           <Image
             src={organization.thumbnail}
@@ -772,7 +773,8 @@ export default function MyBookingPage() {
         : "receipt";
 
   return (
-    <main className="px-2 pb-20">
+    <main>
+      <div className="lg:hidden px-2 pb-20">
       {/* Tabs */}
       <div className="flex border-b border-(--border)">
         {tabs.map((tab) => {
@@ -841,6 +843,20 @@ export default function MyBookingPage() {
         )}
 
         {/* {activeTab === "upcoming" && <SuggestedServices tab={activeTab} />} */}
+      </div>
+      </div>
+
+      <div className="hidden lg:block">
+        <MyBookingsDesktop
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          activeServiceSubTab={activeServiceSubTab}
+          onServiceSubTabChange={setActiveServiceSubTab}
+          activeHistorySubTab={activeHistorySubTab}
+          onHistorySubTabChange={setActiveHistorySubTab}
+          bookings={bookings}
+          emptyLabel={emptyLabel}
+        />
       </div>
     </main>
   );

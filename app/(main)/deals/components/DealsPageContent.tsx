@@ -495,8 +495,8 @@ function DesktopDealsGrid({
   }
 
   return (
-    <div className="grid grid-cols-3 gap-3.5">
-      {deals.slice(0, 6).map((deal) =>
+    <div className="grid grid-cols-4 gap-3.5">
+      {deals.slice(0, 8).map((deal) =>
         deal.type === "single" ? (
           <DealCard
             key={deal.id}
@@ -600,7 +600,9 @@ export function DealsPageContent() {
     setDesktopBookingDeal(deal);
     setDesktopPackages(packages);
     setActivePackageId(packages[0]?.id ?? "");
-    setSelectedServicesByPackage(createDefaultServiceSelection(packages));
+    setSelectedServicesByPackage(
+      createDefaultServiceSelection(packages, deal.type !== "single"),
+    );
   };
 
   // Keep desktop sidebar options in sync with Single / Package toggle.
@@ -618,7 +620,9 @@ export function DealsPageContent() {
     setDesktopBookingDeal(firstDeal);
     setDesktopPackages(packages);
     setActivePackageId(packages[0]?.id ?? "");
-    setSelectedServicesByPackage(createDefaultServiceSelection(packages));
+    setSelectedServicesByPackage(
+      createDefaultServiceSelection(packages, filters.dealType !== "single"),
+    );
   }, [allDeals, filters.dealType]);
 
   const toggleDesktopService = (packageId: string, serviceId: string) => {
@@ -635,6 +639,7 @@ export function DealsPageContent() {
   };
 
   const isDesktopBooking = Boolean(desktopBookingDeal);
+  const isPackageFlow = filters.dealType !== "single";
   const activePackage =
     desktopPackages.find((pkg) => pkg.id === activePackageId) ??
     desktopPackages[0] ??
@@ -665,6 +670,22 @@ export function DealsPageContent() {
       ? buildBookingUrl({
           serviceIds: bookingServiceIds,
           step: 2,
+          packageName:
+            isPackageFlow && activePackage
+              ? activePackage.title
+              : undefined,
+          packagePrice:
+            isPackageFlow && activePackage
+              ? activePackage.currentPrice
+              : undefined,
+          packageOriginalPrice:
+            isPackageFlow && activePackage
+              ? activePackage.originalPrice
+              : undefined,
+          packageImage:
+            isPackageFlow && activePackage
+              ? activePackage.image
+              : undefined,
         })
       : "#";
 
@@ -716,8 +737,8 @@ export function DealsPageContent() {
           <DealTypeToggle value={filters.dealType} onChange={setDealType} />
 
           {isLoading ? (
-            <div className="grid grid-cols-3 gap-3.5">
-              {Array.from({ length: 6 }).map((_, index) => (
+            <div className="grid grid-cols-4 gap-3.5">
+              {Array.from({ length: 8 }).map((_, index) => (
                 <div
                   key={index}
                   className="h-[340px] animate-pulse rounded-2xl border border-(--border) bg-(--bg-card)"
@@ -747,8 +768,8 @@ export function DealsPageContent() {
               bookingHref={bookingHref}
             />
           </div>
-
-          <DesktopTrustBar />
+{/* 
+          <DesktopTrustBar /> */}
         </div>
       </div>
 

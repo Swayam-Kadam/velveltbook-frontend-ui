@@ -260,6 +260,19 @@ export function getService(id: string) {
 }
 
 export function getStaff(id: string) {
+  if (id === "any") {
+    return {
+      id: "any",
+      name: "ANY",
+      experience: "Any available",
+      rating: 5,
+      reviews: 0,
+      specialties: "Any available therapist",
+      image:
+        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=300&h=400&fit=crop",
+      gender: "female" as const,
+    };
+  }
   return bookingStaff.find((s) => s.id === id) ?? bookingStaff[0];
 }
 

@@ -10,7 +10,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Clock3,
   MapPin,
   Minus,
   PlayCircle,
@@ -46,16 +45,18 @@ import {
   paginateServices,
   productCategories,
 } from "@/menu/menu.data";
-import { getBookingDay } from "@/booking/booking.data";
+import { buildBookingDays, timeSlots } from "@/booking/booking.data";
 import { buildBookingUrl } from "@/booking/booking.navigation";
+import { Step2DateTimeSection } from "@/booking/components/steps/Step2DateTimeSection";
 import type { SectionData, Suggestion, SuggestionsSectionMeta } from "@/types/store";
 import { ExtendedOrganization } from "../organization.types";
+import type { ExtendedReview } from "../organization.types";
 import { HeroBanner } from "./HeroBanner";
 import {
   SelectionPreviewSidebar,
 } from "./SelectionPreviewSidebar";
-import { ServiceDateTimeModal } from "./ServiceDateTimeModal";
 import { SuggestedProductCard } from "./SuggestedProductsRow";
+import { WriteReviewModal } from "./WriteReviewModal";
 
 type MenuCatalogTab = "service" | "product";
 type MenuGender = "male" | "female";
@@ -71,6 +72,8 @@ const swalDefaults = {
   background: "#1a1a1a",
   color: "#ffffff",
 } as const;
+
+const ANY_STAFF_ID = "any";
 
 function parsePrice(price: string) {
   return Number(price.replace(/[^0-9.]/g, "")) || 0;
@@ -220,21 +223,30 @@ export function ExtendedOrganizationProfile({
   const [productQuantities, setProductQuantities] = useState<
     Record<string, number>
   >({});
-  const [dateTimeModalOpen, setDateTimeModalOpen] = useState(false);
   const [serviceSchedules, setServiceSchedules] = useState<
     Record<string, { dayId: string; time: string }>
   >({});
   const [page, setPage] = useState(1);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [showWriteReviewModal, setShowWriteReviewModal] = useState(false);
+  const [submittedReviews, setSubmittedReviews] = useState<ExtendedReview[]>(
+    [],
+  );
   const [galleryProduct, setGalleryProduct] = useState<
     (typeof allMenuProducts)[number] | null
   >(null);
   const serviceTabsScrollRef = useRef<HTMLDivElement>(null);
+  const staffScrollRef = useRef<HTMLDivElement>(null);
   const productPreviewTabsScrollRef = useRef<HTMLDivElement>(null);
   const productPreviewCardsScrollRef = useRef<HTMLDivElement>(null);
 
+  const allReviews = useMemo(
+    () => [...(organization.reviews ?? []), ...submittedReviews],
+    [organization.reviews, submittedReviews],
+  );
+
   const reviewStats = useMemo(() => {
-    const reviews = organization.reviews ?? [];
+    const reviews = allReviews;
     const count = reviews.length;
     const average =
       count > 0
@@ -255,7 +267,37 @@ export function ExtendedOrganizationProfile({
       average: Number(average.toFixed(1)),
       distribution,
     };
-  }, [organization.reviews]);
+  }, [allReviews]);
+
+  const handleSubmitReview = ({
+    rating,
+    text,
+    name,
+  }: {
+    rating: number;
+    text: string;
+    name: string;
+  }) => {
+    setSubmittedReviews((current) => [
+      ...current,
+      {
+        id: `user-review-${Date.now()}`,
+        name,
+        rating,
+        text,
+        date: "Just now",
+        avatar: organization.thumbnail,
+      },
+    ]);
+    setShowWriteReviewModal(false);
+    setShowAllReviews(true);
+    void Swal.fire({
+      icon: "success",
+      title: "Review submitted",
+      text: "Thank you for sharing your experience.",
+      ...swalDefaults,
+    });
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -369,7 +411,6 @@ export function ExtendedOrganizationProfile({
       setServiceSchedules({});
       setAssigningServiceId(null);
       setPreviewServiceId(null);
-      setDateTimeModalOpen(false);
     } else {
       setSelectedProductIds([]);
       setPreviewProductId(null);
@@ -534,7 +575,6 @@ export function ExtendedOrganizationProfile({
   const focusServiceTab = (serviceId: string) => {
     setPreviewServiceId(serviceId);
     setAssigningServiceId(null);
-    setDateTimeModalOpen(false);
   };
 
   const promptCompletePriorServices = (targetServiceId: string) => {
@@ -579,10 +619,36 @@ export function ExtendedOrganizationProfile({
     setPreviewServiceId(serviceId);
   };
 
-  const handleOpenDateTimeModal = (serviceId: string) => {
-    if (promptCompletePriorServices(serviceId)) return;
+  const bookingDays = useMemo(() => buildBookingDays(new Date()), []);
+
+  const handleSelectServiceDay = (serviceId: string, dayId: string) => {
     setPreviewServiceId(serviceId);
-    setDateTimeModalOpen(true);
+    setServiceSchedules((current) => {
+      const existing = current[serviceId];
+      return {
+        ...current,
+        [serviceId]: {
+          dayId,
+          time: existing?.time ?? "",
+        },
+      };
+    });
+  };
+
+  const handleSelectServiceTime = (serviceId: string, time: string) => {
+    setPreviewServiceId(serviceId);
+    setServiceSchedules((current) => {
+      const existing = current[serviceId];
+      const dayId = existing?.dayId || bookingDays[0]?.id || "";
+      if (!dayId) return current;
+      return {
+        ...current,
+        [serviceId]: {
+          dayId,
+          time,
+        },
+      };
+    });
   };
 
   const handleSelectStaffForService = (
@@ -679,12 +745,19 @@ export function ExtendedOrganizationProfile({
   }, [previewProductId, selectedProducts]);
 
   const staffById = useMemo(() => {
-    const map: Record<string, (typeof organization.staff)[number]> = {};
+    const map: Record<string, (typeof organization.staff)[number]> = {
+      [ANY_STAFF_ID]: {
+        id: ANY_STAFF_ID,
+        name: "ANY",
+        experience: "Any available therapist",
+        image: organization.thumbnail,
+      },
+    };
     for (const member of organization.staff) {
       map[member.id] = member;
     }
     return map;
-  }, [organization.staff]);
+  }, [organization.staff, organization.thumbnail]);
 
   const totalPrice = useMemo(() => {
     if (menuTab === "product") {
@@ -1064,6 +1137,7 @@ export function ExtendedOrganizationProfile({
             </div>
             <button
               type="button"
+              onClick={() => setShowWriteReviewModal(true)}
               className="
                 inline-flex items-center gap-1 rounded-full border
                 border-(--brand-gold)/50
@@ -1127,11 +1201,11 @@ export function ExtendedOrganizationProfile({
             </div>
           </div>
 
-          {organization.reviews && organization.reviews.length > 0 && (
+          {allReviews.length > 0 && (
             <div className="space-y-2">
               {(showAllReviews
-                ? organization.reviews
-                : organization.reviews.slice(0, 3)
+                ? allReviews
+                : allReviews.slice(0, 3)
               ).map((review) => (
                 <article
                   key={review.id}
@@ -1177,7 +1251,7 @@ export function ExtendedOrganizationProfile({
                 </article>
               ))}
 
-              {organization.reviews.length > 3 && (
+              {allReviews.length > 3 && (
                 <button
                   type="button"
                   onClick={() => setShowAllReviews((value) => !value)}
@@ -1189,7 +1263,7 @@ export function ExtendedOrganizationProfile({
                 >
                   {showAllReviews
                     ? "Show less"
-                    : `Show all ${organization.reviews.length} reviews`}
+                    : `Show all ${allReviews.length} reviews`}
                   <ChevronRight size={12} strokeWidth={2.5} />
                 </button>
               )}
@@ -1538,13 +1612,14 @@ export function ExtendedOrganizationProfile({
                             </button>
                           </div>
 
-                          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_2fr]">
-                            <div className="relative h-[120px] sm:h-[200px] lg:min-h-[200px]">
+                          <div className="grid grid-cols-1 lg:grid-cols-3 lg:items-stretch">
+                            {/* Col 1 — Image */}
+                            <div className="relative min-h-[160px] sm:min-h-[200px] lg:min-h-[220px]">
                               <Image
                                 src={focusedService.image}
                                 alt={focusedService.name}
                                 fill
-                                sizes="(min-width: 1000px) 420px, 100vw"
+                                sizes="(min-width: 1024px) 33vw, 100vw"
                                 className="object-cover"
                               />
                               {assigningServiceId === focusedService.id && (
@@ -1554,15 +1629,22 @@ export function ExtendedOrganizationProfile({
                               )}
                             </div>
 
-                            <div className="flex flex-col justify-center gap-2 bg-(--bg-secondary) p-3 lg:p-4">
+                            {/* Col 2 — Service + Staff */}
+                            <div className="flex flex-col justify-center gap-2 border-(--border) bg-(--bg-secondary) p-3 lg:border-x lg:p-4">
                               <div className="min-w-0">
                                 <div className="flex items-center justify-between gap-2">
-                                <p className="text-[10px] font-semibold uppercase tracking-wide text-(--text-muted)">
-                                  Selected service
-                                </p>
-                                <p className={`text-[10px] font-semibold uppercase tracking-wide ${isFocusedServiceReady ? "text-green-600" : "text-red-600"}`}>
-                                  {isFocusedServiceReady ? "Ready" : "Pending"}
-                                </p>
+                                  <p className="text-[10px] font-semibold uppercase tracking-wide text-(--text-muted)">
+                                    Selected service
+                                  </p>
+                                  <p
+                                    className={`text-[10px] font-semibold uppercase tracking-wide ${
+                                      isFocusedServiceReady
+                                        ? "text-green-600"
+                                        : "text-red-600"
+                                    }`}
+                                  >
+                                    {isFocusedServiceReady ? "Ready" : "Pending"}
+                                  </p>
                                 </div>
                                 <h2 className="mt-0.5 truncate text-[18px] font-semibold leading-tight text-(--text-primary)">
                                   {focusedService.name}
@@ -1573,8 +1655,7 @@ export function ExtendedOrganizationProfile({
                                     .join(" · ")}
                                 </p>
                               </div>
-                              
-                              
+
                               {focusedStaff ? (
                                 <div className="flex items-center gap-2 rounded-xl border border-(--border) bg-(--bg-card) px-2 py-1.5">
                                   <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
@@ -1599,7 +1680,7 @@ export function ExtendedOrganizationProfile({
                                     onClick={() =>
                                       handleAssignStaffRequest(focusedService.id)
                                     }
-                                    className="shrink-0 text-[10px] font-semibold text-(--brand-gold) cursor-pointer"
+                                    className="shrink-0 cursor-pointer text-[10px] font-semibold text-(--brand-gold)"
                                   >
                                     Change
                                   </button>
@@ -1621,71 +1702,58 @@ export function ExtendedOrganizationProfile({
                                 </button>
                               )}
 
-                              
-                            <div className="flex justify-between items-center gap-2 mt-2">
-                              {(() => {
-                                const schedule =
-                                  serviceSchedules[focusedService.id];
-                                const day = schedule
-                                  ? getBookingDay(schedule.dayId)
-                                  : null;
-
-                                if (schedule && day) {
-                                  return (
-                                    <div className="flex items-center gap-2 rounded-xl border border-(--border) bg-(--bg-card) px-2 py-1.5">
-                                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-(--border) bg-(--bg-secondary)">
-                                        <CalendarDays
-                                          size={14}
-                                          className="text-(--accent-primary)"
-                                        />
-                                      </span>
-                                      <div className="min-w-0 flex-1">
-                                        <p className="truncate text-[11px] font-semibold text-(--text-primary)">
-                                          {day.weekday}, {day.date}
-                                        </p>
-                                        <p className="text-[10px] text-(--text-muted)">
-                                          {schedule.time}
-                                        </p>
-                                      </div>
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          handleOpenDateTimeModal(
-                                            focusedService.id,
-                                          )
-                                        }
-                                        className="shrink-0 text-[10px] font-semibold text-(--brand-gold) cursor-pointer"
-                                      >
-                                        Change
-                                      </button>
-                                    </div>
-                                  );
-                                }
-
-                                return (
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleOpenDateTimeModal(focusedService.id)
-                                    }
-                                    className="
-                                      primary-button inline-flex h-9 w-fit items-center
-                                      justify-center gap-2 rounded-full px-3 text-[11px]
-                                      font-semibold text-white
-                                    "
-                                  >
-                                    <CalendarDays size={14} />
-                                    Choose Date &amp; Time
-                                  </button>
-                                );
-                              })()}
-                              <div onClick={() => removeServiceFromSelection(focusedService.id)}
-                                className="cursor-pointer hover:text-red-700 bg-red-500 p-2 rounded-full"
-                              >
-                                <Trash2 size={17} className="text-red-500 cursor-pointer" />
-                              </div>
+                              <div className="mt-1 flex justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    removeServiceFromSelection(focusedService.id)
+                                  }
+                                  aria-label={`Remove ${focusedService.name}`}
+                                  className="
+                                    flex h-8 w-8 items-center justify-center rounded-full
+                                    border border-red-200 bg-red-50 text-red-500
+                                    transition-colors hover:bg-red-100 hover:text-red-700
+                                  "
+                                >
+                                  <Trash2 size={15} />
+                                </button>
                               </div>
                             </div>
+
+                            {/* Col 3 — Date & Time (horizontal scrollable, package style) */}
+                            {(() => {
+                              const schedule =
+                                serviceSchedules[focusedService.id];
+                              const activeDayId =
+                                schedule?.dayId || bookingDays[0]?.id || "";
+                              const activeTime = schedule?.time || "";
+
+                              return (
+                                <div className="flex min-w-0 flex-col justify-center bg-(--bg-card) p-3 lg:p-1">
+                                  <Step2DateTimeSection
+                                    embedded
+                                    days={bookingDays}
+                                    times={timeSlots}
+                                    activeDayId={activeDayId}
+                                    activeTime={activeTime}
+                                    onSelectDay={(dayId) =>
+                                      handleSelectServiceDay(
+                                        focusedService.id,
+                                        dayId,
+                                      )
+                                    }
+                                    onSelectTime={(time) =>
+                                      handleSelectServiceTime(
+                                        focusedService.id,
+                                        time,
+                                      )
+    
+                                    }
+                                    ShowTitle={false}
+                                  />
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                       );
@@ -1918,7 +1986,7 @@ export function ExtendedOrganizationProfile({
                 {!isProductFlow && (
                 <section>
                   <DesktopSectionHeader title="Staff" actionLabel="View All" />
-                  {assigningServiceId && (
+                  {/* {assigningServiceId && (
                     <p className="mb-3 rounded-lg border border-(--brand-gold)/40 bg-[color-mix(in_srgb,var(--brand-gold)_10%,transparent)] px-3 py-2 text-sm font-medium text-(--text-primary)">
                       Selecting staff for{" "}
                       <span className="text-(--brand-gold)">
@@ -1927,12 +1995,42 @@ export function ExtendedOrganizationProfile({
                       </span>
                       . Tap Select on a staff card.
                     </p>
-                  )}
-                  <div
-                    className={`grid grid-cols-2 gap-1.5 xl:grid-cols-4 ${
-                      assigningServiceId ? "rounded-2xl p-1" : ""
-                    }`}
-                  >
+                  )} */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => scrollPreviewTabs(staffScrollRef, "left")}
+                      aria-label="Scroll staff left"
+                      className="
+                        absolute left-2 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2
+                        items-center justify-center rounded-full border border-(--border)
+                        bg-(--bg-card)/95 text-(--text-primary) shadow-[var(--shadow-card)]
+                        backdrop-blur-sm transition-colors hover:border-(--brand-gold)
+                      "
+                    >
+                      <ChevronLeft size={18} strokeWidth={2.5} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => scrollPreviewTabs(staffScrollRef, "right")}
+                      aria-label="Scroll staff right"
+                      className="
+                        absolute right-2 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2
+                        items-center justify-center rounded-full border border-(--border)
+                        bg-(--bg-card)/95 text-(--text-primary) shadow-[var(--shadow-card)]
+                        backdrop-blur-sm transition-colors hover:border-(--brand-gold)
+                      "
+                    >
+                      <ChevronRight size={18} strokeWidth={2.5} />
+                    </button>
+
+                    <div
+                      ref={staffScrollRef}
+                      className={`scrollbar-none flex min-w-0 gap-1.5 overflow-x-auto scroll-smooth px-1 pb-0.5 ${
+                        assigningServiceId ? "rounded-2xl p-1" : ""
+                      }`}
+                    >
                     {(() => {
                       const focusedStaffServiceId =
                         assigningServiceId ??
@@ -1940,56 +2038,58 @@ export function ExtendedOrganizationProfile({
                         selectedServiceIds[selectedServiceIds.length - 1] ??
                         null;
                       const isSelectingStaff = Boolean(assigningServiceId);
+                      const staffCardClass = (isAssigned: boolean) => `
+                        flex h-full w-full shrink-0 basis-[calc((100%-1.125rem)/4)]
+                        min-w-[132px] flex-col overflow-hidden rounded-[16px] border
+                        bg-(--bg-card) transition-all duration-300
+                        ${
+                          isAssigned
+                            ? "border-(--accent-primary) shadow-(--shadow-glow) ring-2 ring-(--accent-primary)/50 -translate-y-0.5"
+                            : isSelectingStaff
+                              ? "border-(--brand-gold) shadow-[0_0_0_1px_color-mix(in_srgb,var(--brand-gold)_35%,transparent),0_8px_28px_color-mix(in_srgb,var(--brand-gold)_28%,transparent)] hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--brand-gold),0_10px_32px_color-mix(in_srgb,var(--brand-gold)_40%,transparent)]"
+                              : "border-(--border) shadow-[var(--shadow-card)] hover:-translate-y-0.5"
+                        }
+                      `;
+                      const selectButtonClass = (isAssigned: boolean) =>
+                        isAssigned
+                          ? "primary-button mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold text-white shadow-(--shadow-glow)"
+                          : isSelectingStaff
+                            ? "mt-2 flex h-8 w-full items-center justify-center rounded-lg border border-(--brand-gold) bg-[color-mix(in_srgb,var(--brand-gold)_14%,transparent)] text-[11px] font-semibold text-(--text-primary) transition-all hover:bg-[color-mix(in_srgb,var(--brand-gold)_24%,transparent)]"
+                            : "secondary-button mt-2 flex h-8 w-full items-center justify-center rounded-lg text-[11px] font-semibold";
 
-                      return organization.staff.map((member, index) => {
-                        const isAssignedToFocusedService =
-                          focusedStaffServiceId != null &&
-                          serviceStaff[focusedStaffServiceId] === member.id;
+                      const isAnyAssigned =
+                        focusedStaffServiceId != null &&
+                        serviceStaff[focusedStaffServiceId] === ANY_STAFF_ID;
 
-                        return (
+                      return (
+                        <>
                           <article
-                            key={member.id}
-                            className={`
-                              flex h-full w-full flex-col overflow-hidden rounded-[16px] border
-                              bg-(--bg-card) transition-all duration-300
-                              ${
-                                isAssignedToFocusedService
-                                  ? "border-(--accent-primary) shadow-(--shadow-glow) ring-2 ring-(--accent-primary)/50 -translate-y-0.5"
-                                  : isSelectingStaff
-                                    ? "border-(--brand-gold) shadow-[0_0_0_1px_color-mix(in_srgb,var(--brand-gold)_35%,transparent),0_8px_28px_color-mix(in_srgb,var(--brand-gold)_28%,transparent)] hover:-translate-y-1 hover:shadow-[0_0_0_1px_var(--brand-gold),0_10px_32px_color-mix(in_srgb,var(--brand-gold)_40%,transparent)]"
-                                    : "border-(--border) shadow-[var(--shadow-card)] hover:-translate-y-0.5"
-                              }
-                            `}
+                            key={ANY_STAFF_ID}
+                            className={staffCardClass(isAnyAssigned)}
                           >
-                            <div className="relative h-[96px] overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
+                            <div className="relative flex h-[96px] items-center justify-center overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
                               <span className="absolute left-2 top-2 z-10 h-2 w-2 rounded-full bg-(--success)" />
-                              {isSelectingStaff && !isAssignedToFocusedService && (
+                              {isSelectingStaff && !isAnyAssigned && (
                                 <div className="pointer-events-none absolute inset-0 bg-[color-mix(in_srgb,var(--brand-gold)_12%,transparent)]" />
                               )}
-                              {isAssignedToFocusedService && (
+                              {isAnyAssigned && (
                                 <div className="pointer-events-none absolute inset-0 bg-[color-mix(in_srgb,var(--accent-primary)_18%,transparent)]" />
                               )}
-                              <Image
-                                src={member.image}
-                                alt={member.name}
-                                fill
-                                sizes="160px"
-                                className="object-cover"
-                              />
+                              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-(--border) bg-(--bg-card)">
+                                <UserRound
+                                  size={28}
+                                  strokeWidth={1.75}
+                                  className="text-(--text-muted)"
+                                />
+                              </span>
                             </div>
 
                             <div className="flex flex-1 flex-col px-2 pb-2 pt-2 text-center">
                               <h3 className="line-clamp-1 text-[13px] font-semibold text-(--text-primary)">
-                                {member.name}
+                                ANY
                               </h3>
                               <p className="mt-0.5 line-clamp-1 text-[10px] text-(--text-secondary)">
-                                {index === 0
-                                  ? "Massage Expert"
-                                  : index === 1
-                                    ? "Spa Therapist"
-                                    : index === 2
-                                      ? "Wellness Coach"
-                                      : "Thai Specialist"}
+                                Any available therapist
                               </p>
 
                               <div className="mt-1 flex items-center justify-center gap-0.5 text-[11px] font-medium text-(--text-secondary)">
@@ -1997,26 +2097,20 @@ export function ExtendedOrganizationProfile({
                                   size={11}
                                   className="fill-(--brand-gold) text-(--brand-gold)"
                                 />
-                                <span>{(4.9 - index * 0.1).toFixed(1)}</span>
+                                <span>5.0</span>
                               </div>
 
                               <button
                                 type="button"
                                 onClick={() =>
                                   handleSelectStaffForService(
-                                    member.id,
+                                    ANY_STAFF_ID,
                                     focusedStaffServiceId ?? undefined,
                                   )
                                 }
-                                className={
-                                  isAssignedToFocusedService
-                                    ? "primary-button mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold text-white shadow-(--shadow-glow)"
-                                    : isSelectingStaff
-                                      ? "mt-2 flex h-8 w-full items-center justify-center rounded-lg border border-(--brand-gold) bg-[color-mix(in_srgb,var(--brand-gold)_14%,transparent)] text-[11px] font-semibold text-(--text-primary) transition-all hover:bg-[color-mix(in_srgb,var(--brand-gold)_24%,transparent)]"
-                                      : "secondary-button mt-2 flex h-8 w-full items-center justify-center rounded-lg text-[11px] font-semibold"
-                                }
+                                className={selectButtonClass(isAnyAssigned)}
                               >
-                                {isAssignedToFocusedService ? (
+                                {isAnyAssigned ? (
                                   <>
                                     <Check size={13} strokeWidth={2.5} />
                                     Assigned
@@ -2027,9 +2121,88 @@ export function ExtendedOrganizationProfile({
                               </button>
                             </div>
                           </article>
-                        );
-                      });
+
+                          {organization.staff.map((member, index) => {
+                            const isAssignedToFocusedService =
+                              focusedStaffServiceId != null &&
+                              serviceStaff[focusedStaffServiceId] === member.id;
+
+                            return (
+                              <article
+                                key={member.id}
+                                className={staffCardClass(
+                                  isAssignedToFocusedService,
+                                )}
+                              >
+                                <div className="relative h-[96px] overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
+                                  <span className="absolute left-2 top-2 z-10 h-2 w-2 rounded-full bg-(--success)" />
+                                  {isSelectingStaff &&
+                                    !isAssignedToFocusedService && (
+                                      <div className="pointer-events-none absolute inset-0 bg-[color-mix(in_srgb,var(--brand-gold)_12%,transparent)]" />
+                                    )}
+                                  {isAssignedToFocusedService && (
+                                    <div className="pointer-events-none absolute inset-0 bg-[color-mix(in_srgb,var(--accent-primary)_18%,transparent)]" />
+                                  )}
+                                  <Image
+                                    src={member.image}
+                                    alt={member.name}
+                                    fill
+                                    sizes="160px"
+                                    className="object-cover"
+                                  />
+                                </div>
+
+                                <div className="flex flex-1 flex-col px-2 pb-2 pt-2 text-center">
+                                  <h3 className="line-clamp-1 text-[13px] font-semibold text-(--text-primary)">
+                                    {member.name}
+                                  </h3>
+                                  <p className="mt-0.5 line-clamp-1 text-[10px] text-(--text-secondary)">
+                                    {index === 0
+                                      ? "Massage Expert"
+                                      : index === 1
+                                        ? "Spa Therapist"
+                                        : index === 2
+                                          ? "Wellness Coach"
+                                          : "Thai Specialist"}
+                                  </p>
+
+                                  <div className="mt-1 flex items-center justify-center gap-0.5 text-[11px] font-medium text-(--text-secondary)">
+                                    <Star
+                                      size={11}
+                                      className="fill-(--brand-gold) text-(--brand-gold)"
+                                    />
+                                    <span>{(4.9 - index * 0.1).toFixed(1)}</span>
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleSelectStaffForService(
+                                        member.id,
+                                        focusedStaffServiceId ?? undefined,
+                                      )
+                                    }
+                                    className={selectButtonClass(
+                                      isAssignedToFocusedService,
+                                    )}
+                                  >
+                                    {isAssignedToFocusedService ? (
+                                      <>
+                                        <Check size={13} strokeWidth={2.5} />
+                                        Assigned
+                                      </>
+                                    ) : (
+                                      "Select"
+                                    )}
+                                  </button>
+                                </div>
+                              </article>
+                            );
+                          })}
+                        </>
+                      );
                     })()}
+                    </div>
                   </div>
                 </section>
                 )}
@@ -2323,52 +2496,18 @@ export function ExtendedOrganizationProfile({
       </div>
     </div>
 
-      <ServiceDateTimeModal
-        isOpen={dateTimeModalOpen}
-        serviceName={
-          selectedServices.find(
-            (service) =>
-              service.id === (assigningServiceId ?? previewServiceId),
-          )?.name ?? selectedServices[selectedServices.length - 1]?.name
-        }
-        initialDayId={
-          serviceSchedules[
-            assigningServiceId ??
-              previewServiceId ??
-              selectedServiceIds[selectedServiceIds.length - 1] ??
-              ""
-          ]?.dayId
-        }
-        initialTime={
-          serviceSchedules[
-            assigningServiceId ??
-              previewServiceId ??
-              selectedServiceIds[selectedServiceIds.length - 1] ??
-              ""
-          ]?.time
-        }
-        onClose={() => setDateTimeModalOpen(false)}
-        onConfirm={(dayId, time) => {
-          const serviceId =
-            assigningServiceId ??
-            previewServiceId ??
-            selectedServiceIds[selectedServiceIds.length - 1];
-          if (!serviceId) {
-            setDateTimeModalOpen(false);
-            return;
-          }
-          setServiceSchedules((current) => ({
-            ...current,
-            [serviceId]: { dayId, time },
-          }));
-          setDateTimeModalOpen(false);
-        }}
-      />
-
       {galleryProduct && (
         <MenuProductGalleryModal
           product={galleryProduct}
           onClose={() => setGalleryProduct(null)}
+        />
+      )}
+
+      {showWriteReviewModal && (
+        <WriteReviewModal
+          organizationName={organization.name}
+          onClose={() => setShowWriteReviewModal(false)}
+          onSubmit={handleSubmitReview}
         />
       )}
     </>

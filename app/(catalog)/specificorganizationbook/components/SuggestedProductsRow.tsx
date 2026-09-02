@@ -102,7 +102,7 @@ export function SuggestedProductCard({
           <p className="mt-0.5 text-[11px] text-(--text-muted)">
             {product.quantity}
           </p>
-          <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-(--text-secondary)">
+          <p className="mt-1 line-clamp text-[11px] leading-4 text-(--text-secondary)">
             {meta.description}
           </p>
         </div>

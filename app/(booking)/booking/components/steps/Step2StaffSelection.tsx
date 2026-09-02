@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import {
   ArrowRightIcon,
@@ -26,11 +27,15 @@ import {
   bookingSeats,
   areAllServiceSchedulesComplete,
   areAllServiceStaffAssigned,
+  buildBookingDays,
   calcServicesTotal,
+  createDefaultServiceSchedule,
+  getBookingDay,
   getSelectedServices,
   getStaff,
   isServiceScheduleComplete,
   isServiceStaffAssigned,
+  timeSlots,
 } from "../../booking.data";
 import type {
   ServiceSchedules,
@@ -38,8 +43,57 @@ import type {
 } from "../../booking.types";
 import { ServiceBookingAccordion } from "./ServiceBookingAccordion";
 import { ServiceScheduleRows } from "./ServiceScheduleRows";
+import { PackageStep2Desktop } from "./PackageStep2Desktop";
 import SelectSeat from "./SelectSeat";
 import "./SelectSeat/SelectSeat.css";
+
+function parseDurationMinutes(duration: string): number {
+  const value = duration.trim().toLowerCase();
+  if (!value) return 0;
+  const hoursMatch = value.match(/(\d+(?:\.\d+)?)\s*h/);
+  const minutesMatch = value.match(/(\d+(?:\.\d+)?)\s*m/);
+  let total = 0;
+  if (hoursMatch) total += Number(hoursMatch[1]) * 60;
+  if (minutesMatch) total += Number(minutesMatch[1]);
+  if (!hoursMatch && !minutesMatch) {
+    const numeric = Number(value.replace(/[^0-9.]/g, ""));
+    if (Number.isFinite(numeric)) total = numeric;
+  }
+  return Math.max(0, Math.round(total));
+}
+
+function parseTimeToMinutes(time: string): number | null {
+  const match = time.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
+  if (!match) return null;
+  let hour = Number(match[1]);
+  const minute = Number(match[2] ?? 0);
+  const period = match[3].toUpperCase();
+  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
+  if (period === "PM" && hour !== 12) hour += 12;
+  if (period === "AM" && hour === 12) hour = 0;
+  return hour * 60 + minute;
+}
+
+function formatMinutesToTime(totalMinutes: number): string {
+  const minutesInDay = 24 * 60;
+  const normalized =
+    ((Math.round(totalMinutes) % minutesInDay) + minutesInDay) % minutesInDay;
+  let hour = Math.floor(normalized / 60);
+  const minute = normalized % 60;
+  const period = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")} ${period}`;
+}
+
+function formatDurationLabel(totalMinutes: number): string {
+  if (totalMinutes <= 0) return "—";
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours <= 0) return `${minutes}m`;
+  if (minutes <= 0) return `${hours}h`;
+  return `${hours}h ${minutes}m`;
+}
 
 interface Step2StaffSelectionProps {
   selectedServiceIds: string[];
@@ -48,6 +102,10 @@ interface Step2StaffSelectionProps {
   expertType: ExpertType;
   serviceStaff: ServiceStaffAssignments;
   lockStaffSelection?: boolean;
+  packageName?: string;
+  packagePrice?: number;
+  packageOriginalPrice?: number;
+  packageImage?: string;
   serviceSchedules: ServiceSchedules;
   selectedSeatId: string;
   seatConfirmed: boolean;
@@ -112,6 +170,10 @@ export function Step2StaffSelection({
   expertType,
   serviceStaff,
   lockStaffSelection = false,
+  packageName,
+  packagePrice,
+  packageOriginalPrice,
+  packageImage,
   serviceSchedules,
   selectedSeatId,
   seatConfirmed,
@@ -125,6 +187,7 @@ export function Step2StaffSelection({
   onNext,
   onEditService,
 }: Step2StaffSelectionProps) {
+  const [packageScheduleOpen, setPackageScheduleOpen] = useState(false);
   const selectedServices = getSelectedServices(
     selectedServiceIds,
     organizationId,
@@ -171,6 +234,61 @@ export function Step2StaffSelection({
     address: bookingLocation.address,
   };
 
+  const isPackageFlow = Boolean(packageName);
+  const bookingDays = useMemo(() => buildBookingDays(new Date()), []);
+  const packageSchedule =
+    serviceSchedules[selectedServiceIds[0] ?? ""] ??
+    createDefaultServiceSchedule();
+  const packageDay = packageSchedule.dayId
+    ? getBookingDay(packageSchedule.dayId)
+    : null;
+  const totalDurationMinutes = selectedServices.reduce(
+    (sum, service) => sum + parseDurationMinutes(service.duration),
+    0,
+  );
+  const startMinutes = packageSchedule.time
+    ? parseTimeToMinutes(packageSchedule.time)
+    : null;
+  const endTime =
+    startMinutes != null
+      ? formatMinutesToTime(startMinutes + totalDurationMinutes)
+      : "";
+  const paidAmount =
+    packagePrice && packagePrice > 0 ? packagePrice : subtotal;
+  const originalAmount =
+    packageOriginalPrice && packageOriginalPrice > paidAmount
+      ? packageOriginalPrice
+      : Math.round(paidAmount * 1.27);
+  const savedAmount = Math.max(0, originalAmount - paidAmount);
+  const packageHero =
+    packageImage ||
+    selectedServices[0]?.image ||
+    org.thumbnail ||
+    org.banner;
+  const monthLabel = packageDay
+    ? new Date(`${packageDay.iso}T12:00:00`)
+        .toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        })
+        .toUpperCase()
+    : "DATE";
+  const weekdayLabel = packageDay
+    ? new Date(`${packageDay.iso}T12:00:00`)
+        .toLocaleDateString("en-US", { weekday: "long" })
+        .toUpperCase()
+    : "";
+  const dayNumber = packageDay
+    ? new Date(`${packageDay.iso}T12:00:00`).getDate()
+    : "";
+  const shortDate = packageDay
+    ? new Date(`${packageDay.iso}T12:00:00`).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
+
   const handleRemoveService = async (serviceId: string) => {
     if (!onRemoveService) return;
 
@@ -192,7 +310,7 @@ export function Step2StaffSelection({
   };
 
   const handleContinue = async () => {
-    if (!allStaffAssigned) {
+    if (!packageName && !allStaffAssigned) {
       const pendingNames = pendingStaffServices
         .map((service) => service.name)
         .join(", ");
@@ -240,6 +358,7 @@ export function Step2StaffSelection({
       assignments={serviceStaff}
       schedules={serviceSchedules}
       lockStaffSelection={lockStaffSelection}
+      packageName={packageName}
       onSelectStaff={onSelectServiceStaff}
       onSelectDay={onSelectServiceDay}
       onSelectTime={onSelectServiceTime}
@@ -274,6 +393,7 @@ export function Step2StaffSelection({
           organizationId={organizationId}
           serviceStaff={serviceStaff}
           serviceSchedules={serviceSchedules}
+          packageName={packageName}
           onRemoveService={onRemoveService ? handleRemoveService : undefined}
           showOrganizationBanner={false}
         />
@@ -320,11 +440,48 @@ export function Step2StaffSelection({
       </div>
 
       {/* ================= DESKTOP ================= */}
-      {/*
+      {isPackageFlow ? (
+        <PackageStep2Desktop
+          org={org}
+          packageName={packageName!}
+          packageHero={packageHero}
+          selectedServices={selectedServices}
+          paidAmount={paidAmount}
+          savedAmount={savedAmount}
+          monthLabel={monthLabel}
+          weekdayLabel={weekdayLabel}
+          dayNumber={dayNumber}
+          shortDate={shortDate}
+          startTime={packageSchedule.time || ""}
+          endTime={endTime}
+          totalDurationLabel={formatDurationLabel(totalDurationMinutes)}
+          bookingDays={bookingDays}
+          times={timeSlots}
+          activeDayId={packageSchedule.dayId}
+          activeTime={packageSchedule.time}
+          scheduleOpen={packageScheduleOpen}
+          onOpenSchedule={() => setPackageScheduleOpen(true)}
+          onCloseSchedule={() => setPackageScheduleOpen(false)}
+          onSelectDay={(dayId) => {
+            const firstId = selectedServiceIds[0];
+            if (firstId) onSelectServiceDay(firstId, dayId);
+          }}
+          onSelectTime={(time) => {
+            const firstId = selectedServiceIds[0];
+            if (firstId) onSelectServiceTime(firstId, time);
+          }}
+          onContinue={handleContinue}
+          onBack={onBack}
+          onRemoveService={
+            onRemoveService ? handleRemoveService : undefined
+          }
+        />
+      ) : (
+      /*
         Full-screen 2-column layout:
         LEFT  → vertical split (banner on top, selected services below)
         RIGHT → staff / schedule / seat selection
-      */}
+      */
       <div className="hidden lg:grid lg:h-[calc(100vh-140px)] lg:min-h-[680px] lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-4 xl:grid-cols-[440px_minmax(0,1fr)]">
         {/* LEFT COLUMN */}
         <aside className="flex min-h-0 flex-col gap-4">
@@ -400,7 +557,7 @@ export function Step2StaffSelection({
               </div>
               {hasSelection && (
                 <p className="text-[22px] font-bold text-(--brand-gold)">
-                  ${subtotal}
+                  $${subtotal}
                 </p>
               )}
             </div>
@@ -507,42 +664,41 @@ export function Step2StaffSelection({
 
         {/* RIGHT COLUMN — schedule per service + seat */}
         <section className="flex min-h-0 flex-col overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card)">
-          <div className="flex shrink-0 items-center justify-between border-b border-(--border) px-5 py-4">
-            <div>
-              <h2 className="text-[20px] font-semibold text-(--text-primary)">
-                Select date
-              </h2>
-              <p className="mt-0.5 text-[13px] text-(--text-muted)">
-                Staff is set from your previous selection — schedule each service
-              </p>
-            </div>
-            <div className="text-right text-[13px] font-semibold text-(--text-secondary)">
-              <p>
-                {pendingScheduleServices.length === 0
-                  ? "All scheduled"
-                  : `${pendingScheduleServices.length} schedule pending`}
-              </p>
-            </div>
-          </div>
+              <div className="flex shrink-0 items-center justify-between border-b border-(--border) px-5 py-4">
+                <div>
+                  <h2 className="text-[20px] font-semibold text-(--text-primary)">
+                    Booking Details
+                  </h2>
+                  <p className="mt-0.5 text-[13px] text-(--text-muted)">
+                    Assign therapist and schedule for each service
+                  </p>
+                </div>
+                <p className="text-[13px] font-semibold text-(--text-secondary)">
+                  {allStaffAssigned && allScheduled
+                    ? "Ready to continue"
+                    : "Complete each service"}
+                </p>
+              </div>
 
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-(--bg-secondary) p-4 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
-            <ServiceScheduleRows
-              selectedServiceIds={selectedServiceIds}
-              organizationId={organizationId}
-              expertType={expertType}
-              serviceStaff={serviceStaff}
-              schedules={serviceSchedules}
-              onSelectDay={onSelectServiceDay}
-              onSelectTime={onSelectServiceTime}
-              onSelectStaff={onSelectServiceStaff}
-              onRemoveService={
-                onRemoveService ? handleRemoveService : undefined
-              }
-            />
-            {/* Seat selection removed */}
-          </div>
+              <div className="min-h-0 flex-1 overflow-y-auto bg-(--bg-secondary) p-4 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
+                <ServiceScheduleRows
+                  selectedServiceIds={selectedServiceIds}
+                  organizationId={organizationId}
+                  expertType={expertType}
+                  serviceStaff={serviceStaff}
+                  schedules={serviceSchedules}
+                  packageName={packageName}
+                  onSelectDay={onSelectServiceDay}
+                  onSelectTime={onSelectServiceTime}
+                  onSelectStaff={onSelectServiceStaff}
+                  onRemoveService={
+                    onRemoveService ? handleRemoveService : undefined
+                  }
+                />
+              </div>
         </section>
       </div>
+      )}
     </>
   );
 }

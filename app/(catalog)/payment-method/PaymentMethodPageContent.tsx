@@ -329,9 +329,32 @@ export function PaymentMethodPageContent() {
   return (
     <main className="min-h-screen bg-(--bg-primary) px-3 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-4">
       <div className="mx-auto w-full max-w-xl pt-2 lg:max-w-2xl lg:pt-4">
-        <h1 className="mb-4 text-[20px] font-semibold text-(--text-primary) lg:text-[24px]">
+
+        <div className="flex items-center justify-between">
+        <h1 className="mb-4 text-[20px] font-semibold flex items-center text-(--text-primary) lg:text-[24px]">
           Payment Methods
         </h1>
+
+        <div className="flex items-center gap-2">
+
+          <button
+            type="button"
+            onClick={() => setFormOpen((open) => !open)}
+            className="flex items-center primary-button text-white p-1 rounded-xs"
+          >
+            Add card
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFormOpen((open) => !open)}
+            className="flex items-center primary-button text-white p-1 rounded-xs"
+          >
+            Remove card
+          </button>
+
+        </div>
+        </div>
 
         <div className="mb-5 flex border-b border-(--border)">
           {paymentMethodTabs.map((tab) => {

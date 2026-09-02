@@ -32,7 +32,7 @@ import type {
   ServiceSchedules,
   ServiceStaffAssignments,
 } from "../../booking.types";
-import { useRouter } from "next/navigation";
+import { Step2DateTimeSection } from "./Step2DateTimeSection";
 
 interface ServiceScheduleRowsProps {
   selectedServiceIds: string[];
@@ -40,6 +40,7 @@ interface ServiceScheduleRowsProps {
   expertType: ExpertType;
   serviceStaff: ServiceStaffAssignments;
   schedules: ServiceSchedules;
+  packageName?: string;
   onSelectDay: (serviceId: string, dayId: string) => void;
   onSelectTime: (serviceId: string, time: string) => void;
   onSelectStaff: (serviceId: string, staffId: string) => void;
@@ -517,11 +518,13 @@ export function ServiceScheduleRows({
   expertType,
   serviceStaff,
   schedules,
+  packageName,
   onSelectDay,
   onSelectTime,
   onSelectStaff,
   onRemoveService,
 }: ServiceScheduleRowsProps) {
+  const isPackageFlow = Boolean(packageName);
   const selectedServices = getSelectedServices(
     selectedServiceIds,
     organizationId,
@@ -531,7 +534,7 @@ export function ServiceScheduleRows({
     () => selectedServiceIds[0] ?? "",
   );
   const [staffModalOpen, setStaffModalOpen] = useState(false);
-  const router = useRouter();
+  const [dateTimeOpen, setDateTimeOpen] = useState(isPackageFlow);
   useEffect(() => {
     if (selectedServiceIds.length === 0) {
       setActiveServiceId("");
@@ -580,59 +583,66 @@ export function ServiceScheduleRows({
   return (
     <>
       <div className="overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
-        {/* Service tabs */}
+        {/* Package name OR service tabs */}
         <div className="border-b border-(--border) bg-(--bg-secondary) px-3 py-3">
-          <div
-            className="flex flex-wrap gap-2"
-            role="tablist"
-            aria-label="Services"
-          >
-            {selectedServices.map((service, index) => {
-              const scheduled = isServiceScheduleComplete(schedules[service.id]);
-              const hasStaff = isServiceStaffAssigned(
-                serviceStaff,
-                service.id,
-              );
-              const isComplete = scheduled && hasStaff;
-              const isActive = service.id === activeService.id;
+          {isPackageFlow ? (
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#2D1659] px-3.5 py-2 text-[13px] font-semibold text-white">
+              <Check size={13} strokeWidth={2.5} />
+              {packageName}
+            </div>
+          ) : (
+            <div
+              className="flex flex-wrap gap-2"
+              role="tablist"
+              aria-label="Services"
+            >
+              {selectedServices.map((service, index) => {
+                const scheduled = isServiceScheduleComplete(schedules[service.id]);
+                const hasStaff = isServiceStaffAssigned(
+                  serviceStaff,
+                  service.id,
+                );
+                const isComplete = scheduled && hasStaff;
+                const isActive = service.id === activeService.id;
 
-              return (
-                <button
-                  key={service.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setActiveServiceId(service.id)}
-                  className={`
-                    inline-flex items-center gap-1.5 rounded-full px-3.5 py-2
-                    text-[13px] font-semibold transition-all
-                    ${
-                      isComplete
-                        ? "bg-(--success) text-white"
-                        : "bg-[#eab308] text-[#1a1a1a]"
-                    }
-                    ${
-                      isActive
-                        ? "ring-2 ring-(--text-primary)/25 ring-offset-2 ring-offset-(--bg-secondary)"
-                        : "opacity-90 hover:opacity-100"
-                    }
-                  `}
-                >
-                  {isComplete && <Check size={13} strokeWidth={2.5} />}
-                  Service {index + 1}
-                </button>
-              );
-            })}
-          </div>
+                return (
+                  <button
+                    key={service.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setActiveServiceId(service.id)}
+                    className={`
+                      inline-flex items-center gap-1.5 rounded-full px-3.5 py-2
+                      text-[13px] font-semibold transition-all
+                      ${
+                        isComplete
+                          ? "bg-(--success) text-white"
+                          : "bg-[#eab308] text-[#1a1a1a]"
+                      }
+                      ${
+                        isActive
+                          ? "ring-2 ring-(--text-primary)/25 ring-offset-2 ring-offset-(--bg-secondary)"
+                          : "opacity-90 hover:opacity-100"
+                      }
+                    `}
+                  >
+                    {isComplete && <Check size={13} strokeWidth={2.5} />}
+                    Service {index + 1}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Active service + staff */}
+        {/* Active service / package + staff or Auto */}
         <div className="flex flex-col gap-4 border-b border-(--border) p-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex min-w-0 items-center gap-3.5">
             <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl">
               <Image
                 src={activeService.image}
-                alt={activeService.name}
+                alt={isPackageFlow ? packageName! : activeService.name}
                 fill
                 sizes="64px"
                 className="object-cover"
@@ -641,9 +651,9 @@ export function ServiceScheduleRows({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <p className="truncate text-[16px] font-semibold text-(--text-primary)">
-                  {activeService.name}
+                  {isPackageFlow ? packageName : activeService.name}
                 </p>
-                {onRemoveService && (
+                {!isPackageFlow && onRemoveService && (
                   <button
                     type="button"
                     onClick={() => onRemoveService(activeService.id)}
@@ -659,10 +669,14 @@ export function ServiceScheduleRows({
                 )}
               </div>
               <p className="mt-1 text-[13px] text-(--text-secondary)">
-                {activeService.duration} ·{" "}
-                <span className="font-semibold text-(--brand-gold)">
-                  {activeService.priceLabel}
-                </span>
+                {isPackageFlow
+                  ? `${selectedServices.length} service${selectedServices.length === 1 ? "" : "s"} included`
+                  : `${activeService.duration} · `}
+                {!isPackageFlow && (
+                  <span className="font-semibold text-(--brand-gold)">
+                    {activeService.priceLabel}
+                  </span>
+                )}
               </p>
               {isScheduled && (
                 <p className="mt-1 inline-flex items-center gap-1 text-[12px] font-medium text-(--success)">
@@ -674,66 +688,144 @@ export function ServiceScheduleRows({
           </div>
 
           <div className="flex items-center gap-3 rounded-xl border border-(--border) bg-(--bg-secondary) px-3 py-2.5 xl:min-w-[280px]">
-            {staff ? (
-              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full">
-                <Image
-                  src={staff.image}
-                  alt={staff.name}
-                  fill
-                  sizes="44px"
-                  className="object-cover"
-                />
-              </div>
+            {isPackageFlow ? (
+              <>
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-(--border) bg-(--bg-card)">
+                  <UserRound size={18} className="text-(--text-muted)" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-semibold text-(--text-primary)">
+                    Auto
+                  </p>
+                  <p className="text-[11px] text-(--text-muted)">
+                    Staff assigned automatically
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  disabled
+                  className="
+                    shrink-0 cursor-not-allowed rounded-sm border border-(--border)
+                    bg-(--bg-card) px-3 py-1.5 text-[12px] font-semibold
+                    text-(--text-muted) opacity-60
+                  "
+                >
+                  Change
+                </button>
+              </>
             ) : (
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-dashed border-(--border) bg-(--bg-card)">
-                <UserRound size={18} className="text-(--text-muted)" />
-              </span>
+              <>
+                {staff ? (
+                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full">
+                    <Image
+                      src={staff.image}
+                      alt={staff.name}
+                      fill
+                      sizes="44px"
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-dashed border-(--border) bg-(--bg-card)">
+                    <UserRound size={18} className="text-(--text-muted)" />
+                  </span>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-semibold text-(--text-primary)">
+                    {staff ? staff.name : "No staff assigned"}
+                  </p>
+                  <p className="text-[11px] text-(--text-muted)">
+                    {staff
+                      ? `${staff.rating} · ${staff.experience}`
+                      : "Select a therapist"}
+                  </p>
+                </div>
+                <div className="flex flex-1 items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setStaffModalOpen(true)}
+                    className="
+                      shrink-0 rounded-sm border border-(--border) bg-(--bg-card)
+                      px-3 py-1.5 text-[12px] font-semibold text-(--text-primary)
+                      transition-colors hover:border-(--brand-gold)
+                      hover:text-(--brand-gold)
+                    "
+                  >
+                    {staff ? "Change" : "Select"}
+                  </button>
+                </div>
+              </>
             )}
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-semibold text-(--text-primary)">
-                {staff ? staff.name : "No staff assigned"}
-              </p>
-              <p className="text-[11px] text-(--text-muted)">
-                {staff
-                  ? `${staff.rating} · ${staff.experience}`
-                  : "Select a therapist"}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 flex-1">
-            <button
-              type="button"
-              onClick={() => setStaffModalOpen(true)}
-              className="
-                shrink-0 rounded-sm border border-(--border) bg-(--bg-card)
-                px-3 py-1.5 text-[12px] font-semibold text-(--text-primary)
-                transition-colors hover:border-(--brand-gold)
-                hover:text-(--brand-gold)
-              "
-            >
-              {staff ? "Change" : "Select"}
-            </button>
-            </div>
           </div>
         </div>
 
-        {/* Month calendar + time */}
-        <div className="grid gap-4 bg-(--bg-secondary) p-4 lg:grid-cols-[1.05fr_1fr]">
-          <MonthDateCalendar
-            key={`date-${activeService.id}`}
-            days={bookingDays}
-            activeDayId={schedule.dayId}
-            onSelectDay={(dayId) => onSelectDay(activeService.id, dayId)}
-          />
-          <TimeSlotPicker
-            key={`time-${activeService.id}`}
-            activeDayId={schedule.dayId}
-            activeTime={schedule.time}
-            onSelectTime={(time) => onSelectTime(activeService.id, time)}
-          />
-        </div>
+        {isPackageFlow ? (
+          <div className="space-y-3 bg-(--bg-secondary) p-4">
+            <button
+              type="button"
+              onClick={() => setDateTimeOpen((open) => !open)}
+              className="
+                flex w-full items-center justify-between gap-3 rounded-xl
+                border border-(--border) bg-(--bg-card) px-3.5 py-3 text-left
+                transition-colors hover:border-(--brand-gold)/50
+              "
+            >
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--accent-primary)/10">
+                  <CalendarDays size={16} className="text-(--accent-primary)" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-semibold text-(--text-primary)">
+                    Date &amp; Time
+                  </p>
+                  <p className="truncate text-[11px] text-(--text-muted)">
+                    {isScheduled
+                      ? formatServiceSchedule(schedule)
+                      : "Tap to choose date and time"}
+                  </p>
+                </div>
+              </div>
+              <Clock3
+                size={16}
+                className={`shrink-0 text-(--text-muted) transition-transform ${
+                  dateTimeOpen ? "rotate-90 text-(--accent-primary)" : ""
+                }`}
+              />
+            </button>
+
+            {dateTimeOpen && (
+              <div className="rounded-xl border border-(--border) bg-(--bg-card) p-3">
+                <Step2DateTimeSection
+                  embedded
+                  days={bookingDays}
+                  times={timeSlots}
+                  activeDayId={schedule.dayId}
+                  activeTime={schedule.time}
+                  onSelectDay={(dayId) => onSelectDay(activeService.id, dayId)}
+                  onSelectTime={(time) => onSelectTime(activeService.id, time)}
+                />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-4 bg-(--bg-secondary) p-4 lg:grid-cols-[1.05fr_1fr]">
+            <MonthDateCalendar
+              key={`date-${activeService.id}`}
+              days={bookingDays}
+              activeDayId={schedule.dayId}
+              onSelectDay={(dayId) => onSelectDay(activeService.id, dayId)}
+            />
+            <TimeSlotPicker
+              key={`time-${activeService.id}`}
+              activeDayId={schedule.dayId}
+              activeTime={schedule.time}
+              onSelectTime={(time) => onSelectTime(activeService.id, time)}
+            />
+          </div>
+        )}
       </div>
 
-      {staffModalOpen && (
+      {staffModalOpen && !isPackageFlow && (
         <StaffChangeModal
           serviceName={activeService.name}
           staffList={availableStaff}

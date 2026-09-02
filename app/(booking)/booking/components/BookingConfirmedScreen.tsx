@@ -1415,30 +1415,30 @@ export function BookingConfirmedScreen({
               <button
                 type="button"
                 onClick={() => setShowReceiptModal(true)}
-                className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-[#F3EAF8] px-1 py-3"
+                className="flex items-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
               >
-                <ReceiptText size={20} className="text-[#6B3FA0]" />
-                <span className="text-center text-[10px] leading-tight font-semibold text-(--text-primary)">
+                <ReceiptText size={14} strokeWidth={2} className="shrink-0" />
+                <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
                   View Receipt
                 </span>
               </button>
               <button
                 type="button"
                 onClick={() => setShowRescheduleModal(true)}
-                className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-[#F8F1E3] px-1 py-3"
+                className="flex items-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
               >
-                <CalendarClock size={20} className="text-[#C69C6D]" />
-                <span className="text-center text-[10px] leading-tight font-semibold text-(--text-primary)">
+                <CalendarClock size={14} strokeWidth={2} className="shrink-0" />
+                <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
                   Reschedule
                 </span>
               </button>
               <button
                 type="button"
                 onClick={() => setShowCancelModal(true)}
-                className="flex flex-col items-center justify-center gap-1.5 rounded-xl bg-[#FDECEC] px-1 py-3"
+                className="flex items-center justify-center text-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
               >
-                <XCircle size={20} className="text-[#E53E3E]" />
-                <span className="text-center text-[10px] leading-tight font-semibold text-[#E53E3E]">
+                <XCircle size={14} strokeWidth={2} className="shrink-0" />
+                <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
                   Cancel Booking
                 </span>
               </button>

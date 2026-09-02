@@ -29,6 +29,7 @@ interface BookingSelectedServicesPanelProps {
   title?: string;
   serviceStaff?: ServiceStaffAssignments;
   serviceSchedules?: ServiceSchedules;
+  packageName?: string;
   onRemoveService?: (id: string) => void;
   showOrganizationBanner?: boolean;
 }
@@ -40,9 +41,11 @@ export function BookingSelectedServicesPanel({
   title = "Selected Services",
   serviceStaff = {},
   serviceSchedules = {},
+  packageName,
   onRemoveService,
   showOrganizationBanner = true,
 }: BookingSelectedServicesPanelProps) {
+  const isPackageFlow = Boolean(packageName);
   const selectedServices = getSelectedServices(
     selectedServiceIds,
     organizationId,
@@ -168,7 +171,9 @@ export function BookingSelectedServicesPanel({
                       {service.priceLabel}
                     </p>
                     <p className="truncate px-1 text-[7px] font-bold text-white bg-(--text-primary) text-center">
-                      {assignedStaff?.name ?? "Staff"}
+                      {isPackageFlow
+                        ? "packages"
+                        : (assignedStaff?.name ?? "Staff")}
                     </p>
                     <p className="truncate px-1 text-[7px] font-bold text-white bg-(--text-primary) text-center">
                       {scheduled ? formatServiceSchedule(schedule) : "Date & time"}

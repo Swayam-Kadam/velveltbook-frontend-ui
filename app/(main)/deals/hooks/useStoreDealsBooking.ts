@@ -37,7 +37,9 @@ export function useStoreDealsBooking() {
       const nextPackages = buildDesktopBookingPackages(deal, result.deals);
       setPackages(nextPackages);
       setActivePackageId(nextPackages[0]?.id ?? "");
-      setSelectedServicesByPackage(createDefaultServiceSelection(nextPackages));
+      setSelectedServicesByPackage(
+        createDefaultServiceSelection(nextPackages, deal.type !== "single"),
+      );
     } finally {
       setIsLoading(false);
     }

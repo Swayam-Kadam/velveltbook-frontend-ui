@@ -39,7 +39,7 @@ export function BookingOrganizationBanner({
 
   return (
     <section className="feature-card overflow-hidden rounded-xl">
-      <div className="relative h-[115px] w-full">
+      <div className="relative hidden h-[115px] w-full lg:block">
         <Image
           src={org.banner}
           alt={org.name}
@@ -60,7 +60,7 @@ export function BookingOrganizationBanner({
         <div className="absolute left-2 top-2 h-[8px] w-[8px] rounded-full bg-[#8BFFD1]" />
       </div>
 
-      <div className="bg-(--bg-card) px-2.5 py-2">
+      <div className="border-t-8 border-(--accent-primary) bg-(--bg-card) px-2.5 py-2 lg:border-t-0">
         <div className="flex min-w-0 items-start gap-2">
           <div className="relative  h-14 w-14 shrink-0">
             <div className="relative h-14 w-14 overflow-hidden rounded-xl border-2 border-(--bg-card) shadow-(--shadow-card)">

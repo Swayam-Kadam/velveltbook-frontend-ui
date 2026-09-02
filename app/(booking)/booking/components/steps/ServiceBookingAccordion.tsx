@@ -34,9 +34,12 @@ import type {
 } from "../../booking.types";
 import { BookingMonthCalendar } from "./BookingMonthCalendar";
 import { ExpertProfileModal } from "../ExpertProfileModal";
+import { Step2DateTimeSection } from "./Step2DateTimeSection";
 
 type PanelTab = "staff" | "datetime";
 type TimePeriod = "AM" | "PM";
+
+const ANY_STAFF_ID = "any";
 
 interface ServiceBookingAccordionProps {
   selectedServiceIds: string[];
@@ -45,6 +48,7 @@ interface ServiceBookingAccordionProps {
   assignments: ServiceStaffAssignments;
   schedules: ServiceSchedules;
   lockStaffSelection?: boolean;
+  packageName?: string;
   onSelectStaff: (serviceId: string, staffId: string) => void;
   onSelectDay: (serviceId: string, dayId: string) => void;
   onSelectTime: (serviceId: string, time: string) => void;
@@ -61,6 +65,69 @@ function formatTimeParts(time: string) {
     clock: match?.[1] ?? time,
     period: (match?.[2] ?? getTimePeriod(time)) as TimePeriod,
   };
+}
+
+function parseDurationMinutes(duration: string): number {
+  const value = duration.trim().toLowerCase();
+  if (!value) return 0;
+
+  const hoursMatch = value.match(/(\d+(?:\.\d+)?)\s*h/);
+  const minutesMatch = value.match(/(\d+(?:\.\d+)?)\s*m/);
+  let total = 0;
+
+  if (hoursMatch) total += Number(hoursMatch[1]) * 60;
+  if (minutesMatch) total += Number(minutesMatch[1]);
+
+  if (!hoursMatch && !minutesMatch) {
+    const numeric = Number(value.replace(/[^0-9.]/g, ""));
+    if (Number.isFinite(numeric)) total = numeric;
+  }
+
+  return Math.max(0, Math.round(total));
+}
+
+function parseTimeToMinutes(time: string): number | null {
+  const match = time
+    .trim()
+    .match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
+  if (!match) return null;
+
+  let hour = Number(match[1]);
+  const minute = Number(match[2] ?? 0);
+  const period = match[3].toUpperCase();
+
+  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
+  if (period === "PM" && hour !== 12) hour += 12;
+  if (period === "AM" && hour === 12) hour = 0;
+
+  return hour * 60 + minute;
+}
+
+function formatMinutesToCompactTime(totalMinutes: number): string {
+  const minutesInDay = 24 * 60;
+  const normalized =
+    ((Math.round(totalMinutes) % minutesInDay) + minutesInDay) % minutesInDay;
+  let hour = Math.floor(normalized / 60);
+  const minute = normalized % 60;
+  const period = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+
+  if (minute === 0) return `${hour}${period}`;
+  return `${hour}:${String(minute).padStart(2, "0")}${period}`;
+}
+
+function formatBookingTimeRange(
+  startTime: string | undefined,
+  durationMinutes: number,
+): string | null {
+  if (!startTime || durationMinutes <= 0) return null;
+  const startMinutes = parseTimeToMinutes(startTime);
+  if (startMinutes == null) return null;
+
+  const startLabel = formatMinutesToCompactTime(startMinutes);
+  const endLabel = formatMinutesToCompactTime(startMinutes + durationMinutes);
+  return `${startLabel} - ${endLabel}`;
 }
 
 function  tabClassName(complete: boolean, active: boolean) {
@@ -194,11 +261,13 @@ export function ServiceBookingAccordion({
   assignments,
   schedules,
   lockStaffSelection = false,
+  packageName,
   onSelectStaff,
   onSelectDay,
   onSelectTime,
   onRemoveService,
 }: ServiceBookingAccordionProps) {
+  const isPackageFlow = Boolean(packageName);
   const selectedServices = getSelectedServices(
     selectedServiceIds,
     organizationId,
@@ -342,7 +411,14 @@ export function ServiceBookingAccordion({
   const assignedStaffId = activeService
     ? assignments[activeService.id]
     : undefined;
-  const assignedStaff = assignedStaffId ? getStaff(assignedStaffId) : null;
+  const isAnyStaff = assignedStaffId === ANY_STAFF_ID;
+  const assignedStaff =
+    assignedStaffId && !isAnyStaff ? getStaff(assignedStaffId) : null;
+  const assignedStaffLabel = isAnyStaff
+    ? "ANY"
+    : assignedStaff
+      ? assignedStaff.name
+      : null;
   const schedule = activeService
     ? schedules[activeService.id] ?? createDefaultServiceSchedule()
     : createDefaultServiceSchedule();
@@ -353,7 +429,20 @@ export function ServiceBookingAccordion({
   const isReady = staffDone && scheduleDone;
   const activePanel = activeService
     ? getActiveTab(activeService.id)
-    : "staff";
+    : isPackageFlow
+      ? "datetime"
+      : "staff";
+
+  useEffect(() => {
+    if (!isPackageFlow || !activeService) return;
+    setActiveTabByService((current) => {
+      if (current[activeService.id]) return current;
+      return {
+        ...current,
+        [activeService.id]: "datetime",
+      };
+    });
+  }, [activeService, isPackageFlow]);
   const staffForService = lockStaffSelection
     ? visibleStaff.filter(
         (therapist) => !assignedStaffId || therapist.id === assignedStaffId,
@@ -362,6 +451,34 @@ export function ServiceBookingAccordion({
   const activeServiceIndex = activeService
     ? selectedServices.findIndex((service) => service.id === activeService.id)
     : 0;
+
+  const durationMinutes = useMemo(() => {
+    const servicesForDuration = isPackageFlow
+      ? selectedServices
+      : activeService
+        ? [activeService]
+        : [];
+
+    return servicesForDuration.reduce(
+      (sum, service) => sum + parseDurationMinutes(service.duration),
+      0,
+    );
+  }, [activeService, isPackageFlow, selectedServices]);
+
+  const rangeStartTime = useMemo(() => {
+    if (scheduleDone && schedule.time) return schedule.time;
+
+    const firstScheduled = selectedServiceIds
+      .map((id) => schedules[id])
+      .find((item) => isServiceScheduleComplete(item));
+
+    return firstScheduled?.time;
+  }, [schedule.time, scheduleDone, schedules, selectedServiceIds]);
+
+  const bookingTimeRange = formatBookingTimeRange(
+    rangeStartTime,
+    durationMinutes,
+  );
 
   return (
     <section className="feature-card overflow-hidden rounded-xl">
@@ -373,17 +490,26 @@ export function ServiceBookingAccordion({
             </span>
             <div>
               <h3 className="text-xs font-bold text-(--text-primary)">
-                Staff &amp; Schedule
+                {isPackageFlow ? "Package Schedule" : "Staff & Schedule"}
+                <span className="text-[11px] font-bold ml-3">{bookingTimeRange ?? "—"}</span>
               </h3>
               <p className="text-[8px] font-semibold text-(--text-muted)">
-                Pick therapist, date and time per service
+                {isPackageFlow
+                  ? "Auto staff · pick date and time for your package"
+                  : "Pick therapist, date and time per service"}
               </p>
             </div>
           </div>
 
+          {/* <div className="min-w-0 flex-1 px-2 text-center">
+            <h3 className="text-[11px] font-bold text-(--text-primary)">
+              {bookingTimeRange ?? "—"}
+            </h3>
+          </div> */}
+
           <div className="text-right">
             <h3 className="text-[11px] font-bold text-(--text-primary)">
-              {assignedCount}/{selectedServiceIds.length} staff ·{" "}
+              {!isPackageFlow ? `${assignedCount}/${selectedServiceIds.length} staff ·${" "}` : ""}
               {scheduledCount}/{selectedServiceIds.length} scheduled
             </h3>
           </div>
@@ -391,98 +517,111 @@ export function ServiceBookingAccordion({
       </div>
 
       {selectedServices.length > 0 && (
-        <div className="relative border-b border-(--border) px-8 py-2.5">
-          {selectedServices.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={() => scrollTabs("left")}
-                aria-label="Scroll service tabs left"
-                className="
-                  absolute left-1 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2
-                  items-center justify-center rounded-full border border-(--border)
-                  bg-(--bg-card) text-(--text-primary) shadow-[var(--shadow-card)]
-                "
+        <div className="relative border-b border-(--border) px-3 py-2.5">
+          {isPackageFlow ? (
+            <div className="inline-flex items-center gap-1.5 rounded-xl primary-button px-3 py-2 text-[10px] font-semibold text-white">
+              <Check size={11} strokeWidth={2.5} />
+              {packageName}
+            </div>
+          ) : (
+            <div className="relative px-5">
+              {selectedServices.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => scrollTabs("left")}
+                    aria-label="Scroll service tabs left"
+                    className="
+                      absolute left-0 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2
+                      items-center justify-center rounded-full border border-(--border)
+                      bg-(--bg-card) text-(--text-primary) shadow-[var(--shadow-card)]
+                    "
+                  >
+                    <ChevronLeft size={14} strokeWidth={2.5} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollTabs("right")}
+                    aria-label="Scroll service tabs right"
+                    className="
+                      absolute right-0 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2
+                      items-center justify-center rounded-full border border-(--border)
+                      bg-(--bg-card) text-(--text-primary) shadow-[var(--shadow-card)]
+                    "
+                  >
+                    <ChevronRight size={14} strokeWidth={2.5} />
+                  </button>
+                </>
+              )}
+
+              <div
+                ref={tabsScrollRef}
+                className="scrollbar-none flex gap-0.5 overflow-x-auto overflow-y-hidden scroll-smooth px-1"
               >
-                <ChevronLeft size={14} strokeWidth={2.5} />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollTabs("right")}
-                aria-label="Scroll service tabs right"
-                className="
-                  absolute right-1 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2
-                  items-center justify-center rounded-full border border-(--border)
-                  bg-(--bg-card) text-(--text-primary) shadow-[var(--shadow-card)]
-                "
-              >
-                <ChevronRight size={14} strokeWidth={2.5} />
-              </button>
-            </>
+                {selectedServices.map((service, index) => {
+                  const ready =
+                    isServiceStaffAssigned(assignments, service.id) &&
+                    isServiceScheduleComplete(schedules[service.id]);
+                  const active = service.id === activeService?.id;
+
+                  return (
+                    <button
+                      key={service.id}
+                      type="button"
+                      onClick={() => selectServiceTab(service.id)}
+                      aria-pressed={active}
+                      className={`
+                        relative shrink-0 rounded-xl border px-3 py-2 text-[10px]
+                        font-semibold transition-all duration-200
+                        ${
+                          active
+                            ? "primary-button border-transparent text-white"
+                            : "border-(--border) bg-(--bg-card) text-(--text-primary)"
+                        }
+                      `}
+                    >
+                      <span
+                        className={`absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full ${
+                          ready ? "bg-(--success)" : "bg-(--danger)"
+                        }`}
+                      />
+                      {`Service - ${index + 1}`}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           )}
-
-          <div
-            ref={tabsScrollRef}
-            className={`scrollbar-none flex gap-0.5 overflow-x-auto overflow-y-hidden scroll-smooth ${
-              selectedServices.length > 1 ? "px-9" : "px-1"
-            }`}
-          >
-            {selectedServices.map((service, index) => {
-              const ready =
-                isServiceStaffAssigned(assignments, service.id) &&
-                isServiceScheduleComplete(schedules[service.id]);
-              const active = service.id === activeService?.id;
-
-              return (
-                <button
-                  key={service.id}
-                  type="button"
-                  onClick={() => selectServiceTab(service.id)}
-                  aria-pressed={active}
-                  className={`
-                    relative shrink-0 rounded-xl border px-3 py-2 text-[10px]
-                    font-semibold transition-all duration-200
-                    ${
-                      active
-                        ? "primary-button border-transparent text-white"
-                        : "border-(--border) bg-(--bg-card) text-(--text-primary)"
-                    }
-                  `}
-                >
-                  <span
-                    className={`absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full ${
-                      ready ? "bg-(--success)" : "bg-(--danger)"
-                    }`}
-                  />
-                  {`Service - ${index + 1}`}
-                </button>
-              );
-            })}
-          </div>
         </div>
       )}
 
       {activeService ? (
         <div className="p-3">
           <div className="relative mb-2.5 overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)">
-            <button
-              type="button"
-              onClick={() => handleRemoveService(activeService.id)}
-              aria-label={`Remove ${activeService.name}`}
-              className="
-                absolute top-6 right-2 z-10 flex h-7 w-7 items-center
-                justify-center rounded-full text-red-500
-                transition-colors hover:bg-red-500/10
-              "
-            >
-              <Trash2 size={15} />
-            </button>
+            {!isPackageFlow && (
+              <button
+                type="button"
+                onClick={() => handleRemoveService(activeService.id)}
+                aria-label={`Remove ${activeService.name}`}
+                className="
+                  absolute top-6 right-2 z-10 flex h-7 w-7 items-center
+                  justify-center rounded-full text-red-500
+                  transition-colors hover:bg-red-500/10
+                "
+              >
+                <Trash2 size={15} />
+              </button>
+            )}
 
-            <div className="flex items-center gap-2 px-3 py-2.5 pr-10">
+            <div
+              className={`flex items-center gap-2 px-3 py-2.5 ${
+                isPackageFlow ? "" : "pr-10"
+              }`}
+            >
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xs">
                 <Image
                   src={activeService.image}
-                  alt={activeService.name}
+                  alt={isPackageFlow ? packageName! : activeService.name}
                   fill
                   sizes="48px"
                   className="object-cover"
@@ -491,10 +630,12 @@ export function ServiceBookingAccordion({
 
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[12px] font-bold text-(--text-primary)">
-                  {activeService.name}
+                  {isPackageFlow ? packageName : activeService.name}
                 </p>
                 <p className="text-[9px] font-semibold text-(--text-muted)">
-                  {activeService.duration} · {activeService.priceLabel}
+                  {isPackageFlow
+                    ? `${selectedServices.length} services included`
+                    : `${activeService.duration} · ${activeService.priceLabel}`}
                 </p>
                 <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
                   <span className="inline-flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
@@ -502,9 +643,11 @@ export function ServiceBookingAccordion({
                       size={9}
                       className="shrink-0 text-(--accent-primary)"
                     />
-                    {staffDone && assignedStaff
-                      ? assignedStaff.name
-                      : "Pick staff"}
+                    {isPackageFlow
+                      ? "Auto"
+                      : staffDone && assignedStaffLabel
+                        ? assignedStaffLabel
+                        : "Pick staff"}
                   </span>
                   <span className="inline-flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
                     <Clock3
@@ -523,13 +666,13 @@ export function ServiceBookingAccordion({
                   className={`
                     rounded-xs px-2 py-1 text-[8px] font-bold
                     ${
-                      isReady
+                      (isPackageFlow ? scheduleDone : isReady)
                         ? "bg-(--accent-primary) text-(--success) ring-1 ring-(--success)/40"
                         : "bg-(--accent-primary) text-red-500 ring-1 ring-red-500"
                     }
                   `}
                 >
-                  {isReady ? "Ready" : "Pending"}
+                  {(isPackageFlow ? scheduleDone : isReady) ? "Ready" : "Pending"}
                 </span>
               </div>
             </div>
@@ -538,26 +681,43 @@ export function ServiceBookingAccordion({
           <div className="mb-2.5 flex gap-1.5">
             <button
               type="button"
-              onClick={() => setActiveTab(activeService.id, "staff")}
-              className={tabClassName(staffDone, activePanel === "staff")}
+              disabled={isPackageFlow}
+              onClick={() => {
+                if (isPackageFlow) return;
+                setActiveTab(activeService.id, "staff");
+              }}
+              className={`${tabClassName(
+                isPackageFlow || staffDone,
+                !isPackageFlow && activePanel === "staff",
+              )} ${isPackageFlow ? "cursor-not-allowed opacity-70" : ""}`}
             >
               <span className="flex items-center gap-1">
                 <UserRound size={11} />
                 <span>
-                  {staffDone && assignedStaff
-                    ? `${assignedStaff.name} (Staff)`
-                    : "Select Staff"}
+                  {isPackageFlow
+                    ? "Auto (Staff)"
+                    : staffDone && assignedStaffLabel
+                      ? `${assignedStaffLabel} (Staff)`
+                      : "Select Staff"}
                 </span>
               </span>
-              {activePanel !== "staff" ? (
-                <ChevronDown size={11} />
-              ) : (
-                <ChevronUp size={11} />
-              )}
+              {!isPackageFlow &&
+                (activePanel !== "staff" ? (
+                  <ChevronDown size={11} />
+                ) : (
+                  <ChevronUp size={11} />
+                ))}
             </button>
             <button
               type="button"
               onClick={() => {
+                if (isPackageFlow) {
+                  setActiveTab(
+                    activeService.id,
+                    activePanel === "datetime" ? "staff" : "datetime",
+                  );
+                  return;
+                }
                 setActiveTab(activeService.id, "datetime");
                 setDateTimeModalServiceId(activeService.id);
               }}
@@ -582,9 +742,72 @@ export function ServiceBookingAccordion({
             </button>
           </div>
 
-          {activePanel === "staff" && (
+          {isPackageFlow && activePanel === "datetime" && (
+            <div className="mb-2 rounded-xl border border-(--border) bg-(--bg-secondary) p-2">
+              <Step2DateTimeSection
+                embedded
+                days={bookingDays}
+                times={timeSlots}
+                activeDayId={schedule.dayId}
+                activeTime={schedule.time}
+                onSelectDay={(dayId) => onSelectDay(activeService.id, dayId)}
+                onSelectTime={(time) => onSelectTime(activeService.id, time)}
+              />
+            </div>
+          )}
+
+          {!isPackageFlow && activePanel === "staff" && (
             <div className="rounded-xl border border-(--border) bg-(--bg-secondary) p-2">
               <div className="scrollbar-none flex gap-2 overflow-x-auto pb-0.5">
+                {(() => {
+                  const anyActive = assignedStaffId === ANY_STAFF_ID;
+
+                  return (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handlePickStaff(activeService.id, ANY_STAFF_ID)
+                      }
+                      disabled={lockStaffSelection}
+                      className={`
+                        feature-card w-[96px] shrink-0 rounded-xl p-1.5 text-left
+                        transition-all duration-200
+                        ${lockStaffSelection ? "cursor-default" : ""}
+                        ${
+                          anyActive
+                            ? "border-(--accent-primary) shadow-(--shadow-glow)"
+                            : "hover:border-[color-mix(in_srgb,var(--accent-primary)_30%,var(--border))]"
+                        }
+                      `}
+                    >
+                      <div className="relative flex h-[78px] items-center justify-center overflow-hidden rounded-sm bg-(--bg-card)">
+                        <span className="flex h-19 w-20 items-center justify-center rounded-sm border border-(--border) bg-(--bg-secondary)">
+                          <UserRound
+                            size={55}
+                            strokeWidth={1.75}
+                            className="text-(--text-muted)"
+                          />
+                        </span>
+                        {anyActive && (
+                          <span className="border-3 border-white primary-button absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full text-white">
+                            <Check size={10} strokeWidth={2.5} />
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="mt-1.5 truncate text-[13px] font-bold text-(--text-primary)">
+                        ANY
+                      </p>
+
+                      <div className="mt-1 flex items-center gap-2">
+                        <span className="w-full rounded-sm bg-(--accent-primary) px-2 text-center text-[10px] font-semibold uppercase tracking-wide text-white">
+                          Staff
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })()}
+
                 {staffForService.map((therapist) => {
                   const active = therapist.id === assignedStaffId;
 
@@ -652,10 +875,12 @@ export function ServiceBookingAccordion({
             </div>
           )}
 
-          <p className="mt-2 text-center text-[8px] font-semibold text-(--text-muted)">
-            Showing Service - {activeServiceIndex + 1} of{" "}
-            {selectedServices.length}
-          </p>
+          {!isPackageFlow && (
+            <p className="mt-2 text-center text-[8px] font-semibold text-(--text-muted)">
+              Showing Service - {activeServiceIndex + 1} of{" "}
+              {selectedServices.length}
+            </p>
+          )}
         </div>
       ) : (
         <div className="px-3 py-8 text-center text-[11px] font-medium text-(--text-muted)">
@@ -664,6 +889,7 @@ export function ServiceBookingAccordion({
       )}
 
       {dateTimeModalServiceId &&
+        !isPackageFlow &&
         dateTimeModalService &&
         dateTimeModalSchedule && (
           <div

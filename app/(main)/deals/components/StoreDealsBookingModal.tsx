@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { Check, ChevronLeft, ChevronRight, MapPin, Star, Store, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, MapPin, Plus, Star, Store, X } from "lucide-react";
 import { buildBookingUrl } from "@/booking/booking.navigation";
 import type { BookingPackageService } from "./desktopBookingPackages";
 import { useStoreDealsBooking } from "../hooks/useStoreDealsBooking";
@@ -45,7 +45,7 @@ function SelectableStoreServiceCard({
 
   const cardBody = (
       <div className="flex gap-1.5 p-1.5">
-        <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-sm">
+        <div className="relative w-20 shrink-0 overflow-hidden rounded-sm">
           <Image
             src={image}
             alt={service.label}
@@ -63,15 +63,20 @@ function SelectableStoreServiceCard({
             {!locked && (
               <span
                 className={`
-                  flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border
+                  flex h-5 w-5 shrink-0 items-center justify-center rounded-full
                   transition-colors duration-200
-                  ${isSelected
-                    ? "primary-button border-transparent text-white"
-                    : "border-(--border) bg-(--bg-card) text-transparent"
+                  ${
+                    isSelected
+                      ? "bg-(--accent-primary) text-white"
+                      : "border-3 border-(--border) bg-white text-(--accent-primary)"
                   }
                 `}
               >
-                {isSelected && <Check size={10} strokeWidth={2.5} />}
+                {isSelected ? (
+                  <Check size={14} strokeWidth={2.5} />
+                ) : (
+                  <Plus size={14} strokeWidth={2.5} />
+                )}
               </span>
             )}
           </div>
@@ -99,7 +104,7 @@ function SelectableStoreServiceCard({
                   {formatPrice(originalUnitPrice)}
                 </span>
                 <span className="text-[9px] text-(--text-muted)">
-                  Package service
+                  {locked ? "Package service" : "Single deal"}
                 </span>
               </div>
             </div>
@@ -181,6 +186,8 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
 
   if (!isOpen) return null;
 
+  const tabPrefix = clickedDeal?.type === "single" ? "Single" : "Package";
+  const isPackageFlow = clickedDeal?.type !== "single";
   const bookingServiceIds = Array.from(
     new Set(selectedServices.map((service) => service.menuServiceId)),
   );
@@ -189,11 +196,25 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
       ? buildBookingUrl({
           serviceIds: bookingServiceIds,
           step: 2,
+          packageName:
+            isPackageFlow && activePackage
+              ? activePackage.title
+              : undefined,
+          packagePrice:
+            isPackageFlow && activePackage
+              ? activePackage.currentPrice
+              : undefined,
+          packageOriginalPrice:
+            isPackageFlow && activePackage
+              ? activePackage.originalPrice
+              : undefined,
+          packageImage:
+            isPackageFlow && activePackage
+              ? activePackage.image
+              : undefined,
         })
       : "#";
 
-  const tabPrefix = clickedDeal?.type === "single" ? "Single" : "Package";
-  const isPackageFlow = clickedDeal?.type !== "single";
   const packageLabels = [
     `${tabPrefix} 1`,
     `${tabPrefix} 2`,
@@ -295,9 +316,9 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
             </div>
           ) : (
             <div className="space-y-1.5">
-              <p className="mb-1 text-[10px] font-medium text-(--text-secondary)">
+              {/* <p className="mb-1 text-[10px] font-medium text-(--text-secondary)">
                 Select discounted services from this store
-              </p>
+              </p> */}
 
               <div className="flex items-center gap-1">
                 <button
@@ -333,7 +354,7 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
                         }}
                         className={`
                           shrink-0 basis-[calc((100%-0.75rem)/4)] truncate
-                          rounded-xs border border-(--border) py-1
+                          rounded-xs border border-(--border) py-2
                           text-center text-[10px] font-medium
                           disabled:cursor-not-allowed disabled:opacity-40
                           ${

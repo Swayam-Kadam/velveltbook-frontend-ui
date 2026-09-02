@@ -1,45 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Bookmark, CalendarDays } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
-import {
-  isFavoriteStore,
-  saveFavoriteStore,
-  removeFavoriteStore,
-  FAVORITE_STORES_EVENT,
-} from "@/lib/favorite-stores";
 import type { TrendingNearbyItem } from "./trending-nearby.types";
+import { useFavoriteStoreToggle } from "./useFavoriteStoreToggle";
 
 interface TrendingNearbyActionsProps {
   store: TrendingNearbyItem;
 }
 
 export function TrendingNearbyActions({ store }: TrendingNearbyActionsProps) {
-  const router = useRouter();
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    const sync = () => setSaved(isFavoriteStore(store.id));
-
-    sync();
-    window.addEventListener(FAVORITE_STORES_EVENT, sync);
-    return () => window.removeEventListener(FAVORITE_STORES_EVENT, sync);
-  }, [store.id]);
-
-  const handleSave = () => {
-    if (saved) {
-      removeFavoriteStore(store.id);
-      setSaved(false);
-      return;
-    }
-
-    saveFavoriteStore(store);
-    setSaved(true);
-    // router.push("/favoritestore");
-  };
+  const { saved, toggle } = useFavoriteStoreToggle(store);
 
   return (
     <div className="mt-5 flex gap-1 lg:mt-4 lg:gap-4">
@@ -57,7 +29,7 @@ export function TrendingNearbyActions({ store }: TrendingNearbyActionsProps) {
 
       <button
         type="button"
-        onClick={handleSave}
+        onClick={toggle}
         aria-label={saved ? "Remove from favourites" : "Save to favourites"}
         aria-pressed={saved}
         className="flex h-8 w-8 items-center justify-center rounded-[4px] border border-(--border) bg-(--bg-card) transition-colors hover:border-(--accent-primary)/40"

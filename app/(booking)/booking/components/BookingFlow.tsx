@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import type { ExpertType } from "@/menu/components/ExpertSelection";
@@ -10,6 +10,7 @@ import {
   calcServicesTotal,
   createDefaultServiceSchedule,
   getDefaultSeatId,
+  getOrganizationStaff,
   getPrimaryStaffId,
   syncServiceSchedules,
   syncServiceStaffAssignments,
@@ -24,15 +25,22 @@ import { Step1ServiceSelection } from "./steps/Step1ServiceSelection";
 import { Step2StaffSelection } from "./steps/Step2StaffSelection";
 import { Step3DateTimeSelection } from "./steps/Step3DateTimeSelection";
 import { StepProductPreview } from "./steps/StepProductPreview";
+import {
+  StepProductAddress,
+  type ProductDeliveryAddress,
+} from "./steps/StepProductAddress";
 import { BookingConfirmedScreen } from "./BookingConfirmedScreen";
+import { PackageBookingConfirmedScreen } from "./PackageBookingConfirmedScreen";
 import {
   getStep4Total,
   Step4PaymentConfirmation,
 } from "./steps/Step4PaymentConfirmation";
 
 function initialProductStep(parsedStep: number) {
-  // Product flow: 1 = Preview, 2 = Payment.
+  // Product flow: 1 = Preview, 2 = Address, 3 = Payment.
   // Legacy org links used step=4 for payment — treat as payment.
+  if (parsedStep >= 4) return 3;
+  if (parsedStep >= 3) return 3;
   if (parsedStep >= 2) return 2;
   return 1;
 }
@@ -58,6 +66,11 @@ export function BookingFlow() {
   >(() => parsed.productQuantities ?? Object.fromEntries(parsed.productIds.map((id) => [id, 1])));
   const expertType: ExpertType = parsed.expertType;
   const organizationId = parsed.organizationId;
+  const packageName = parsed.packageName;
+  const isPackageFlow = Boolean(packageName);
+  const packagePrice = parsed.packagePrice;
+  const packageOriginalPrice = parsed.packageOriginalPrice;
+  const packageImage = parsed.packageImage;
 
   const [staffId, setStaffId] = useState(
     () =>
@@ -97,7 +110,43 @@ export function BookingFlow() {
   const [billingName, setBillingName] = useState("");
   const [billingEmail, setBillingEmail] = useState("");
   const [billingPhone, setBillingPhone] = useState("");
+  const [productDeliveryAddress, setProductDeliveryAddress] =
+    useState<ProductDeliveryAddress | undefined>(undefined);
+  const [isDesktopViewport, setIsDesktopViewport] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const updateViewport = () => setIsDesktopViewport(mediaQuery.matches);
+    updateViewport();
+    mediaQuery.addEventListener("change", updateViewport);
+    return () => mediaQuery.removeEventListener("change", updateViewport);
+  }, []);
+
+  useEffect(() => {
+    if (!isProductFlow || !isDesktopViewport || step !== 2) return;
+    setStep(productDeliveryAddress ? 3 : 1);
+  }, [isProductFlow, isDesktopViewport, step, productDeliveryAddress]);
+
+  useEffect(() => {
+    if (!isPackageFlow || serviceIds.length === 0) return;
+
+    const autoStaffId =
+      getOrganizationStaff(organizationId)[0]?.id ?? staffId ?? "sony";
+
+    setServiceStaff((current) => {
+      const next = { ...current };
+      let changed = false;
+      for (const id of serviceIds) {
+        if (!next[id]) {
+          next[id] = autoStaffId;
+          changed = true;
+        }
+      }
+      return changed ? next : current;
+    });
+    setStaffId(autoStaffId);
+  }, [isPackageFlow, organizationId, serviceIds, staffId]);
 
   const setSelectedServices = (updater: (current: string[]) => string[]) => {
     setServiceIds((current) => {
@@ -238,32 +287,72 @@ export function BookingFlow() {
   };
 
   const handleSelectServiceDay = (serviceId: string, dayId: string) => {
-    setServiceSchedules((current) => ({
-      ...current,
-      [serviceId]: {
-        ...(current[serviceId] ?? createDefaultServiceSchedule()),
-        dayId,
-        isSet: true,
-      },
-    }));
+    setServiceSchedules((current) => {
+      if (!isPackageFlow) {
+        return {
+          ...current,
+          [serviceId]: {
+            ...(current[serviceId] ?? createDefaultServiceSchedule()),
+            dayId,
+            isSet: true,
+          },
+        };
+      }
+
+      const next = { ...current };
+      for (const id of serviceIds) {
+        next[id] = {
+          ...(next[id] ?? createDefaultServiceSchedule()),
+          dayId,
+          isSet: true,
+        };
+      }
+      return next;
+    });
   };
 
   const handleSelectServiceTime = (serviceId: string, time: string) => {
-    setServiceSchedules((current) => ({
-      ...current,
-      [serviceId]: {
-        ...(current[serviceId] ?? createDefaultServiceSchedule()),
-        time,
-        isSet: true,
-      },
-    }));
+    setServiceSchedules((current) => {
+      if (!isPackageFlow) {
+        return {
+          ...current,
+          [serviceId]: {
+            ...(current[serviceId] ?? createDefaultServiceSchedule()),
+            time,
+            isSet: true,
+          },
+        };
+      }
+
+      const next = { ...current };
+      for (const id of serviceIds) {
+        next[id] = {
+          ...(next[id] ?? createDefaultServiceSchedule()),
+          time,
+          isSet: true,
+        };
+      }
+      return next;
+    });
+  };
+
+  const applyProductDeliveryAddress = (address: ProductDeliveryAddress) => {
+    setProductDeliveryAddress(address);
+    if (address.fullName.trim()) {
+      setBillingName(address.fullName.trim());
+    }
+    if (address.mobile.trim()) {
+      setBillingPhone(
+        `${address.countryCode} ${address.mobile.trim()}`.trim(),
+      );
+    }
   };
 
   const footerConfig = () => {
     if (isConfirmed) return null;
 
     if (isProductFlow) {
-      if (step === 2) {
+      if (step === 3) {
         return {
           totalLabel: `$${getStep4Total(serviceIds, productIds, productQuantities)}`,
           buttonLabel: "Pay Now & Confirm Order",
@@ -300,6 +389,45 @@ export function BookingFlow() {
   const footer = footerConfig();
 
   if (isConfirmed) {
+    if (isPackageFlow && packageName) {
+      return (
+        <PackageBookingConfirmedScreen
+          selectedServiceIds={serviceIds}
+          organizationId={organizationId}
+          organizationBanner={organizationBanner}
+          serviceSchedules={serviceSchedules}
+          packageName={packageName}
+          packagePrice={packagePrice}
+          packageOriginalPrice={packageOriginalPrice}
+          packageImage={packageImage}
+          billingName={billingName}
+          billingPhone={billingPhone}
+          paymentMethod={paymentMethod}
+          onReschedule={(dayId, time) => {
+            setServiceSchedules((current) => {
+              const next = { ...current };
+              for (const id of serviceIds) {
+                next[id] = {
+                  ...(next[id] ?? createDefaultServiceSchedule()),
+                  dayId,
+                  time,
+                  isSet: true,
+                };
+              }
+              return next;
+            });
+          }}
+          onCancelBooking={() => {
+            setIsConfirmed(false);
+            setServiceIds([]);
+            setServiceStaff({});
+            setServiceSchedules({});
+            setStep(1);
+          }}
+        />
+      );
+    }
+
     return (
       <BookingConfirmedScreen
         selectedServiceIds={serviceIds}
@@ -346,6 +474,7 @@ export function BookingFlow() {
       <div className="space-y-4 px-2 pt-2 lg:mx-auto lg:w-full lg:max-w-[1600px] lg:space-y-5 lg:px-5 lg:pt-4 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
         <BookingProgress
           currentStep={step}
+          productDesktopStep={step >= 3 ? 2 : 1}
           mode={isProductFlow ? "product" : "service"}
         />
 
@@ -356,18 +485,38 @@ export function BookingFlow() {
                 selectedProductIds={productIds}
                 productQuantities={productQuantities}
                 organizationBanner={organizationBanner}
+                initialAddress={productDeliveryAddress}
                 onToggleProduct={toggleProduct}
                 onRemoveProduct={removeProduct}
                 onUpdateQuantity={updateProductQuantity}
                 onNext={() => setStep(2)}
+                onDesktopContinue={(address) => {
+                  applyProductDeliveryAddress(address);
+                  setStep(3);
+                }}
               />
             )}
 
             {step === 2 && (
+              <StepProductAddress
+                selectedProductIds={productIds}
+                productQuantities={productQuantities}
+                initialAddress={productDeliveryAddress}
+                onRemoveProduct={removeProduct}
+                onBack={() => setStep(1)}
+                onNext={(address) => {
+                  applyProductDeliveryAddress(address);
+                  setStep(3);
+                }}
+              />
+            )}
+
+            {step === 3 && (
               <Step4PaymentConfirmation
                 selectedServiceIds={[]}
                 selectedProductIds={productIds}
                 productQuantities={productQuantities}
+                productDeliveryAddress={productDeliveryAddress}
                 organizationBanner={organizationBanner}
                 organizationId={organizationId}
                 staffId={staffId}
@@ -382,7 +531,7 @@ export function BookingFlow() {
                 onPromoCodeChange={setPromoCode}
                 onBillingChange={handleBillingChange}
                 onRemoveProduct={removeProduct}
-                onBack={() => setStep(1)}
+                onBack={() => setStep(isDesktopViewport ? 1 : 2)}
                 onConfirm={() => setIsConfirmed(true)}
                 onEditService={() => setStep(1)}
               />
@@ -406,7 +555,11 @@ export function BookingFlow() {
                 organizationId={organizationId}
                 expertType={expertType}
                 serviceStaff={serviceStaff}
-                lockStaffSelection={lockStaffSelection}
+                lockStaffSelection={lockStaffSelection || isPackageFlow}
+                packageName={packageName}
+                packagePrice={packagePrice}
+                packageOriginalPrice={packageOriginalPrice}
+                packageImage={packageImage}
                 serviceSchedules={serviceSchedules}
                 selectedSeatId={selectedSeatId}
                 seatConfirmed={seatConfirmed}
@@ -430,6 +583,7 @@ export function BookingFlow() {
                 expertType={expertType}
                 serviceStaff={serviceStaff}
                 serviceSchedules={serviceSchedules}
+                packageName={packageName}
                 selectedSeatId={selectedSeatId}
                 seatConfirmed={seatConfirmed}
                 onSelectServiceDay={handleSelectServiceDay}
@@ -455,6 +609,7 @@ export function BookingFlow() {
                 staffId={getPrimaryStaffId(serviceStaff, serviceIds, staffId)}
                 serviceStaff={serviceStaff}
                 serviceSchedules={serviceSchedules}
+                packageName={packageName}
                 paymentMethod={paymentMethod}
                 promoCode={promoCode}
                 billingName={billingName}

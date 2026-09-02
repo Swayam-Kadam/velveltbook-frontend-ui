@@ -11,6 +11,7 @@ import {
   getFavoriteStores,
   type FavoriteStore,
 } from "@/lib/favorite-stores";
+import { FavoriteStoresSuggestionsSidebar } from "./FavoriteStoresSuggestionsSidebar";
 
 export function FavoriteStoresPageContent() {
   const router = useRouter();
@@ -27,9 +28,9 @@ export function FavoriteStoresPageContent() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-(--bg-primary) px-3 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-4">
-      <div className="mx-auto w-full max-w-6xl pt-2 lg:pt-4">
-        <div className="mb-4 flex items-center gap-3">
+    <main className="min-h-screen bg-(--bg-primary) px-3 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-4 lg:pb-4">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col pt-2 lg:h-[calc(100vh-2rem)] lg:pt-4">
+        <div className="mb-4 shrink-0 flex items-center gap-3">
           <button
             type="button"
             onClick={() => router.back()}
@@ -49,35 +50,54 @@ export function FavoriteStoresPageContent() {
           </div>
         </div>
 
-        {!ready ? (
-          <p className="py-10 text-center text-sm text-(--text-muted)">
-            Loading favourites...
-          </p>
-        ) : stores.length > 0 ? (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {stores.map((store) => (
-              <TrendingNearbyCard key={store.id} item={store} />
-            ))}
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row lg:items-start lg:gap-5 xl:gap-6">
+          <div
+            className="
+              min-w-0 flex-1
+              lg:h-[calc(100vh-7rem)] lg:min-h-0 lg:overflow-y-auto lg:pr-1
+              scrollbar-thin scrollbar-thumb-(--accent-primary)/30
+              scrollbar-track-transparent
+            "
+          >
+            {!ready ? (
+              <p className="py-10 text-center text-sm text-(--text-muted)">
+                Loading favourites...
+              </p>
+            ) : stores.length > 0 ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {stores.map((store) => (
+                  <TrendingNearbyCard
+                    key={store.id}
+                    item={store}
+                    variant="favorite"
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent-primary)_10%,transparent)]">
+                  <Heart size={28} className="text-(--accent-primary)" />
+                </div>
+                <p className="text-sm font-medium text-(--text-primary)">
+                  No favourite stores yet
+                </p>
+                <p className="mt-1 max-w-sm text-[12px] text-(--text-muted)">
+                  Tap the bookmark on a store card to save it here.
+                </p>
+                <Link
+                  href="/home"
+                  className="primary-button mt-5 rounded-full px-6 py-2.5 text-[12px] font-semibold text-white"
+                >
+                  Browse Stores
+                </Link>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent-primary)_10%,transparent)]">
-              <Heart size={28} className="text-(--accent-primary)" />
-            </div>
-            <p className="text-sm font-medium text-(--text-primary)">
-              No favourite stores yet
-            </p>
-            <p className="mt-1 max-w-sm text-[12px] text-(--text-muted)">
-              Tap the bookmark on a store card to save it here.
-            </p>
-            <Link
-              href="/home"
-              className="primary-button mt-5 rounded-full px-6 py-2.5 text-[12px] font-semibold text-white"
-            >
-              Browse Stores
-            </Link>
-          </div>
-        )}
+
+          <FavoriteStoresSuggestionsSidebar
+            excludeStoreIds={stores.map((store) => store.id)}
+          />
+        </div>
       </div>
     </main>
   );

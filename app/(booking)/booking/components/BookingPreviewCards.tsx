@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Clock3, Pencil, Star } from "lucide-react";
+import { Clock3, Pencil, Star, UserRound } from "lucide-react";
 
 interface BookingPreviewCardsProps {
   serviceName: string;
@@ -9,6 +9,7 @@ interface BookingPreviewCardsProps {
   staffName?: string | null;
   staffImage?: string | null;
   fallbackStaffImage?: string;
+  autoStaff?: boolean;
   monthLabel?: string;
   dateLabel?: string;
   weekdayLabel?: string;
@@ -50,6 +51,7 @@ export function BookingPreviewCards({
   staffName,
   staffImage,
   fallbackStaffImage,
+  autoStaff = false,
   monthLabel = "Date & Time",
   dateLabel,
   weekdayLabel,
@@ -101,19 +103,29 @@ export function BookingPreviewCards({
         </div>
 
         <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">
-          <div className="relative h-[80px] w-full overflow-hidden bg-(--bg-card-hover)">
-            <Image
-              src={resolvedStaffImage}
-              alt={staffName ?? "Staff"}
-              width={240}
-              height={180}
-              sizes="140px"
-              className="h-full w-full object-cover"
-            />
+          <div className="relative flex h-[80px] w-full items-center justify-center overflow-hidden bg-(--bg-card-hover)">
+            {autoStaff ? (
+              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-(--border) bg-(--bg-card)">
+                <UserRound
+                  size={28}
+                  strokeWidth={1.75}
+                  className="text-(--text-muted)"
+                />
+              </span>
+            ) : (
+              <Image
+                src={resolvedStaffImage}
+                alt={staffName ?? "Staff"}
+                width={240}
+                height={180}
+                sizes="140px"
+                className="h-full w-full object-cover"
+              />
+            )}
           </div>
           <div className="flex flex-1 flex-col pt-2">
             <p className="h-7 text-center text-[14px] font-bold text-(--text-primary)">
-              {staffName ?? "Not selected"}
+              {autoStaff ? "Auto" : (staffName ?? "Not selected")}
             </p>
             <span className="w-full bg-(--accent-primary) px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
               Staff
@@ -128,7 +140,10 @@ export function BookingPreviewCards({
             </span>
           </div>
           </div>
-          <ChangeBoxButton visible={showChangeButtons} onClick={onChangeStaff} />
+          <ChangeBoxButton
+            visible={showChangeButtons && !autoStaff}
+            onClick={onChangeStaff}
+          />
         </div>
 
         <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">

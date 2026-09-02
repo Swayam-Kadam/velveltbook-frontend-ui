@@ -289,7 +289,7 @@ export function Header() {
                                     role="menuitem"
                                     onClick={() => {
                                         setMenuOpen(false);
-                                        router.push("/mybooking");
+                                        router.push("/myservices");
                                     }}
                                     className="
                                         flex w-full items-center gap-2 px-3 pb-2.5 text-left text-[12px]
@@ -314,7 +314,7 @@ export function Header() {
                                         transition-colors hover:bg-(--bg-card-hover)
                                     "
                                 >
-                                    <Calendar size={15} className="text-(--accent-primary)" />
+                                    <ShoppingBag size={15} className="text-(--accent-primary)" />
                                     My Products
                                 </button>
 

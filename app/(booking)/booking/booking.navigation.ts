@@ -13,6 +13,11 @@ export interface BookingEntryParams {
   scheduleAssignments?: Record<string, { dayId: string; time: string }>;
   /** Per-product quantities encoded as qtyMap=productId:qty,... */
   productQuantities?: Record<string, number>;
+  /** When booking from a deals package, the package display name. */
+  packageName?: string;
+  packagePrice?: number;
+  packageOriginalPrice?: number;
+  packageImage?: string;
   step?: number;
 }
 
@@ -105,6 +110,10 @@ export function buildBookingUrl({
   staffAssignments,
   scheduleAssignments,
   productQuantities,
+  packageName,
+  packagePrice,
+  packageOriginalPrice,
+  packageImage,
   step = 2,
 }: BookingEntryParams) {
   const params = new URLSearchParams();
@@ -118,6 +127,14 @@ export function buildBookingUrl({
   params.set("step", String(step));
   if (organizationId) params.set("org", organizationId);
   if (staffId) params.set("staff", staffId);
+  if (packageName?.trim()) params.set("package", packageName.trim());
+  if (typeof packagePrice === "number" && packagePrice > 0) {
+    params.set("packagePrice", String(packagePrice));
+  }
+  if (typeof packageOriginalPrice === "number" && packageOriginalPrice > 0) {
+    params.set("packageOriginal", String(packageOriginalPrice));
+  }
+  if (packageImage?.trim()) params.set("packageImage", packageImage.trim());
 
   const encodedAssignments = staffAssignments
     ? encodeStaffAssignments(staffAssignments)
@@ -147,12 +164,20 @@ export function parseBookingSearchParams(searchParams: URLSearchParams) {
   const staffMap = searchParams.get("staffMap");
   const scheduleMap = searchParams.get("scheduleMap");
   const qtyMap = searchParams.get("qtyMap");
+  const packageName = searchParams.get("package");
+  const packagePriceRaw = searchParams.get("packagePrice");
+  const packageOriginalRaw = searchParams.get("packageOriginal");
+  const packageImage = searchParams.get("packageImage");
 
   const productIds = products ? products.split(",").filter(Boolean) : [];
   const parsedQuantities = parseProductQuantities(qtyMap);
   const productQuantities = Object.fromEntries(
     productIds.map((id) => [id, parsedQuantities[id] ?? 1]),
   );
+  const packagePrice = packagePriceRaw ? Number(packagePriceRaw) : undefined;
+  const packageOriginalPrice = packageOriginalRaw
+    ? Number(packageOriginalRaw)
+    : undefined;
 
   return {
     serviceIds: services ? services.split(",").filter(Boolean) : [],
@@ -165,5 +190,16 @@ export function parseBookingSearchParams(searchParams: URLSearchParams) {
     staffAssignments: parseStaffAssignments(staffMap),
     scheduleAssignments: parseScheduleAssignments(scheduleMap),
     productQuantities,
+    packageName: packageName?.trim() || undefined,
+    packagePrice:
+      typeof packagePrice === "number" && Number.isFinite(packagePrice)
+        ? packagePrice
+        : undefined,
+    packageOriginalPrice:
+      typeof packageOriginalPrice === "number" &&
+      Number.isFinite(packageOriginalPrice)
+        ? packageOriginalPrice
+        : undefined,
+    packageImage: packageImage?.trim() || undefined,
   };
 }

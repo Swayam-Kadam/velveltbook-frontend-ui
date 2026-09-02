@@ -168,10 +168,13 @@ export function buildDesktopBookingPackages(
 
 export function createDefaultServiceSelection(
   packages: BookingPackage[],
+  preselectAll = true,
 ): Record<string, string[]> {
   const selection: Record<string, string[]> = {};
   for (const pkg of packages) {
-    selection[pkg.id] = pkg.services.map((service) => service.id);
+    selection[pkg.id] = preselectAll
+      ? pkg.services.map((service) => service.id)
+      : [];
   }
   return selection;
 }

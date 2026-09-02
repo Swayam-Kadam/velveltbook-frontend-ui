@@ -7,14 +7,15 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  Gift,
   Heart,
-  Leaf,
+  Lock,
   Minus,
   Plus,
   RefreshCw,
   ShieldCheck,
   ShoppingBag,
-  Sparkles,
+  Trash2,
   Truck,
   X,
 } from "lucide-react";
@@ -29,6 +30,12 @@ import {
   getSelectedProducts,
 } from "../../booking.data";
 import { ProductAddMoreModal } from "../ProductAddMoreModal";
+import {
+  DEFAULT_PRODUCT_ADDRESS,
+  ProductDeliverySections,
+  validateProductDeliveryAddress,
+  type ProductDeliveryAddress,
+} from "./ProductAddressFields";
 
 const swalDefaults = {
   confirmButtonText: "Okay",
@@ -102,10 +109,12 @@ interface StepProductPreviewProps {
   selectedProductIds: string[];
   productQuantities: Record<string, number>;
   organizationBanner?: BookingOrganizationBannerInfo;
+  initialAddress?: ProductDeliveryAddress;
   onToggleProduct: (id: string) => void;
   onRemoveProduct: (id: string) => void;
   onUpdateQuantity: (id: string, quantity: number) => void;
   onNext: () => void;
+  onDesktopContinue?: (address: ProductDeliveryAddress) => void;
 }
 
 function SelectedProductCard({
@@ -162,13 +171,18 @@ function SelectedProductCard({
           <h3 className="line-clamp-1 font-[family-name:var(--font-heading)] text-[14px] font-semibold text-(--text-primary)">
             {name}
           </h3>
+          <div className="flex justify-between gap-1">
           <p className="mt-0.5 text-[11px] text-(--text-muted)">{sizeLabel}</p>
-          <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-(--text-secondary)">
+            <p className="rounded-full bg-[color-mix(in_srgb,var(--brand-gold)_22%,white)] px-1.5 py-0.5 text-[10px] font-semibold text-(--text-primary)">
+            -{discount}%
+          </p>
+          </div>
+          <p className="mt-1 line-clamp-3 text-[11px] leading-4 text-(--text-secondary)">
             Premium {name.toLowerCase()} for spa and home wellness routines.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        {/* <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-[14px] font-bold text-(--text-primary)">
             {priceLabel}
           </span>
@@ -178,7 +192,7 @@ function SelectedProductCard({
           <span className="rounded-full bg-[color-mix(in_srgb,var(--brand-gold)_22%,white)] px-1.5 py-0.5 text-[10px] font-semibold text-(--text-primary)">
             -{discount}%
           </span>
-        </div>
+        </div> */}
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           <div className="inline-flex h-9 items-center rounded-full border border-(--border) bg-(--bg-card) px-1">
@@ -203,7 +217,7 @@ function SelectedProductCard({
             </button>
           </div>
 
-          <span className="text-[12px] font-bold text-(--brand-gold)">
+          <span className="text-[14px] font-bold text-(--brand-gold)">
             ${(price * quantity).toFixed(0)}
           </span>
         </div>
@@ -390,24 +404,191 @@ function ProductPreviewCarousel({
   );
 }
 
+function DesktopCartItemRow({
+  id,
+  name,
+  sizeLabel,
+  price,
+  image,
+  quantity,
+  onUpdateQuantity,
+  onRemove,
+}: {
+  id: string;
+  name: string;
+  sizeLabel: string;
+  price: number;
+  image: string;
+  quantity: number;
+  onUpdateQuantity: (id: string, quantity: number) => void;
+  onRemove: (id: string) => void;
+}) {
+  return (
+    <article className="flex items-center gap-3 border-b border-(--border) py-3.5 last:border-b-0">
+      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-(--bg-secondary)">
+        <Image src={image} alt={name} fill sizes="56px" className="object-cover" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[13px] font-semibold text-(--text-primary)">
+          {name}
+        </p>
+        <p className="mt-0.5 text-[11px] text-(--text-muted)">{sizeLabel}</p>
+      </div>
+      <p className="shrink-0 text-[13px] font-bold text-(--brand-gold)">
+        ${(price * quantity).toFixed(2)}
+      </p>
+      <div className="inline-flex h-8 shrink-0 items-center rounded-lg border border-(--border) bg-(--bg-card) px-1">
+        <button
+          type="button"
+          aria-label="Decrease quantity"
+          onClick={() => onUpdateQuantity(id, quantity - 1)}
+          className="flex h-6 w-6 items-center justify-center rounded-md text-(--text-primary)"
+        >
+          <Minus size={13} />
+        </button>
+        <span className="min-w-5 text-center text-[12px] font-semibold text-(--text-primary)">
+          {quantity}
+        </span>
+        <button
+          type="button"
+          aria-label="Increase quantity"
+          onClick={() => onUpdateQuantity(id, quantity + 1)}
+          className="flex h-6 w-6 items-center justify-center rounded-md text-(--text-primary)"
+        >
+          <Plus size={13} />
+        </button>
+      </div>
+      <button
+        type="button"
+        onClick={() => onRemove(id)}
+        aria-label={`Remove ${name}`}
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-(--border) text-(--text-muted) transition-colors hover:border-(--accent-primary) hover:text-(--accent-primary)"
+      >
+        <Trash2 size={14} />
+      </button>
+    </article>
+  );
+}
+
+function ProductDesktopStoreSidebar({
+  org,
+  serviceLabels,
+  subtotal,
+  discount,
+  shipping,
+  total,
+  itemCount,
+  onContinue,
+}: {
+  org: BookingOrganizationBannerInfo;
+  serviceLabels: string[];
+  subtotal: number;
+  discount: number;
+  shipping: number;
+  total: number;
+  itemCount: number;
+  onContinue: () => void;
+}) {
+  return (
+    <aside className="space-y-4">
+      <BookingOrganizationBanner
+        organization={org}
+        serviceLabels={serviceLabels}
+      />
+
+      <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-5 shadow-[var(--shadow-card)]">
+        <h4 className="text-[14px] font-bold text-(--text-primary)">
+          Order Summary
+        </h4>
+        <div className="mt-3 space-y-2 text-[13px]">
+          <div className="flex items-center justify-between text-(--text-secondary)">
+            <span>Subtotal</span>
+            <span className="font-medium text-(--text-primary)">
+              ${subtotal.toFixed(2)}
+            </span>
+          </div>
+          {discount > 0 ? (
+            <div className="flex items-center justify-between text-emerald-600">
+              <span>Discount</span>
+              <span className="font-medium">-${discount.toFixed(2)}</span>
+            </div>
+          ) : null}
+          <div className="flex items-center justify-between text-(--text-secondary)">
+            <span>Shipping Fee</span>
+            <span className="font-medium text-(--text-primary)">
+              {shipping > 0 ? `$${shipping.toFixed(2)}` : "Free"}
+            </span>
+          </div>
+          <div className="border-t border-(--border) pt-3">
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-[12px] font-semibold text-(--text-primary)">
+                  Total Amount
+                </p>
+                <p className="text-[10px] text-(--text-muted)">Includes tax</p>
+              </div>
+              <p className="text-[26px] font-bold leading-none text-(--accent-primary)">
+                ${total.toFixed(2)}
+              </p>
+            </div>
+            <p className="mt-1 text-[11px] text-(--text-muted)">
+              {itemCount} item{itemCount === 1 ? "" : "s"}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onContinue}
+          className="
+            primary-button mt-4 flex w-full items-center justify-center gap-2
+            rounded-xl py-3.5 text-[14px] font-semibold text-white
+          "
+        >
+          Continue to Payment
+          <ArrowRight size={16} strokeWidth={2.5} />
+        </button>
+
+        <p className="mt-3 flex items-center justify-center gap-1.5 text-[10px] text-(--text-muted)">
+          <Lock size={12} />
+          Secure &amp; Encrypted Checkout
+        </p>
+      </section>
+    </aside>
+  );
+}
+
 export function StepProductPreview({
   selectedProductIds,
   productQuantities,
   organizationBanner,
+  initialAddress,
   onToggleProduct,
   onRemoveProduct,
   onUpdateQuantity,
   onNext,
+  onDesktopContinue,
 }: StepProductPreviewProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [address, setAddress] = useState<ProductDeliveryAddress>(
+    () => initialAddress ?? DEFAULT_PRODUCT_ADDRESS,
+  );
+  const [couponCode, setCouponCode] = useState("");
 
   const selectedProducts = getSelectedProducts(selectedProductIds);
-  const { subtotal, total } = calcProductsTotal(
+  const { subtotal, tax } = calcProductsTotal(
     selectedProductIds,
     productQuantities,
   );
+  const discount = Math.round(subtotal * 0.1);
+  const shipping = address.deliveryType === "deliver" ? 8 : 0;
+  const orderTotal = subtotal - discount + shipping + tax;
   const hasSelection = selectedProducts.length > 0;
+  const totalItemCount = selectedProducts.reduce(
+    (sum, product) => sum + Math.max(1, productQuantities[product.id] ?? 1),
+    0,
+  );
 
   const org = organizationBanner ?? {
     name: bookingLocation.name,
@@ -423,12 +604,37 @@ export function StepProductPreview({
       await Swal.fire({
         icon: "warning",
         title: "Please select a product",
-        text: "Choose at least one product before continuing to payment.",
+        text: "Choose at least one product before continuing.",
         ...swalDefaults,
       });
       return;
     }
     onNext();
+  };
+
+  const handleDesktopContinue = async () => {
+    if (!hasSelection) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Please select a product",
+        text: "Choose at least one product before continuing to payment.",
+        ...swalDefaults,
+      });
+      return;
+    }
+
+    const validationError = validateProductDeliveryAddress(address);
+    if (validationError) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Complete delivery address",
+        text: validationError,
+        ...swalDefaults,
+      });
+      return;
+    }
+
+    onDesktopContinue?.(address);
   };
 
   const handleReplace = () => {
@@ -485,7 +691,9 @@ export function StepProductPreview({
         <div className="flex min-w-0 flex-1 items-center justify-between gap-2 px-3 py-2.5">
           <div className="min-w-0">
             <p className="text-[8px] text-(--text-muted)">Total</p>
-            <p className="text-sm font-bold text-(--brand-gold)">${total}</p>
+            <p className="text-sm font-bold text-(--brand-gold)">
+              ${orderTotal.toFixed(0)}
+            </p>
           </div>
           <button
             type="button"
@@ -505,13 +713,8 @@ export function StepProductPreview({
 
   return (
     <>
-      {/* Mobile */}
+      {/* Mobile — no store banner */}
       <div className="space-y-4 lg:hidden">
-        <BookingOrganizationBanner
-          organization={organizationBanner}
-          serviceLabels={selectedProducts.map((product) => product.name)}
-        />
-
         <section className="feature-card overflow-hidden rounded-xl">
           <div className="flex items-center justify-between gap-2 border-b border-(--border) px-3 py-2.5">
             <div className="flex min-w-0 items-center gap-2">
@@ -519,13 +722,13 @@ export function StepProductPreview({
                 <ShoppingBag size={13} strokeWidth={2} className="text-white" />
               </span>
               <div className="min-w-0">
-                <p className="text-[11px] font-bold text-(--text-primary)">
-                  Product preview
-                </p>
-                <p className="text-[8px] font-semibold text-(--text-muted)">
-                  {hasSelection
-                    ? `${selectedProducts.length} product${selectedProducts.length > 1 ? "s" : ""} selected`
+                <p className="text-[12px] font-bold text-(--text-primary)">
+                {hasSelection
+                    ? `Total Product${selectedProducts.length > 1 ? "s" : ""} - ${selectedProducts.length}`
                     : "No products selected yet"}
+                </p>
+                <p className="text-[9px] font-bold text-(--text-primary)">
+                scroll right and left to view all products
                 </p>
               </div>
             </div>
@@ -568,120 +771,125 @@ export function StepProductPreview({
         {bottomBar}
       </div>
 
-      {/* Desktop */}
-      <div className="hidden space-y-5 lg:block">
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+      {/* Desktop — cart | address | store + summary */}
+      <div className="hidden lg:block">
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_360px]">
           <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-5 shadow-[var(--shadow-card)]">
-            <div className="mb-3 flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-[22px] font-semibold text-(--text-primary)">
-                  Product preview
-                </h2>
-                <p className="mt-1 text-[13px] text-(--text-muted)">
-                  Review cards, manage quantity, or add more before payment.
-                </p>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <span className="primary-button flex h-9 w-9 items-center justify-center rounded-xl">
+                  <ShoppingBag size={16} className="text-white" />
+                </span>
+                <div>
+                  <h2 className="text-[16px] font-bold text-(--text-primary)">
+                    Your Cart ({totalItemCount} item
+                    {totalItemCount === 1 ? "" : "s"})
+                  </h2>
+                  <p className="text-[12px] text-(--text-muted)">
+                    Review items before checkout
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddModal(true)}
                 className="
                   inline-flex shrink-0 items-center gap-1.5 rounded-xl
-                  border border-(--border) bg-(--bg-secondary) px-3.5 py-2.5
-                  text-[13px] font-semibold text-(--text-primary)
+                  border border-(--border) bg-(--bg-secondary) px-3 py-2
+                  text-[12px] font-semibold text-(--text-primary)
                   transition-colors hover:border-(--brand-gold)
                 "
               >
-                <Plus size={16} strokeWidth={2.5} />
+                <Plus size={14} strokeWidth={2.5} />
                 Add more
               </button>
             </div>
 
             {hasSelection ? (
-              previewCarousel
+              <div className="divide-y divide-(--border)">
+                {selectedProducts.map((product) => (
+                  <DesktopCartItemRow
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    sizeLabel={product.quantity}
+                    price={product.price}
+                    image={product.image}
+                    quantity={Math.max(1, productQuantities[product.id] ?? 1)}
+                    onUpdateQuantity={onUpdateQuantity}
+                    onRemove={onRemoveProduct}
+                  />
+                ))}
+              </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-(--border) bg-(--bg-secondary) px-4 py-12 text-center">
+              <div className="rounded-xl border border-dashed border-(--border) bg-(--bg-secondary) px-4 py-10 text-center">
                 <p className="text-sm font-semibold text-(--text-primary)">
                   No products selected
                 </p>
                 <p className="mt-1 text-[13px] text-(--text-muted)">
-                  Click Add more to browse categories and pick products.
+                  Click Add more to browse and pick products.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(true)}
-                  className="primary-button mt-4 inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-white"
-                >
-                  <Plus size={16} />
-                  Add products
-                </button>
               </div>
             )}
+
+            <div className="mt-4 rounded-xl border border-dashed border-(--border) bg-(--bg-secondary) p-3">
+              <div className="flex items-center gap-2">
+                <Gift size={16} className="shrink-0 text-(--accent-primary)" />
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(event) => setCouponCode(event.target.value)}
+                  placeholder="Add a coupon code"
+                  className="
+                    min-w-0 flex-1 bg-transparent text-[13px] text-(--text-primary)
+                    outline-none placeholder:text-(--text-muted)
+                  "
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {PLATFORM_FEATURES.slice(0, 2).map(({ icon: Icon, title, subtitle }) => (
+                <article
+                  key={title}
+                  className="flex items-start gap-2 rounded-xl border border-(--border) bg-(--bg-secondary) px-3 py-2.5"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--accent-primary)/10">
+                    <Icon size={14} className="text-(--accent-primary)" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-semibold text-(--text-primary)">
+                      {title}
+                    </p>
+                    <p className="mt-0.5 line-clamp-2 text-[10px] text-(--text-muted)">
+                      {subtitle}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
           </section>
 
-          <aside className="space-y-4">
-            <BookingOrganizationBanner
-              organization={organizationBanner ?? org}
-              serviceLabels={selectedProducts.map((product) => product.name)}
+          <div className="space-y-4">
+            <ProductDeliverySections
+              address={address}
+              onChange={setAddress}
+              storeName={org.name}
+              storeAddress={org.address ?? bookingLocation.address}
             />
+          </div>
 
-            <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-5 shadow-[var(--shadow-card)]">
-              <p className="text-[12px] text-(--text-muted)">Order total</p>
-              <p className="mt-1 text-[28px] font-bold text-(--brand-gold)">
-                ${total}
-              </p>
-              <p className="mt-1 text-[12px] text-(--text-secondary)">
-                Includes tax · {selectedProducts.length} item
-                {selectedProducts.length === 1 ? "" : "s"}
-              </p>
-
-              {/* <div className="mt-4 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setLiked((value) => !value)}
-                  className="
-                    secondary-button inline-flex h-11 flex-1 items-center
-                    justify-center gap-1.5 rounded-xl text-[13px] font-semibold
-                  "
-                >
-                  <Heart
-                    size={15}
-                    className={
-                      liked
-                        ? "fill-(--accent-primary) text-(--accent-primary)"
-                        : ""
-                    }
-                  />
-                  {liked ? "Liked" : "Like"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleReplace}
-                  className="
-                    secondary-button inline-flex h-11 flex-1 items-center
-                    justify-center gap-1.5 rounded-xl text-[13px] font-semibold
-                  "
-                >
-                  <RefreshCw size={15} />
-                  Replace
-                </button>
-              </div> */}
-
-              <button
-                type="button"
-                onClick={handleNext}
-                className="
-                  primary-button mt-3 flex w-full items-center justify-center
-                  gap-2 rounded-xl py-3.5 text-[14px] font-semibold text-white
-                "
-              >
-                Continue to Payment
-                <ArrowRight size={16} strokeWidth={2.5} />
-              </button>
-            </section>
-          </aside>
+          <ProductDesktopStoreSidebar
+            org={organizationBanner ?? org}
+            serviceLabels={selectedProducts.map((product) => product.name)}
+            subtotal={subtotal}
+            discount={discount}
+            shipping={shipping}
+            total={orderTotal}
+            itemCount={totalItemCount}
+            onContinue={handleDesktopContinue}
+          />
         </div>
-
-        <PlatformFeaturesRow />
       </div>
 
       {showAddModal && (

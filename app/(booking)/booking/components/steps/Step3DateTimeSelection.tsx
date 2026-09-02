@@ -59,6 +59,7 @@ interface Step3DateTimeSelectionProps {
   expertType: ExpertType;
   serviceStaff: ServiceStaffAssignments;
   serviceSchedules: ServiceSchedules;
+  packageName?: string;
   selectedSeatId: string;
   seatConfirmed: boolean;
   onSelectServiceDay: (serviceId: string, dayId: string) => void;
@@ -288,6 +289,7 @@ export function Step3DateTimeSelection({
   expertType,
   serviceStaff,
   serviceSchedules,
+  packageName,
   selectedSeatId,
   seatConfirmed,
   onSelectServiceDay,
@@ -301,6 +303,7 @@ export function Step3DateTimeSelection({
   onEditService,
   onReplaceService,
 }: Step3DateTimeSelectionProps) {
+  const isPackageFlow = Boolean(packageName);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [showDateTimeModal, setShowDateTimeModal] = useState(false);
@@ -696,6 +699,7 @@ export function Step3DateTimeSelection({
                       servicePriceLabel={service.priceLabel}
                       staffName={assigned?.name ?? null}
                       staffImage={assigned?.image ?? staff.image}
+                      autoStaff={isPackageFlow}
                       monthLabel={
                         bookingDay
                           ? new Date(
@@ -712,7 +716,11 @@ export function Step3DateTimeSelection({
                       scheduled={scheduled && Boolean(bookingDay)}
                       showChangeButtons={isEditMode}
                       onChangeService={() => setShowServiceModal(true)}
-                      onChangeStaff={() => setShowTherapistModal(true)}
+                      onChangeStaff={
+                        isPackageFlow
+                          ? undefined
+                          : () => setShowTherapistModal(true)
+                      }
                       onChangeDateTime={() => setShowDateTimeModal(true)}
                       totalAmountLabel={service.priceLabel}
                     />
@@ -884,7 +892,9 @@ export function Step3DateTimeSelection({
                             className="text-(--accent-primary)"
                           />
                           <span className="truncate">
-                            {assigned?.name ?? "No therapist"}
+                            {isPackageFlow
+                              ? "packages"
+                              : (assigned?.name ?? "No therapist")}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 text-(--text-secondary)">
@@ -974,13 +984,16 @@ export function Step3DateTimeSelection({
                   </span>
                   <div>
                     <h3 className="text-[15px] font-semibold text-(--text-primary)">
-                      Selected Therapists
+                      {isPackageFlow ? "Staff" : "Selected Therapists"}
                     </h3>
                     <p className="text-[12px] text-(--text-muted)">
-                      One therapist per service
+                      {isPackageFlow
+                        ? "Assigned automatically for this package"
+                        : "One therapist per service"}
                     </p>
                   </div>
                 </div>
+                {!isPackageFlow && (
                 <button
                   type="button"
                   onClick={() => setShowTherapistModal(true)}
@@ -989,6 +1002,7 @@ export function Step3DateTimeSelection({
                   <Pencil size={13} />
                   Change
                 </button>
+                )}
               </div>
 
               <div className="grid gap-3 p-4 sm:grid-cols-2">
@@ -1003,29 +1017,39 @@ export function Step3DateTimeSelection({
                       key={service.id}
                       className="flex items-center gap-3 rounded-2xl border border-(--border) bg-(--bg-secondary) p-3"
                     >
-                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl">
-                        <Image
-                          src={assigned.image}
-                          alt={assigned.name}
-                          fill
-                          sizes="64px"
-                          className="object-cover"
-                        />
+                      <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-(--bg-card)">
+                        {isPackageFlow ? (
+                          <UserRound
+                            size={28}
+                            strokeWidth={1.75}
+                            className="text-(--text-muted)"
+                          />
+                        ) : (
+                          <Image
+                            src={assigned.image}
+                            alt={assigned.name}
+                            fill
+                            sizes="64px"
+                            className="object-cover"
+                          />
+                        )}
                       </div>
                       <div className="min-w-0">
                         <p className="truncate text-[12px] font-medium text-(--text-muted)">
                           {service.name}
                         </p>
                         <p className="truncate text-[15px] font-semibold text-(--text-primary)">
-                          {assigned.name}
+                          {isPackageFlow ? "Auto" : assigned.name}
                         </p>
-                        <div className="mt-0.5 flex items-center gap-1 text-[12px] text-(--text-secondary)">
-                          <Star
-                            size={11}
-                            className="fill-(--brand-gold) text-(--brand-gold)"
-                          />
-                          {assigned.rating} · {assigned.experience}
-                        </div>
+                        {!isPackageFlow && (
+                          <div className="mt-0.5 flex items-center gap-1 text-[12px] text-(--text-secondary)">
+                            <Star
+                              size={11}
+                              className="fill-(--brand-gold) text-(--brand-gold)"
+                            />
+                            {assigned.rating} · {assigned.experience}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );

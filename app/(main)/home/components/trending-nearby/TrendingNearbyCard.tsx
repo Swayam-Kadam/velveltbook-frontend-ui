@@ -20,10 +20,12 @@ import {
 } from "lucide-react";
 
 import { TrendingNearbyActions } from "./TrendingNearbyActions";
+import { TrendingNearbySaveLink } from "./TrendingNearbySaveLink";
 import { TrendingNearbyItem } from "./trending-nearby.types";
 
 interface TrendingNearbyCardProps {
     item: TrendingNearbyItem;
+    variant?: "default" | "favorite";
 }
 
 const icons = [
@@ -33,7 +35,11 @@ const icons = [
     Droplets,
 ];
 
-export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
+export function TrendingNearbyCard({
+    item,
+    variant = "default",
+}: TrendingNearbyCardProps) {
+    const isFavoriteVariant = variant === "favorite";
     const orgHref =
         item.organizationId === "org-trending-2"
             ? `/extendedspecificorganization/${item.organizationId}`
@@ -125,9 +131,11 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
                     </div>
                 </Link>
 
-                <div className="p-2 pt-0">
-                    <TrendingNearbyActions store={item} />
-                </div>
+                {!isFavoriteVariant ? (
+                    <div className="p-2 pt-0">
+                        <TrendingNearbyActions store={item} />
+                    </div>
+                ) : null}
             </article>
 
             {/* ================= DESKTOP ================= */}
@@ -166,17 +174,23 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
 
                         <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
 
-                        <TimingsDropdown
+                        {/* <TimingsDropdown
                             summary={item.availability}
                             buttonClassName="flex items-center gap-1 rounded-full bg-[#4b2679] px-4 py-1 text-[12px] font-medium text-white"
                             type="Right-most"
-                        />
+                        /> */}
 
                     </div>
 
                     {/* Top Right */}
 
                     <div className="absolute right-4 top-4 flex gap-2">
+
+                    <TimingsDropdown
+                            summary={item.availability}
+                            buttonClassName="flex items-center gap-1 rounded-full primary-button px-4 py-1 mt-1.5 text-[12px] font-medium text-white"
+                            type="Right-most"
+                        />
 
                         <button
                             className="
@@ -204,7 +218,7 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
                 </div>
                 {/* Content */}
 
-                <div className="grid grid-cols-[1fr_200px]">
+                <div className={`grid grid-cols-[1fr_200px] ${isFavoriteVariant ? "pb-4" : ""}`}>
 
                     {/* Left Content */}
 
@@ -257,33 +271,30 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
 
                     <div className="flex flex-col justify-center gap-4 border-l border-(--border) px-4">
 
-                        <Link href={orgHref} className="flex items-center gap-2 text-[13px] font-medium transition hover:text-(--accent-primary)">
+                        <Link href="/service-category/barber" className="flex items-center gap-2 text-[13px] font-medium transition hover:text-(--accent-primary)">
 
-                            <MessageSquare size={16} />
-
+                            
+                        <MessageSquare size={16} />
                             <span>Message</span>
+                            
 
                         </Link>
 
                         <Link href={orgHref} className="flex items-center gap-2 text-[13px] font-medium transition hover:text-(--accent-primary)">
-
-                            <UserRound size={16} />
-
-                            <span>Staff</span>
-
-                        </Link>
-
-                        <Link href={orgHref} className="flex items-center gap-2 text-[13px] font-medium transition hover:text-(--accent-primary)">
-
-                            <Navigation size={16} />
-
+                        <Navigation size={16} />
                             <span>Direction</span>
 
+                            
+
                         </Link>
+
+                        <TrendingNearbySaveLink store={item} />
 
                     </div>
 
                 </div>
+                {!isFavoriteVariant ? (
+                    <>
                 {/* Services */}
 
                 <div className="border-t border-(--border) px-4 py-3">
@@ -417,6 +428,8 @@ export function TrendingNearbyCard({ item }: TrendingNearbyCardProps) {
                     </Link> */}
 
                 </div>
+                    </>
+                ) : null}
 
             </article>
         </>
