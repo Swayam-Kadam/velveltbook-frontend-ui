@@ -55,6 +55,7 @@ import type {
 } from "../../booking.types";
 import type { BookingService } from "@/types/booking";
 import {
+  BookingOrganizationBanner,
   type BookingOrganizationBannerInfo,
 } from "../BookingOrganizationBanner";
 import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
@@ -255,19 +256,21 @@ function ProductMobileOrderSummary({
 
               return (
                 <li key={product.id} className="flex items-start gap-3">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-(--bg-secondary)">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      sizes="64px"
-                      className="object-cover"
-                    />
+                  <div className="relative h-16 w-16 shrink-0">
+                    <div className="relative h-full w-full overflow-hidden rounded-xl bg-(--bg-secondary)">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                      />
+                    </div>
                     <span
                       className="
-                        absolute -right-1 -top-1 flex h-5 min-w-5 items-center
+                        absolute -right-1.5 -top-1.5 z-10 flex h-5 min-w-5 items-center
                         justify-center rounded-full bg-(--text-primary) px-1
-                        text-[10px] font-bold text-white
+                        text-[10px] font-bold text-white shadow-sm ring-2 ring-(--bg-card)
                       "
                     >
                       {qty}
@@ -472,7 +475,7 @@ function ProductMobileDeliveryPreview({
           </div>
         )}
 
-        {isDeliver && address ? (
+        {/* {isDeliver && address ? (
           <div className="mt-3.5 space-y-2.5 rounded-xl border border-(--border) bg-(--bg-card) p-3.5">
             <div className="flex items-center gap-2">
               <MapPin size={14} className="text-(--accent-primary)" />
@@ -525,7 +528,7 @@ function ProductMobileDeliveryPreview({
               </div>
             </div>
           </div>
-        ) : null}
+        ) : null} */}
       </div>
     </section>
   );
@@ -999,6 +1002,10 @@ export function Step4PaymentConfirmation({
       <div className="space-y-3 pb-2 lg:hidden">
         {isProductOnly ? (
           <>
+            <BookingOrganizationBanner
+              organization={organizationBanner}
+              serviceLabels={selectedProducts.map((product) => product.name)}
+            />
             <ProductMobileOrderSummary
               products={selectedProducts}
               productQuantities={productQuantities}
@@ -1317,7 +1324,16 @@ export function Step4PaymentConfirmation({
       </div>
 
       {/* ================= DESKTOP (matches reference) ================= */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block space-y-5">
+        <BookingOrganizationBanner
+          organization={organizationBanner}
+          serviceLabels={
+            isProductOnly
+              ? selectedProducts.map((product) => product.name)
+              : selectedServices.map((service) => service.name)
+          }
+        />
+
         <div className="grid grid-cols-2 gap-5 xl:gap-6">
           {/* LEFT — Booking Summary */}
           {!isProductOnly ? (

@@ -352,6 +352,7 @@ function ProductPreviewCarousel({
       </div>
 
       <div className="relative">
+        {selectedProducts.length > 2 &&
         <button
           type="button"
           onClick={() => scrollStrip(cardsScrollRef.current, "left", 220)}
@@ -365,6 +366,7 @@ function ProductPreviewCarousel({
         >
           <ChevronLeft size={16} strokeWidth={2.5} />
         </button>
+}
 
         <div
           ref={cardsScrollRef}
@@ -386,6 +388,7 @@ function ProductPreviewCarousel({
           ))}
         </div>
 
+        {selectedProducts.length > 2 &&
         <button
           type="button"
           onClick={() => scrollStrip(cardsScrollRef.current, "right", 220)}
@@ -399,6 +402,7 @@ function ProductPreviewCarousel({
         >
           <ChevronRight size={16} strokeWidth={2.5} />
         </button>
+}
       </div>
     </div>
   );
