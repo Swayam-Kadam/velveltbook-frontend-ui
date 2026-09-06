@@ -8,15 +8,15 @@ import {
   BadgeCheck,
   ChevronRight,
   Clock3,
+  Lock,
   MapPin,
+  Phone,
   ShoppingBag,
-  Star,
   UserRound,
   X,
 } from "lucide-react";
 
 import type { ExpertType } from "@/menu/components/ExpertSelection";
-import { TimingsDropdown } from "@/components/TimingsDropdown";
 import {
   BookingOrganizationBanner,
   type BookingOrganizationBannerInfo,
@@ -325,6 +325,16 @@ export function Step2StaffSelection({
     }
 
     if (!allScheduled) {
+      if (isPackageFlow) {
+        await showBookingWarning(
+          "Schedule package",
+          packageName
+            ? `Please set a date and time for your package "${packageName}".`
+            : "Please set a date and time for your package.",
+        );
+        return;
+      }
+
       const pendingNames = pendingScheduleServices
         .map((service) => service.name)
         .join(", ");
@@ -485,55 +495,63 @@ export function Step2StaffSelection({
       <div className="hidden lg:grid lg:h-[calc(100vh-140px)] lg:min-h-[680px] lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-4 xl:grid-cols-[440px_minmax(0,1fr)]">
         {/* LEFT COLUMN */}
         <aside className="flex min-h-0 flex-col gap-4">
-          {/* Top: Banner */}
-          <section className="relative h-[240px] shrink-0 overflow-hidden rounded-[22px] border border-(--border) xl:h-[260px]">
-            <Image
-              src={org.banner}
-              alt={org.name}
-              fill
-              sizes="440px"
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/25 to-transparent" />
-
-            <div className="absolute top-3 left-3 flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-(--success)" />
-
-              <div className=" inline-flex items-center gap-1.5 rounded-full bg-(--accent-primary) px-3 py-1.5 text-[11px] font-semibold text-white">
-              <Star
-                size={12}
-                className="fill-(--brand-gold) text-(--brand-gold)"
-              />
-              4.8 (120+)
-            </div>
-            </div>
-            
-
-            <div className="absolute top-3 right-3 flex items-center gap-2">
-              <TimingsDropdown
-                summary={org.availability}
-                buttonClassName="primary-button flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white"
+          {/* Top: Banner — image + org details (matches design) */}
+          <section className="shrink-0 overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
+            <div className="relative h-[148px] w-full xl:h-[160px]">
+              <Image
+                src={org.banner}
+                alt={org.name}
+                fill
+                sizes="440px"
+                className="object-cover"
+                priority
               />
             </div>
 
-            <div className="absolute right-4 bottom-4 left-4">
+            <div className="px-4 py-4">
               <div className="flex items-center gap-2">
-                <h2 className="truncate text-[22px] font-semibold text-white xl:text-[24px]">
+                <h2 className="truncate font-[family-name:var(--font-heading)] text-[22px] font-semibold text-(--accent-primary) xl:text-[24px]">
                   {org.name}
                 </h2>
-                <BadgeCheck
-                  size={18}
-                  className="shrink-0 fill-(--brand-gold) text-(--accent-primary)"
-                />
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--accent-primary)">
+                  <BadgeCheck size={12} className="text-white" strokeWidth={2.5} />
+                </span>
               </div>
-              <p className="mt-1 text-[13px] font-medium text-(--success)">
-                {org.status}
+
+              <p className="mt-1 truncate text-[13px] text-(--text-muted)">
+                {selectedServices.length > 0
+                  ? selectedServices
+                      .slice(0, 2)
+                      .map((service) => service.name)
+                      .join(" · ")
+                  : org.status}
               </p>
-              <p className="mt-1.5 flex items-center gap-1.5 text-[12px] text-white/80">
-                <MapPin size={13} />
-                {org.address ?? "Melbourne, Australia"}
+
+              <p className="mt-2 flex items-center gap-1.5 text-[13px] text-(--text-muted)">
+                <MapPin size={14} className="shrink-0" strokeWidth={1.8} />
+                <span className="truncate">
+                  {org.address ?? "Ascot Vale, Melbourne"}
+                </span>
               </p>
+
+              <div className="mt-3.5 flex gap-2">
+                <span className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-(--border) bg-(--bg-card) px-3 py-2 text-[11px] font-medium text-(--text-primary)">
+                  <Phone
+                    size={13}
+                    className="shrink-0 text-(--accent-primary)"
+                    strokeWidth={1.8}
+                  />
+                  Flexible Booking
+                </span>
+                <span className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-(--border) bg-(--bg-card) px-3 py-2 text-[11px] font-medium text-(--text-primary)">
+                  <Lock
+                    size={13}
+                    className="shrink-0 text-(--accent-primary)"
+                    strokeWidth={1.8}
+                  />
+                  Secure &amp; Private
+                </span>
+              </div>
             </div>
           </section>
 
@@ -666,14 +684,16 @@ export function Step2StaffSelection({
         <section className="flex min-h-0 flex-col overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card)">
               <div className="flex shrink-0 items-center justify-between border-b border-(--border) px-5 py-4">
                 <div>
-                  <h2 className="text-[20px] font-semibold text-(--text-primary)">
-                    Booking Details
+                  <h2 className="font-[family-name:var(--font-heading)] text-[22px] font-semibold text-(--accent-primary)">
+                    Let&apos;s Personalize Your Booking
                   </h2>
                   <p className="mt-0.5 text-[13px] text-(--text-muted)">
-                    Assign therapist and schedule for each service
+                    You&apos;ve selected {selectedServiceIds.length} service
+                    {selectedServiceIds.length === 1 ? "" : "s"}. Now choose
+                    your preferred staff, date and time.
                   </p>
                 </div>
-                <p className="text-[13px] font-semibold text-(--text-secondary)">
+                <p className="shrink-0 text-[13px] font-semibold text-(--text-secondary)">
                   {allStaffAssigned && allScheduled
                     ? "Ready to continue"
                     : "Complete each service"}

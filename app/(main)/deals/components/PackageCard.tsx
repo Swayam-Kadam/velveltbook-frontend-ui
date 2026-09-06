@@ -9,7 +9,7 @@ interface PackageCardProps {
 }
 
 function formatPrice(amount: number) {
-  return `$${amount.toFixed(2)}`;
+  return `$${amount}`;
 }
 
 export function PackageCard({
@@ -64,7 +64,7 @@ export function PackageCard({
           </div>
 
           <div className="flex flex-wrap gap-1.5">
-            {deal.includedServices.slice(0, 4).map((service) => (
+            {deal.includedServices.slice(0, 2).map((service) => (
               <span
                 key={service.label}
                 className="rounded-full border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))] px-2 py-0.5 text-[10px] font-medium text-(--text-secondary)"
@@ -75,7 +75,7 @@ export function PackageCard({
           </div>
 
           <div className="mt-auto flex items-center justify-between gap-3 pt-1">
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex flex-col items-baseline">
               <span className="text-[22px] font-bold text-(--brand-gold)">
                 {formatPrice(deal.currentPrice)}
               </span>

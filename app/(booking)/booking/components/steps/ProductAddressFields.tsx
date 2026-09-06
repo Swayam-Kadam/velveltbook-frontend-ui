@@ -81,8 +81,6 @@ function TextInput({
 export function validateProductDeliveryAddress(
   address: ProductDeliveryAddress,
 ): string | null {
-  if (address.deliveryType === "pickup") return null;
-
   if (
     !address.fullName.trim() ||
     !address.mobile.trim() ||
@@ -90,7 +88,9 @@ export function validateProductDeliveryAddress(
     !address.suburb.trim() ||
     !address.postcode.trim()
   ) {
-    return "Please fill in name, mobile, address, suburb, and postcode.";
+    return address.deliveryType === "pickup"
+      ? "Please fill in name, mobile, address, suburb, and postcode for pickup."
+      : "Please fill in name, mobile, address, suburb, and postcode.";
   }
 
   return null;
@@ -177,15 +177,16 @@ export function ProductDeliverySections({
     </div>
   );
 
-  const addressForm =
-    address.deliveryType === "deliver" ? (
+  const isPickup = address.deliveryType === "pickup";
+
+  const addressForm = (
       <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-3.5 sm:p-4">
         <div className="mb-3.5 flex items-center gap-2">
           <span className="primary-button flex h-7 w-7 items-center justify-center rounded-lg">
             <MapPin size={14} className="text-white" />
           </span>
           <h2 className="text-[14px] font-bold text-(--text-primary)">
-            Delivery Address
+            {isPickup ? "Contact & Address Details" : "Delivery Address"}
           </h2>
         </div>
 
@@ -250,15 +251,6 @@ export function ProductDeliverySections({
             />
           </div>
 
-          <div>
-            <FieldLabel>Address Line 2 (Optional)</FieldLabel>
-            <TextInput
-              value={address.addressLine2}
-              onChange={(value) => updateField("addressLine2", value)}
-              placeholder="Apartment, unit, building, etc."
-            />
-          </div>
-
           <div className="grid grid-cols-2 gap-2.5">
             <div>
               <FieldLabel>Suburb</FieldLabel>
@@ -278,38 +270,40 @@ export function ProductDeliverySections({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 rounded-xl bg-[color-mix(in_srgb,var(--accent-primary)_10%,white)] px-3 py-2.5">
-            <Truck size={15} className="shrink-0 text-(--accent-primary)" />
-            <p className="text-[11px] font-medium text-(--text-primary)">
-              We usually deliver within 1-3 business days.
-            </p>
-          </div>
+          {isPickup ? (
+            <div className="rounded-xl border border-(--border) bg-(--bg-secondary) p-3">
+              <div className="flex items-start gap-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--accent-primary)/10">
+                  <Store size={16} className="text-(--accent-primary)" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-bold text-(--text-primary)">
+                    {storeName}
+                  </p>
+                  <p className="mt-0.5 flex items-start gap-1 text-[11px] text-(--text-secondary)">
+                    <MapPin
+                      size={12}
+                      className="mt-0.5 shrink-0 text-(--accent-primary)"
+                    />
+                    <span>{storeAddress}</span>
+                  </p>
+                  <p className="mt-1.5 text-[11px] text-(--text-muted)">
+                    Collect your order from the store during opening hours.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 rounded-xl bg-[color-mix(in_srgb,var(--accent-primary)_10%,white)] px-3 py-2.5">
+              <Truck size={15} className="shrink-0 text-(--accent-primary)" />
+              <p className="text-[11px] font-medium text-(--text-primary)">
+                We usually deliver within 1-3 business days.
+              </p>
+            </div>
+          )}
         </div>
       </section>
-    ) : (
-      <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-4">
-        <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--accent-primary)/10">
-            <Store size={18} className="text-(--accent-primary)" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-[14px] font-bold text-(--text-primary)">
-              {storeName}
-            </p>
-            <p className="mt-1 flex items-start gap-1 text-[12px] text-(--text-secondary)">
-              <MapPin
-                size={13}
-                className="mt-0.5 shrink-0 text-(--accent-primary)"
-              />
-              <span>{storeAddress}</span>
-            </p>
-            <p className="mt-2 text-[11px] text-(--text-muted)">
-              Collect your order from the store during opening hours.
-            </p>
-          </div>
-        </div>
-      </section>
-    );
+  );
 
   return (
     <>

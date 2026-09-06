@@ -111,7 +111,7 @@ function DesktopSalonSidebar({
     <aside className="space-y-3">
       <section className="overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
         <div className="relative h-[168px]">
-          <Image
+          <Image 
             src={
               isBooking && activePackage
                 ? activePackage.image
@@ -495,8 +495,8 @@ function DesktopDealsGrid({
   }
 
   return (
-    <div className="grid grid-cols-4 gap-3.5">
-      {deals.slice(0, 8).map((deal) =>
+    <div className="grid grid-cols-5 gap-3.5">
+      {deals.slice(0, 10).map((deal) =>
         deal.type === "single" ? (
           <DealCard
             key={deal.id}
@@ -720,7 +720,7 @@ export function DealsPageContent() {
         <PromoBanner dealType={filters.dealType} />
       </div>
 
-      <div className="hidden lg:grid lg:grid-cols-[380px_minmax(0,1fr)] lg:items-start lg:gap-5">
+      <div className="hidden lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start lg:gap-5">
         <DesktopSalonSidebar
           deals={allDeals}
           dealType={filters.dealType}

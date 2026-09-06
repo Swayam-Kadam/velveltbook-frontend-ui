@@ -9,7 +9,7 @@ interface DealCardProps {
 }
 
 function formatPrice(amount: number) {
-  return `$${amount.toFixed(2)}`;
+  return `$${amount}`;
 }
 
 export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) {
@@ -30,9 +30,12 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
           </span>
 
           {deal.isStore && (
-            <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-(--border) bg-white/95 px-2.5 py-1 text-[10px] font-medium text-(--text-primary) backdrop-blur-sm">
-              <Store size={11} strokeWidth={1.5} />
-              Store
+            <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full border border-(--border) bg-white/95 px-1 py-0.5 text-[10px] font-medium text-(--text-primary) backdrop-blur-sm">
+              <div className="flex shrink-0 items-center gap-0.5">
+              <Star size={12} className="fill-(--brand-gold) text-(--brand-gold)" />
+              <span className="font-medium text-(--text-primary)">{deal.rating}</span>
+              <span className="text-(--text-secondary)">({deal.reviewCount})</span>
+            </div>
             </span>
           )}
         </div>
@@ -47,11 +50,11 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
               <Store size={12} strokeWidth={1.5} className="shrink-0" />
               <span className="truncate">{deal.salonName}</span>
             </div>
-            <div className="flex shrink-0 items-center gap-1">
+            {/* <div className="flex shrink-0 items-center gap-1">
               <Star size={12} className="fill-(--brand-gold) text-(--brand-gold)" />
               <span className="font-medium text-(--text-primary)">{deal.rating}</span>
               <span className="text-(--text-secondary)">({deal.reviewCount})</span>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex items-start gap-1 text-[11px] leading-snug text-(--text-secondary)">
@@ -60,7 +63,7 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
           </div>
 
           <div className="flex flex-wrap gap-1.5">
-            {deal.tags.slice(0, 4).map((tag) => (
+            {deal.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag}
                 className="rounded-full border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))] px-2 py-0.5 text-[10px] font-medium text-(--text-secondary)"
@@ -71,7 +74,7 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
           </div>
 
           <div className="mt-auto flex items-center justify-between gap-3 pt-1">
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex flex-col items-baseline">
               <span className="text-[22px] font-bold text-(--brand-gold)">
                 {formatPrice(deal.currentPrice)}
               </span>

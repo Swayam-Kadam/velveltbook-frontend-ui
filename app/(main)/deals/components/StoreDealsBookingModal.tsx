@@ -60,7 +60,7 @@ function SelectableStoreServiceCard({
             <p className="line-clamp-2 text-[11px] font-semibold leading-tight text-(--text-primary)">
               {service.label}
             </p>
-            {!locked && (
+            {/* {!locked && (
               <span
                 className={`
                   flex h-5 w-5 shrink-0 items-center justify-center rounded-full
@@ -78,7 +78,7 @@ function SelectableStoreServiceCard({
                   <Plus size={14} strokeWidth={2.5} />
                 )}
               </span>
-            )}
+            )} */}
           </div>
 
           <div className="mt-0.5 flex items-start gap-1.5">
@@ -119,6 +119,44 @@ function SelectableStoreServiceCard({
               >
                 {packageTitle}
               </span>
+
+              {!locked && (
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onToggle();
+                  }}
+                  aria-label={
+                    isSelected
+                      ? `Remove ${service.label}`
+                      : `Add ${service.label}`
+                  }
+                  className={`
+                    primary-button inline-flex h-6 w-[4rem] items-center justify-between
+                    gap-0.5 rounded-[8px] px-2 text-[9px] font-semibold text-white
+                    transition-opacity hover:opacity-90
+                  `}
+                >
+                  {isSelected ? "Added" : "Select"}
+                  <span className="rounded-full bg-white p-0.5">
+                    {isSelected ? (
+                      <Check
+                        size={13}
+                        strokeWidth={2.5}
+                        className="rounded-full bg-(--brand-gold) p-0.5"
+                      />
+                    ) : (
+                      <Plus
+                        size={13}
+                        strokeWidth={2.5}
+                        className="rounded-full bg-(--brand-gold) p-0.5"
+                      />
+                    )}
+                  </span>
+                </button>
+              )}
+              
             </div>
           </div>
         </div>
@@ -130,9 +168,20 @@ function SelectableStoreServiceCard({
   }
 
   return (
-    <button type="button" onClick={onToggle} className={cardClassName}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onToggle}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onToggle();
+        }
+      }}
+      className={`${cardClassName} cursor-pointer`}
+    >
       {cardBody}
-    </button>
+    </div>
   );
 }
 

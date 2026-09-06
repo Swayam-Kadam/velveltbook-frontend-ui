@@ -45,6 +45,7 @@ import {
 import { allMenuServices } from "@/data/catalog/menu/services";
 import { SHARED_STAFF } from "@/data/shared/staff";
 import { MyBookingsDesktop } from "./MyBookingsDesktop";
+import DirectionsIcon from '@mui/icons-material/Directions';
 
 type CardStatusTab = "upcoming" | HistorySubTab;
 
@@ -193,7 +194,7 @@ function OrganizationBanner({
               text-(--accent-primary)
             "
           >
-            <Navigation2 size={14} strokeWidth={1.6} />
+            <DirectionsIcon className="h-2 w-2 " />
           </button>
         )}
       </div>

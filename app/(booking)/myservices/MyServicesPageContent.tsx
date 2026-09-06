@@ -33,7 +33,7 @@ function ServiceRow({ service }: { service: MyServiceItem }) {
   return (
     <article className="bg-(--bg-card) px-4 py-4">
       <div className="flex items-center gap-3">
-        <div className="relative h-[68px] w-[84px] shrink-0 overflow-hidden rounded-lg bg-(--bg-secondary)">
+        <div className="relative h-[68px] w-[84px] shrink-0 overflow-hidden rounded-xs bg-(--bg-secondary)">
           <Image
             src={service.image}
             alt={service.name}
@@ -69,7 +69,7 @@ function ServiceRow({ service }: { service: MyServiceItem }) {
 
         <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-4">
           <div className="flex flex-col items-center gap-1.5">
-            <div className="relative h-10 w-10 overflow-hidden rounded-lg">
+            <div className="relative h-10 w-10 overflow-hidden rounded-xs">
               <Image
                 src={service.staffImage}
                 alt={service.staffName}
@@ -142,7 +142,7 @@ function BookingSummaryPanel({ session }: { session: MyServiceSession }) {
       </div>
 
       <div className="flex items-center gap-3 border-b border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_5%,var(--bg-card))] px-5 py-4">
-        <div className="relative h-16 w-[76px] shrink-0 overflow-hidden rounded-lg">
+        <div className="relative h-16 w-[76px] shrink-0 overflow-hidden rounded-xs">
           <Image
             src={store.thumbnail}
             alt={store.name}

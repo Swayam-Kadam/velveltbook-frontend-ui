@@ -22,6 +22,7 @@ import {
 import { TrendingNearbyActions } from "./TrendingNearbyActions";
 import { TrendingNearbySaveLink } from "./TrendingNearbySaveLink";
 import { TrendingNearbyItem } from "./trending-nearby.types";
+import DirectionsIcon from '@mui/icons-material/Directions';
 
 interface TrendingNearbyCardProps {
     item: TrendingNearbyItem;
@@ -224,15 +225,60 @@ export function TrendingNearbyCard({
 
                     <div className="px-4 py-3">
 
+                        <div className="flex items-center justify-between gap-3">
                         <h3 className="text-[20px] font-semibold text-(--text-primary)">
                             {item.name}
                         </h3>
+                            <div className="mt-1 flex flex-col items-center gap-1 text-[12px] text-(--text-secondary)">
 
-                        <p className="mt-1 text-[13px] text-(--text-secondary)">
+                                        <div className="flex items-center gap-1">
+
+                                            <Star
+                                                size={13}
+                                                className="fill-yellow-400 text-yellow-400"
+                                            />
+
+                                            <span className="font-medium">
+                                                {item.rating ?? "4.8"}
+                                            </span>
+                                            <span>({item.reviews ?? "120+"})</span>
+
+                                        </div>
+
+                                        {/* <span>•</span> */}
+
+                                        <div className="flex items-center gap-1">
+
+                                            <MapPin size={12} />
+
+                                            <span>{item.distance}</span>
+
+                                        </div>
+
+                            </div>
+                        </div>
+
+                        
+
+                            <div>
+                            
+
+                            {/* <p className="mt-1 text-[13px] text-(--text-secondary) flex items-center gap-1">
                             {item.desktopService ?? item.service}
-                        </p>
+                            </p> */}
 
-                        <div className="mt-2 flex items-center gap-3 text-[12px] text-(--text-secondary)">
+                            <div className="flex items-center gap-1 mt-1">
+                            <MapPin size={12} />
+
+                                <span className="text-[14px] text-(--text-primary)">{item.address }</span>
+
+                            </div>
+
+                       
+            
+                        </div>
+
+                        {/* <div className="mt-1 flex items-center gap-3 text-[12px] text-(--text-secondary)">
 
                             <div className="flex items-center gap-1">
 
@@ -259,11 +305,11 @@ export function TrendingNearbyCard({
 
                             </div>
 
-                        </div>
+                        </div> */}
 
-                        <p className="mt-3 line-clamp-3 max-w-[320px] text-[12px] leading-5 text-(--text-secondary)">
+                        {/* <p className="mt-3 line-clamp-3 max-w-[320px] text-[12px] leading-5 text-(--text-secondary)">
                             {item.description}
-                        </p>
+                        </p> */}
 
                     </div>
 
@@ -280,8 +326,8 @@ export function TrendingNearbyCard({
 
                         </Link>
 
-                        <Link href={orgHref} className="flex items-center gap-2 text-[13px] font-medium transition hover:text-(--accent-primary)">
-                        <Navigation size={16} />
+                        <Link href={orgHref} className="flex ml-[-0.2rem] items-center gap-2 text-[13px] font-medium transition hover:text-(--accent-primary)">
+                        <DirectionsIcon className="h-2 w-2 " />
                             <span>Direction</span>
 
                             

@@ -84,12 +84,12 @@ export function BookingOrganizationBanner({
                 strokeWidth={2}
               />
             </div>
-            <p className="mt-0.5 truncate text-[9px] text-(--text-secondary)">
+            <p className="mt-0.5 truncate text-[10px] text-(--text-secondary)">
               {serviceSummary}
             </p>
-            <p className="mt-0.5 flex items-center gap-0.5 text-[9px] text-(--text-secondary)">
-              <MapPin className="h-2.5 w-2.5 shrink-0" strokeWidth={1.8} />
-              <span className="truncate">
+            <p className="mt-0.5 flex  gap-0.5 text-[10px] text-(--text-secondary)">
+              <MapPin className="mt-0.5 h-2.5 w-2.5 shrink-0" strokeWidth={1.8} />
+              <span className="">
                 {org.address ?? bookingLocation.address}
               </span>
             </p>

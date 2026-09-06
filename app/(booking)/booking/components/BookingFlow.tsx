@@ -128,6 +128,12 @@ export function BookingFlow() {
     setStep(productDeliveryAddress ? 3 : 1);
   }, [isProductFlow, isDesktopViewport, step, productDeliveryAddress]);
 
+  // Desktop service flow: date/time is selected in Step 2 — skip Step 3.
+  useEffect(() => {
+    if (isProductFlow || !isDesktopViewport || step !== 3) return;
+    setStep(2);
+  }, [isProductFlow, isDesktopViewport, step]);
+
   useEffect(() => {
     if (!isPackageFlow || serviceIds.length === 0) return;
 
@@ -475,6 +481,7 @@ export function BookingFlow() {
         <BookingProgress
           currentStep={step}
           productDesktopStep={step >= 3 ? 2 : 1}
+          serviceDesktopStep={step >= 4 ? 3 : step >= 2 ? 2 : 1}
           mode={isProductFlow ? "product" : "service"}
         />
 
@@ -570,12 +577,12 @@ export function BookingFlow() {
                 onConfirmSeat={handleConfirmSeat}
                 onRemoveService={removeService}
                 onBack={() => setStep(1)}
-                onNext={() => setStep(3)}
+                onNext={() => setStep(isDesktopViewport ? 4 : 3)}
                 onEditService={() => setStep(1)}
               />
             )}
 
-            {step === 3 && (
+            {step === 3 && !isDesktopViewport && (
               <Step3DateTimeSelection
                 selectedServiceIds={serviceIds}
                 organizationBanner={organizationBanner}
@@ -620,11 +627,11 @@ export function BookingFlow() {
                 onBillingChange={handleBillingChange}
                 onRemoveService={removeService}
                 onRemoveProduct={removeProduct}
-                onBack={() => setStep(3)}
+                onBack={() => setStep(isDesktopViewport ? 2 : 3)}
                 onConfirm={() => setIsConfirmed(true)}
                 onEditService={() => setStep(1)}
                 onChangeStaff={() => setStep(2)}
-                onChangeTime={() => setStep(3)}
+                onChangeTime={() => setStep(isDesktopViewport ? 2 : 3)}
               />
             )}
           </>

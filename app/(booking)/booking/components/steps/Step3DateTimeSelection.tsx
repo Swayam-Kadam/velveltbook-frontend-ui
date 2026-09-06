@@ -642,7 +642,7 @@ export function Step3DateTimeSelection({
                         ${
                           active
                             ? "primary-button border-transparent text-white"
-                            : "border-(--border) bg-(--bg-card) text-(--text-primary)"
+                            : "border-(--text-primary) bg-(--bg-card) text-(--text-primary)"
                         }
                       `}
                     >
@@ -670,9 +670,9 @@ export function Step3DateTimeSelection({
                 return (
                   <article className="feature-card overflow-hidden rounded-2xl border border-(--border) p-2">
                     <div className="mb-2 flex items-center justify-between gap-2 border-b border-(--border) pb-2">
-                      <div className="primary-button inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[10px] font-semibold text-white">
-                        <span className="h-2 w-2 rounded-full bg-(--success)" />
-                        {`Service - ${selectedServices.findIndex((item) => item.id === service.id) + 1}`}
+                      <div className="border border-(--border) inline-flex items-center gap-1.5 rounded-sm px-3 py-2 text-[10px] font-semibold text-(--accent-secondary)">
+                        {/* <span className="h-2 w-2 rounded-full bg-(--success)" /> */}
+                        {`Total Services - ${selectedServices.length}`}
                       </div>
 
                       <div className="flex items-center gap-3">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import {
   BadgeCheck,
+  CalendarDays,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
@@ -58,7 +59,6 @@ import {
   BookingOrganizationBanner,
   type BookingOrganizationBannerInfo,
 } from "../BookingOrganizationBanner";
-import { BookingSelectedServicesPanel } from "../BookingSelectedServicesPanel";
 import type { ProductDeliveryAddress } from "./ProductAddressFields";
 import type { BookingProduct } from "@/data/booking/booking";
 
@@ -266,7 +266,7 @@ function ProductMobileOrderSummary({
                         className="object-cover"
                       />
                     </div>
-                    <span
+                    {/* <span
                       className="
                         absolute -right-1.5 -top-1.5 z-10 flex h-5 min-w-5 items-center
                         justify-center rounded-full bg-(--text-primary) px-1
@@ -274,7 +274,7 @@ function ProductMobileOrderSummary({
                       "
                     >
                       {qty}
-                    </span>
+                    </span> */}
                   </div>
 
                   <div className="min-w-0 flex-1 pt-0.5">
@@ -286,6 +286,10 @@ function ProductMobileOrderSummary({
                           | {product.quantity}
                         </span>
                       ) : null}
+                    </p>
+
+                    <p className="text-[12px] font-bold text-(--text-primary)">
+                      Qty:- {qty} item{qty === 1 ? "" : "s"}
                     </p>
                   </div>
 
@@ -588,6 +592,174 @@ function ServiceAppointmentBlock({
         </div>
       </div>
     </div>
+  );
+}
+
+function MobilePaymentSelectedServices({
+  selectedServices,
+  serviceStaff,
+  serviceSchedules,
+  isPackageFlow,
+  onRemoveService,
+}: {
+  selectedServices: BookingService[];
+  serviceStaff: ServiceStaffAssignments;
+  serviceSchedules: ServiceSchedules;
+  isPackageFlow: boolean;
+  onRemoveService?: (id: string) => void;
+}) {
+  const count = selectedServices.length;
+
+  return (
+    <section className="space-y-2">
+      <div className="flex items-center justify-between gap-2 px-0.5">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <Sparkles
+            size={14}
+            className="shrink-0 text-(--accent-primary)"
+            strokeWidth={2}
+          />
+          <h3 className="text-[13px] font-semibold text-(--accent-primary)">
+            Selected Services
+          </h3>
+        </div>
+        <span className="shrink-0 rounded-full bg-[color-mix(in_srgb,var(--accent-primary)_12%,white)] px-2.5 py-1 text-[10px] font-semibold text-(--accent-primary)">
+          {count} Service{count === 1 ? "" : "s"}
+        </span>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
+        {count === 0 ? (
+          <p className="px-3 py-5 text-center text-[11px] text-(--text-muted)">
+            No services selected yet
+          </p>
+        ) : (
+          <ul className="divide-y divide-(--border)">
+            {selectedServices.map((service) => {
+              const assignedStaffId = serviceStaff[service.id];
+              const staff = assignedStaffId
+                ? getStaff(assignedStaffId)
+                : null;
+              const schedule = serviceSchedules[service.id];
+              const scheduled = isServiceScheduleComplete(schedule);
+              const day = scheduled ? getBookingDay(schedule.dayId) : null;
+              const tagline =
+                service.description
+                  ?.split(/[.!]/)[0]
+                  ?.trim()
+                  .slice(0, 28) || "Relaxing & Safe";
+
+              return (
+                <li
+                  key={service.id}
+                  className="relative flex gap-2.5 px-3 py-3 pr-9"
+                >
+                  {!isPackageFlow && onRemoveService ? (
+                    <button
+                      type="button"
+                      onClick={() => onRemoveService(service.id)}
+                      aria-label={`Remove ${service.name}`}
+                      className="
+                        absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2
+                        items-center justify-center rounded-full border
+                        border-(--border) bg-(--bg-secondary) text-(--text-primary)
+                        transition-colors hover:border-(--accent-primary)
+                        hover:text-(--accent-primary)
+                      "
+                    >
+                      <X size={11} strokeWidth={2.5} />
+                    </button>
+                  ) : null}
+
+                  <div className="relative h-[52px] w-[52px] shrink-0 overflow-hidden rounded-sm">
+                    <Image
+                      src={service.image}
+                      alt={service.name}
+                      fill
+                      sizes="72px"
+                      className="object-cover"
+                    />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[12px] font-semibold text-(--accent-primary)">
+                          {service.name}
+                        </p>
+                        <p className="mt-0.5 truncate text-[10px] text-(--text-muted)">
+                          {service.duration} • {tagline}
+                        </p>
+                        <p className="mt-1.5 text-[13px] font-bold text-(--accent-primary)">
+                          ${service.price.toFixed(2)}
+                        </p>
+                        <p className="mt-0.5 text-[11px] font-medium text-(--text-primary)">
+                          1
+                        </p>
+                      </div>
+
+                      <div className="w-[112px] shrink-0 space-y-1.5">
+                        <div className="flex items-center gap-1.5">
+                          {staff && staff.id !== "any" ? (
+                            <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-xs">
+                              <Image
+                                src={staff.image}
+                                alt={staff.name}
+                                fill
+                                sizes="28px"
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xs bg-(--accent-primary)/10">
+                              <UserRound
+                                size={13}
+                                className="text-(--accent-primary)"
+                              />
+                            </span>
+                          )}
+                          <div className="min-w-0">
+                            <p className="truncate text-[11px] font-semibold text-(--text-primary)">
+                              {isPackageFlow
+                                ? "Auto"
+                                : staff?.id === "any"
+                                  ? "Any"
+                                  : (staff?.name ?? "Staff")}
+                            </p>
+                            <p className="text-[9px] text-(--text-muted)">
+                              Therapist
+                            </p>
+                          </div>
+                        </div>
+
+                        <p className="flex items-center gap-1 text-[10px] font-medium text-(--text-primary)">
+                          <CalendarDays
+                            size={11}
+                            className="shrink-0 text-(--accent-primary)"
+                          />
+                          <span className="truncate">
+                            {day ? `${day.date}, ${day.weekday}` : "Date TBD"}
+                          </span>
+                        </p>
+                        <p className="flex items-center gap-1 text-[10px] font-medium text-(--text-primary)">
+                          <Clock3
+                            size={11}
+                            className="shrink-0 text-(--accent-primary)"
+                          />
+                          <span className="truncate">
+                            {scheduled ? schedule.time : "Time TBD"}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -1026,15 +1198,16 @@ export function Step4PaymentConfirmation({
           </>
         ) : (
           <>
-            <BookingSelectedServicesPanel
-              selectedServiceIds={selectedServiceIds}
+            <BookingOrganizationBanner
               organization={organizationBanner}
-              organizationId={organizationId}
+              serviceLabels={selectedServices.map((service) => service.name)}
+            />
+            <MobilePaymentSelectedServices
+              selectedServices={selectedServices}
               serviceStaff={serviceStaff}
               serviceSchedules={serviceSchedules}
-              packageName={packageName}
+              isPackageFlow={isPackageFlow}
               onRemoveService={onRemoveService}
-              showOrganizationBanner={false}
             />
 
             {selectedProducts.length > 0 && (
@@ -1100,71 +1273,54 @@ export function Step4PaymentConfirmation({
               </section>
             )}
 
-            <div className="grid grid-cols-2 gap-2">
-              <section className="feature-card rounded-xl p-2.5">
-                <div className="mb-2 flex items-center gap-1.5">
-                  <Tag
-                    size={12}
-                    className="text-(--accent-primary)"
-                    strokeWidth={2}
-                  />
-                  <h3 className="text-[9px] font-semibold text-(--text-primary)">
-                    Pricing Summary
-                  </h3>
-                </div>
-
-                <div className="space-y-1 text-[8px]">
-                  {pricingRows}
-                  <div className="flex justify-between border-t border-(--border) pt-1 text-(--text-secondary)">
-                    <span>Subtotal</span>
-                    <span>${mobileSubtotal}</span>
-                  </div>
-                  <div className="flex justify-between text-(--text-secondary)">
-                    <span>Taxes & Fees</span>
-                    <span>${mobileTax}</span>
-                  </div>
-                  <div className="flex justify-between text-(--text-secondary)">
-                    <span>Additional Charges</span>
-                    <span>$0</span>
-                  </div>
-                </div>
-
-                <div className="mt-2 flex items-center justify-between border-t border-(--border) pt-2">
-                  <span className="text-[9px] font-semibold text-(--text-primary)">
-                    Total Amount
-                  </span>
-                  <span className="text-lg font-bold text-(--accent-primary)">
-                    ${mobileTotal}
-                  </span>
-                </div>
-              </section>
-
-              <section className="feature-card flex flex-col items-center justify-center rounded-xl p-2.5 text-center">
-                <div className="mb-1.5 flex h-10 w-10 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent-primary)_12%,transparent)]">
-                  <ShieldCheck
-                    size={20}
-                    className="text-(--accent-primary)"
-                    strokeWidth={1.8}
-                  />
-                </div>
-                <p className="text-[8px] font-semibold text-(--text-primary)">
-                  Secure & Trusted
-                </p>
-                <p className="mt-0.5 text-[6px] leading-snug text-(--text-muted)">
-                  Your payment is protected with 256-bit encryption
-                </p>
-                <div className="mt-1.5 flex items-center gap-1.5">
-                  {["PCI DSS", "SSL", "VISA"].map((badge) => (
-                    <span
-                      key={badge}
-                      className="rounded border border-(--border) px-1 py-0.5 text-[5px] font-bold tracking-wide text-(--text-muted)"
-                    >
-                      {badge}
+            {!isProductOnly && (
+              <section className="rounded-2xl border border-(--border) bg-(--bg-card) px-4 py-3.5">
+                <div className="space-y-2.5 text-[13px]">
+                  <div className="flex items-center justify-between gap-3 text-(--text-secondary)">
+                    <span>
+                      Services Total ({selectedServices.length} item
+                      {selectedServices.length === 1 ? "" : "s"})
                     </span>
-                  ))}
+                    <span className="font-semibold text-(--text-primary)">
+                      ${money(serviceItemsTotal)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 font-medium text-emerald-600">
+                    <span>Discount</span>
+                    <span>-${money(serviceDiscount)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 text-(--text-secondary)">
+                    <span className="inline-flex items-center gap-1">
+                      Platform Fee
+                      <CircleHelp
+                        size={13}
+                        className="text-(--text-muted)"
+                        strokeWidth={1.8}
+                      />
+                    </span>
+                    <span className="font-semibold text-(--text-primary)">
+                      ${money(PLATFORM_FEE)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="my-3 border-t border-dashed border-(--border)" />
+
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[14px] font-semibold text-(--accent-primary)">
+                      Total Amount
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-(--text-muted)">
+                      Includes GST
+                    </p>
+                  </div>
+                  <p className="text-[26px] font-bold leading-none text-(--accent-primary)">
+                    ${money(serviceGrandTotal)}
+                  </p>
                 </div>
               </section>
-            </div>
+            )}
           </>
         )}
 
@@ -1324,29 +1480,30 @@ export function Step4PaymentConfirmation({
       </div>
 
       {/* ================= DESKTOP (matches reference) ================= */}
-      <div className="hidden lg:block space-y-5">
-        <BookingOrganizationBanner
-          organization={organizationBanner}
-          serviceLabels={
-            isProductOnly
-              ? selectedProducts.map((product) => product.name)
-              : selectedServices.map((service) => service.name)
-          }
-        />
-
+      <div className="hidden lg:block">
         <div className="grid grid-cols-2 gap-5 xl:gap-6">
-          {/* LEFT — Booking Summary */}
-          {!isProductOnly ? (
-            <ServiceDesktopBookingSummary
-              selectedServices={selectedServices}
-              serviceStaff={serviceStaff}
-              serviceSchedules={serviceSchedules}
-              staffId={staffId}
-              org={org}
-              isPackageFlow={isPackageFlow}
-              onEditService={onEditService}
+          {/* LEFT — Banner + Booking Summary */}
+          <div className="min-w-0 space-y-4">
+            <BookingOrganizationBanner
+              organization={organizationBanner}
+              serviceLabels={
+                isProductOnly
+                  ? selectedProducts.map((product) => product.name)
+                  : selectedServices.map((service) => service.name)
+              }
             />
-          ) : (
+
+            {!isProductOnly ? (
+              <ServiceDesktopBookingSummary
+                selectedServices={selectedServices}
+                serviceStaff={serviceStaff}
+                serviceSchedules={serviceSchedules}
+                staffId={staffId}
+                org={org}
+                isPackageFlow={isPackageFlow}
+                onEditService={onEditService}
+              />
+            ) : (
           <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-6 shadow-[var(--shadow-card)]">
             <div className="mb-5 flex items-start gap-3">
               <span className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-(--accent-primary)/10">
@@ -1391,7 +1548,7 @@ export function Step4PaymentConfirmation({
                         </button>
                       )}
 
-                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg">
+                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-sm">
                         <Image
                           src={product.image}
                           alt={product.name}
@@ -1443,7 +1600,8 @@ export function Step4PaymentConfirmation({
               </div>
             </div>
           </section>
-          )}
+            )}
+          </div>
 
           {/* RIGHT — Payment Details */}
           <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-6 shadow-[var(--shadow-card)]">

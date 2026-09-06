@@ -1412,10 +1412,6 @@ export function ExtendedOrganizationProfile({
 
                     <div className="flex flex-col justify-center gap-2 bg-(--bg-secondary) p-6 lg:p-3">
                       <div>
-                        <div className="inline-flex items-center gap-2 rounded-full bg-(--accent-primary) px-4 py-2 text-xs font-semibold text-white shadow-sm">
-                          <Star size={14} className="fill-(--brand-gold) text-(--brand-gold)" />
-                          <span>4.8 (120+ reviews)</span>
-                        </div>
 
                         <h1 className="mt-2 text-[24px] leading-tight font-medium text-(--text-primary)">
                           {organization.name}
@@ -1426,16 +1422,33 @@ export function ExtendedOrganizationProfile({
                         Specialized deep tissue and traditional oil therapies for body
                         recovery and relaxation.
                       </p>
+                      <p className="flex max-w-[420px] items-start gap-1.5 text-[14px] leading-snug text-(--text-primary)">
+                        <MapPin
+                          size={14}
+                          className="mt-1 shrink-0 text-(--accent-primary)"
+                        />
+                        <span>
+                          {organization.address?.trim() ||
+                            "Address not available"}
+                        </span>
+                      </p>
 
                       <div className="flex flex-wrap gap-1">
                         <span className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--bg-card) px-3 py-2 text-[10px] font-medium text-(--text-primary)">
                           <span className="h-2.5 w-2.5 rounded-full bg-(--success)" />
                           Online
                         </span>
-                        <span className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--bg-card) px-3 py-2 text-[10px] font-medium text-(--text-secondary)">
+                        {/* <span className="inline-flex items-center gap-2 rounded-full border border-(--border) bg-(--bg-card) px-3 py-2 text-[10px] font-medium text-(--text-secondary)">
                           <MapPin size={14} />
                           Indore, India
-                        </span>
+                        </span> */}
+                        <button
+                          type="button"
+                          className="inline-flex h-8 items-center justify-center gap-2 rounded-full border border-(--border) bg-(--bg-card) px-2 text-[10px] font-semibold text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)"
+                        >
+                          <PlayCircle size={16} />
+                          Watch Video
+                        </button>
                       </div>
 
                       <div className="flex flex-wrap gap-3 pt-1">
@@ -1447,13 +1460,10 @@ export function ExtendedOrganizationProfile({
                           <CalendarDays size={16} />
                           Book Now
                         </Link> */}
-                        <button
-                          type="button"
-                          className="inline-flex h-8 items-center justify-center gap-2 rounded-full border border-(--border) bg-(--bg-card) px-2 text-[10px] font-semibold text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)"
-                        >
-                          <PlayCircle size={16} />
-                          Watch Video
-                        </button>
+                        <div className="inline-flex items-center gap-2 rounded-full bg-(--accent-primary) px-4 py-2 text-xs font-semibold text-white shadow-sm">
+                          <Star size={14} className="fill-(--brand-gold) text-(--brand-gold)" />
+                          <span>4.8 (120+ reviews)</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1462,7 +1472,7 @@ export function ExtendedOrganizationProfile({
                 {!isProductFlow && (
                 <section className="overflow-hidden rounded-[20px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
                   {selectedServices.length === 0 ? (
-                    <div className="flex min-h-[245px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
+                    <div className="flex min-h-[293px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
                       <p className="text-2xl font-bold text-(--text-primary)">
                         Service preview
                       </p>
@@ -1553,7 +1563,7 @@ export function ExtendedOrganizationProfile({
                                         </p>
                                         <p
                                           className={`
-                                            max-w-[88px] text-[11px] font-semibold
+                                            max-w-[88px] h-6 text-[11px] font-semibold
                                             ${
                                               isActive
                                                 ? "text-(--text-primary)"
@@ -1765,7 +1775,7 @@ export function ExtendedOrganizationProfile({
                 {isProductFlow && (
                 <section className="overflow-hidden rounded-[20px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
                   {selectedProducts.length === 0 ? (
-                    <div className="flex min-h-[420px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center lg:min-h-[380px]">
+                    <div className="flex min-h-[420px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center lg:min-h-[410px]">
                       <p className="text-2xl font-bold text-(--text-primary)">
                         Product preview
                       </p>
