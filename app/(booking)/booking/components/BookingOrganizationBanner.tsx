@@ -63,7 +63,7 @@ export function BookingOrganizationBanner({
       <div className="border-t-8 border-(--accent-primary) bg-(--bg-card) px-2.5 py-2 lg:border-t-0">
         <div className="flex min-w-0 items-start gap-2">
           <div className="relative  h-14 w-14 shrink-0">
-            <div className="relative h-14 w-14 overflow-hidden rounded-xl border-2 border-(--bg-card) shadow-(--shadow-card)">
+            <div className="relative h-16 w-16 overflow-hidden rounded-xl border-2 border-(--bg-card) shadow-(--shadow-card)">
               <Image
                 src={org.thumbnail ?? org.banner}
                 alt={org.name}
@@ -74,9 +74,9 @@ export function BookingOrganizationBanner({
             </div>
           </div>
 
-          <div className="min-w-0 flex-1 pt-0.5">
+          <div className="min-w-0 flex-1 pt-0.5 ml-1">
             <div className="flex items-center gap-1">
-              <h2 className="truncate font-[family-name:var(--font-heading)] text-sm font-bold text-(--text-primary)">
+              <h2 className="truncate font-[family-name:var(--font-heading)] text-lg font-bold text-(--text-primary)">
                 {org.name}
               </h2>
               <BadgeCheck
@@ -84,10 +84,10 @@ export function BookingOrganizationBanner({
                 strokeWidth={2}
               />
             </div>
-            <p className="mt-0.5 truncate text-[10px] text-(--text-secondary)">
+            <p className="mt-0.5 truncate text-[11px] text-(--text-secondary)">
               {serviceSummary}
             </p>
-            <p className="mt-0.5 flex  gap-0.5 text-[10px] text-(--text-secondary)">
+            <p className="mt-0.5 flex  gap-0.5 text-[12px] text-(--text-secondary)">
               <MapPin className="mt-0.5 h-2.5 w-2.5 shrink-0" strokeWidth={1.8} />
               <span className="">
                 {org.address ?? bookingLocation.address}

@@ -117,7 +117,7 @@ export function BookingSelectedServicesPanel({
         </div>
 
         {hasSelection ? (
-          <div className="grid grid-cols-4 gap-2 p-3">
+          <div className="grid grid-cols-4 gap-1 p-3">
             {selectedServices.map((service) => {
               const assignedStaffId = serviceStaff[service.id];
               const assignedStaff = assignedStaffId
@@ -134,7 +134,7 @@ export function BookingSelectedServicesPanel({
                     bg-[color-mix(in_srgb,var(--accent-primary)_4%,transparent)]
                   "
                 >
-                  <div className="relative h-14 w-full">
+                  <div className="relative aspect-square w-full">
                     <Image
                       src={service.image}
                       alt={service.name}
@@ -160,22 +160,22 @@ export function BookingSelectedServicesPanel({
                     )}
                   </div>
                   <div className="space-y-0.5 pt-1.5">
-                    <p className="line-clamp-2 min-h-6 text-[8.5px] font-bold leading-tight text-(--text-primary) px-1.5">
+                    <p className="line-clamp-3 min-h-10.5 text-[11px] font-bold leading-tight text-(--text-primary) px-1.5">
                       {service.name}
                     </p>
-                    <div className="flex items-center gap-0.5 text-[8px] font-semibold text-(--text-primary) px-1.5">
+                    <div className="flex items-center gap-0.5 text-[10px] font-semibold text-(--text-primary) px-1.5">
                       <Clock3 size={6} />
                       <span className="truncate">{service.duration}</span>
                     </div>
-                    <p className="text-[10px] font-bold text-(--brand-gold) px-1.5">
+                    <p className="text-[12px] font-bold text-(--brand-gold) px-1.5">
                       {service.priceLabel}
                     </p>
-                    <p className="truncate px-1 text-[7px] font-bold text-white bg-(--text-primary) text-center">
+                    <p className="truncate px-1 text-[9px] font-bold text-white bg-(--text-primary) text-center">
                       {isPackageFlow
                         ? "packages"
                         : (assignedStaff?.name ?? "Staff")}
                     </p>
-                    <p className="truncate px-1 text-[7px] font-bold text-white bg-(--text-primary) text-center">
+                    <p className="truncate px-1 text-[9px] font-bold text-white bg-(--text-primary) text-center">
                       {scheduled ? formatServiceSchedule(schedule) : "Date & time"}
                     </p>
                   </div>

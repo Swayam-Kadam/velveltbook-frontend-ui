@@ -71,7 +71,7 @@ export function MenuProductCard({
           {product.quantity}
         </p>
 
-        <div className="mt-auto flex flex-col items-left justify-between gap-1 pt-0.5 lg:flex-row">
+        <div className="mt-auto flex flex-col items-left justify-between gap-1 pt-0.5 lg:flex-col">
           <span
             className={`
               font-bold text-(--brand-gold)

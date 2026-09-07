@@ -7,6 +7,21 @@ import { getAvailableTimeSlots } from "../../booking.data";
 import type { BookingDay } from "../../booking.types";
 import { DatePickerPopover } from "../DatePickerPopover";
 
+const MONTH_FULL = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 const MONTH_LABELS = [
   "Jan",
   "Feb",
@@ -34,14 +49,6 @@ function parseDayMonth(iso: string) {
 
 function getTimePeriod(time: string): TimePeriod {
   return time.endsWith("PM") ? "PM" : "AM";
-}
-
-function formatTimeParts(time: string) {
-  const match = time.match(/^(.+?) (AM|PM)$/);
-  return {
-    clock: match?.[1] ?? time,
-    period: (match?.[2] ?? getTimePeriod(time)) as TimePeriod,
-  };
 }
 
 function useHorizontalScrollControls<T extends HTMLElement>() {
@@ -339,73 +346,25 @@ export function Step2DateTimeSection({
     monthIndex(bookingEndMonth.year, bookingEndMonth.month);
 
   const dayPill = (active: boolean) =>
-    `flex h-8 w-full flex-col items-center justify-center rounded-lg border px-1 py-1 transition-all duration-200 ${
+    `flex h-8 w-full flex-col items-center justify-center rounded-2xl border px-1 py-1 transition-all duration-200 ${
       active
-        ? "primary-button border-transparent text-white shadow-none"
+        ? "border-transparent bg-(--accent-primary) text-white shadow-none"
         : "border border-(--border) bg-(--bg-card) text-(--text-primary)"
     }`;
 
   const timePill = (active: boolean) =>
-    `flex h-9 w-full flex-col items-center justify-center gap-0 rounded-lg border px-0.5 py-1 text-center font-medium leading-none whitespace-nowrap tabular-nums transition-all duration-200 ${
+    `flex h-8 w-full items-center justify-center rounded-full border px-0.5 text-center font-medium leading-none whitespace-nowrap tabular-nums transition-all duration-200 ${
       active
-        ? "primary-button border-transparent text-white shadow-none"
+        ? "border-transparent bg-(--accent-primary) text-white shadow-none"
         : "border border-(--border) bg-(--bg-card) text-(--text-primary)"
     }`;
 
   const periodToggle = (active: boolean) =>
     `rounded-md px-2 py-0.5 text-[9px] font-semibold transition-colors ${
       active
-        ? "primary-button text-white"
+        ? "bg-(--accent-primary) text-white"
         : "text-(--text-secondary) hover:text-(--accent-primary)"
     }`;
-
-  const calendarDropdown = (align: "start" | "center" | "end" = "end") => (
-    <div ref={calendarAnchorRef} className="relative shrink-0">
-      <button
-        type="button"
-        onClick={() => setShowCalendar((open) => !open)}
-        aria-label="Open date picker"
-        aria-expanded={showCalendar}
-        className="
-          flex h-6 items-center gap-1 rounded-lg border border-(--border)
-          bg-(--bg-card) px-1.5 text-[8px] font-semibold text-(--text-primary)
-          transition-colors hover:border-(--accent-primary)
-        "
-      >
-        <Calendar size={11} className="text-(--accent-primary)" />
-        <ChevronDown
-          size={11}
-          className={`text-(--text-secondary) transition-transform ${showCalendar ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {showCalendar && (
-        <DatePickerPopover
-          days={days}
-          activeDayId={activeDayId}
-          onSelect={onSelectDay}
-          onClose={() => setShowCalendar(false)}
-          align={align}
-          anchorRef={calendarAnchorRef}
-        />
-      )}
-    </div>
-  );
-
-  const header = (
-    <div className="mb-2.5 flex items-center justify-between gap-2">
-      <div className="flex items-center gap-1.5">
-        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--accent-primary)/10">
-          <Clock3 size={11} className="text-(--accent-primary)" />
-        </span>
-        <h3 className="text-xs font-bold text-(--text-primary)">
-          Choose Date &amp; Time
-        </h3>
-      </div>
-
-      {calendarDropdown("end")}
-    </div>
-  );
 
   const scrollTrackProps = (
     controls: ReturnType<typeof useHorizontalScrollControls<HTMLDivElement>>,
@@ -422,22 +381,229 @@ export function Step2DateTimeSection({
 
   const scrollItemClass = "shrink-0 basis-[calc((100%-0.75rem)/4)]";
 
-  return (
-    <section className={embedded ? "" : "feature-card rounded-xl p-3"}>
-      {!embedded && header}
+  const dateScroller = (
+    <div className="flex items-center gap-1.5">
+      <RoundChevron
+        dir="left"
+        label="Previous dates"
+        onClick={() => daysScroll.scrollByPage("left")}
+        disabled={!daysScroll.canScrollLeft}
+      />
 
-      {/* Date */}
+      <div {...scrollTrackProps(daysScroll)}>
+        {days.map((day) => {
+          const active = day.id === activeDayId;
+          return (
+            <button
+              key={day.id}
+              type="button"
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={() => onSelectDay(day.id)}
+              className={`${dayPill(active)} ${scrollItemClass} min-w-12`}
+            >
+              <span className="text-[7px] font-semibold">{day.weekday}</span>
+              <span className="text-[8px] font-bold">{day.date}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <RoundChevron
+        dir="right"
+        label="Next dates"
+        onClick={() => daysScroll.scrollByPage("right")}
+        disabled={!daysScroll.canScrollRight}
+      />
+    </div>
+  );
+
+  const timeScroller = (
+    <div className="flex items-center gap-1.5">
+      <RoundChevron
+        dir="left"
+        label="Earlier times"
+        onClick={() => timesScroll.scrollByPage("left")}
+        disabled={!timesScroll.canScrollLeft}
+      />
+
+      <div {...scrollTrackProps(timesScroll)}>
+        {filteredTimes.map((time) => {
+          const active = time === activeTime;
+          return (
+            <button
+              key={time}
+              type="button"
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={() => onSelectTime(time)}
+              className={`${timePill(active)} ${scrollItemClass} min-w-12`}
+            >
+              <span className="text-[9px] font-semibold">{time}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <RoundChevron
+        dir="right"
+        label="More times"
+        onClick={() => timesScroll.scrollByPage("right")}
+        disabled={!timesScroll.canScrollRight}
+      />
+    </div>
+  );
+
+  const amPmToggle = (
+    <div
+      className="flex items-center gap-0.5 rounded-lg border border-(--border) p-0.5"
+      role="group"
+      aria-label="Time period"
+    >
+      <button
+        type="button"
+        onClick={() => switchTimePeriod("AM")}
+        aria-pressed={timePeriod === "AM"}
+        className={periodToggle(timePeriod === "AM")}
+      >
+        AM
+      </button>
+      <span className="px-0.5 text-[8px] text-(--text-muted)">|</span>
+      <button
+        type="button"
+        onClick={() => switchTimePeriod("PM")}
+        aria-pressed={timePeriod === "PM"}
+        className={periodToggle(timePeriod === "PM")}
+      >
+        PM
+      </button>
+    </div>
+  );
+
+  if (embedded) {
+    return (
+      <section className="overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)">
+        <div ref={calendarAnchorRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setShowCalendar((open) => !open)}
+            aria-label="Open calendar"
+            aria-expanded={showCalendar}
+            className="
+              flex w-full items-center gap-2 bg-(--accent-primary)
+              px-2.5 py-1 text-left text-white
+            "
+          >
+            <div className="min-w-0 flex-1">
+              <p className="text-[7px] font-semibold uppercase tracking-wide text-white/80">
+                Month
+              </p>
+              <span className="inline-flex items-center gap-0.5">
+                <span className="truncate text-[10px] font-bold leading-tight">
+                  {MONTH_FULL[activeMonth.month]}
+                </span>
+                <ChevronDown
+                  size={11}
+                  className={`shrink-0 transition-transform ${showCalendar ? "rotate-180" : ""}`}
+                />
+              </span>
+            </div>
+
+            <span className="h-5 w-px shrink-0 bg-white/35" />
+
+            <div className="min-w-0 shrink-0 pr-1">
+              <p className="text-[7px] font-semibold uppercase tracking-wide text-white/80">
+                Year
+              </p>
+              <p className="text-[10px] font-bold leading-tight">
+                {activeMonth.year}
+              </p>
+            </div>
+
+            <Calendar size={15} className="ml-auto shrink-0 text-white" />
+          </button>
+
+          {showCalendar && (
+            <DatePickerPopover
+              days={days}
+              activeDayId={activeDayId}
+              onSelect={(dayId) => {
+                onSelectDay(dayId);
+                setShowCalendar(false);
+              }}
+              onClose={() => setShowCalendar(false)}
+              align="center"
+              anchorRef={calendarAnchorRef}
+            />
+          )}
+        </div>
+
+        <div className="space-y-1 p-1.5">
+          {dateScroller}
+
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[9px] font-semibold text-(--text-secondary)">
+              Select Time
+            </p>
+            {amPmToggle}
+          </div>
+
+          {timeScroller}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="feature-card rounded-xl p-3">
+      <div className="mb-2.5 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-(--accent-primary)/10">
+            <Clock3 size={11} className="text-(--accent-primary)" />
+          </span>
+          <h3 className="text-xs font-bold text-(--text-primary)">
+            Choose Date &amp; Time
+          </h3>
+        </div>
+
+        <div ref={calendarAnchorRef} className="relative shrink-0">
+          <button
+            type="button"
+            onClick={() => setShowCalendar((open) => !open)}
+            aria-label="Open date picker"
+            aria-expanded={showCalendar}
+            className="
+              flex h-6 items-center gap-1 rounded-lg border border-(--border)
+              bg-(--bg-card) px-1.5 text-[8px] font-semibold text-(--text-primary)
+              transition-colors hover:border-(--accent-primary)
+            "
+          >
+            <Calendar size={11} className="text-(--accent-primary)" />
+            <ChevronDown
+              size={11}
+              className={`text-(--text-secondary) transition-transform ${showCalendar ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {showCalendar && (
+            <DatePickerPopover
+              days={days}
+              activeDayId={activeDayId}
+              onSelect={onSelectDay}
+              onClose={() => setShowCalendar(false)}
+              align="end"
+              anchorRef={calendarAnchorRef}
+            />
+          )}
+        </div>
+      </div>
+
       <div>
         <div className="mb-2 flex items-center gap-2">
-          {ShowTitle && <p className="shrink-0 text-[9px] font-semibold text-(--text-secondary)">
-            Select Date
-          </p>}
-          {embedded && (
-            <div className="flex flex-1 items-center justify-center">
-              {calendarDropdown("center")}
-            </div>
+          {ShowTitle && (
+            <p className="shrink-0 text-[9px] font-semibold text-(--text-secondary)">
+              Select Date
+            </p>
           )}
-          <div className={`flex shrink-0 items-center gap-1 ${embedded ? "" : "ml-auto"}`}>
+          <div className="ml-auto flex shrink-0 items-center gap-1">
             <RoundChevron
               dir="left"
               label="Previous month"
@@ -456,108 +622,20 @@ export function Step2DateTimeSection({
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <RoundChevron
-            dir="left"
-            label="Previous dates"
-            onClick={() => daysScroll.scrollByPage("left")}
-            disabled={!daysScroll.canScrollLeft}
-          />
-
-          <div {...scrollTrackProps(daysScroll)}>
-            {days.map((day) => {
-              const active = day.id === activeDayId;
-              return (
-                <button
-                  key={day.id}
-                  type="button"
-                  onPointerDown={(event) => event.stopPropagation()}
-                  onClick={() => onSelectDay(day.id)}
-                  className={`${dayPill(active)} ${scrollItemClass} min-w-12`}
-                >
-                  <span className="text-[7px] font-semibold">{day.weekday}</span>
-                  <span className="text-[8px] font-bold">{day.date}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <RoundChevron
-            dir="right"
-            label="Next dates"
-            onClick={() => daysScroll.scrollByPage("right")}
-            disabled={!daysScroll.canScrollRight}
-          />
-        </div>
+        {dateScroller}
       </div>
 
       <div className="my-2.5 h-px w-full bg-(--border)" />
 
-      {/* Time */}
       <div>
         <div className="mb-2 flex items-center justify-between gap-2">
           <p className="text-[9px] font-semibold text-(--text-secondary)">
             Select Time
           </p>
-          <div
-            className="flex items-center gap-0.5 rounded-lg border border-(--border) p-0.5"
-            role="group"
-            aria-label="Time period"
-          >
-            <button
-              type="button"
-              onClick={() => switchTimePeriod("AM")}
-              aria-pressed={timePeriod === "AM"}
-              className={periodToggle(timePeriod === "AM")}
-            >
-              AM
-            </button>
-            <span className="px-0.5 text-[8px] text-(--text-muted)">|</span>
-            <button
-              type="button"
-              onClick={() => switchTimePeriod("PM")}
-              aria-pressed={timePeriod === "PM"}
-              className={periodToggle(timePeriod === "PM")}
-            >
-              PM
-            </button>
-          </div>
+          {amPmToggle}
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <RoundChevron
-            dir="left"
-            label="Earlier times"
-            onClick={() => timesScroll.scrollByPage("left")}
-            disabled={!timesScroll.canScrollLeft}
-          />
-
-          <div {...scrollTrackProps(timesScroll)}>
-            {filteredTimes.map((time) => {
-              const { clock, period } = formatTimeParts(time);
-              const active = time === activeTime;
-              return (
-                <button
-                  key={time}
-                  type="button"
-                  onPointerDown={(event) => event.stopPropagation()}
-                  onClick={() => onSelectTime(time)}
-                  className={`${timePill(active)} ${scrollItemClass} min-w-10`}
-                >
-                  <span className="text-[9px]">{clock}</span>
-                  <span className="text-[7px] font-semibold">{period}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <RoundChevron
-            dir="right"
-            label="More times"
-            onClick={() => timesScroll.scrollByPage("right")}
-            disabled={!timesScroll.canScrollRight}
-          />
-        </div>
+        {timeScroller}
       </div>
     </section>
   );

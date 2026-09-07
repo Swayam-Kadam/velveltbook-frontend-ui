@@ -682,7 +682,7 @@ export function Step2StaffSelection({
 
         {/* RIGHT COLUMN — schedule per service + seat */}
         <section className="flex min-h-0 flex-col overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card)">
-              <div className="flex shrink-0 items-center justify-between border-b border-(--border) px-5 py-4">
+              {/* <div className="flex shrink-0 items-center justify-between border-b border-(--border) px-5 py-4">
                 <div>
                   <h2 className="font-[family-name:var(--font-heading)] text-[22px] font-semibold text-(--accent-primary)">
                     Let&apos;s Personalize Your Booking
@@ -698,7 +698,7 @@ export function Step2StaffSelection({
                     ? "Ready to continue"
                     : "Complete each service"}
                 </p>
-              </div>
+              </div> */}
 
               <div className="min-h-0 flex-1 overflow-y-auto bg-(--bg-secondary) p-4 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
                 <ServiceScheduleRows

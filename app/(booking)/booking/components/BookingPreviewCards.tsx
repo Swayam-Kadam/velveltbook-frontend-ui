@@ -67,26 +67,22 @@ export function BookingPreviewCards({
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-2">
-        <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">
-          <div className="relative h-[80px] w-full overflow-hidden bg-(--bg-card-hover)">
+      <div className="grid grid-cols-3 items-stretch gap-2">
+        <div className="flex h-full w-full min-w-0 flex-col overflow-hidden rounded-[10px] border border-(--border) bg-(--bg-secondary)">
+          <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-(--bg-card-hover)">
             <Image
               src={serviceImage}
               alt={serviceName}
-              width={240}
-              height={180}
-              sizes="140px"
-              className="h-full w-full object-cover"
+              fill
+              sizes="120px"
+              className="object-cover"
             />
           </div>
-          <div className="flex flex-1 flex-col space-y-1 pt-2">
-            <p className="min-h-6 px-2 text-[10px] font-bold leading-tight text-(--text-primary)">
+          <div className="flex h-[92px] flex-col overflow-hidden pt-1.5">
+            <p className="line-clamp-2 px-1.5 text-[10px] font-bold leading-tight text-(--text-primary)">
               {serviceName}
             </p>
-            <span className="w-full bg-(--accent-primary) px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
-              Service
-            </span>
-            <div className="flex flex-col items-left justify-between gap-1 px-2">
+            <div className="mt-0.5 flex flex-col gap-0.5 px-1.5">
               <span className="flex items-center gap-1 text-[8px] font-semibold text-(--text-secondary)">
                 <Clock3 size={10} className="shrink-0" />
                 {serviceDuration}
@@ -95,6 +91,9 @@ export function BookingPreviewCards({
                 {servicePriceLabel}
               </span>
             </div>
+            <span className="mt-auto w-full bg-(--accent-primary) px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
+              Service
+            </span>
           </div>
           <ChangeBoxButton
             visible={showChangeButtons}
@@ -102,8 +101,8 @@ export function BookingPreviewCards({
           />
         </div>
 
-        <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">
-          <div className="relative flex h-[80px] w-full items-center justify-center overflow-hidden bg-(--bg-card-hover)">
+        <div className="flex h-full w-full min-w-0 flex-col overflow-hidden rounded-[10px] border border-(--border) bg-(--bg-secondary)">
+          <div className="relative flex aspect-square w-full shrink-0 items-center justify-center overflow-hidden bg-(--bg-card-hover)">
             {autoStaff ? (
               <span className="flex h-14 w-14 items-center justify-center rounded-full border border-(--border) bg-(--bg-card)">
                 <UserRound
@@ -116,29 +115,26 @@ export function BookingPreviewCards({
               <Image
                 src={resolvedStaffImage}
                 alt={staffName ?? "Staff"}
-                width={240}
-                height={180}
-                sizes="140px"
-                className="h-full w-full object-cover"
+                fill
+                sizes="120px"
+                className="object-cover"
               />
             )}
           </div>
-          <div className="flex flex-1 flex-col pt-2">
-            <p className="h-7 text-center text-[14px] font-bold text-(--text-primary)">
+          <div className="flex h-[92px] flex-col overflow-hidden pt-1.5">
+            <p className="line-clamp-1 px-1 text-center text-[13px] font-bold text-(--text-primary)">
               {autoStaff ? "Auto" : (staffName ?? "Not selected")}
             </p>
-            <span className="w-full bg-(--accent-primary) px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
+            <div className="mt-0.5 flex items-center justify-center gap-0.5">
+              <Star
+                size={10}
+                className="fill-(--brand-gold) text-(--brand-gold)"
+              />
+              <span className="text-[11px] text-(--text-primary)">4.5</span>
+            </div>
+            <span className="mt-auto w-full bg-(--accent-primary) px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
               Staff
             </span>
-            <div className="flex items-center justify-center gap-0.5 pt-2">
-            <Star
-              size={10}
-              className="fill-(--brand-gold) text-(--brand-gold)"
-            />
-            <span className=" text-[11px] text-(--text-primary)">
-              4.5
-            </span>
-          </div>
           </div>
           <ChangeBoxButton
             visible={showChangeButtons && !autoStaff}
@@ -146,42 +142,39 @@ export function BookingPreviewCards({
           />
         </div>
 
-        <div className="flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-(--border) bg-(--bg-secondary)">
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <div className="bg-(--accent-primary) px-2 py-2 text-center">
-              <p className="text-[8px] font-semibold uppercase tracking-wide text-white">
-                {monthLabel}
-              </p>
-            </div>
-
-            <div className="flex flex-1 flex-col items-center justify-center bg-(--bg-card) py-2 text-center">
-              {scheduled && dateLabel ? (
-                <>
-                  <span className="mt-6 mb-4.5 text-[25px] font-bold leading-none text-(--accent-primary) h-8">
-                    {dateLabel}
-                  </span>
-                  {weekdayLabel ? (
-                    <span className=" w-full bg-(--accent-primary) px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
-                      {weekdayLabel}
-                    </span>
-                  ) : null}
-                  {timeLabel ? (
-                    <span className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-(--text-primary)">
-                      <Clock3
-                        size={10}
-                        className="shrink-0 text-(--accent-primary)"
-                      />
-                      {timeLabel}
-                    </span>
-                  ) : null}
-                </>
-              ) : (
-                <p className="px-2 text-[9px] font-semibold leading-tight text-(--text-muted)">
-                  Not scheduled
-                </p>
-              )}
-            </div>
+        <div className="flex h-full w-full min-w-0 flex-col overflow-hidden rounded-[10px] border border-(--border) bg-(--bg-secondary)">
+          <div className="shrink-0 bg-(--accent-primary) px-2 py-1.5 text-center">
+            <p className="truncate text-[8px] font-semibold uppercase tracking-wide text-white">
+              {monthLabel}
+            </p>
           </div>
+
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center bg-(--bg-card) px-1 text-center">
+            {scheduled && dateLabel ? (
+              <>
+                <span className="text-[22px] font-bold leading-none text-(--accent-primary)">
+                  {dateLabel}
+                </span>
+                {timeLabel ? (
+                  <span className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-(--text-primary)">
+                    <Clock3
+                      size={10}
+                      className="shrink-0 text-(--accent-primary)"
+                    />
+                    {timeLabel}
+                  </span>
+                ) : null}
+              </>
+            ) : (
+              <p className="px-2 text-[9px] font-semibold leading-tight text-(--text-muted)">
+                Not scheduled
+              </p>
+            )}
+          </div>
+
+          <span className="w-full shrink-0 bg-(--accent-primary) px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
+            {weekdayLabel || "Date"}
+          </span>
           <ChangeBoxButton
             visible={showChangeButtons}
             onClick={onChangeDateTime}

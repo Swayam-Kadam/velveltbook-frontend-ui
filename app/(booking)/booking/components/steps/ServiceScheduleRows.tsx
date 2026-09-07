@@ -73,14 +73,16 @@ function parseIso(iso: string) {
   return { year, month: month - 1, day };
 }
 
-function MonthDateCalendar({
+export function MonthDateCalendar({
   days,
   activeDayId,
   onSelectDay,
+  compact = false,
 }: {
   days: BookingDay[];
   activeDayId: string;
   onSelectDay: (id: string) => void;
+  compact?: boolean;
 }) {
   const firstAvailable = days[0];
   const lastAvailable = days[days.length - 1];
@@ -143,32 +145,47 @@ function MonthDateCalendar({
   }, [days]);
 
   return (
-    <div className="rounded-2xl border border-(--border) bg-(--bg-card) p-4">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--accent-primary)/10">
-          <CalendarDays size={15} className="text-(--accent-primary)" />
-        </span>
-        <p className="text-[14px] font-semibold text-(--text-primary)">
-          Select Date
-        </p>
-      </div>
+    <div
+      className={`rounded-2xl border border-(--border) bg-(--bg-card) ${
+        compact ? "p-1.5" : "p-4"
+      }`}
+    >
+      {!compact ? (
+        <div className="mb-3 flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--accent-primary)/10">
+            <CalendarDays size={15} className="text-(--accent-primary)" />
+          </span>
+          <p className="text-[14px] font-semibold text-(--text-primary)">
+            Select Date
+          </p>
+        </div>
+      ) : null}
 
-      <div className="mb-3 flex items-center justify-between">
+      <div
+        className={`flex items-center justify-between ${
+          compact ? "mb-1" : "mb-3"
+        }`}
+      >
         <button
           type="button"
           onClick={goPrev}
           disabled={!canPrev}
           aria-label="Previous month"
-          className="
-            flex h-8 w-8 items-center justify-center rounded-lg border
+          className={`
+            flex items-center justify-center rounded-lg border
             border-(--border) text-(--text-primary) transition-colors
             hover:bg-(--bg-secondary) disabled:cursor-not-allowed
             disabled:opacity-35
-          "
+            ${compact ? "h-5 w-5" : "h-8 w-8"}
+          `}
         >
-          <ChevronLeft size={16} />
+          <ChevronLeft size={compact ? 12 : 16} />
         </button>
-        <p className="text-[14px] font-semibold text-(--text-primary)">
+        <p
+          className={`font-semibold text-(--text-primary) ${
+            compact ? "text-[10px]" : "text-[14px]"
+          }`}
+        >
           {MONTH_NAMES[view.month]} {view.year}
         </p>
         <button
@@ -176,32 +193,40 @@ function MonthDateCalendar({
           onClick={goNext}
           disabled={!canNext}
           aria-label="Next month"
-          className="
-            flex h-8 w-8 items-center justify-center rounded-lg border
+          className={`
+            flex items-center justify-center rounded-lg border
             border-(--border) text-(--text-primary) transition-colors
             hover:bg-(--bg-secondary) disabled:cursor-not-allowed
             disabled:opacity-35
-          "
+            ${compact ? "h-5 w-5" : "h-8 w-8"}
+          `}
         >
-          <ChevronRight size={16} />
+          <ChevronRight size={compact ? 12 : 16} />
         </button>
       </div>
 
-      <div className="mb-1 grid grid-cols-7 gap-1">
+      <div className={`grid grid-cols-7 gap-px ${compact ? "mb-0" : "mb-1"}`}>
         {WEEKDAY_HEADERS.map((label, index) => (
           <span
             key={`${label}-${index}`}
-            className="py-1 text-center text-[10px] font-semibold uppercase tracking-wide text-(--text-muted)"
+            className={`text-center font-semibold uppercase tracking-wide text-(--text-muted) ${
+              compact ? "py-0 text-[7px]" : "py-1 text-[10px]"
+            }`}
           >
             {label}
           </span>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-px">
         {cells.map((dayNum, index) => {
           if (dayNum === null) {
-            return <span key={`empty-${index}`} className="h-10" />;
+            return (
+              <span
+                key={`empty-${index}`}
+                className={compact ? "h-5" : "h-10"}
+              />
+            );
           }
 
           const iso = `${view.year}-${String(view.month + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
@@ -218,8 +243,9 @@ function MonthDateCalendar({
                 if (bookingDay) onSelectDay(bookingDay.id);
               }}
               className={`
-                relative flex h-10 flex-col items-center justify-center rounded-full
-                text-[13px] font-semibold transition-all
+                relative flex flex-col items-center justify-center rounded-full
+                font-semibold transition-all
+                ${compact ? "h-5 text-[9px]" : "h-10 text-[13px]"}
                 ${
                   active
                     ? "bg-(--accent-primary) text-white"
@@ -231,14 +257,18 @@ function MonthDateCalendar({
             >
               {dayNum}
               {selectable && !active ? (
-                <span className="absolute bottom-1 h-1 w-1 rounded-full bg-(--accent-primary)" />
+                <span
+                  className={`absolute rounded-full bg-(--accent-primary) ${
+                    compact ? "bottom-0 h-0.5 w-0.5" : "bottom-1 h-1 w-1"
+                  }`}
+                />
               ) : null}
             </button>
           );
         })}
       </div>
 
-      {firstAvailable ? (
+      {firstAvailable && !compact ? (
         <div className="mt-3 flex justify-center">
           <button
             type="button"
@@ -262,14 +292,16 @@ function MonthDateCalendar({
   );
 }
 
-function TimeSlotPicker({
+export function TimeSlotPicker({
   activeDayId,
   activeTime,
   onSelectTime,
+  compact = false,
 }: {
   activeDayId: string;
   activeTime: string;
   onSelectTime: (time: string) => void;
+  compact?: boolean;
 }) {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>(() =>
     getTimePeriod(activeTime),
@@ -308,16 +340,28 @@ function TimeSlotPicker({
   };
 
   return (
-    <div className="rounded-2xl border border-(--border) bg-(--bg-card) p-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--accent-primary)/10">
-            <Clock3 size={15} className="text-(--accent-primary)" />
-          </span>
-          <p className="text-[14px] font-semibold text-(--text-primary)">
-            Select Time
-          </p>
-        </div>
+    <div
+      className={`rounded-2xl border border-(--border) bg-(--bg-card) ${
+        compact ? "p-1.5" : "p-4"
+      }`}
+    >
+      <div
+        className={`flex items-center justify-between gap-2 ${
+          compact ? "mb-1" : "mb-3"
+        }`}
+      >
+        {!compact ? (
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--accent-primary)/10">
+              <Clock3 size={15} className="text-(--accent-primary)" />
+            </span>
+            <p className="text-[14px] font-semibold text-(--text-primary)">
+              Select Time
+            </p>
+          </div>
+        ) : (
+          <p className="text-[10px] font-semibold text-(--text-primary)">Time</p>
+        )}
 
         <div
           className="inline-flex rounded-full border border-(--border) bg-(--bg-secondary) p-0.5"
@@ -331,7 +375,8 @@ function TimeSlotPicker({
               onClick={() => switchPeriod(period)}
               aria-pressed={timePeriod === period}
               className={`
-                rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-colors
+                rounded-full font-semibold transition-colors
+                ${compact ? "px-2 py-0.5 text-[9px]" : "px-3.5 py-1.5 text-[12px]"}
                 ${
                   timePeriod === period
                     ? "bg-(--accent-primary) text-white"
@@ -345,7 +390,11 @@ function TimeSlotPicker({
         </div>
       </div>
 
-      <div className="grid max-h-[280px] grid-cols-2 gap-2 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary) sm:grid-cols-3 lg:grid-cols-4">
+      <div
+        className={`grid gap-1 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary) grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 ${
+          compact ? "max-h-[98px]" : "max-h-[280px] gap-2"
+        }`}
+      >
         {filteredTimes.length > 0 ? (
           filteredTimes.map((time) => {
             const active = time === activeTime;
@@ -355,8 +404,8 @@ function TimeSlotPicker({
                 type="button"
                 onClick={() => onSelectTime(time)}
                 className={`
-                  rounded-xl border px-2 py-2.5 text-[12px] font-semibold
-                  tabular-nums transition-all
+                  rounded-lg border font-semibold tabular-nums transition-all
+                  ${compact ? "px-1 py-1 text-[9px]" : "px-2 py-2.5 text-[12px]"}
                   ${
                     active
                       ? "border-transparent bg-(--accent-primary) text-white"
@@ -369,7 +418,11 @@ function TimeSlotPicker({
             );
           })
         ) : (
-          <p className="col-span-full py-6 text-center text-[13px] text-(--text-muted)">
+          <p
+            className={`col-span-full text-center text-(--text-muted) ${
+              compact ? "py-2 text-[10px]" : "py-6 text-[13px]"
+            }`}
+          >
             No {timePeriod} slots available
           </p>
         )}
@@ -710,11 +763,11 @@ export function ServiceScheduleRows({
                         onSelectStaff(activeService.id, therapist.id)
                       }
                       className={`
-                        relative w-[148px] shrink-0 rounded-2xl border p-3.5
-                        text-left transition-all
+                        relative flex w-[248px] shrink-0 items-start gap-3
+                        rounded-2xl border p-3 text-left transition-all
                         ${
                           active
-                            ? "border-(--accent-primary) bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))] shadow-[0_0_0_1px_var(--accent-primary)]"
+                            ? "border-(--accent-primary) bg-[color-mix(in_srgb,var(--accent-primary)_8%,var(--bg-card))]"
                             : "border-(--border) bg-(--bg-card) hover:border-(--accent-primary)/40"
                         }
                       `}
@@ -733,33 +786,39 @@ export function ServiceScheduleRows({
                         {active ? <Check size={12} strokeWidth={2.5} /> : null}
                       </span>
 
-                      <div className="relative mx-auto mb-2.5 h-14 w-14 overflow-hidden rounded-full">
+                      <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl bg-(--bg-secondary)">
                         <Image
                           src={therapist.image}
                           alt={therapist.name}
                           fill
-                          sizes="56px"
+                          sizes="72px"
                           className="object-cover"
                         />
                       </div>
-                      <p className="truncate text-center text-[13px] font-semibold text-(--text-primary)">
-                        {therapist.name}
-                      </p>
-                      <p className="mt-0.5 truncate text-center text-[11px] text-(--text-muted)">
-                        Therapist
-                      </p>
-                      <div className="mt-2 flex items-center justify-center gap-1 text-[11px] text-(--text-secondary)">
-                        <Star
-                          size={11}
-                          className="fill-(--brand-gold) text-(--brand-gold)"
-                        />
-                        <span>
-                          {therapist.rating} ({therapist.reviews})
-                        </span>
+
+                      <div className="min-w-0 flex-1 pr-5">
+                        <p className="truncate text-[14px] font-semibold text-(--text-primary)">
+                          {therapist.name}
+                        </p>
+                        <p className="mt-0.5 truncate text-[12px] text-(--text-muted)">
+                          Therapist
+                        </p>
+                        <div className="mt-1.5 flex items-center gap-1 text-[12px] text-(--text-secondary)">
+                          <Star
+                            size={12}
+                            className="fill-(--brand-gold) text-(--brand-gold)"
+                          />
+                          <span className="font-medium text-(--text-primary)">
+                            {therapist.rating}
+                          </span>
+                          <span className="text-(--text-muted)">
+                            ({therapist.reviews})
+                          </span>
+                        </div>
+                        <p className="mt-1 truncate text-[11px] text-(--text-muted)">
+                          {therapist.experience}
+                        </p>
                       </div>
-                      <p className="mt-1 text-center text-[11px] text-(--text-muted)">
-                        {therapist.experience}
-                      </p>
                     </button>
                   );
                 })}
@@ -768,12 +827,11 @@ export function ServiceScheduleRows({
                   type="button"
                   onClick={() => onSelectStaff(activeService.id, "any")}
                   className={`
-                    relative flex w-[148px] shrink-0 flex-col items-center
-                    justify-center rounded-2xl border p-3.5 text-center
-                    transition-all
+                    relative flex w-[248px] shrink-0 items-start gap-3
+                    rounded-2xl border p-3 text-left transition-all
                     ${
                       noPreference
-                        ? "border-(--accent-primary) bg-[color-mix(in_srgb,var(--accent-primary)_6%,var(--bg-card))] shadow-[0_0_0_1px_var(--accent-primary)]"
+                        ? "border-(--accent-primary) bg-[color-mix(in_srgb,var(--accent-primary)_8%,var(--bg-card))]"
                         : "border-(--border) bg-(--bg-card) hover:border-(--accent-primary)/40"
                     }
                   `}
@@ -793,15 +851,19 @@ export function ServiceScheduleRows({
                       <Check size={12} strokeWidth={2.5} />
                     ) : null}
                   </span>
-                  <span className="mb-2.5 flex h-14 w-14 items-center justify-center rounded-full bg-(--accent-primary)/10">
-                    <Users size={22} className="text-(--accent-primary)" />
+
+                  <span className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-xl bg-(--accent-primary)/10">
+                    <Users size={26} className="text-(--accent-primary)" />
                   </span>
-                  <p className="text-[13px] font-semibold text-(--text-primary)">
-                    Any Available Staff
-                  </p>
-                  <p className="mt-1 text-[11px] leading-snug text-(--text-muted)">
-                    We&apos;ll assign the best available.
-                  </p>
+
+                  <div className="min-w-0 flex-1 pr-5 pt-1">
+                    <p className="text-[14px] font-semibold leading-snug text-(--text-primary)">
+                      Any Available Staff
+                    </p>
+                    <p className="mt-1 text-[12px] leading-snug text-(--text-muted)">
+                      We&apos;ll assign the best available.
+                    </p>
+                  </div>
                 </button>
               </div>
             </div>

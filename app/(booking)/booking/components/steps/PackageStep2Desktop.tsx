@@ -23,6 +23,10 @@ import { TimingsDropdown } from "@/components/TimingsDropdown";
 import { bookingLocation } from "../../booking.data";
 import type { BookingDay } from "../../booking.types";
 import { Step2DateTimeSection } from "./Step2DateTimeSection";
+import {
+  MonthDateCalendar,
+  TimeSlotPicker,
+} from "./ServiceScheduleRows";
 
 type SelectedService = {
   id: string;
@@ -105,51 +109,58 @@ export function PackageStep2Desktop({
       <div className="hidden lg:grid lg:h-[calc(100vh-140px)] lg:min-h-[680px] lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
         {/* LEFT */}
         <aside className="flex min-h-0 flex-col gap-4">
-          <section className="relative h-[240px] shrink-0 overflow-hidden rounded-[22px] border border-(--border) xl:h-[260px]">
-            <Image
-              src={org.banner}
-              alt={org.name}
-              fill
-              sizes="440px"
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/25 to-transparent" />
+          <section className="flex h-[240px] shrink-0 overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card) xl:h-[260px]">
+            <div className="relative h-full aspect-square shrink-0 overflow-hidden">
+              <Image
+                src={org.banner}
+                alt={org.name}
+                fill
+                sizes="260px"
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
 
-            <div className="absolute top-3 left-3 flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-(--success)" />
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-(--accent-primary) px-3 py-1.5 text-[11px] font-semibold text-white">
-                <Star
-                  size={12}
-                  className="fill-(--brand-gold) text-(--brand-gold)"
+              <div className="absolute top-3 left-3 flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-(--success)" />
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-(--accent-primary) px-3 py-1.5 text-[11px] font-semibold text-white">
+                  <Star
+                    size={12}
+                    className="fill-(--brand-gold) text-(--brand-gold)"
+                  />
+                  4.8 (120+)
+                </div>
+              </div>
+
+              <div className="absolute top-3 right-3">
+                <TimingsDropdown
+                  summary={org.availability}
+                  buttonClassName="primary-button flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[10px] font-semibold text-white"
                 />
-                4.8 (120+)
               </div>
             </div>
 
-            <div className="absolute top-3 right-3">
-              <TimingsDropdown
-                summary={org.availability}
-                buttonClassName="primary-button flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white"
-              />
-            </div>
-
-            <div className="absolute right-4 bottom-4 left-4">
-              <div className="flex items-center gap-2">
-                <h2 className="truncate text-[22px] font-semibold text-white xl:text-[24px]">
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 border-l border-(--border) px-3.5 py-3">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <h2 className="truncate text-[16px] font-semibold text-(--text-primary) xl:text-[18px]">
                   {org.name}
                 </h2>
                 <BadgeCheck
-                  size={18}
+                  size={16}
                   className="shrink-0 fill-(--brand-gold) text-(--accent-primary)"
                 />
               </div>
-              <p className="mt-1 text-[13px] font-medium text-(--success)">
-                {org.status}
+
+              <p className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[color-mix(in_srgb,var(--success)_14%,white)] px-2.5 py-1 text-[11px] font-semibold text-(--success)">
+                <span className="h-1.5 w-1.5 rounded-full bg-(--success)" />
+                {org.status || "Open Now"}
               </p>
-              <p className="mt-1.5 flex items-center gap-1.5 text-[12px] text-white/80">
-                <MapPin size={13} />
-                {org.address ?? "Melbourne, Australia"}
+
+              <p className="flex items-start gap-1.5 text-[12px] leading-snug text-(--text-muted)">
+                <MapPin size={13} className="mt-0.5 shrink-0" />
+                <span className="line-clamp-3">
+                  {org.address ?? "Melbourne, Australia"}
+                </span>
               </p>
             </div>
           </section>
@@ -271,7 +282,7 @@ export function PackageStep2Desktop({
 
         {/* RIGHT — red section: Booking Details + Appointment/Price + footer */}
         <div className="flex min-h-0 flex-col gap-4">
-          <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.2fr)_minmax(290px,0.9fr)] gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.85fr)]">
+          <div className="grid min-h-40rem] flex-1 grid-cols-[minmax(0,1.2fr)_minmax(290px,0.9fr)] gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.85fr)]">
             {/* Booking Details */}
             <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
               <div className="flex shrink-0 items-center gap-2 border-b border-(--border) px-4 py-3.5">
@@ -282,7 +293,7 @@ export function PackageStep2Desktop({
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto p-3.5 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
-                <div className="grid h-full min-h-[280px] grid-cols-[148px_minmax(0,1fr)] gap-3 xl:grid-cols-[168px_minmax(0,1fr)]">
+                <div className="grid h-full min-h-[280px]  grid-cols-[148px_minmax(0,1fr)] gap-3 xl:grid-cols-[168px_minmax(0,1fr)]">
                   <div className="relative flex flex-col overflow-hidden rounded-xl bg-(--accent-primary)">
                     <span className="absolute left-0 top-0 z-10 rounded-br-lg bg-(--brand-gold) px-2.5 py-1 text-[9px] font-bold tracking-wide text-white">
                       PACKAGE
@@ -308,33 +319,33 @@ export function PackageStep2Desktop({
                   <div className="min-w-0 rounded-xl border border-(--border) bg-(--bg-card) p-3.5">
                     <div className="flex items-start gap-2">
                       <Store
-                        size={15}
-                        className="mt-0.5 shrink-0 text-(--accent-primary)"
+                        size={20}
+                        className="mt-1.5 shrink-0 text-(--accent-primary)"
                       />
                       <div className="min-w-0">
-                        <p className="truncate text-[15px] font-bold text-(--text-primary)">
+                        <p className="truncate text-[20px] font-bold text-(--text-primary)">
                           {org.name}
                         </p>
-                        <p className="mt-0.5 flex items-center gap-1 text-[12px] text-(--text-secondary)">
+                        <p className="mt-0.5 flex items-center gap-1 text-[18px] text-(--text-secondary)">
                           <span className="text-(--brand-gold)">★</span>
                           4.9 (380+)
                         </p>
-                        <p className="mt-1 flex items-start gap-1 text-[11px] leading-snug text-(--text-muted)">
-                          <MapPin size={12} className="mt-0.5 shrink-0" />
+                        <p className="mt-1 flex items-start gap-1 text-[17px] leading-snug text-(--text-muted)">
+                          <MapPin size={15} className="mt-1.5 shrink-0" />
                           <span>{org.address ?? bookingLocation.address}</span>
                         </p>
                       </div>
                     </div>
 
                     <div className="mt-4">
-                      <p className="mb-2 text-[13px] font-bold text-(--text-primary)">
+                      <p className="mb-2 text-[20px] font-bold text-(--text-primary)">
                         {selectedServices.length} Services Booked
                       </p>
                       <div className="space-y-2">
                         {selectedServices.map((service) => (
                           <div
                             key={service.id}
-                            className="flex items-center justify-between gap-2 text-[12px]"
+                            className="flex items-center justify-between gap-2 text-[18px]"
                           >
                             <span className="inline-flex min-w-0 items-center gap-1.5 text-(--text-secondary)">
                               <CheckCircle2
@@ -356,9 +367,9 @@ export function PackageStep2Desktop({
             </section>
 
             {/* Appointment + Price */}
-            <div className="flex min-h-0 flex-col gap-4">
-              <article className="overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
-                <div className="flex items-center justify-between border-b border-(--border) px-4 py-3">
+            <div className="flex min-h-0 flex-col gap-4  pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
+              <article className="h-[228px] shrink-0 overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
+                <div className="flex h-11 shrink-0 items-center justify-between border-b border-(--border) px-4">
                   <div className="flex items-center gap-1.5">
                     <Clock3 size={14} className="text-(--accent-primary)" />
                     <p className="text-[14px] font-bold text-(--text-primary)">
@@ -368,26 +379,26 @@ export function PackageStep2Desktop({
                   <button
                     type="button"
                     onClick={onOpenSchedule}
-                    className="text-[11px] font-semibold bg-(--accent-secondary) rounded-xs px-2 py-1 text-left text-white cursor-pointer" 
+                    className="cursor-pointer rounded-xs bg-(--accent-secondary) px-2 py-1 text-left text-[11px] font-semibold text-white"
                   >
                     Change
                   </button>
                 </div>
 
-                <div className="space-y-3 p-3.5">
-                  <div className="grid grid-cols-[112px_minmax(0,1fr)] gap-3 xl:grid-cols-[120px_minmax(0,1fr)]">
+                <div className="flex h-[calc(228px-2.75rem)] flex-col justify-between space-y-2.5 p-3">
+                  <div className="grid grid-cols-[100px_minmax(0,1fr)] gap-2.5 xl:grid-cols-[108px_minmax(0,1fr)]">
                     <div className="overflow-hidden rounded-xl border border-(--border)">
-                      <div className="bg-(--accent-primary) px-2 py-1.5 text-center text-[9px] font-bold tracking-wide text-white">
+                      <div className="bg-(--accent-primary) px-2 py-1 text-center text-[9px] font-bold tracking-wide text-white">
                         {monthLabel}
                       </div>
-                      <div className="bg-(--bg-secondary) px-2 py-2.5 text-center">
+                      <div className="bg-(--bg-secondary) px-2 py-2 text-center">
                         <p className="text-[9px] font-semibold tracking-wide text-(--text-muted)">
                           {weekdayLabel}
                         </p>
-                        <p className="mt-1 text-[34px] leading-none font-bold text-(--accent-primary)">
+                        <p className="mt-0.5 text-[28px] leading-none font-bold text-(--accent-primary)">
                           {dayNumber || "—"}
                         </p>
-                        <p className="mt-1 text-[9px] font-semibold text-(--text-secondary)">
+                        <p className="mt-0.5 text-[9px] font-semibold text-(--text-secondary)">
                           {shortDate}
                         </p>
                       </div>
@@ -395,15 +406,15 @@ export function PackageStep2Desktop({
 
                     <div className="flex min-w-0 flex-col justify-center">
                       <div className="flex items-center gap-1.5">
-                        <div className="min-w-0 flex-1 rounded-lg bg-[color-mix(in_srgb,var(--accent-primary)_10%,white)] px-2 py-2.5 text-center">
+                        <div className="min-w-0 flex-1 rounded-sm bg-[color-mix(in_srgb,var(--accent-primary)_10%,white)] px-2 py-2 text-center">
                           <p className="text-[8px] font-semibold tracking-wide text-(--text-muted)">
                             START TIME
                           </p>
-                          <p className="mt-0.5 text-[15px] font-bold text-(--accent-primary)">
+                          <p className="mt-0.5 text-[14px] font-bold text-(--accent-primary)">
                             {startTime || "—"}
                           </p>
                           {dayDateLabel ? (
-                            <p className="mt-0.5 text-[9px] text-(--text-muted)">
+                            <p className="mt-0.5 text-[8px] text-(--text-muted)">
                               {dayDateLabel}
                             </p>
                           ) : null}
@@ -412,15 +423,15 @@ export function PackageStep2Desktop({
                           size={14}
                           className="shrink-0 text-(--text-muted)"
                         />
-                        <div className="min-w-0 flex-1 rounded-lg border border-(--border) bg-(--bg-secondary) px-2 py-2.5 text-center">
+                        <div className="min-w-0 flex-1 rounded-sm border border-(--border) bg-(--bg-secondary) px-2 py-2 text-center">
                           <p className="text-[8px] font-semibold tracking-wide text-(--text-muted)">
                             END TIME
                           </p>
-                          <p className="mt-0.5 text-[15px] font-bold text-(--brand-gold)">
+                          <p className="mt-0.5 text-[14px] font-bold text-(--brand-gold)">
                             {endTime || "—"}
                           </p>
                           {dayDateLabel ? (
-                            <p className="mt-0.5 text-[9px] text-(--text-muted)">
+                            <p className="mt-0.5 text-[8px] text-(--text-muted)">
                               {dayDateLabel}
                             </p>
                           ) : null}
@@ -429,23 +440,23 @@ export function PackageStep2Desktop({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--accent-primary)_10%,white)] px-2.5 py-2 text-[11px] font-semibold text-(--text-primary)">
+                  <div className="flex items-center justify-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--accent-primary)_10%,white)] px-2.5 py-1.5 text-[11px] font-semibold text-(--text-primary)">
                     <Clock3 size={12} className="text-(--accent-primary)" />
                     Total Duration: {totalDurationLabel}
                   </div>
                 </div>
               </article>
 
-              <article className="overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
-                <div className="flex items-center gap-1.5 border-b border-(--border) px-4 py-3">
+              <article className="h-[120px] shrink-0 overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
+                <div className="flex h-11 shrink-0 items-center gap-1.5 border-b border-(--border) px-4">
                   <Tag size={14} className="text-(--accent-primary)" />
                   <p className="text-[14px] font-bold text-(--text-primary)">
                     Price Summary
                   </p>
                 </div>
 
-                <div className="flex items-stretch gap-3 p-4">
-                  <div className="min-w-0 flex-1 space-y-2">
+                <div className="flex h-[calc(120px-2.75rem)] items-stretch gap-3 px-4 py-2.5">
+                  <div className="flex min-w-0 flex-1 flex-col justify-center space-y-1.5">
                     <div className="flex items-center justify-between gap-2 text-[12px]">
                       <span className="text-(--text-secondary)">
                         Package Price
@@ -469,7 +480,7 @@ export function PackageStep2Desktop({
                       Total Paid
                     </p>
                     <div className="flex items-center gap-1.5">
-                      <p className="text-[24px] font-bold text-(--brand-gold)">
+                      <p className="text-[22px] font-bold text-(--brand-gold)">
                         ${paidAmount}
                       </p>
                       <span className="inline-flex items-center gap-0.5 rounded-full bg-[color-mix(in_srgb,var(--success)_16%,white)] px-1.5 py-0.5 text-[9px] font-bold text-(--success)">
@@ -478,6 +489,29 @@ export function PackageStep2Desktop({
                       </span>
                     </div>
                   </div>
+                </div>
+              </article>
+
+              <article className="shrink-0 overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
+                <div className="flex items-center gap-1.5 border-b border-(--border) px-2.5 py-1.5">
+                  <CalendarDays size={12} className="text-(--accent-primary)" />
+                  <p className="text-[11px] font-bold text-(--text-primary)">
+                    Select Date &amp; Time
+                  </p>
+                </div>
+                <div className="grid gap-1.5 bg-(--bg-secondary) p-1.5 lg:grid-cols-2">
+                  <MonthDateCalendar
+                    days={bookingDays}
+                    activeDayId={activeDayId}
+                    onSelectDay={onSelectDay}
+                    compact
+                  />
+                  <TimeSlotPicker
+                    activeDayId={activeDayId}
+                    activeTime={activeTime}
+                    onSelectTime={onSelectTime}
+                    compact
+                  />
                 </div>
               </article>
             </div>

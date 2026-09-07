@@ -796,7 +796,7 @@ function ServiceDesktopBookingSummary({
   );
 
   return (
-    <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-6 shadow-[var(--shadow-card)]">
+    <section className="rounded-2xl min-h-[40rem] border border-(--border) bg-(--bg-card) p-6 shadow-[var(--shadow-card)]">
       <div className="mb-5 flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--accent-primary)/10">
@@ -878,7 +878,7 @@ function ServiceDesktopBookingSummary({
                   </p>
                 </div>
 
-                <div className="inline-flex h-8 shrink-0 items-center rounded-lg border border-(--border) bg-(--bg-card) px-1">
+                {/* <div className="inline-flex h-8 shrink-0 items-center rounded-lg border border-(--border) bg-(--bg-card) px-1">
                   <span className="flex h-6 w-6 items-center justify-center text-(--text-muted)">
                     <Minus size={12} />
                   </span>
@@ -888,7 +888,7 @@ function ServiceDesktopBookingSummary({
                   <span className="flex h-6 w-6 items-center justify-center text-(--text-muted)">
                     <Plus size={12} />
                   </span>
-                </div>
+                </div> */}
 
                 <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
                   <div className="flex flex-col min-w-0 items-center gap-2">
@@ -929,7 +929,7 @@ function ServiceDesktopBookingSummary({
         })}
       </div>
 
-      <div className="mt-4 flex items-center gap-3 rounded-xl border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_6%,white)] p-3.5">
+      {/* <div className="mt-4 flex items-center gap-3 rounded-xl border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_6%,white)] p-3.5">
         <div className="relative h-14 w-[72px] shrink-0 overflow-hidden rounded-lg">
           <Image
             src={org.thumbnail ?? org.banner}
@@ -963,7 +963,7 @@ function ServiceDesktopBookingSummary({
             Visit Salon
           </p>
         </div>
-      </div>
+      </div> */}
 
       <div className="mt-4 rounded-xl border border-(--border) p-4">
         <div className="flex items-start justify-between gap-5">

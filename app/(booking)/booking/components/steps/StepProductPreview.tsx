@@ -494,13 +494,20 @@ function ProductDesktopStoreSidebar({
   onContinue: () => void;
 }) {
   return (
-    <aside className="space-y-4">
-      <BookingOrganizationBanner
-        organization={org}
-        serviceLabels={serviceLabels}
-      />
+    <aside
+      className="
+        flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-(--border)
+        bg-(--bg-card) shadow-[var(--shadow-card)]
+      "
+    >
+      <div className="shrink-0 border-b border-(--border) p-3">
+        <BookingOrganizationBanner
+          organization={org}
+          serviceLabels={serviceLabels}
+        />
+      </div>
 
-      <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-5 shadow-[var(--shadow-card)]">
+      <section className="mt-auto flex min-h-0 flex-1 flex-col justify-end overflow-y-auto p-5">
         <h4 className="text-[14px] font-bold text-(--text-primary)">
           Order Summary
         </h4>
@@ -777,9 +784,20 @@ export function StepProductPreview({
 
       {/* Desktop — cart | address | store + summary */}
       <div className="hidden lg:block">
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_360px]">
-          <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-5 shadow-[var(--shadow-card)]">
-            <div className="mb-4 flex items-center justify-between gap-3">
+        <div
+          className="
+            grid grid-cols-1 gap-5
+            xl:h-[calc(100vh-140px)] xl:min-h-[680px] xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_360px]
+            xl:items-stretch
+          "
+        >
+          <section
+            className="
+              flex min-h-0 flex-col overflow-hidden rounded-2xl border border-(--border)
+              bg-(--bg-card) p-5 shadow-[var(--shadow-card)] xl:h-full
+            "
+          >
+            <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
                 <span className="primary-button flex h-9 w-9 items-center justify-center rounded-xl">
                   <ShoppingBag size={16} className="text-white" />
@@ -809,34 +827,36 @@ export function StepProductPreview({
               </button>
             </div>
 
-            {hasSelection ? (
-              <div className="divide-y divide-(--border)">
-                {selectedProducts.map((product) => (
-                  <DesktopCartItemRow
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    sizeLabel={product.quantity}
-                    price={product.price}
-                    image={product.image}
-                    quantity={Math.max(1, productQuantities[product.id] ?? 1)}
-                    onUpdateQuantity={onUpdateQuantity}
-                    onRemove={onRemoveProduct}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-xl border border-dashed border-(--border) bg-(--bg-secondary) px-4 py-10 text-center">
-                <p className="text-sm font-semibold text-(--text-primary)">
-                  No products selected
-                </p>
-                <p className="mt-1 text-[13px] text-(--text-muted)">
-                  Click Add more to browse and pick products.
-                </p>
-              </div>
-            )}
+            <div className="min-h-0 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-(--accent-primary)/30 scrollbar-track-transparent">
+              {hasSelection ? (
+                <div className="divide-y divide-(--border)">
+                  {selectedProducts.map((product) => (
+                    <DesktopCartItemRow
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      sizeLabel={product.quantity}
+                      price={product.price}
+                      image={product.image}
+                      quantity={Math.max(1, productQuantities[product.id] ?? 1)}
+                      onUpdateQuantity={onUpdateQuantity}
+                      onRemove={onRemoveProduct}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-(--border) bg-(--bg-secondary) px-4 py-10 text-center">
+                  <p className="text-sm font-semibold text-(--text-primary)">
+                    No products selected
+                  </p>
+                  <p className="mt-1 text-[13px] text-(--text-muted)">
+                    Click Add more to browse and pick products.
+                  </p>
+                </div>
+              )}
+            </div>
 
-            <div className="mt-4 rounded-xl border border-dashed border-(--border) bg-(--bg-secondary) p-3">
+            <div className="mt-4 shrink-0 rounded-xl border border-dashed border-(--border) bg-(--bg-secondary) p-3">
               <div className="flex items-center gap-2">
                 <Gift size={16} className="shrink-0 text-(--accent-primary)" />
                 <input
@@ -852,7 +872,7 @@ export function StepProductPreview({
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-2">
+            <div className="mt-4 grid shrink-0 grid-cols-2 gap-2">
               {PLATFORM_FEATURES.slice(0, 2).map(({ icon: Icon, title, subtitle }) => (
                 <article
                   key={title}
@@ -874,25 +894,35 @@ export function StepProductPreview({
             </div>
           </section>
 
-          <div className="space-y-4">
-            <ProductDeliverySections
-              address={address}
-              onChange={setAddress}
-              storeName={org.name}
-              storeAddress={org.address ?? bookingLocation.address}
+          <section
+            className="
+              flex min-h-0 flex-col overflow-hidden rounded-2xl border border-(--border)
+              bg-(--bg-card) p-4 shadow-[var(--shadow-card)] xl:h-full
+            "
+          >
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-(--accent-primary)/30 scrollbar-track-transparent">
+              <ProductDeliverySections
+                address={address}
+                onChange={setAddress}
+                storeName={org.name}
+                storeAddress={org.address ?? bookingLocation.address}
+                embedded
+              />
+            </div>
+          </section>
+
+          <div className="min-h-0 xl:h-full">
+            <ProductDesktopStoreSidebar
+              org={organizationBanner ?? org}
+              serviceLabels={selectedProducts.map((product) => product.name)}
+              subtotal={subtotal}
+              discount={discount}
+              shipping={shipping}
+              total={orderTotal}
+              itemCount={totalItemCount}
+              onContinue={handleDesktopContinue}
             />
           </div>
-
-          <ProductDesktopStoreSidebar
-            org={organizationBanner ?? org}
-            serviceLabels={selectedProducts.map((product) => product.name)}
-            subtotal={subtotal}
-            discount={discount}
-            shipping={shipping}
-            total={orderTotal}
-            itemCount={totalItemCount}
-            onContinue={handleDesktopContinue}
-          />
         </div>
       </div>
 

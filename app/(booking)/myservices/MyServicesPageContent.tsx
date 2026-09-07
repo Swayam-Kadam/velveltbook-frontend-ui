@@ -55,7 +55,7 @@ function ServiceRow({ service }: { service: MyServiceItem }) {
           </p>
         </div>
 
-        <div className="inline-flex h-9 shrink-0 items-center rounded-lg border border-(--border) bg-(--bg-card) px-1">
+        {/* <div className="inline-flex h-9 shrink-0 items-center rounded-lg border border-(--border) bg-(--bg-card) px-1">
           <span className="flex h-7 w-7 items-center justify-center text-(--text-muted)">
             <Minus size={13} />
           </span>
@@ -65,7 +65,7 @@ function ServiceRow({ service }: { service: MyServiceItem }) {
           <span className="flex h-7 w-7 items-center justify-center text-(--text-muted)">
             <Plus size={13} />
           </span>
-        </div>
+        </div> */}
 
         <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-4">
           <div className="flex flex-col items-center gap-1.5">
@@ -141,7 +141,7 @@ function BookingSummaryPanel({ session }: { session: MyServiceSession }) {
         ))}
       </div>
 
-      <div className="flex items-center gap-3 border-b border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_5%,var(--bg-card))] px-5 py-4">
+      {/* <div className="flex items-center gap-3 border-b border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_5%,var(--bg-card))] px-5 py-4">
         <div className="relative h-16 w-[76px] shrink-0 overflow-hidden rounded-xs">
           <Image
             src={store.thumbnail}
@@ -171,7 +171,7 @@ function BookingSummaryPanel({ session }: { session: MyServiceSession }) {
             {store.bookingType}
           </p>
         </div>
-      </div>
+      </div> */}
 
       <div className="p-5">
         <div className="flex items-start justify-between gap-6 rounded-xl border border-(--border) p-4">

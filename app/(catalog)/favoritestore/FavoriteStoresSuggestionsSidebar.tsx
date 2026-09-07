@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, MapPin, Settings2, Star } from "lucide-react";
 
-import { trendingNearbyData } from "@/home/components/trending-nearby/trending-nearby.data";
 import type { TrendingNearbyItem } from "@/types/home";
+import { getSuggestionStores } from "./suggestion-stores";
 
 const DESKTOP_PANEL_HEIGHT = "h-[calc(100vh-7rem)]";
 
@@ -82,8 +82,7 @@ function SuggestionCard({ item }: { item: TrendingNearbyItem }) {
 export function FavoriteStoresSuggestionsSidebar({
   excludeStoreIds = [],
 }: FavoriteStoresSuggestionsSidebarProps) {
-  const excluded = new Set(excludeStoreIds);
-  const suggestions = trendingNearbyData.filter((item) => !excluded.has(item.id));
+  const suggestions = getSuggestionStores(excludeStoreIds);
 
   return (
     <aside className="hidden w-[320px] shrink-0 lg:sticky lg:top-24 lg:flex lg:flex-col lg:self-start">

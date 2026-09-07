@@ -101,6 +101,8 @@ interface ProductDeliverySectionsProps {
   onChange: (address: ProductDeliveryAddress) => void;
   storeName: string;
   storeAddress: string;
+  /** When true, skip outer card chrome (parent already provides a panel). */
+  embedded?: boolean;
 }
 
 export function ProductDeliverySections({
@@ -108,6 +110,7 @@ export function ProductDeliverySections({
   onChange,
   storeName,
   storeAddress,
+  embedded = false,
 }: ProductDeliverySectionsProps) {
   const updateField = <K extends keyof ProductDeliveryAddress>(
     key: K,
@@ -180,7 +183,13 @@ export function ProductDeliverySections({
   const isPickup = address.deliveryType === "pickup";
 
   const addressForm = (
-      <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-3.5 sm:p-4">
+      <section
+        className={
+          embedded
+            ? ""
+            : "rounded-2xl border border-(--border) bg-(--bg-card) p-3.5 sm:p-4"
+        }
+      >
         <div className="mb-3.5 flex items-center gap-2">
           <span className="primary-button flex h-7 w-7 items-center justify-center rounded-lg">
             <MapPin size={14} className="text-white" />

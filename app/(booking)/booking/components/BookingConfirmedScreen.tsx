@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
+  BadgeCheck,
+  Bell,
   CalendarClock,
   Check,
   ChevronRight,
@@ -11,8 +13,10 @@ import {
   ClipboardList,
   Clock3,
   Info,
+  MapPin,
   MessageCircle,
   PencilLine,
+  Phone,
   ReceiptText,
   RotateCcw,
   ShoppingBag,
@@ -1129,34 +1133,83 @@ export function BookingConfirmedScreen({
             )}
           </div>
 
-          <div className="mb-3 flex items-center gap-2.5">
-            <div className="relative h-[42px] w-[52px] shrink-0 overflow-hidden rounded-[5px]">
-              <Image
-                src={org.thumbnail ?? org.banner}
-                alt={org.name}
-                fill
-                sizes="52px"
-                className="object-cover"
-              />
+          <div className="mb-3 overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)">
+            <div className="h-1 bg-(--accent-primary)" />
+            <div className="p-2.5">
+              <div className="flex items-center justify-between gap-2.5">
+                <div className="relative h-[42px] w-[52px] shrink-0 overflow-hidden rounded-[5px]">
+                  <Image
+                    src={org.thumbnail ?? org.banner}
+                    alt={org.name}
+                    fill
+                    sizes="52px"
+                    className="object-cover"
+                  />
+                </div>
+
+                <div className="mt-2">
+                <div className="flex items-center gap-1">
+                  <p className="truncate font-[family-name:var(--font-heading)] text-[13px] font-bold text-(--accent-primary)">
+                    {storeTitle}
+                  </p>
+                  <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-(--accent-primary)">
+                    <BadgeCheck
+                      size={9}
+                      className="text-white"
+                      strokeWidth={2.5}
+                    />
+                  </span>
+                </div>
+
+                <p className="mt-0.5 truncate text-[10px] text-(--text-muted)">
+                  {selectedServices.length > 0
+                    ? selectedServices
+                        .slice(0, 3)
+                        .map((service) => service.name)
+                        .join(" • ")
+                    : "Haircut • Beard • Styling"}
+                </p>
+
+                <p className="mt-1 w-[10rem] flex  gap-0.5 text-[10px] text-(--text-muted)">
+                  <MapPin size={10} className="shrink-0 mt-1" strokeWidth={1.8} />
+                  <span className="">
+                    {org.address ?? bookingLocation.address}
+                  </span>
+                </p>
+
+                {/* <div className="mt-2 flex flex-wrap gap-1.5">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-(--border) bg-(--bg-secondary) px-2 py-0.5 text-[9px] font-medium text-(--text-primary)">
+                    <Phone
+                      size={10}
+                      className="shrink-0 text-(--accent-primary)"
+                      strokeWidth={1.8}
+                    />
+                    Flexible Booking
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-(--border) bg-(--bg-secondary) px-2 py-0.5 text-[9px] font-medium text-(--text-primary)">
+                    <Bell
+                      size={10}
+                      className="shrink-0 text-(--accent-primary)"
+                      strokeWidth={1.8}
+                    />
+                    Secure &amp; Private
+                  </span>
+                </div> */}
+              </div>
+                {!isEditing && detailView !== "chat" && (
+                  <button
+                    type="button"
+                    aria-label="Message store"
+                    onClick={() => setDetailView("chat")}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2D1659] text-white"
+                  >
+                    <MessageCircle size={18} strokeWidth={2} />
+                  </button>
+                )}
+              </div>
+
+              
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-bold text-(--text-primary)">
-                {storeTitle}
-              </p>
-              <p className="truncate text-[11px] text-(--text-muted)">
-                {org.address ?? bookingLocation.address}
-              </p>
-            </div>
-            {!isEditing && detailView !== "chat" && (
-              <button
-                type="button"
-                aria-label="Message store"
-                onClick={() => setDetailView("chat")}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2D1659] text-white"
-              >
-                <MessageCircle size={18} strokeWidth={2} />
-              </button>
-            )}
           </div>
 
           {detailView === "chat" ? (

@@ -311,9 +311,9 @@ export function SelectionPreviewSidebar({
                           <X size={11} strokeWidth={2.5} />
                         </button>
 
-                        <div className="grid grid-cols-2 gap-2 p-2.5 pr-7">
+                        <div className="grid grid-cols-1 gap-2 p-2.5 pr-7">
                           <div className="flex min-w-0 items-center gap-2">
-                            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg">
+                            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-sm">
                               <Image
                                 src={service.image}
                                 alt={service.name}
@@ -334,7 +334,7 @@ export function SelectionPreviewSidebar({
                             </div>
                           </div>
 
-                          <button
+                          {/* <button
                             type="button"
                             onClick={() => onAssignStaffRequest(service.id)}
                             className={`
@@ -381,7 +381,7 @@ export function SelectionPreviewSidebar({
                                 </span>
                               </>
                             )}
-                          </button>
+                          </button> */}
                         </div>
                       </article>
                     );

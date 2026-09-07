@@ -110,7 +110,7 @@ function DesktopSalonSidebar({
   return (
     <aside className="space-y-3">
       <section className="overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
-        <div className="relative h-[168px]">
+        <div className="relative h-[298px]">
           <Image 
             src={
               isBooking && activePackage

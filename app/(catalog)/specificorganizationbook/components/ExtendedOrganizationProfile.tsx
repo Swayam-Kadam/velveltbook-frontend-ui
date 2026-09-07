@@ -1548,7 +1548,7 @@ export function ExtendedOrganizationProfile({
                                       }
                                       className="flex min-w-0 items-center gap-2 text-left"
                                     >
-                                      <div className="relative h-8 w-8 overflow-hidden rounded-lg">
+                                      <div className="relative h-8 w-8 overflow-hidden rounded-xs">
                                         <Image
                                           src={service.image}
                                           alt={service.name}
@@ -1563,7 +1563,7 @@ export function ExtendedOrganizationProfile({
                                         </p>
                                         <p
                                           className={`
-                                            max-w-[88px] h-6 text-[11px] font-semibold
+                                            max-w-[88px] h-7 text-[11px] font-semibold
                                             ${
                                               isActive
                                                 ? "text-(--text-primary)"
@@ -1739,7 +1739,7 @@ export function ExtendedOrganizationProfile({
                               const activeTime = schedule?.time || "";
 
                               return (
-                                <div className="flex min-w-0 flex-col justify-center bg-(--bg-card) p-3 lg:p-1">
+                                <div className="flex min-w-0 flex-col justify-center bg-(--bg-card) p-1.5 lg:p-1">
                                   <Step2DateTimeSection
                                     embedded
                                     days={bookingDays}
@@ -1757,7 +1757,6 @@ export function ExtendedOrganizationProfile({
                                         focusedService.id,
                                         time,
                                       )
-    
                                     }
                                     ShowTitle={false}
                                   />
@@ -2077,7 +2076,7 @@ export function ExtendedOrganizationProfile({
                             key={ANY_STAFF_ID}
                             className={staffCardClass(isAnyAssigned)}
                           >
-                            <div className="relative flex h-[96px] items-center justify-center overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
+                            <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
                               <span className="absolute left-2 top-2 z-10 h-2 w-2 rounded-full bg-(--success)" />
                               {isSelectingStaff && !isAnyAssigned && (
                                 <div className="pointer-events-none absolute inset-0 bg-[color-mix(in_srgb,var(--brand-gold)_12%,transparent)]" />
@@ -2144,7 +2143,7 @@ export function ExtendedOrganizationProfile({
                                   isAssignedToFocusedService,
                                 )}
                               >
-                                <div className="relative h-[96px] overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
+                                <div className="relative aspect-square w-full overflow-hidden rounded-t-[14px] bg-(--bg-secondary)">
                                   <span className="absolute left-2 top-2 z-10 h-2 w-2 rounded-full bg-(--success)" />
                                   {isSelectingStaff &&
                                     !isAssignedToFocusedService && (
@@ -2305,11 +2304,11 @@ export function ExtendedOrganizationProfile({
                                 <p className="text-[11px] text-(--text-muted)">
                                   {activeCategoryLabel} · {catalogItems.length}{" "}
                                   available
-                                  {menuTab === "service"
+                                  {/* {menuTab === "service"
                                     ? selectedServiceIds.length > 0 &&
                                       ` · ${selectedServiceIds.length} selected`
                                     : selectedProductIds.length > 0 &&
-                                      ` · ${selectedProductIds.length} selected`}
+                                      ` · ${selectedProductIds.length} selected`} */}
                                 </p>
                               </div>
 

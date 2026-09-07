@@ -20,7 +20,7 @@ export function PackageCard({
   if (desktop) {
     return (
       <article className="feature-card flex h-full flex-col overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
-        <div className="relative h-[148px] overflow-hidden">
+        <div className="relative aspect-square w-full overflow-hidden">
           <Image
             src={deal.image}
             alt={deal.title}
@@ -99,7 +99,7 @@ export function PackageCard({
 
   return (
     <article className="feature-card overflow-hidden rounded-xl">
-      <div className="relative h-[110px] overflow-hidden">
+      <div className="relative aspect-square w-full overflow-hidden">
         <Image
           src={deal.image}
           alt={deal.title}

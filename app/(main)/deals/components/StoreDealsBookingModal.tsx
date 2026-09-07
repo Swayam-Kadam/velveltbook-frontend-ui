@@ -45,7 +45,7 @@ function SelectableStoreServiceCard({
 
   const cardBody = (
       <div className="flex gap-1.5 p-1.5">
-        <div className="relative w-20 shrink-0 overflow-hidden rounded-sm">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-sm">
           <Image
             src={image}
             alt={service.label}
@@ -81,7 +81,7 @@ function SelectableStoreServiceCard({
             )} */}
           </div>
 
-          <div className="mt-0.5 flex items-start gap-1.5">
+          <div className="mt-0.5 flex justify-between items-start gap-1.5">
             <div className="min-w-0 shrink-0 space-y-0.5">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span
@@ -109,7 +109,7 @@ function SelectableStoreServiceCard({
               </div>
             </div>
 
-            <div className="flex min-w-0 flex-1 flex-wrap content-start justify-end gap-1">
+            <div className="flex min-w-0 flex-col  gap-1">
               <span
                 className="
                   rounded-full border border-(--border)
@@ -135,7 +135,7 @@ function SelectableStoreServiceCard({
                   className={`
                     primary-button inline-flex h-6 w-[4rem] items-center justify-between
                     gap-0.5 rounded-[8px] px-2 text-[9px] font-semibold text-white
-                    transition-opacity hover:opacity-90
+                    transition-opacity hover:opacity-90 mt-3
                   `}
                 >
                   {isSelected ? "Added" : "Select"}

@@ -16,7 +16,7 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
   if (desktop) {
     return (
       <article className="feature-card flex h-full flex-col overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
-        <div className="relative h-[148px] overflow-hidden">
+        <div className="relative aspect-square w-full overflow-hidden">
           <Image
             src={deal.image}
             alt={deal.title}
@@ -46,8 +46,8 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
           </h3>
 
           <div className="flex items-center justify-between gap-2 text-[11px]">
-            <div className="flex min-w-0 items-center gap-1 text-(--text-secondary)">
-              <Store size={12} strokeWidth={1.5} className="shrink-0" />
+            <div className="flex min-w-0 items-center gap-1 text-white rounded-xs bg-(--text-primary) px-2 py-0.5">
+              <Store size={12} strokeWidth={1.5} className="shrink-0 " />
               <span className="truncate">{deal.salonName}</span>
             </div>
             {/* <div className="flex shrink-0 items-center gap-1">
@@ -98,7 +98,7 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
 
   return (
     <article className="feature-card overflow-hidden rounded-xl">
-      <div className="relative h-[110px] overflow-hidden">
+      <div className="relative aspect-square w-full overflow-hidden">
         <Image
           src={deal.image}
           alt={deal.title}
