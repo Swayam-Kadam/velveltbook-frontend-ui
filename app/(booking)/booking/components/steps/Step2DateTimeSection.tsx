@@ -489,7 +489,7 @@ export function Step2DateTimeSection({
             aria-expanded={showCalendar}
             className="
               flex w-full items-center gap-2 bg-(--accent-primary)
-              px-2.5 py-1 text-left text-white
+              px-2.5 py-2 text-left text-white
             "
           >
             <div className="min-w-0 flex-1">
@@ -536,7 +536,7 @@ export function Step2DateTimeSection({
           )}
         </div>
 
-        <div className="space-y-1 p-1.5">
+        <div className="space-y-5 p-2.5 pb-3">
           {dateScroller}
 
           <div className="flex items-center justify-between gap-2">

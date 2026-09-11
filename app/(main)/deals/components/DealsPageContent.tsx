@@ -476,9 +476,11 @@ function DesktopDealsCartBar({
 
 function DesktopDealsGrid({
   deals,
+  selectedDealId,
   onBookClick,
 }: {
   deals: Deal[];
+  selectedDealId?: string;
   onBookClick?: (deal: Deal) => void;
 }) {
   if (deals.length === 0) {
@@ -509,6 +511,7 @@ function DesktopDealsGrid({
             key={deal.id}
             deal={deal}
             desktop
+            isSelected={selectedDealId === deal.id}
             onBookClick={onBookClick}
           />
         ),
@@ -748,6 +751,7 @@ export function DealsPageContent() {
           ) : (
             <DesktopDealsGrid
               deals={allDeals}
+              selectedDealId={activePackageId}
               onBookClick={openDesktopBooking}
             />
           )}

@@ -239,6 +239,10 @@ export function ExtendedOrganizationProfile({
   const staffScrollRef = useRef<HTMLDivElement>(null);
   const productPreviewTabsScrollRef = useRef<HTMLDivElement>(null);
   const productPreviewCardsScrollRef = useRef<HTMLDivElement>(null);
+  const contentMatchRef = useRef<HTMLDivElement>(null);
+  const [sidebarMatchHeight, setSidebarMatchHeight] = useState<number | null>(
+    null,
+  );
 
   const allReviews = useMemo(
     () => [...(organization.reviews ?? []), ...submittedReviews],
@@ -823,6 +827,27 @@ export function ExtendedOrganizationProfile({
 
   const bookingUrl = isProductFlow ? productBookingUrl : serviceBookingUrl;
 
+  useEffect(() => {
+    const node = contentMatchRef.current;
+    if (!node) return;
+
+    const sync = () => {
+      const next = Math.round(node.getBoundingClientRect().height);
+      setSidebarMatchHeight((current) =>
+        current != null && Math.abs(current - next) < 1 ? current : next,
+      );
+    };
+
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(node);
+    window.addEventListener("resize", sync);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", sync);
+    };
+  }, [isProductFlow, selectedServiceIds.length, selectedProductIds.length]);
+
   const handleNext = (options?: { requireStaff?: boolean }) => {
     if (isProductFlow) {
       if (selectedProductIds.length === 0) {
@@ -1367,9 +1392,13 @@ export function ExtendedOrganizationProfile({
                   })
                 }
                 suggestions={suggestions}
+                matchHeight={sidebarMatchHeight}
               />
 
-              <div className="order-1 space-y-6 xl:order-none xl:space-y-3">
+              <div
+                ref={contentMatchRef}
+                className="order-1 space-y-6 xl:order-none xl:space-y-3"
+              >
                 <section className="overflow-hidden rounded-[28px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
                   <div className="grid grid-cols-1 lg:grid-cols-[1.45fr_0.9fr]">
                     <div className="relative h-[240px] sm:h-[280px] lg:min-h-[280px]">
@@ -1596,7 +1625,7 @@ export function ExtendedOrganizationProfile({
                                     <span
                                       aria-label={isReady ? "Ready" : "Pending"}
                                       className={`
-                                        absolute right-5 top-1.5 h-2 w-2 rounded-full
+                                        absolute right-2 bottom-1.5 h-2 w-2 rounded-full
                                         ${isReady ? "bg-(--success)" : "bg-(--danger)"}
                                       `}
                                     />
@@ -1640,14 +1669,14 @@ export function ExtendedOrganizationProfile({
                             </div>
 
                             {/* Col 2 — Service + Staff */}
-                            <div className="flex flex-col justify-center gap-2 border-(--border) bg-(--bg-secondary) p-3 lg:border-x lg:p-4">
+                            <div className="flex flex-col justify-center gap-3 border-(--border) bg-(--bg-secondary) p-3 lg:border-x">
                               <div className="min-w-0">
                                 <div className="flex items-center justify-between gap-2">
-                                  <p className="text-[10px] font-semibold uppercase tracking-wide text-(--text-muted)">
+                                  <p className="text-[13px] font-semibold uppercase tracking-wide text-(--text-muted)">
                                     Selected service
                                   </p>
                                   <p
-                                    className={`text-[10px] font-semibold uppercase tracking-wide ${
+                                    className={`text-[12px] font-semibold uppercase tracking-wide ${
                                       isFocusedServiceReady
                                         ? "text-green-600"
                                         : "text-red-600"
@@ -1656,15 +1685,64 @@ export function ExtendedOrganizationProfile({
                                     {isFocusedServiceReady ? "Ready" : "Pending"}
                                   </p>
                                 </div>
-                                <h2 className="mt-0.5 truncate text-[18px] font-semibold leading-tight text-(--text-primary)">
+                                <h2 className="mt-0.5 truncate text-[20px] font-semibold leading-tight text-(--text-primary)">
                                   {focusedService.name}
                                 </h2>
-                                <p className="mt-1 text-[12px] text-(--text-secondary)">
+                                <p className="mt-1 flex items-center justify-between text-[14px] text-(--text-secondary)">
                                   {[focusedService.duration, focusedService.price]
                                     .filter(Boolean)
                                     .join(" · ")}
+
+                              <div className="mt-1 flex justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    removeServiceFromSelection(focusedService.id)
+                                  }
+                                  aria-label={`Remove ${focusedService.name}`}
+                                  className="
+                                    flex h-8 w-8 items-center justify-center rounded-full
+                                    border border-red-200 bg-red-50 text-red-500
+                                    transition-colors hover:bg-red-100 hover:text-red-700
+                                  "
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </div>
                                 </p>
                               </div>
+
+                              {focusedStaff ? (
+                                <button
+                                type="button"
+                                onClick={() =>
+                                  handleAssignStaffRequest(focusedService.id)
+                                }
+                                className="
+                                  primary-button inline-flex h-9 w-fit items-center
+                                  justify-center gap-2 rounded-sm px-3 text-[11px]
+                                  font-semibold text-white w-full cursor-pointer
+                                " 
+                              >
+                                <UserRound size={14} />
+                                Change Staff
+                              </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleAssignStaffRequest(focusedService.id)
+                                  }
+                                  className="
+                                    primary-button inline-flex h-9 w-fit items-center
+                                    justify-center gap-2 rounded-sm px-3 text-[11px]
+                                    font-semibold text-white w-full cursor-pointer
+                                  " 
+                                >
+                                  <UserRound size={14} />
+                                  Select Staff
+                                </button>
+                              )}
 
                               {focusedStaff ? (
                                 <div className="flex items-center gap-2 rounded-xl border border-(--border) bg-(--bg-card) px-2 py-1.5">
@@ -1696,38 +1774,49 @@ export function ExtendedOrganizationProfile({
                                   </button>
                                 </div>
                               ) : (
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    handleAssignStaffRequest(focusedService.id)
-                                  }
-                                  className="
-                                    primary-button inline-flex h-9 w-fit items-center
-                                    justify-center gap-2 rounded-full px-3 text-[11px]
-                                    font-semibold text-white
-                                  "
-                                >
-                                  <UserRound size={14} />
-                                  Select Staff
-                                </button>
+                                <div className="flex items-center gap-2 rounded-xl border border-dashed border-(--border) bg-(--bg-card) px-2 py-1.5">
+                                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-(--border) bg-(--bg-secondary)">
+                                    <UserRound
+                                      size={14}
+                                      className="text-(--text-muted)"
+                                    />
+                                  </span>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="truncate text-[11px] font-semibold text-(--text-primary)">
+                                      No staff selected
+                                    </p>
+                                    <p className="text-[10px] text-(--text-muted)">
+                                      Choose a therapist
+                                    </p>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleAssignStaffRequest(focusedService.id)
+                                    }
+                                    className="shrink-0 cursor-pointer text-[10px] font-semibold text-(--brand-gold)"
+                                  >
+                                    Select
+                                  </button>
+                                </div>
                               )}
 
-                              <div className="mt-1 flex justify-end">
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    removeServiceFromSelection(focusedService.id)
-                                  }
-                                  aria-label={`Remove ${focusedService.name}`}
-                                  className="
-                                    flex h-8 w-8 items-center justify-center rounded-full
-                                    border border-red-200 bg-red-50 text-red-500
-                                    transition-colors hover:bg-red-100 hover:text-red-700
-                                  "
-                                >
-                                  <Trash2 size={15} />
-                                </button>
-                              </div>
+                                {/* <div className="mt-1 flex justify-end">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      removeServiceFromSelection(focusedService.id)
+                                    }
+                                    aria-label={`Remove ${focusedService.name}`}
+                                    className="
+                                      flex h-8 w-8 items-center justify-center rounded-full
+                                      border border-red-200 bg-red-50 text-red-500
+                                      transition-colors hover:bg-red-100 hover:text-red-700
+                                    "
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div> */}
                             </div>
 
                             {/* Col 3 — Date & Time (horizontal scrollable, package style) */}

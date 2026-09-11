@@ -29,11 +29,46 @@ function money(value: number) {
   return value.toFixed(2);
 }
 
+function parseDurationMinutes(description: string): number {
+  const match = description.match(/(\d+)\s*min/i);
+  return match ? Number(match[1]) : 60;
+}
+
+function parseTimeToMinutes(time: string): number | null {
+  const match = time.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return null;
+  let hour = Number(match[1]);
+  const minute = Number(match[2]);
+  const period = match[3].toUpperCase();
+  if (period === "PM" && hour !== 12) hour += 12;
+  if (period === "AM" && hour === 12) hour = 0;
+  return hour * 60 + minute;
+}
+
+function formatMinutesToTime(totalMinutes: number): string {
+  const minutesInDay = 24 * 60;
+  const normalized =
+    ((Math.round(totalMinutes) % minutesInDay) + minutesInDay) % minutesInDay;
+  let hour = Math.floor(normalized / 60);
+  const minute = normalized % 60;
+  const period = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")} ${period}`;
+}
+
+function getServiceEndTime(service: MyServiceItem): string {
+  const startMinutes = parseTimeToMinutes(service.timeLabel);
+  if (startMinutes == null) return service.timeLabel;
+  const duration = parseDurationMinutes(service.description);
+  return formatMinutesToTime(startMinutes + duration);
+}
+
 function ServiceRow({ service }: { service: MyServiceItem }) {
   return (
     <article className="bg-(--bg-card) px-4 py-4">
       <div className="flex items-center gap-3">
-        <div className="relative h-[68px] w-[84px] shrink-0 overflow-hidden rounded-xs bg-(--bg-secondary)">
+        <div className="relative h-[84px] w-[84px] shrink-0 overflow-hidden rounded-xs bg-(--bg-secondary)">
           <Image
             src={service.image}
             alt={service.name}
@@ -43,14 +78,14 @@ function ServiceRow({ service }: { service: MyServiceItem }) {
           />
         </div>
 
-        <div className="min-w-0 w-[140px] shrink-0">
-          <p className="truncate text-[14px] font-bold text-(--text-primary)">
+        <div className="min-w-0 w-[250px] shrink-0">
+          <p className=" text-[18px] font-bold text-(--text-primary)">
             {service.name}
           </p>
-          <p className="mt-0.5 text-[12px] leading-snug text-(--text-muted)">
+          <p className="mt-0.5 text-[14px] leading-snug font-bold text-(--text-primary)">
             {service.description}
           </p>
-          <p className="mt-1.5 text-[14px] font-bold text-(--text-primary)">
+          <p className="mt-1.5 text-[18px] font-bold text-(--text-primary)">
             {service.priceLabel}
           </p>
         </div>
@@ -69,7 +104,7 @@ function ServiceRow({ service }: { service: MyServiceItem }) {
 
         <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-4">
           <div className="flex flex-col items-center gap-1.5">
-            <div className="relative h-10 w-10 overflow-hidden rounded-xs">
+            <div className="relative h-12 w-12 overflow-hidden rounded-xs">
               <Image
                 src={service.staffImage}
                 alt={service.staffName}
@@ -77,32 +112,34 @@ function ServiceRow({ service }: { service: MyServiceItem }) {
                 sizes="40px"
                 className="object-cover"
               />
-              {service.staffOnline ? (
+              {/* {service.staffOnline ? (
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-(--success)" />
-              ) : null}
+              ) : null} */}
             </div>
-            <p className="text-[12px] font-semibold text-(--text-primary)">
+            <p className="text-[14px] font-semibold text-(--text-primary)">
               {service.staffName}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <Clock3 size={15} className="shrink-0 text-(--accent-primary)" />
-            <div className="flex overflow-hidden rounded-lg border border-(--border) bg-(--bg-card)">
+            <Clock3 size={20} className="shrink-0 text-(--accent-primary)" />
+            <div className="flex overflow-hidden rounded-sm border border-(--border) bg-(--bg-card)">
               <div className="flex min-w-[58px] flex-col items-center justify-center border-r border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_8%,white)] px-2 py-2">
-                <p className="text-[10px] font-bold leading-tight text-(--accent-primary)">
+                <p className="text-[14px] font-bold leading-tight text-(--accent-primary)">
                   {service.monthLabel} {service.dateLabel}
                 </p>
-                <p className="text-[10px] font-semibold text-(--text-secondary)">
+                <p className="text-[14px] font-semibold text-(--brand-gold)">
                   {service.weekdayLabel}
                 </p>
               </div>
-              <div className="flex min-w-[88px] flex-col justify-center px-3 py-2">
-                <p className="text-[13px] font-bold leading-none text-(--text-primary)">
+              <div className="flex min-w-[110px] flex-col justify-center gap-0.5 px-3 py-2">
+                <p className="text-[14px] font-bold leading-tight text-(--text-primary)">
+                  <span className="font-medium text-(--brand-gold)">Start</span>{" "}
                   {service.timeLabel}
                 </p>
-                <p className="mt-0.5 text-[10px] text-(--text-muted)">
-                  {service.yearLabel}
+                <p className="text-[14px] font-bold leading-tight text-(--text-primary)">
+                  <span className="font-medium text-(--brand-gold) mr-1.5">End</span>{" "}
+                  {getServiceEndTime(service)}
                 </p>
               </div>
             </div>
@@ -114,11 +151,16 @@ function ServiceRow({ service }: { service: MyServiceItem }) {
 }
 
 function BookingSummaryPanel({ session }: { session: MyServiceSession }) {
-  const { store, services, pricing } = session;
+  const { services, pricing } = session;
 
   return (
-    <section className="rounded-2xl border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
-      <div className="border-b border-(--border) px-6 py-4">
+    <section
+      className="
+        flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-(--border)
+        bg-(--bg-card) shadow-[var(--shadow-card)]
+      "
+    >
+      <div className="shrink-0 border-b border-(--border) px-6 py-4">
         <span className="inline-flex rounded-md bg-(--accent-primary) px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
           Service
         </span>
@@ -130,7 +172,7 @@ function BookingSummaryPanel({ session }: { session: MyServiceSession }) {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-none border-b border-(--border)">
+      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-(--accent-primary)/30 scrollbar-track-transparent">
         {services.map((service, index) => (
           <div
             key={service.id}
@@ -141,39 +183,7 @@ function BookingSummaryPanel({ session }: { session: MyServiceSession }) {
         ))}
       </div>
 
-      {/* <div className="flex items-center gap-3 border-b border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_5%,var(--bg-card))] px-5 py-4">
-        <div className="relative h-16 w-[76px] shrink-0 overflow-hidden rounded-xs">
-          <Image
-            src={store.thumbnail}
-            alt={store.name}
-            fill
-            sizes="76px"
-            className="object-cover"
-          />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <p className="truncate text-[15px] font-bold text-(--text-primary)">
-              {store.name}
-            </p>
-            {store.isVerified ? (
-              <BadgeCheck size={15} className="shrink-0 text-(--accent-primary)" />
-            ) : null}
-          </div>
-          <p className="mt-0.5 flex items-center gap-1 text-[12px] text-(--text-secondary)">
-            <MapPin size={12} className="shrink-0 text-(--accent-primary)" />
-            <span className="truncate">{store.address}</span>
-          </p>
-        </div>
-        <div className="shrink-0 border-l border-(--border) pl-4 text-right">
-          <p className="text-[11px] font-medium text-(--text-muted)">Booking Type</p>
-          <p className="mt-0.5 text-[14px] font-bold text-(--accent-primary)">
-            {store.bookingType}
-          </p>
-        </div>
-      </div> */}
-
-      <div className="p-5">
+      <div className="mt-auto shrink-0 border-t border-(--border) p-5">
         <div className="flex items-start justify-between gap-6 rounded-xl border border-(--border) p-4">
           <div className="min-w-0 flex-1 space-y-2.5 text-[14px]">
             <div className="flex justify-between gap-4 text-(--text-secondary)">
@@ -231,8 +241,8 @@ function StoreOrderSidebar({
   const { store, orderSummary } = session;
 
   return (
-    <aside className="space-y-4">
-      <section className="overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
+    <aside className="flex h-full min-h-0 flex-col gap-4">
+      <section className="shrink-0 overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
         <div className="relative h-[160px] w-full">
           <Image
             src={store.banner}
@@ -296,12 +306,17 @@ function StoreOrderSidebar({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-5 shadow-[var(--shadow-card)]">
-        <h3 className="font-serif text-[20px] font-semibold text-(--text-primary)">
+      <section
+        className="
+          flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-(--border)
+          bg-(--bg-card) p-5 shadow-[var(--shadow-card)]
+        "
+      >
+        <h3 className="shrink-0 font-serif text-[20px] font-semibold text-(--text-primary)">
           Order Summary
         </h3>
 
-        <div className="mt-4 space-y-2.5 text-[14px]">
+        <div className="mt-4 shrink-0 space-y-2.5 text-[14px]">
           <div className="flex justify-between text-(--text-secondary)">
             <span>Subtotal ({orderSummary.itemCount} items)</span>
             <span className="font-medium text-(--text-primary)">
@@ -320,7 +335,7 @@ function StoreOrderSidebar({
           </div>
         </div>
 
-        <div className="mt-5 border-t border-(--border) pt-4">
+        <div className="mt-auto shrink-0 border-t border-(--border) pt-4">
           <div className="flex items-end justify-between">
             <div>
               <p className="text-[13px] font-semibold text-(--text-primary)">
@@ -332,25 +347,25 @@ function StoreOrderSidebar({
               ${money(orderSummary.total)}
             </p>
           </div>
+
+          {/* <button
+            type="button"
+            onClick={onContinue}
+            className="
+              primary-button mt-5 flex w-full items-center justify-center gap-2
+              rounded-xl py-3.5 text-[14px] font-semibold text-white
+              transition-opacity hover:opacity-90
+            "
+          >
+            Continue to Payment
+            <ArrowRight size={16} strokeWidth={2.5} />
+          </button> */}
+
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-[12px] text-(--text-muted)">
+            <ShieldCheck size={14} className="text-(--accent-primary)" />
+            Secure & Encrypted Checkout
+          </p>
         </div>
-
-        {/* <button
-          type="button"
-          onClick={onContinue}
-          className="
-            primary-button mt-5 flex w-full items-center justify-center gap-2
-            rounded-xl py-3.5 text-[14px] font-semibold text-white
-            transition-opacity hover:opacity-90
-          "
-        >
-          Continue to Payment
-          <ArrowRight size={16} strokeWidth={2.5} />
-        </button> */}
-
-        <p className="mt-3 flex items-center justify-center gap-1.5 text-[12px] text-(--text-muted)">
-          <ShieldCheck size={14} className="text-(--accent-primary)" />
-          Secure & Encrypted Checkout
-        </p>
       </section>
     </aside>
   );
@@ -374,8 +389,8 @@ export function MyServicesPageContent() {
     <main className="min-h-screen bg-(--bg-primary)">
       {/* Desktop */}
       <div className="hidden lg:block">
-        <div className="mx-auto max-w-[1440px] px-6 py-8">
-          <div className="mb-8">
+        <div className="mx-auto flex h-[calc(100vh-2rem)] max-w-[1440px] flex-col px-6 py-6">
+          <div className="mb-5 shrink-0">
             <h1 className="text-[32px] font-bold tracking-tight text-(--text-primary)">
               My Services
             </h1>
@@ -384,7 +399,7 @@ export function MyServicesPageContent() {
             </p>
           </div>
 
-          <div className="grid grid-cols-[minmax(0,1fr)_360px] gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_360px] items-stretch gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
             <BookingSummaryPanel session={session} />
             <StoreOrderSidebar session={session} onContinue={handleContinue} />
           </div>

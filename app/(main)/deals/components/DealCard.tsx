@@ -125,7 +125,7 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
         </h3>
 
         <div className="flex items-center justify-between gap-1">
-          <div className="flex min-w-0 items-center gap-1 text-[8px] text-(--text-secondary)">
+          <div className="flex min-w-0 items-center gap-1 text-[8px] text-white bg-(--text-primary) rounded-xs px-1 py-0.5">
             <Store size={8} strokeWidth={1.5} className="shrink-0" />
             <span className="truncate">{deal.salonName}</span>
           </div>

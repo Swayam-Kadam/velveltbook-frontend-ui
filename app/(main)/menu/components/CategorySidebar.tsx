@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { MenuCategory } from "../menu.data";
 
 interface CategorySidebarProps {
@@ -17,6 +19,8 @@ export function CategorySidebar({
   selectedCounts,
   largeText = false,
 }: CategorySidebarProps) {
+  const imageClass = largeText ? "h-14 w-14" : "h-11 w-11";
+
   return (
     <aside
       className="
@@ -26,8 +30,9 @@ export function CategorySidebar({
         py-2 overflow-y-auto
       "
     >
-      <nav className="flex flex-col gap-0.5 px-1.5">
-        {categories.map(({ id, label, icon: Icon }) => {
+      <nav className="flex flex-col gap-1.5 px-1.5">
+        {categories.map((category) => {
+          const { id, label, image, icon: Icon } = category;
           const active = id === activeId;
           const count = selectedCounts?.[id] ?? 0;
           const showBadge = count > 0;
@@ -37,56 +42,64 @@ export function CategorySidebar({
               key={id}
               type="button"
               onClick={() => onSelect(id)}
+              aria-current={active ? "true" : undefined}
               className={`
-                flex flex-col items-center rounded-xl px-1
-                transition-all duration-300
-                ${largeText ? "gap-1.5 py-3.5" : "gap-1 py-2.5"}
+                relative flex flex-col items-center rounded-xl px-1 pb-1.5 pt-1.5 text-center
+                shadow-[0_2px_8px_rgba(70,24,70,0.08)] transition-colors
                 ${
                   active
-                    ? "primary-button text-white shadow-(--shadow-glow)"
-                    : "text-(--text-secondary) hover:bg-(--bg-card-hover)"
+                    ? "primary-button text-white"
+                    : "border border-(--border) bg-(--bg-card) text-(--accent-primary) hover:border-(--accent-primary)"
                 }
               `}
             >
-              <div className="relative">
-                <Icon
-                  size={largeText ? 18 : 16}
-                  strokeWidth={1.5}
-                  className={
-                    active
-                      ? "text-(--brand-gold)"
-                      : "text-(--text-primary)"
-                  }
-                />
-                {showBadge && (
-                  <span
-                    className={`
-                      absolute -right-3.5 -top-1.5 flex h-3.5 min-w-3.5
-                      items-center justify-center rounded-full px-0.5
-                      text-[7px] font-bold leading-none
-                      lg:text-[10px]
-                      ${
-                        active
-                          ? "bg-white text-(--accent-primary)"
-                          : "bg-(--brand-gold) text-(--text-primary)"
-                      }
-                    `}
-                    aria-label={`${count} selected`}
-                  >
-                    {count}
-                  </span>
-                )}
-              </div>
-
               <span
                 className={`
-                  text-center leading-tight font-bold
-                  ${largeText ? "text-[10px]" : "text-[8px]"}
-                  ${active ? "text-white" : "text-(--text-primary)"}
+                  relative ${imageClass} shrink-0 overflow-hidden rounded-xl
+                  bg-[#f6efe6] shadow-[inset_0_0_0_1px_rgba(70,24,70,0.08)]
+                `}
+              >
+                {image ? (
+                  <Image
+                    src={image}
+                    alt=""
+                    fill
+                    sizes={largeText ? "56px" : "44px"}
+                    className="object-cover"
+                  />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center">
+                    <Icon
+                      size={largeText ? 18 : 16}
+                      strokeWidth={1.5}
+                      className={
+                        active ? "text-(--brand-gold)" : "text-(--text-primary)"
+                      }
+                    />
+                  </span>
+                )}
+              </span>
+
+              <span
+                title={label}
+                className={`
+                  mt-1 min-w-0 w-full overflow-hidden px-0.5 font-semibold
+                  leading-[1.15] break-words line-clamp-3
+                  ${largeText ? "text-[9px]" : "text-[8px]"}
+                  ${active ? "text-white" : "text-(--accent-primary)"}
                 `}
               >
                 {label}
               </span>
+
+              {showBadge ? (
+                <span
+                  className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-(--brand-gold) text-[9px] font-bold text-white"
+                  aria-label={`${count} selected`}
+                >
+                  {count}
+                </span>
+              ) : null}
             </button>
           );
         })}

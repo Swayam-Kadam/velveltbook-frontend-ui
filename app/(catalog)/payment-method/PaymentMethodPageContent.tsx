@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronRight, CreditCard } from "lucide-react";
+import { ChevronDown, ChevronRight, CreditCard, Lock, Plus, Trash2 } from "lucide-react";
 import {
   FaApplePay,
   FaCcAmex,
@@ -11,6 +11,8 @@ import {
   FaPaypal,
 } from "react-icons/fa6";
 
+import { AccountSidebar } from "../../(account)/components/AccountSidebar";
+import { initialProfile } from "@/data/account/profile";
 import {
   initialSavedPaymentMethods,
   paymentMethodTabs,
@@ -204,6 +206,7 @@ export function PaymentMethodPageContent() {
   );
   const [openMethodId, setOpenMethodId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(true);
+  const [removeMode, setRemoveMode] = useState(false);
 
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -215,9 +218,15 @@ export function PaymentMethodPageContent() {
     [savedMethods, activeTab],
   );
 
+  const cardMethods = useMemo(
+    () => savedMethods.filter((method) => method.tab === "card"),
+    [savedMethods],
+  );
+
   const cardValid = isCardFormValid(cardNumber, expiry, cvc);
   const walletValid = isEmailValid(walletEmail);
   const canSubmit = activeTab === "card" ? cardValid : walletValid;
+  const isCardTab = activeTab === "card";
 
   function resetForm() {
     setCardNumber("");
@@ -305,6 +314,22 @@ export function PaymentMethodPageContent() {
       }));
     });
     setOpenMethodId(null);
+    setRemoveMode(false);
+  }
+
+  function handleStartRemove() {
+    if (cardMethods.length === 0) return;
+    setRemoveMode(true);
+    setFormOpen(false);
+    setOpenMethodId(null);
+  }
+
+  function handleSelectTab(tabId: PaymentMethodTabId) {
+    setActiveTab(tabId);
+    setFormOpen(true);
+    setOpenMethodId(null);
+    setRemoveMode(false);
+    resetForm();
   }
 
   const addCopy = {
@@ -326,197 +351,305 @@ export function PaymentMethodPageContent() {
     },
   }[activeTab];
 
-  return (
-    <main className="min-h-screen bg-(--bg-primary) px-3 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-4">
-      <div className="mx-auto w-full max-w-xl pt-2 lg:max-w-2xl lg:pt-4">
+  const emptyCopy = {
+    card: "No cards saved yet.",
+    gpay: "No Google Pay accounts saved yet.",
+    applepay: "No Apple Pay accounts saved yet.",
+    paypal: "No PayPal accounts saved yet.",
+  }[activeTab];
 
-        <div className="flex items-center justify-between">
-        <h1 className="mb-4 text-[20px] font-semibold flex items-center text-(--text-primary) lg:text-[24px]">
-          Payment Methods
-        </h1>
+  const tabs = (
+    <div className="flex border-b border-(--border)">
+      {paymentMethodTabs.map((tab) => {
+        const active = activeTab === tab.id;
 
-        <div className="flex items-center gap-2">
-
+        return (
           <button
+            key={tab.id}
             type="button"
-            onClick={() => setFormOpen((open) => !open)}
-            className="flex items-center primary-button text-white p-1 rounded-xs"
+            onClick={() => handleSelectTab(tab.id)}
+            className="relative flex-1 py-3 text-center text-[12px] font-semibold tracking-wide transition-colors lg:flex-none lg:px-5 lg:text-[13px]"
+            style={{
+              color: active ? "var(--accent-secondary)" : "var(--text-muted)",
+            }}
           >
-            Add card
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setFormOpen((open) => !open)}
-            className="flex items-center primary-button text-white p-1 rounded-xs"
-          >
-            Remove card
-          </button>
-
-        </div>
-        </div>
-
-        <div className="mb-5 flex border-b border-(--border)">
-          {paymentMethodTabs.map((tab) => {
-            const active = activeTab === tab.id;
-
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  setFormOpen(true);
-                  setOpenMethodId(null);
-                  resetForm();
-                }}
-                className="relative flex-1 py-3 text-center text-[12px] font-semibold tracking-wide transition-colors lg:text-[13px]"
-                style={{
-                  color: active
-                    ? "var(--accent-secondary)"
-                    : "var(--text-muted)",
-                }}
-              >
-                {tab.label}
-                {active && (
-                  <span
-                    className="absolute inset-x-0 -bottom-px h-0.5 w-full"
-                    style={{ background: "var(--accent-secondary)" }}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        <section className="rounded-2xl bg-[color-mix(in_srgb,var(--text-muted)_10%,var(--bg-card))] p-4 sm:p-5">
-          <button
-            type="button"
-            onClick={() => setFormOpen((open) => !open)}
-            className="flex w-full items-center justify-between gap-3 text-left"
-          >
-            <span className="text-[14px] font-medium text-(--text-primary)">
-              {addCopy.title}
-            </span>
-            <ChevronDown
-              size={16}
-              className={`shrink-0 text-(--text-muted) transition-transform ${
-                formOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {formOpen && (
-            <div className="mt-4 space-y-3">
-              {activeTab === "card" ? (
-                <>
-                  <Field
-                    id="card-number"
-                    label="Card Number"
-                    value={cardNumber}
-                    onChange={(value) => setCardNumber(formatCardNumber(value))}
-                    placeholder="Card number"
-                    inputMode="numeric"
-                    autoComplete="cc-number"
-                    maxLength={19}
-                  />
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field
-                      id="card-expiry"
-                      label="Expiry"
-                      value={expiry}
-                      onChange={(value) => setExpiry(formatExpiry(value))}
-                      placeholder="MM/YY"
-                      inputMode="numeric"
-                      autoComplete="cc-exp"
-                      maxLength={5}
-                    />
-                    <Field
-                      id="card-cvc"
-                      label="CVC"
-                      value={cvc}
-                      onChange={(value) => setCvc(formatCvc(value))}
-                      placeholder="Security code"
-                      inputMode="numeric"
-                      autoComplete="cc-csc"
-                      maxLength={4}
-                    />
-                  </div>
-                </>
-              ) : (
-                <Field
-                  id={`${activeTab}-email`}
-                  label={
-                    activeTab === "gpay"
-                      ? "Google account"
-                      : activeTab === "applepay"
-                        ? "Apple ID"
-                        : "PayPal email"
-                  }
-                  value={walletEmail}
-                  onChange={setWalletEmail}
-                  placeholder={
-                    activeTab === "gpay"
-                      ? "name@gmail.com"
-                      : activeTab === "applepay"
-                        ? "Apple ID email"
-                        : "PayPal email"
-                  }
-                  inputMode="email"
-                  autoComplete="email"
-                />
-              )}
-
-              <button
-                type="button"
-                onClick={handleAdd}
-                disabled={!canSubmit}
-                className={`
-                  mt-1 w-full rounded-full py-3 text-[14px] font-semibold
-                  transition-all duration-200
-                  ${
-                    canSubmit
-                      ? "primary-button text-white"
-                      : "cursor-not-allowed bg-[#cfc9d4] text-white"
-                  }
-                `}
-              >
-                {addCopy.button}
-              </button>
-            </div>
-          )}
-        </section>
-
-        <section className="mt-2 px-1">
-          {methodsForTab.length > 0 ? (
-            methodsForTab.map((method) => (
-              <SavedMethodRow
-                key={method.id}
-                method={method}
-                isOpen={openMethodId === method.id}
-                onToggle={() =>
-                  setOpenMethodId((current) =>
-                    current === method.id ? null : method.id,
-                  )
-                }
-                onMakeDefault={() => handleMakeDefault(method.id)}
-                onRemove={() => handleRemove(method.id)}
+            {tab.label}
+            {active && (
+              <span
+                className="absolute inset-x-0 -bottom-px h-0.5 w-full"
+                style={{ background: "var(--accent-secondary)" }}
               />
-            ))
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const cardActions = isCardTab ? (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => {
+          setRemoveMode(false);
+          setFormOpen(true);
+        }}
+        className="primary-button inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[12px] font-semibold text-white lg:px-4 lg:text-[13px]"
+      >
+        <Plus size={14} strokeWidth={2.4} />
+        Add card
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          if (removeMode) {
+            setRemoveMode(false);
+            return;
+          }
+          handleStartRemove();
+        }}
+        disabled={cardMethods.length === 0 && !removeMode}
+        className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[12px] font-semibold transition-colors lg:px-4 lg:text-[13px] ${
+          removeMode
+            ? "bg-(--danger) text-white"
+            : "border border-(--border) bg-(--bg-card) text-(--text-primary) hover:bg-(--bg-secondary) disabled:cursor-not-allowed disabled:opacity-50"
+        }`}
+      >
+        <Trash2 size={14} strokeWidth={2.2} />
+        {removeMode ? "Cancel" : "Remove card"}
+      </button>
+    </div>
+  ) : null;
+
+  const formSection = !(isCardTab && removeMode) ? (
+    <section className="rounded-2xl border border-(--border) bg-(--bg-card) p-4 shadow-[var(--shadow-card)] sm:p-5 lg:p-6">
+      <button
+        type="button"
+        onClick={() => setFormOpen((open) => !open)}
+        className="flex w-full items-center justify-between gap-3 text-left"
+      >
+        <span className="text-[14px] font-semibold text-(--text-primary) lg:text-[15px]">
+          {addCopy.title}
+        </span>
+        <ChevronDown
+          size={16}
+          className={`shrink-0 text-(--text-muted) transition-transform ${
+            formOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {formOpen && (
+        <div className="mt-4 space-y-3">
+          {activeTab === "card" ? (
+            <>
+              <Field
+                id="card-number"
+                label="Card Number"
+                value={cardNumber}
+                onChange={(value) => setCardNumber(formatCardNumber(value))}
+                placeholder="Card number"
+                inputMode="numeric"
+                autoComplete="cc-number"
+                maxLength={19}
+              />
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field
+                  id="card-expiry"
+                  label="Expiry"
+                  value={expiry}
+                  onChange={(value) => setExpiry(formatExpiry(value))}
+                  placeholder="MM/YY"
+                  inputMode="numeric"
+                  autoComplete="cc-exp"
+                  maxLength={5}
+                />
+                <Field
+                  id="card-cvc"
+                  label="CVC"
+                  value={cvc}
+                  onChange={(value) => setCvc(formatCvc(value))}
+                  placeholder="Security code"
+                  inputMode="numeric"
+                  autoComplete="cc-csc"
+                  maxLength={4}
+                />
+              </div>
+            </>
           ) : (
-            <p className="py-4 text-[13px] text-(--text-muted)">
-              {
-                {
-                  card: "No cards saved yet.",
-                  gpay: "No Google Pay accounts saved yet.",
-                  applepay: "No Apple Pay accounts saved yet.",
-                  paypal: "No PayPal accounts saved yet.",
-                }[activeTab]
+            <Field
+              id={`${activeTab}-email`}
+              label={
+                activeTab === "gpay"
+                  ? "Google account"
+                  : activeTab === "applepay"
+                    ? "Apple ID"
+                    : "PayPal email"
               }
-            </p>
+              value={walletEmail}
+              onChange={setWalletEmail}
+              placeholder={
+                activeTab === "gpay"
+                  ? "name@gmail.com"
+                  : activeTab === "applepay"
+                    ? "Apple ID email"
+                    : "PayPal email"
+              }
+              inputMode="email"
+              autoComplete="email"
+            />
           )}
-        </section>
+
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={!canSubmit}
+            className={`
+              mt-1 w-full rounded-xl py-3 text-[14px] font-semibold
+              transition-all duration-200
+              ${
+                canSubmit
+                  ? "primary-button text-white"
+                  : "cursor-not-allowed bg-[#cfc9d4] text-white"
+              }
+            `}
+          >
+            {addCopy.button}
+          </button>
+        </div>
+      )}
+    </section>
+  ) : null;
+
+  const savedList = (
+    <section className="overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) px-4 shadow-[var(--shadow-card)] sm:px-5">
+      {isCardTab && removeMode ? (
+        <div className="border-b border-(--border) py-3 text-[13px] font-medium text-(--danger)">
+          Select a card below to remove it.
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-3 border-b border-(--border) py-3.5">
+          <p className="text-[13px] font-semibold text-(--text-primary)">
+            Saved {isCardTab ? "cards" : "accounts"}
+          </p>
+          <span className="inline-flex items-center gap-1 text-[11px] text-(--text-muted)">
+            <Lock size={11} />
+            Secure
+          </span>
+        </div>
+      )}
+
+      {methodsForTab.length > 0 ? (
+        methodsForTab.map((method) =>
+          isCardTab && removeMode ? (
+            <button
+              key={method.id}
+              type="button"
+              onClick={() => handleRemove(method.id)}
+              className="
+                flex w-full items-center gap-3 border-b border-(--border)
+                py-3.5 text-left last:border-b-0
+                hover:bg-[color-mix(in_srgb,var(--danger)_6%,transparent)]
+              "
+            >
+              <span className="flex h-8 w-11 shrink-0 items-center justify-start">
+                <BrandMark brand={method.brand} />
+              </span>
+              <span className="min-w-0 flex-1 text-[13px] font-medium text-(--text-primary)">
+                {method.last4
+                  ? `****${method.last4}${method.isDefault ? " (Default)" : ""}`
+                  : method.label}
+              </span>
+              <span className="shrink-0 text-[11px] font-semibold text-(--danger)">
+                Remove
+              </span>
+            </button>
+          ) : (
+            <SavedMethodRow
+              key={method.id}
+              method={method}
+              isOpen={openMethodId === method.id}
+              onToggle={() =>
+                setOpenMethodId((current) =>
+                  current === method.id ? null : method.id,
+                )
+              }
+              onMakeDefault={() => handleMakeDefault(method.id)}
+              onRemove={() => handleRemove(method.id)}
+            />
+          ),
+        )
+      ) : (
+        <p className="py-5 text-[13px] text-(--text-muted)">{emptyCopy}</p>
+      )}
+    </section>
+  );
+
+  return (
+    <main className="min-h-screen bg-(--bg-primary)">
+      {/* Mobile */}
+      <div className="px-3 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-2 sm:px-4 lg:hidden">
+        <div className="mx-auto w-full max-w-xl">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h1 className="text-[20px] font-semibold text-(--text-primary)">
+              Payment Methods
+            </h1>
+            {cardActions}
+          </div>
+
+          <div className="mb-5">{tabs}</div>
+
+          <div className="space-y-3">
+            {formSection}
+            {savedList}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop */}
+      <div className="hidden min-h-screen lg:flex">
+        <AccountSidebar
+          activeId="payments"
+          user={{
+            fullName: initialProfile.fullName,
+            email: initialProfile.email,
+          }}
+        />
+
+        <div className="min-w-0 flex-1 overflow-y-auto bg-(--bg-primary)">
+          <div className="mx-auto flex min-h-screen max-w-[920px] flex-col px-8 py-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="font-[family-name:var(--font-heading)] text-[34px] font-semibold text-(--text-primary)">
+                  Payment Methods
+                </h1>
+                <p className="mt-1 text-[14px] text-(--text-secondary)">
+                  Manage your cards and digital wallets securely
+                </p>
+              </div>
+              {cardActions}
+            </div>
+
+            <div className="mt-6 rounded-[10px] border border-(--border) bg-(--bg-card) px-2 pt-1 shadow-[var(--shadow-card)]">
+              {tabs}
+            </div>
+
+            <div className="mt-5 grid grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] items-start gap-5">
+              <div className="min-w-0 space-y-4">
+                {formSection}
+                {isCardTab && removeMode ? (
+                  <div className="rounded-xl border border-(--danger)/30 bg-[color-mix(in_srgb,var(--danger)_8%,var(--bg-card))] px-4 py-3 text-[13px] font-medium text-(--danger)">
+                    Select a card on the right to remove it.
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="min-w-0">{savedList}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );

@@ -25,15 +25,15 @@ export interface MenuProduct {
 
 /** Sidebar categories for Product catalog (ids match product.categoryId). */
 export const productCategories: MenuCategory[] = [
-  { id: "massage", label: "Oils & Lotions", icon: Droplets },
-  { id: "nails", label: "Nail Products", icon: HandMetal },
-  { id: "facials", label: "Skincare", icon: Flower2 },
-  { id: "hair", label: "Hair Care", icon: Scissors },
-  { id: "makeup", label: "Beauty Kits", icon: Palette },
-  { id: "waxing", label: "Body Care", icon: Sparkles },
-  { id: "pamper", label: "Gift Sets", icon: Gift },
-  { id: "wellness", label: "Wellness", icon: Leaf },
-  { id: "addons", label: "Accessories", icon: Package },
+  { id: "massage", label: "Oils & Lotions", icon: Droplets, image: "/massage.webp" },
+  { id: "nails", label: "Nail Products", icon: HandMetal, image: "/salon bg.jpg" },
+  { id: "facials", label: "Skincare", icon: Flower2, image: "/spa-header.png" },
+  { id: "hair", label: "Hair Care", icon: Scissors, image: "/salon bg.jpg" },
+  { id: "makeup", label: "Beauty Kits", icon: Palette, image: "/profile.jpeg" },
+  { id: "waxing", label: "Body Care", icon: Sparkles, image: "/body spa bg.jpg" },
+  { id: "pamper", label: "Gift Sets", icon: Gift, image: "/spa-header.png" },
+  { id: "wellness", label: "Wellness", icon: Leaf, image: "/body spa bg.jpg" },
+  { id: "addons", label: "Accessories", icon: Package, image: "/massage.webp" },
 ];
 
 export const allMenuProducts: MenuProduct[] = [

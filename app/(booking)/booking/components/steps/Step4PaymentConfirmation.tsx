@@ -558,36 +558,75 @@ const fieldClass = `
 
 const labelClass = "mb-1.5 block text-[12px] font-medium text-(--text-secondary)";
 
+function parseDurationMinutes(duration: string): number {
+  const match = duration.trim().match(/(\d+)\s*min/i);
+  if (match) return Number(match[1]);
+  const hoursMatch = duration.trim().match(/(\d+(?:\.\d+)?)\s*h/i);
+  if (hoursMatch) return Math.round(Number(hoursMatch[1]) * 60);
+  return 60;
+}
+
+function parseTimeToMinutes(time: string): number | null {
+  const match = time.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return null;
+  let hour = Number(match[1]);
+  const minute = Number(match[2]);
+  const period = match[3].toUpperCase();
+  if (period === "PM" && hour !== 12) hour += 12;
+  if (period === "AM" && hour === 12) hour = 0;
+  return hour * 60 + minute;
+}
+
+function formatMinutesToTime(totalMinutes: number): string {
+  const minutesInDay = 24 * 60;
+  const normalized =
+    ((Math.round(totalMinutes) % minutesInDay) + minutesInDay) % minutesInDay;
+  let hour = Math.floor(normalized / 60);
+  const minute = normalized % 60;
+  const period = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")} ${period}`;
+}
+
 function ServiceAppointmentBlock({
   dayId,
   time,
+  duration = "60 min",
 }: {
   dayId: string;
   time: string;
+  duration?: string;
 }) {
   const day = getBookingDay(dayId);
   const [monthName, dayNumber = ""] = day.date.split(" ");
   const monthAbbr = monthName.slice(0, 3).toUpperCase();
-  const year = new Date().getFullYear();
+  const startMinutes = parseTimeToMinutes(time);
+  const endTime =
+    startMinutes == null
+      ? time
+      : formatMinutesToTime(
+          startMinutes + parseDurationMinutes(duration),
+        );
 
   return (
     <div className="flex shrink-0 items-center gap-2">
-      <Clock3 size={14} className="shrink-0 text-(--accent-primary)" />
+      <Clock3 size={18} className="shrink-0 text-(--accent-primary)" />
       <div className="flex items-stretch overflow-hidden rounded-sm border border-(--border) bg-(--bg-card)">
         <div className="flex min-w-[52px] flex-col items-center justify-center border-r border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_8%,white)] px-2 py-1.5">
-          <p className="text-[9px] font-bold leading-tight text-(--accent-primary)">
+          <p className="text-[14px] font-bold leading-tight text-(--accent-primary)">
             {monthAbbr} {dayNumber}
           </p>
-          <p className="text-[9px] font-semibold text-(--text-secondary)">
+          <p className="text-[12px] font-semibold text-(--text-primary)">
             {day.weekday}
           </p>
         </div>
-        <div className="flex min-w-[78px] flex-col justify-center px-2.5 py-1.5">
-          <p className="text-[12px] font-bold leading-none text-(--text-primary)">
-            {time}
+        <div className="flex min-w-[110px] flex-col justify-center gap-0.5 px-2.5 py-1.5">
+          <p className="text-[14px] font-bold leading-tight text-(--text-primary)">
+            <span className="font-medium text-(--brand-gold)">Start</span> {time}
           </p>
-          <p className="mt-0.5 text-[9px] text-(--text-muted)">
-            {monthName} {year}
+          <p className="text-[14px] font-bold leading-tight text-(--text-primary)">
+            <span className="font-medium text-(--brand-gold) mr-1">End</span> {endTime}
           </p>
         </div>
       </div>
@@ -655,11 +694,11 @@ function MobilePaymentSelectedServices({
                   className="relative flex gap-2.5 px-3 py-3 pr-9"
                 >
                   {!isPackageFlow && onRemoveService ? (
-                    <button
-                      type="button"
+                <button
+                  type="button"
                       onClick={() => onRemoveService(service.id)}
                       aria-label={`Remove ${service.name}`}
-                      className="
+                  className="
                         absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2
                         items-center justify-center rounded-full border
                         border-(--border) bg-(--bg-secondary) text-(--text-primary)
@@ -668,7 +707,7 @@ function MobilePaymentSelectedServices({
                       "
                     >
                       <X size={11} strokeWidth={2.5} />
-                    </button>
+                </button>
                   ) : null}
 
                   <div className="relative h-[52px] w-[52px] shrink-0 overflow-hidden rounded-sm">
@@ -679,7 +718,7 @@ function MobilePaymentSelectedServices({
                       sizes="72px"
                       className="object-cover"
                     />
-                  </div>
+              </div>
 
                   <div className="min-w-0 flex-1">
                     <div className="flex gap-2">
@@ -753,12 +792,12 @@ function MobilePaymentSelectedServices({
                       </div>
                     </div>
                   </div>
-                </li>
+                  </li>
               );
             })}
-          </ul>
+              </ul>
         )}
-      </div>
+            </div>
     </section>
   );
 }
@@ -816,10 +855,10 @@ function ServiceDesktopBookingSummary({
           </div>
         </div>
         {onEditService ? (
-          <button
-            type="button"
+            <button
+              type="button"
             onClick={onEditService}
-            className="
+              className="
               primary-button inline-flex shrink-0 items-center gap-1.5 rounded-lg
               px-4 py-2 text-[11px] font-bold tracking-wide text-white
             "
@@ -868,7 +907,7 @@ function ServiceDesktopBookingSummary({
                   <p className="truncate text-[13px] font-bold text-(--text-primary)">
                     {service.name}
                   </p>
-                  <p className="mt-0.5 text-[11px] leading-snug text-(--text-muted)">
+                  <p className="mt-0.5 text-[11px] leading-snug text-(--text-primary)">
                     {service.duration}
                     {service.duration ? " • " : ""}
                     Relaxing &amp; Safe
@@ -881,10 +920,10 @@ function ServiceDesktopBookingSummary({
                 {/* <div className="inline-flex h-8 shrink-0 items-center rounded-lg border border-(--border) bg-(--bg-card) px-1">
                   <span className="flex h-6 w-6 items-center justify-center text-(--text-muted)">
                     <Minus size={12} />
-                  </span>
+              </span>
                   <span className="min-w-5 text-center text-[12px] font-semibold text-(--text-primary)">
                     1
-                  </span>
+              </span>
                   <span className="flex h-6 w-6 items-center justify-center text-(--text-muted)">
                     <Plus size={12} />
                   </span>
@@ -892,14 +931,14 @@ function ServiceDesktopBookingSummary({
 
                 <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
                   <div className="flex flex-col min-w-0 items-center gap-2">
-                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-sm">
+                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xs">
                       {isPackageFlow ? (
                         <div className="flex h-full w-full items-center justify-center bg-(--bg-secondary)">
                           <UserRound
                             size={16}
                             className="text-(--text-muted)"
                           />
-                        </div>
+        </div>
                       ) : (
                         <Image
                           src={assigned.image}
@@ -909,10 +948,10 @@ function ServiceDesktopBookingSummary({
                           className="object-cover"
                         />
                       )}
-                      <span className="absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full border border-white bg-(--success)" />
+                      {/* <span className="absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full border border-white bg-(--success)" /> */}
                     </div>
                     <p className="truncate text-[12px] font-semibold text-(--text-primary)">
-                      {isPackageFlow ? "Auto" : assigned.name}
+                      {isPackageFlow ? "Any Staff" : assigned.name}
                     </p>
                   </div>
 
@@ -920,6 +959,7 @@ function ServiceDesktopBookingSummary({
                     <ServiceAppointmentBlock
                       dayId={schedule.dayId}
                       time={schedule.time}
+                      duration={service.duration}
                     />
                   ) : null}
                 </div>
@@ -927,7 +967,7 @@ function ServiceDesktopBookingSummary({
             </article>
           );
         })}
-      </div>
+          </div>
 
       {/* <div className="mt-4 flex items-center gap-3 rounded-xl border border-(--border) bg-[color-mix(in_srgb,var(--accent-primary)_6%,white)] p-3.5">
         <div className="relative h-14 w-[72px] shrink-0 overflow-hidden rounded-lg">
@@ -1124,31 +1164,31 @@ export function Step4PaymentConfirmation({
 
   const pricingRows = (
     <>
-      {selectedServices.map((service) => {
-        const schedule = serviceSchedules[service.id];
-        const scheduled = isServiceScheduleComplete(schedule);
+            {selectedServices.map((service) => {
+              const schedule = serviceSchedules[service.id];
+              const scheduled = isServiceScheduleComplete(schedule);
         const assignedStaffId = serviceStaff[service.id];
         const assignedStaff = assignedStaffId
           ? getStaff(assignedStaffId)
           : getStaff(staffId);
 
-  return (
-          <div key={service.id} className="space-y-0.5">
-            <div className="flex justify-between gap-2 text-(--text-secondary)">
-              <span className="min-w-0 truncate">{service.name}</span>
-              <span className="shrink-0">{service.priceLabel}</span>
-            </div>
+              return (
+                <div key={service.id} className="space-y-0.5">
+                  <div className="flex justify-between gap-2 text-(--text-secondary)">
+                    <span className="min-w-0 truncate">{service.name}</span>
+                    <span className="shrink-0">{service.priceLabel}</span>
+                  </div>
             <p className="text-[7px] font-semibold text-(--text-muted)">
               Therapist: {isPackageFlow ? "packages" : assignedStaff.name}
             </p>
-            {scheduled && (
-              <p className="text-[7px] font-semibold text-(--text-muted)">
-                {formatServiceSchedule(schedule)}
-              </p>
-            )}
-          </div>
-        );
-      })}
+                  {scheduled && (
+                    <p className="text-[7px] font-semibold text-(--text-muted)">
+                      {formatServiceSchedule(schedule)}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
       {selectedProducts.map((product) => {
         const qty = Math.max(1, productQuantities[product.id] ?? 1);
         return (
@@ -1235,7 +1275,7 @@ export function Step4PaymentConfirmation({
                             type="button"
                             onClick={() => onRemoveProduct(product.id)}
                             aria-label={`Remove ${product.name}`}
-                            className="
+            className="
                               absolute right-1 top-1 z-10 flex h-4 w-4 items-center
                               justify-center rounded-full border border-(--border)
                               bg-(--bg-card) text-(--text-muted)
@@ -1253,8 +1293,8 @@ export function Step4PaymentConfirmation({
                             fill
                             sizes="80px"
                             className="object-cover"
-                          />
-                        </div>
+            />
+          </div>
                         <div className="p-1">
                           <p className=" h-10 text-[10px] font-bold text-(--text-primary)">
                             {product.name}
@@ -1269,8 +1309,8 @@ export function Step4PaymentConfirmation({
                       </article>
                     );
                   })}
-                </div>
-              </section>
+          </div>
+        </section>
             )}
 
             {!isProductOnly && (
@@ -1302,7 +1342,7 @@ export function Step4PaymentConfirmation({
                       ${money(PLATFORM_FEE)}
                     </span>
                   </div>
-                </div>
+      </div>
 
                 <div className="my-3 border-t border-dashed border-(--border)" />
 
@@ -1568,8 +1608,8 @@ export function Step4PaymentConfirmation({
                       <p className="shrink-0 text-[15px] font-bold text-(--text-primary)">
                         ${money(product.price * qty)}
                       </p>
-                    </div>
-                  );
+    </div>
+  );
                 })}
             </div>
             )}

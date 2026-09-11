@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -98,6 +99,7 @@ export function PackageStep2Desktop({
   onRemoveService,
 }: PackageStep2DesktopProps) {
   const router = useRouter();
+  const [scheduleTab, setScheduleTab] = useState<"date" | "time">("date");
   const hasSelection = selectedServices.length > 0;
   const dayDateLabel =
     shortDate && weekdayLabel
@@ -499,19 +501,60 @@ export function PackageStep2Desktop({
                     Select Date &amp; Time
                   </p>
                 </div>
-                <div className="grid gap-1.5 bg-(--bg-secondary) p-1.5 lg:grid-cols-2">
-                  <MonthDateCalendar
-                    days={bookingDays}
-                    activeDayId={activeDayId}
-                    onSelectDay={onSelectDay}
-                    compact
-                  />
-                  <TimeSlotPicker
-                    activeDayId={activeDayId}
-                    activeTime={activeTime}
-                    onSelectTime={onSelectTime}
-                    compact
-                  />
+
+                <div className="bg-(--bg-secondary) p-1.5">
+                  <div
+                    className="mb-1.5 grid grid-cols-2 gap-1 rounded-xl border border-(--border) bg-(--bg-card) p-1"
+                    role="tablist"
+                    aria-label="Date or time"
+                  >
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={scheduleTab === "date"}
+                      onClick={() => setScheduleTab("date")}
+                      className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
+                        scheduleTab === "date"
+                          ? "bg-(--accent-primary) text-white"
+                          : "text-(--text-secondary) hover:text-(--text-primary)"
+                      }`}
+                    >
+                      <CalendarDays size={12} />
+                      Date
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={scheduleTab === "time"}
+                      onClick={() => setScheduleTab("time")}
+                      className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
+                        scheduleTab === "time"
+                          ? "bg-(--accent-primary) text-white"
+                          : "text-(--text-secondary) hover:text-(--text-primary)"
+                      }`}
+                    >
+                      <Clock3 size={12} />
+                      Time
+                    </button>
+                  </div>
+
+                  <div className="h-[240px] w-full">
+                    {scheduleTab === "date" ? (
+                      <MonthDateCalendar
+                        days={bookingDays}
+                        activeDayId={activeDayId}
+                        onSelectDay={onSelectDay}
+                        compact
+                      />
+                    ) : (
+                      <TimeSlotPicker
+                        activeDayId={activeDayId}
+                        activeTime={activeTime}
+                        onSelectTime={onSelectTime}
+                        compact
+                      />
+                    )}
+                  </div>
                 </div>
               </article>
             </div>

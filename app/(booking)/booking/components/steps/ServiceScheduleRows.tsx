@@ -146,8 +146,8 @@ export function MonthDateCalendar({
 
   return (
     <div
-      className={`rounded-2xl border border-(--border) bg-(--bg-card) ${
-        compact ? "p-1.5" : "p-4"
+      className={`flex flex-col rounded-2xl border border-(--border) bg-(--bg-card) ${
+        compact ? "h-[240px] p-2.5" : "p-4"
       }`}
     >
       {!compact ? (
@@ -162,8 +162,8 @@ export function MonthDateCalendar({
       ) : null}
 
       <div
-        className={`flex items-center justify-between ${
-          compact ? "mb-1" : "mb-3"
+        className={`flex shrink-0 items-center justify-between ${
+          compact ? "mb-2" : "mb-3"
         }`}
       >
         <button
@@ -176,14 +176,14 @@ export function MonthDateCalendar({
             border-(--border) text-(--text-primary) transition-colors
             hover:bg-(--bg-secondary) disabled:cursor-not-allowed
             disabled:opacity-35
-            ${compact ? "h-5 w-5" : "h-8 w-8"}
+            ${compact ? "h-7 w-7" : "h-8 w-8"}
           `}
         >
-          <ChevronLeft size={compact ? 12 : 16} />
+          <ChevronLeft size={compact ? 14 : 16} />
         </button>
         <p
           className={`font-semibold text-(--text-primary) ${
-            compact ? "text-[10px]" : "text-[14px]"
+            compact ? "text-[13px]" : "text-[14px]"
           }`}
         >
           {MONTH_NAMES[view.month]} {view.year}
@@ -198,19 +198,19 @@ export function MonthDateCalendar({
             border-(--border) text-(--text-primary) transition-colors
             hover:bg-(--bg-secondary) disabled:cursor-not-allowed
             disabled:opacity-35
-            ${compact ? "h-5 w-5" : "h-8 w-8"}
+            ${compact ? "h-7 w-7" : "h-8 w-8"}
           `}
         >
-          <ChevronRight size={compact ? 12 : 16} />
+          <ChevronRight size={compact ? 14 : 16} />
         </button>
       </div>
 
-      <div className={`grid grid-cols-7 gap-px ${compact ? "mb-0" : "mb-1"}`}>
+      <div className={`grid shrink-0 grid-cols-7 gap-px ${compact ? "mb-1" : "mb-1"}`}>
         {WEEKDAY_HEADERS.map((label, index) => (
           <span
             key={`${label}-${index}`}
             className={`text-center font-semibold uppercase tracking-wide text-(--text-muted) ${
-              compact ? "py-0 text-[7px]" : "py-1 text-[10px]"
+              compact ? "py-0.5 text-[10px]" : "py-1 text-[10px]"
             }`}
           >
             {label}
@@ -218,13 +218,13 @@ export function MonthDateCalendar({
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-px">
+      <div className={`grid flex-1 grid-cols-7 gap-px content-start ${compact ? "min-h-0" : ""}`}>
         {cells.map((dayNum, index) => {
           if (dayNum === null) {
             return (
               <span
                 key={`empty-${index}`}
-                className={compact ? "h-5" : "h-10"}
+                className={compact ? "h-7" : "h-10"}
               />
             );
           }
@@ -245,7 +245,7 @@ export function MonthDateCalendar({
               className={`
                 relative flex flex-col items-center justify-center rounded-full
                 font-semibold transition-all
-                ${compact ? "h-5 text-[9px]" : "h-10 text-[13px]"}
+                ${compact ? "h-7 text-[12px]" : "h-10 text-[13px]"}
                 ${
                   active
                     ? "bg-(--accent-primary) text-white"
@@ -259,7 +259,7 @@ export function MonthDateCalendar({
               {selectable && !active ? (
                 <span
                   className={`absolute rounded-full bg-(--accent-primary) ${
-                    compact ? "bottom-0 h-0.5 w-0.5" : "bottom-1 h-1 w-1"
+                    compact ? "bottom-0.5 h-1 w-1" : "bottom-1 h-1 w-1"
                   }`}
                 />
               ) : null}
@@ -341,13 +341,13 @@ export function TimeSlotPicker({
 
   return (
     <div
-      className={`rounded-2xl border border-(--border) bg-(--bg-card) ${
-        compact ? "p-1.5" : "p-4"
+      className={`flex flex-col rounded-2xl border border-(--border) bg-(--bg-card) ${
+        compact ? "h-[240px] p-2.5" : "p-4"
       }`}
     >
       <div
-        className={`flex items-center justify-between gap-2 ${
-          compact ? "mb-1" : "mb-3"
+        className={`flex shrink-0 items-center justify-between gap-2 ${
+          compact ? "mb-2" : "mb-3"
         }`}
       >
         {!compact ? (
@@ -360,7 +360,7 @@ export function TimeSlotPicker({
             </p>
           </div>
         ) : (
-          <p className="text-[10px] font-semibold text-(--text-primary)">Time</p>
+          <p className="text-[13px] font-semibold text-(--text-primary)">Time</p>
         )}
 
         <div
@@ -376,7 +376,7 @@ export function TimeSlotPicker({
               aria-pressed={timePeriod === period}
               className={`
                 rounded-full font-semibold transition-colors
-                ${compact ? "px-2 py-0.5 text-[9px]" : "px-3.5 py-1.5 text-[12px]"}
+                ${compact ? "px-3 py-1 text-[11px]" : "px-3.5 py-1.5 text-[12px]"}
                 ${
                   timePeriod === period
                     ? "bg-(--accent-primary) text-white"
@@ -391,8 +391,8 @@ export function TimeSlotPicker({
       </div>
 
       <div
-        className={`grid gap-1 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary) grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 ${
-          compact ? "max-h-[98px]" : "max-h-[280px] gap-2"
+        className={`grid min-h-0 flex-1 content-start gap-1.5 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary) grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 ${
+          compact ? "" : "max-h-[280px] gap-2"
         }`}
       >
         {filteredTimes.length > 0 ? (
@@ -405,7 +405,7 @@ export function TimeSlotPicker({
                 onClick={() => onSelectTime(time)}
                 className={`
                   rounded-lg border font-semibold tabular-nums transition-all
-                  ${compact ? "px-1 py-1 text-[9px]" : "px-2 py-2.5 text-[12px]"}
+                  ${compact ? "px-1.5 py-2 text-[12px]" : "px-2 py-2.5 text-[12px]"}
                   ${
                     active
                       ? "border-transparent bg-(--accent-primary) text-white"
@@ -420,7 +420,7 @@ export function TimeSlotPicker({
         ) : (
           <p
             className={`col-span-full text-center text-(--text-muted) ${
-              compact ? "py-2 text-[10px]" : "py-6 text-[13px]"
+              compact ? "py-6 text-[12px]" : "py-6 text-[13px]"
             }`}
           >
             No {timePeriod} slots available

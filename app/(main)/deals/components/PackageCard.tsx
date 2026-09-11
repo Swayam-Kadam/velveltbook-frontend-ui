@@ -6,6 +6,7 @@ interface PackageCardProps {
   deal: PackageDeal;
   onBookClick?: (deal: PackageDeal) => void;
   desktop?: boolean;
+  isSelected?: boolean;
 }
 
 function formatPrice(amount: number) {
@@ -16,6 +17,7 @@ export function PackageCard({
   deal,
   onBookClick,
   desktop = false,
+  isSelected = false,
 }: PackageCardProps) {
   if (desktop) {
     return (
@@ -47,7 +49,7 @@ export function PackageCard({
           </h3>
 
           <div className="flex items-center justify-between gap-2 text-[11px]">
-            <div className="flex min-w-0 items-center gap-1 text-(--text-secondary)">
+            <div className="flex min-w-0 items-center gap-1 text-white bg-(--text-primary) rounded-xs px-1 py-0.5">
               <Store size={12} strokeWidth={1.5} className="shrink-0" />
               <span className="truncate">{deal.salonName}</span>
             </div>
@@ -87,9 +89,13 @@ export function PackageCard({
             <button
               type="button"
               onClick={() => onBookClick?.(deal)}
-              className="primary-button inline-flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-[12px] font-semibold text-white transition-transform active:scale-[0.98]"
+              className={`inline-flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-[12px] font-semibold transition-transform active:scale-[0.98] ${
+                isSelected
+                  ? "border border-(--accent-primary) bg-[color-mix(in_srgb,var(--accent-primary)_12%,var(--bg-card))] text-(--accent-primary)"
+                  : "primary-button text-white"
+              }`}
             >
-              Book Package
+              {isSelected ? "Selected Package" : "Book Package"}
             </button>
           </div>
         </div>
@@ -126,7 +132,7 @@ export function PackageCard({
         </h3>
 
         <div className="flex items-center justify-between gap-1">
-          <div className="flex min-w-0 items-center gap-1 text-[8px] text-(--text-secondary)">
+          <div className="flex min-w-0 items-center gap-1 text-[8px] text-white bg-(--text-primary) rounded-xs px-1 py-0.5">
             <Store size={8} strokeWidth={1.5} className="shrink-0" />
             <span className="truncate">{deal.salonName}</span>
           </div>

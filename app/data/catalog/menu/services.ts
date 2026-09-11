@@ -15,6 +15,8 @@ export interface MenuCategory {
   id: string;
   label: string;
   icon: LucideIcon;
+  /** Square category thumbnail shown in menu sidebars. */
+  image?: string;
 }
 
 export interface MenuService {
@@ -30,15 +32,69 @@ export interface MenuService {
 export const SERVICES_PER_PAGE = 9;
 
 export const menuCategories: MenuCategory[] = [
-  { id: "massage", label: "Massage Therapy", icon: Hand },
-  { id: "nails", label: "Nail Care", icon: HandMetal },
-  { id: "facials", label: "Facials & Skincare", icon: Flower2 },
-  { id: "hair", label: "Hair Services", icon: Scissors },
-  { id: "makeup", label: "Makeup & Brows", icon: Palette },
-  { id: "waxing", label: "Waxing & Body Care", icon: Sparkles },
-  { id: "pamper", label: "Pamper Packages", icon: Gift },
-  { id: "wellness", label: "Wellness", icon: Leaf },
-  { id: "addons", label: "Add-ons", icon: Plus },
+  {
+    id: "massage",
+    label: "Massage Therapy",
+    icon: Hand,
+    image:
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=200&h=200&fit=crop",
+  },
+  {
+    id: "nails",
+    label: "Nail Care",
+    icon: HandMetal,
+    image:
+      "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=200&h=200&fit=crop",
+  },
+  {
+    id: "facials",
+    label: "Facials & Skincare",
+    icon: Flower2,
+    image:
+      "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200&h=200&fit=crop",
+  },
+  {
+    id: "hair",
+    label: "Hair Services",
+    icon: Scissors,
+    image:
+      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=200&h=200&fit=crop",
+  },
+  {
+    id: "makeup",
+    label: "Makeup & Brows",
+    icon: Palette,
+    image:
+      "https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=200&h=200&fit=crop",
+  },
+  {
+    id: "waxing",
+    label: "Waxing & Body Care",
+    icon: Sparkles,
+    image:
+      "https://images.unsplash.com/photo-1515377901643-3387a6ef5f2b?w=200&h=200&fit=crop",
+  },
+  {
+    id: "pamper",
+    label: "Pamper Packages",
+    icon: Gift,
+    image:
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=200&h=200&fit=crop",
+  },
+  {
+    id: "wellness",
+    label: "Wellness",
+    icon: Leaf,
+    image:
+      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=200&h=200&fit=crop",
+  },
+  {
+    id: "addons",
+    label: "Add-ons",
+    icon: Plus,
+    image:
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=200&h=200&fit=crop",
+  },
 ];
 
 export const allMenuServices: MenuService[] = [

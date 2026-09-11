@@ -11,6 +11,9 @@ const DESKTOP_PANEL_HEIGHT = "h-[calc(100vh-7rem)]";
 
 interface FavoriteStoresSuggestionsSidebarProps {
   excludeStoreIds?: string[];
+  title?: string;
+  /** Skip this many stores so a second panel can show different cards. */
+  offset?: number;
 }
 
 function SuggestionCard({ item }: { item: TrendingNearbyItem }) {
@@ -81,11 +84,20 @@ function SuggestionCard({ item }: { item: TrendingNearbyItem }) {
 
 export function FavoriteStoresSuggestionsSidebar({
   excludeStoreIds = [],
+  title = "Suggestions",
+  offset = 0,
 }: FavoriteStoresSuggestionsSidebarProps) {
-  const suggestions = getSuggestionStores(excludeStoreIds);
+  const allSuggestions = getSuggestionStores(excludeStoreIds);
+  const suggestions =
+    offset > 0
+      ? [
+          ...allSuggestions.slice(offset),
+          ...allSuggestions.slice(0, offset),
+        ]
+      : allSuggestions;
 
   return (
-    <aside className="hidden w-[320px] shrink-0 lg:sticky lg:top-24 lg:flex lg:flex-col lg:self-start">
+    <aside className="hidden w-[300px] shrink-0 lg:sticky lg:top-24 lg:flex lg:flex-col lg:self-start xl:w-[320px]">
       <div
         className={`
           flex ${DESKTOP_PANEL_HEIGHT} flex-col overflow-hidden rounded-[22px]
@@ -94,11 +106,11 @@ export function FavoriteStoresSuggestionsSidebar({
       >
         <div className="flex shrink-0 items-center justify-between border-b border-(--border) px-4 py-4">
           <h2 className="font-[family-name:var(--font-heading)] text-[20px] font-semibold text-(--text-primary)">
-            Suggestions
+            {title}
           </h2>
           <button
             type="button"
-            aria-label="Filter suggestions"
+            aria-label={`Filter ${title.toLowerCase()}`}
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-(--border) text-(--text-muted) transition-colors hover:text-(--text-primary)"
           >
             <Settings2 size={16} />
@@ -108,7 +120,7 @@ export function FavoriteStoresSuggestionsSidebar({
         <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-3 scrollbar-thin scrollbar-thumb-(--accent-primary)/30 scrollbar-track-transparent">
           {suggestions.length > 0 ? (
             suggestions.map((item) => (
-              <SuggestionCard key={item.id} item={item} />
+              <SuggestionCard key={`${title}-${item.id}`} item={item} />
             ))
           ) : (
             <p className="py-8 text-center text-sm text-(--text-muted)">

@@ -318,7 +318,7 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
         {store && (
           <div className="shrink-0 border-b border-(--border) px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-(--brand-gold)">
+              <div className="relative h-15 w-15 shrink-0 overflow-hidden rounded-sm border-2 border-(--brand-gold)">
                 <Image
                   src={store.logo}
                   alt={store.name}
@@ -330,22 +330,22 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1">
-                  <Store size={10} strokeWidth={1.5} className="text-(--text-secondary)" />
-                  <p className="truncate text-[12px] font-semibold text-(--text-primary)">
+                  <Store size={13} strokeWidth={1.5} className="text-(--text-secondary)" />
+                  <p className="truncate text-[15px] font-semibold text-(--text-primary)">
                     {store.name}
                   </p>
                 </div>
 
-                <div className="mt-0.5 flex items-center gap-2 text-[9px]">
+                <div className="mt-0.5 flex items-center gap-2 text-[12px]">
                   <span className="flex items-center gap-0.5 text-(--text-primary)">
-                    <Star size={9} className="fill-(--brand-gold) text-(--brand-gold)" />
+                    <Star size={11} className="fill-(--brand-gold) text-(--brand-gold)" />
                     {store.rating}
                   </span>
                   <span className="text-(--text-secondary)">({store.reviewCount})</span>
                 </div>
 
-                <div className="mt-0.5 flex items-start gap-1 text-[8px] text-(--text-muted)">
-                  <MapPin size={8} className="mt-0.5 shrink-0" />
+                <div className="mt-0.5 flex items-start gap-1 text-[10px] text-(--text-muted)">
+                  <MapPin size={10} className="mt-0.5 shrink-0" />
                   <span className="line-clamp-1">{store.location}</span>
                 </div>
               </div>

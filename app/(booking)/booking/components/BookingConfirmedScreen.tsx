@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
-  Bell,
   CalendarClock,
   Check,
   ChevronRight,
@@ -16,7 +15,6 @@ import {
   MapPin,
   MessageCircle,
   PencilLine,
-  Phone,
   ReceiptText,
   RotateCcw,
   ShoppingBag,
@@ -1134,81 +1132,58 @@ export function BookingConfirmedScreen({
           </div>
 
           <div className="mb-3 overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)">
-            <div className="h-1 bg-(--accent-primary)" />
-            <div className="p-2.5">
-              <div className="flex items-center justify-between gap-2.5">
-                <div className="relative h-[42px] w-[52px] shrink-0 overflow-hidden rounded-[5px]">
-                  <Image
-                    src={org.thumbnail ?? org.banner}
-                    alt={org.name}
-                    fill
-                    sizes="52px"
-                    className="object-cover"
-                  />
+            <div className="border-t-8 border-(--accent-primary) bg-(--bg-card) px-2.5 py-2">
+              <div className="flex min-w-0 items-start gap-2">
+                <div className="relative h-14 w-14 shrink-0">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-xl border-2 border-(--bg-card) shadow-(--shadow-card)">
+                    <Image
+                      src={org.thumbnail ?? org.banner}
+                      alt={org.name}
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
 
-                <div className="mt-2">
-                <div className="flex items-center gap-1">
-                  <p className="truncate font-[family-name:var(--font-heading)] text-[13px] font-bold text-(--accent-primary)">
-                    {storeTitle}
-                  </p>
-                  <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-(--accent-primary)">
+                <div className="ml-1 min-w-0 flex-1 pt-0.5">
+                  <div className="flex items-center gap-1">
+                    <h2 className="truncate font-[family-name:var(--font-heading)] text-lg font-bold text-(--text-primary)">
+                      {storeTitle}
+                    </h2>
                     <BadgeCheck
-                      size={9}
-                      className="text-white"
-                      strokeWidth={2.5}
+                      className="h-3.5 w-3.5 shrink-0 text-(--accent-primary)"
+                      strokeWidth={2}
                     />
-                  </span>
+                  </div>
+                  <p className="mt-0.5 truncate text-[11px] text-(--text-secondary)">
+                    {selectedServices.length > 0
+                      ? selectedServices
+                          .slice(0, 3)
+                          .map((service) => service.name)
+                          .join(" • ")
+                      : "Haircut • Beard • Styling"}
+                  </p>
+                  <p className="mt-0.5 flex gap-0.5 text-[12px] text-(--text-secondary)">
+                    <MapPin
+                      className="mt-0.5 h-2.5 w-2.5 shrink-0"
+                      strokeWidth={1.8}
+                    />
+                    <span>{org.address ?? bookingLocation.address}</span>
+                  </p>
                 </div>
 
-                <p className="mt-0.5 truncate text-[10px] text-(--text-muted)">
-                  {selectedServices.length > 0
-                    ? selectedServices
-                        .slice(0, 3)
-                        .map((service) => service.name)
-                        .join(" • ")
-                    : "Haircut • Beard • Styling"}
-                </p>
-
-                <p className="mt-1 w-[10rem] flex  gap-0.5 text-[10px] text-(--text-muted)">
-                  <MapPin size={10} className="shrink-0 mt-1" strokeWidth={1.8} />
-                  <span className="">
-                    {org.address ?? bookingLocation.address}
-                  </span>
-                </p>
-
-                {/* <div className="mt-2 flex flex-wrap gap-1.5">
-                  <span className="inline-flex items-center gap-1 rounded-full border border-(--border) bg-(--bg-secondary) px-2 py-0.5 text-[9px] font-medium text-(--text-primary)">
-                    <Phone
-                      size={10}
-                      className="shrink-0 text-(--accent-primary)"
-                      strokeWidth={1.8}
-                    />
-                    Flexible Booking
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-(--border) bg-(--bg-secondary) px-2 py-0.5 text-[9px] font-medium text-(--text-primary)">
-                    <Bell
-                      size={10}
-                      className="shrink-0 text-(--accent-primary)"
-                      strokeWidth={1.8}
-                    />
-                    Secure &amp; Private
-                  </span>
-                </div> */}
-              </div>
-                {!isEditing && detailView !== "chat" && (
+                {!isEditing && detailView !== "chat" ? (
                   <button
                     type="button"
                     aria-label="Message store"
                     onClick={() => setDetailView("chat")}
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2D1659] text-white"
+                    className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2D1659] text-white"
                   >
                     <MessageCircle size={18} strokeWidth={2} />
                   </button>
-                )}
+                ) : null}
               </div>
-
-              
             </div>
           </div>
 
@@ -1272,7 +1247,7 @@ export function BookingConfirmedScreen({
                   // disabled={history.length === 0}
                   className=" bg-[#2D1659] m-1.5 inline-flex shrink-0 items-center px-1 py-0.5 rounded-[4px] gap-1 text-[12px] font-semibold text-white disabled:opacity-40"
                 >
-                  <PencilLine size={13} strokeWidth={2.3} />
+                  {/* <PencilLine size={13} strokeWidth={2.3} /> */}
                   Edit
                 </button>
               )}
