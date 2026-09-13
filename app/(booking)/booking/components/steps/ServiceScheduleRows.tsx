@@ -44,6 +44,8 @@ interface ServiceScheduleRowsProps {
   onSelectTime: (serviceId: string, time: string) => void;
   onSelectStaff: (serviceId: string, staffId: string) => void;
   onRemoveService?: (serviceId: string) => void;
+  activeServiceId?: string;
+  onActiveServiceChange?: (serviceId: string) => void;
 }
 
 type TimePeriod = "AM" | "PM";
@@ -147,7 +149,7 @@ export function MonthDateCalendar({
   return (
     <div
       className={`flex flex-col rounded-2xl border border-(--border) bg-(--bg-card) ${
-        compact ? "h-[240px] p-2.5" : "p-4"
+        compact ? "h-full min-h-0 p-2.5" : "p-4"
       }`}
     >
       {!compact ? (
@@ -218,13 +220,17 @@ export function MonthDateCalendar({
         ))}
       </div>
 
-      <div className={`grid flex-1 grid-cols-7 gap-px content-start ${compact ? "min-h-0" : ""}`}>
+      <div
+        className={`grid flex-1 grid-cols-7 gap-px ${
+          compact ? "min-h-0 auto-rows-fr" : "content-start"
+        }`}
+      >
         {cells.map((dayNum, index) => {
           if (dayNum === null) {
             return (
               <span
                 key={`empty-${index}`}
-                className={compact ? "h-7" : "h-10"}
+                className={compact ? "min-h-7" : "h-10"}
               />
             );
           }
@@ -245,7 +251,7 @@ export function MonthDateCalendar({
               className={`
                 relative flex flex-col items-center justify-center rounded-xs
                 font-semibold transition-all
-                ${compact ? "h-7 text-[12px]" : "h-10 text-[13px]"}
+                ${compact ? "h-full min-h-7 text-[12px]" : "h-10 text-[13px]"}
                 ${
                   active
                     ? "bg-(--accent-primary) text-white"
@@ -335,7 +341,7 @@ export function TimeSlotPicker({
   return (
     <div
       className={`flex flex-col rounded-2xl border border-(--border) bg-(--bg-card) ${
-        compact ? "h-[240px] p-2.5" : "p-4"
+        compact ? "h-full min-h-0 p-2.5" : "p-4"
       }`}
     >
       <div
@@ -435,6 +441,8 @@ export function ServiceScheduleRows({
   onSelectTime,
   onSelectStaff,
   onRemoveService,
+  activeServiceId: controlledActiveServiceId,
+  onActiveServiceChange,
 }: ServiceScheduleRowsProps) {
   const isPackageFlow = Boolean(packageName);
   const selectedServices = getSelectedServices(
@@ -442,21 +450,35 @@ export function ServiceScheduleRows({
     organizationId,
   );
   const bookingDays = useMemo(() => buildBookingDays(new Date()), []);
-  const [activeServiceId, setActiveServiceId] = useState(
-    () => selectedServiceIds[0] ?? "",
-  );
+  const [uncontrolledActiveServiceId, setUncontrolledActiveServiceId] =
+    useState(() => selectedServiceIds[0] ?? "");
+  const isActiveControlled = controlledActiveServiceId !== undefined;
+  const activeServiceId = isActiveControlled
+    ? controlledActiveServiceId
+    : uncontrolledActiveServiceId;
+  const setActiveServiceId = (serviceId: string) => {
+    if (!isActiveControlled) {
+      setUncontrolledActiveServiceId(serviceId);
+    }
+    onActiveServiceChange?.(serviceId);
+  };
   const [dateTimeOpen, setDateTimeOpen] = useState(isPackageFlow);
   useEffect(() => {
     if (selectedServiceIds.length === 0) {
-      setActiveServiceId("");
+      if (!isActiveControlled) setUncontrolledActiveServiceId("");
       return;
     }
-    setActiveServiceId((current) =>
-      selectedServiceIds.includes(current)
-        ? current
-        : (selectedServiceIds[0] ?? ""),
-    );
-  }, [selectedServiceIds]);
+    if (!selectedServiceIds.includes(activeServiceId)) {
+      const nextId = selectedServiceIds[0] ?? "";
+      if (!isActiveControlled) setUncontrolledActiveServiceId(nextId);
+      onActiveServiceChange?.(nextId);
+    }
+  }, [
+    selectedServiceIds,
+    activeServiceId,
+    isActiveControlled,
+    onActiveServiceChange,
+  ]);
 
   const availableStaff = useMemo(() => {
     let therapists = getOrganizationStaff(organizationId);
@@ -489,6 +511,8 @@ export function ServiceScheduleRows({
     schedules[activeService.id] ?? createDefaultServiceSchedule();
   const isScheduled = isServiceScheduleComplete(schedules[activeService.id]);
   const staffId = serviceStaff[activeService.id];
+  const hasStaff = isServiceStaffAssigned(serviceStaff, activeService.id);
+  const isReady = isScheduled && hasStaff;
   const noPreference = staffId === "any";
 
   return (
@@ -497,8 +521,10 @@ export function ServiceScheduleRows({
         {/* Package name OR service tabs */}
         <div className="border-b border-(--border) bg-(--bg-secondary) px-3 py-3">
           {isPackageFlow ? (
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#2D1659] px-3.5 py-2 text-[13px] font-semibold text-white">
-              <Check size={13} strokeWidth={2.5} />
+            <div className="inline-flex items-center gap-2 rounded-full primary-button px-4 py-2 text-[13px] font-semibold text-white">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-(--success)">
+                <Check size={10} strokeWidth={3} className="text-white" />
+              </span>
               {packageName}
             </div>
           ) : (
@@ -524,22 +550,27 @@ export function ServiceScheduleRows({
                     aria-selected={isActive}
                     onClick={() => setActiveServiceId(service.id)}
                     className={`
-                      inline-flex items-center gap-1.5 rounded-sm px-3.5 py-2
-                      text-[13px] font-semibold transition-all
-                      ${
-                        isComplete
-                          ? "bg-(--success) text-white"
-                          : "bg-[#eab308] text-[#1a1a1a]"
-                      }
+                      inline-flex shrink-0 items-center gap-2 rounded-sm border px-4 py-2
+                      text-[13px] font-semibold transition-all duration-200 cursor-pointer
                       ${
                         isActive
-                          ? "ring-2 ring-(--text-primary)/25 ring-offset-2 ring-offset-(--bg-secondary)"
-                          : "opacity-90 hover:opacity-100"
+                          ? "primary-button border-transparent text-white"
+                          : "border-(--border) bg-(--bg-primary) text-(--text-primary) hover:border-(--accent-primary)/35"
                       }
                     `}
                   >
-                    {isComplete && <Check size={13} strokeWidth={2.5} />}
-                    Service {index + 1}
+                    {isComplete ? (
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-(--success)">
+                        <Check
+                          size={10}
+                          strokeWidth={3}
+                          className="text-white"
+                        />
+                      </span>
+                    ) : (
+                      <span className="h-2.5 w-2.5 rounded-full bg-[#c45c26]" />
+                    )}
+                    Service - {index + 1}
                   </button>
                 );
               })}
@@ -665,9 +696,18 @@ export function ServiceScheduleRows({
                   />
                 </div>
                 <div className="min-w-0">
+                  <div className="flex items-center gap-2">
                   <p className="truncate text-[15px] font-semibold text-(--text-primary)">
                     {activeService.name}
                   </p>
+                  <p
+                    className={`text-[12px] font-semibold uppercase tracking-wide ${
+                      isReady ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {isReady ? "Ready" : "Pending"}
+                  </p>
+                  </div>
                   <p className="mt-0.5 text-[12px] text-(--text-secondary)">
                     {activeService.duration} ·{" "}
                     <span className="font-semibold text-(--brand-gold)">

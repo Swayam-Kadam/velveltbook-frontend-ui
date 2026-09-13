@@ -1274,7 +1274,7 @@ export function BookingConfirmedScreen({
                     type="button"
                     onClick={handleRemoveService}
                     disabled={displayServiceIds.length <= 1}
-                    className="inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-[#E53E3E] disabled:opacity-40"
+                    className="primary-button mr-1 p-1.5 rounded-[8px] inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-[#E53E3E] disabled:opacity-40"
                   >
                     Remove Service
                     <Trash2 size={13} strokeWidth={2.2} />
@@ -1418,7 +1418,7 @@ export function BookingConfirmedScreen({
           <>
             <div className="flex items-center gap-2.5 rounded-xl bg-[#EFE6F6] px-3 py-2.5">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#3D1C4D] text-white">
-                <MessageCircle size={16} />
+                <MessageSquareText size={16} />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-[12px] font-bold text-(--text-primary)">

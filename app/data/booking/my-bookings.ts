@@ -55,17 +55,6 @@ export const organizations: Record<string, BookingOrganization> = {
     address: "12 Ascot Vale Rd, Ascot Vale VIC 3032, Melbourne",
     isOpen: true,
   },
-  "glamour-salon": {
-    id: "glamour-salon",
-    name: "Glamour Salon",
-    banner:
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=400&fit=crop",
-    thumbnail:
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=200&h=200&fit=crop",
-    status: "Closed",
-    address: "45 Bourke St, Melbourne VIC 3000, Sydney",
-    isOpen: false,
-  },
 };
 
 export interface SuggestedService {
@@ -123,8 +112,36 @@ export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {
       summaryTotal: "$96",
     },
     {
-      id: "u2",
+      id: "u1b",
       number: "2",
+      service: "Deep Tissue Massage",
+      therapist: "Jesai",
+      date: "May 22, 2026",
+      time: "12:15 PM",
+      location: "Lomi Massage, Melbourne",
+      price: "$119",
+      image:
+        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop",
+      organization: organizations["lomi-melbourne"],
+      duration: "75 min",
+    },
+    {
+      id: "u1c",
+      number: "3",
+      service: "Hot Stone Massage",
+      therapist: "Sami",
+      date: "May 22, 2026",
+      time: "01:45 PM",
+      location: "Lomi Massage, Melbourne",
+      price: "$129",
+      image:
+        "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=400&h=300&fit=crop",
+      organization: organizations["lomi-melbourne"],
+      duration: "90 min",
+    },
+    {
+      id: "u2",
+      number: "4",
       service: "Aromatherapy Massage",
       therapist: "Samar",
       date: "May 28, 2026",
@@ -133,7 +150,22 @@ export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {
       price: "$99",
       image:
         "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=400&h=300&fit=crop",
-      organization: organizations["glamour-salon"],
+      organization: organizations["lomi-melbourne"],
+      duration: "60 min",
+    },
+    {
+      id: "u2b",
+      number: "5",
+      service: "Prenatal Massage",
+      therapist: "Sony",
+      date: "May 28, 2026",
+      time: "03:30 PM",
+      location: "Glamour Salon, Sydney",
+      price: "$109",
+      image:
+        "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
+      organization: organizations["lomi-melbourne"],
+      duration: "60 min",
     },
   ],
   reschedule: [
@@ -149,10 +181,25 @@ export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {
       image:
         "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&h=300&fit=crop",
       organization: organizations["lomi-melbourne"],
+      duration: "75 min",
+    },
+    {
+      id: "rs1b",
+      number: "2",
+      service: "Swedish Massage",
+      therapist: "Sony",
+      date: "Jun 05, 2026",
+      time: "05:00 PM",
+      location: "Lomi Massage, Melbourne",
+      price: "$88",
+      image:
+        "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
+      organization: organizations["lomi-melbourne"],
+      duration: "60 min",
     },
     {
       id: "rs2",
-      number: "2",
+      number: "3",
       service: "Hot Stone Massage",
       therapist: "Sami",
       date: "Jun 12, 2026",
@@ -161,7 +208,8 @@ export const serviceBookingData: Record<ServiceSubTab, Booking[]> = {
       price: "$129",
       image:
         "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=400&h=300&fit=crop",
-      organization: organizations["glamour-salon"],
+      organization: organizations["lomi-melbourne"],
+      duration: "90 min",
     },
   ],
 };
@@ -276,7 +324,7 @@ export const historyBookingData: Record<HistorySubTab, Booking[]> = {
       price: "$88",
       image:
         "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop",
-      organization: organizations["glamour-salon"],
+      organization: organizations["lomi-melbourne"],
     },
   ],
   refund: [

@@ -43,6 +43,9 @@ interface BookingSelectedServicesPanelProps {
   packageName?: string;
   onRemoveService?: (id: string) => void;
   showOrganizationBanner?: boolean;
+  /** Controlled active service (sync with Staff & Schedule tabs). */
+  activeServiceId?: string;
+  onActiveServiceChange?: (serviceId: string) => void;
 }
 
 export function BookingSelectedServicesPanel({
@@ -55,6 +58,8 @@ export function BookingSelectedServicesPanel({
   packageName,
   onRemoveService,
   showOrganizationBanner = true,
+  activeServiceId: controlledActiveServiceId,
+  onActiveServiceChange,
 }: BookingSelectedServicesPanelProps) {
   const isPackageFlow = Boolean(packageName);
   const selectedServices = getSelectedServices(
@@ -63,9 +68,20 @@ export function BookingSelectedServicesPanel({
   );
   const { subtotal } = calcServicesTotal(selectedServiceIds, organizationId);
   const hasSelection = selectedServices.length > 0;
-  const [activeServiceId, setActiveServiceId] = useState(
-    selectedServices[0]?.id ?? "",
-  );
+  const [uncontrolledActiveServiceId, setUncontrolledActiveServiceId] =
+    useState(selectedServices[0]?.id ?? "");
+  const isActiveControlled = controlledActiveServiceId !== undefined;
+  const activeServiceId = isActiveControlled
+    ? controlledActiveServiceId
+    : uncontrolledActiveServiceId;
+  const lastLocalActiveRef = useRef(activeServiceId);
+  const setActiveServiceId = (serviceId: string) => {
+    lastLocalActiveRef.current = serviceId;
+    if (!isActiveControlled) {
+      setUncontrolledActiveServiceId(serviceId);
+    }
+    onActiveServiceChange?.(serviceId);
+  };
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const tabsScrollRef = useRef<HTMLDivElement>(null);
   const cardsScrollRef = useRef<HTMLDivElement>(null);
@@ -74,13 +90,20 @@ export function BookingSelectedServicesPanel({
 
   useEffect(() => {
     if (selectedServices.length === 0) {
-      setActiveServiceId("");
+      if (!isActiveControlled) setUncontrolledActiveServiceId("");
       return;
     }
     if (!selectedServices.some((service) => service.id === activeServiceId)) {
-      setActiveServiceId(selectedServices[0]?.id ?? "");
+      const nextId = selectedServices[0]?.id ?? "";
+      if (!isActiveControlled) setUncontrolledActiveServiceId(nextId);
+      onActiveServiceChange?.(nextId);
     }
-  }, [selectedServices, activeServiceId]);
+  }, [
+    selectedServices,
+    activeServiceId,
+    isActiveControlled,
+    onActiveServiceChange,
+  ]);
 
   useEffect(() => {
     if (!highlightId) return;
@@ -175,6 +198,35 @@ export function BookingSelectedServicesPanel({
       isProgrammaticScroll.current = false;
     }, 450);
   };
+
+  useEffect(() => {
+    if (!isActiveControlled || !controlledActiveServiceId) return;
+    if (!selectedServiceIds.includes(controlledActiveServiceId)) return;
+    if (controlledActiveServiceId === lastLocalActiveRef.current) return;
+
+    lastLocalActiveRef.current = controlledActiveServiceId;
+    setHighlightId(controlledActiveServiceId);
+    isProgrammaticScroll.current = true;
+
+    const tab = tabsScrollRef.current?.querySelector<HTMLElement>(
+      `[data-service-tab="${controlledActiveServiceId}"]`,
+    );
+    tab?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+    cardRefs.current[controlledActiveServiceId]?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+
+    const timer = window.setTimeout(() => {
+      isProgrammaticScroll.current = false;
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [controlledActiveServiceId, isActiveControlled, selectedServiceIds]);
 
   const org = organization ?? {
     name: bookingLocation.name,
@@ -299,7 +351,7 @@ export function BookingSelectedServicesPanel({
                         aria-selected={active}
                         onClick={() => goToService(service.id)}
                         className={`
-                          relative shrink-0 rounded-xl border px-2.5 py-1.5
+                          flex items-center shrink-0 rounded-xl border px-2.5 py-1.5
                           text-[9px] font-semibold transition-all duration-200
                           ${
                             active
@@ -308,15 +360,18 @@ export function BookingSelectedServicesPanel({
                           }
                         `}
                       >
-                        <span
-                          className={`absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full ${
-                            ready ? "bg-(--success)" : "bg-(--danger)"
-                          }`}
-                        />
-                        <span className="inline-flex items-center gap-1 pl-2">
-                          {ready ? <Check size={10} strokeWidth={2.5} /> : null}
-                          Service - {index + 1}
-                        </span>
+                      {!ready ?
+                      <span
+                        className={` left-1.5 top-1.5 h-1.5 w-1.5 rounded-full ${
+                          ready ? "bg-(--success)" : "bg-(--danger)"
+                        }`}
+                      /> :
+                        ready ? <Check size={12} strokeWidth={2.5} className="text-white bg-(--success) rounded-full p-0.5" /> : null 
+                      }
+                      <span className="inline-flex items-center gap-1 pl-2">
+                       
+                        Service - {index + 1}
+                      </span>
                       </button>
                     );
                   })}
@@ -358,7 +413,7 @@ export function BookingSelectedServicesPanel({
                 ref={cardsScrollRef}
                 className="
                   scrollbar-none flex snap-x snap-mandatory gap-1
-                  overflow-x-auto scroll-smooth px-0.5 py-0.5
+                  overflow-x-auto  px-0.5 py-0.5
                 "
               >
                 {selectedServices.map((service) => {
@@ -401,11 +456,6 @@ export function BookingSelectedServicesPanel({
                           sizes="80px"
                           className="object-cover"
                         />
-                        {ready ? (
-                          <span className="absolute left-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-(--success) text-white">
-                            <Check size={9} strokeWidth={2.5} />
-                          </span>
-                        ) : null}
                         {onRemoveService && (
                           <button
                             type="button"

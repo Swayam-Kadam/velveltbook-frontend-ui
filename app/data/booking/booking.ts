@@ -356,8 +356,10 @@ export function getOrganizationStaff(organizationId?: string) {
 
   const organization = getExtendedOrganization(organizationId);
   const staffIds = new Set(organization.staff.map((member) => member.id));
+  const matched = bookingStaff.filter((member) => staffIds.has(member.id));
 
-  return bookingStaff.filter((member) => staffIds.has(member.id));
+  // If org staff ids don't overlap booking staff (legacy data), still show staff.
+  return matched.length > 0 ? matched : bookingStaff;
 }
 
 export function createDefaultServiceSchedule(from = new Date()): ServiceSchedule {

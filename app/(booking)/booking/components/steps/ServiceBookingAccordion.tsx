@@ -53,6 +53,9 @@ interface ServiceBookingAccordionProps {
   onSelectDay: (serviceId: string, dayId: string) => void;
   onSelectTime: (serviceId: string, time: string) => void;
   onRemoveService: (serviceId: string) => void;
+  /** Controlled active service (sync with Selected Services tabs). */
+  activeServiceId?: string;
+  onActiveServiceChange?: (serviceId: string) => void;
 }
 
 function getTimePeriod(time: string): TimePeriod {
@@ -266,6 +269,8 @@ export function ServiceBookingAccordion({
   onSelectDay,
   onSelectTime,
   onRemoveService,
+  activeServiceId: controlledActiveServiceId,
+  onActiveServiceChange,
 }: ServiceBookingAccordionProps) {
   const isPackageFlow = Boolean(packageName);
   const selectedServices = getSelectedServices(
@@ -314,7 +319,21 @@ export function ServiceBookingAccordion({
     [assignments, schedules, selectedServiceIds],
   );
 
-  const [openServiceId, setOpenServiceId] = useState<string | null>(null);
+  const [uncontrolledOpenServiceId, setUncontrolledOpenServiceId] = useState<
+    string | null
+  >(null);
+  const isActiveControlled = controlledActiveServiceId !== undefined;
+  const openServiceId = isActiveControlled
+    ? controlledActiveServiceId
+    : uncontrolledOpenServiceId;
+  const lastLocalActiveRef = useRef(openServiceId);
+  const setOpenServiceId = (serviceId: string | null) => {
+    lastLocalActiveRef.current = serviceId;
+    if (!isActiveControlled) {
+      setUncontrolledOpenServiceId(serviceId);
+    }
+    if (serviceId) onActiveServiceChange?.(serviceId);
+  };
   const [activeTabByService, setActiveTabByService] = useState<
     Record<string, PanelTab>
   >({});
@@ -327,17 +346,32 @@ export function ServiceBookingAccordion({
 
   useEffect(() => {
     if (selectedServiceIds.length === 0) {
-      setOpenServiceId(null);
+      if (!isActiveControlled) setUncontrolledOpenServiceId(null);
       return;
     }
 
-    setOpenServiceId((current) => {
-      if (current && selectedServiceIds.includes(current)) {
-        return current;
-      }
-      return firstPendingId ?? selectedServiceIds[0] ?? null;
-    });
-  }, [firstPendingId, selectedServiceIds]);
+    const current =
+      (isActiveControlled
+        ? controlledActiveServiceId
+        : uncontrolledOpenServiceId) ?? null;
+
+    if (current && selectedServiceIds.includes(current)) {
+      return;
+    }
+
+    const nextId = firstPendingId ?? selectedServiceIds[0] ?? null;
+    if (!isActiveControlled) {
+      setUncontrolledOpenServiceId(nextId);
+    }
+    if (nextId) onActiveServiceChange?.(nextId);
+  }, [
+    firstPendingId,
+    selectedServiceIds,
+    isActiveControlled,
+    controlledActiveServiceId,
+    uncontrolledOpenServiceId,
+    onActiveServiceChange,
+  ]);
 
   const getActiveTab = (serviceId: string): PanelTab =>
     activeTabByService[serviceId] ?? "staff";
@@ -351,7 +385,8 @@ export function ServiceBookingAccordion({
 
   const handleRemoveService = (serviceId: string) => {
     onRemoveService(serviceId);
-    setOpenServiceId(null);
+    const remaining = selectedServiceIds.filter((id) => id !== serviceId);
+    setOpenServiceId(remaining[0] ?? null);
   };
 
   const handlePickStaff = (serviceId: string, staffId: string) => {
@@ -389,6 +424,29 @@ export function ServiceBookingAccordion({
       behavior: "smooth",
     });
   };
+
+  useEffect(() => {
+    if (!isActiveControlled || !controlledActiveServiceId) return;
+    if (!selectedServiceIds.includes(controlledActiveServiceId)) return;
+    if (controlledActiveServiceId === lastLocalActiveRef.current) return;
+
+    lastLocalActiveRef.current = controlledActiveServiceId;
+    const index = selectedServiceIds.indexOf(controlledActiveServiceId);
+    const container = tabsScrollRef.current;
+    if (!container || index < 0) return;
+    const child = container.children[index] as HTMLElement | undefined;
+    if (!child) return;
+    const containerRect = container.getBoundingClientRect();
+    const childRect = child.getBoundingClientRect();
+    const delta =
+      childRect.left -
+      containerRect.left -
+      (container.clientWidth - child.clientWidth) / 2;
+    container.scrollTo({
+      left: container.scrollLeft + delta,
+      behavior: "smooth",
+    });
+  }, [controlledActiveServiceId, isActiveControlled, selectedServiceIds]);
 
   const assignedCount = selectedServiceIds.filter((id) =>
     isServiceStaffAssigned(assignments, id),
@@ -490,7 +548,7 @@ export function ServiceBookingAccordion({
             </span>
             <div>
               <h3 className="text-xs font-bold text-(--text-primary)">
-                {isPackageFlow ? "Package Schedule" : "Staff & Schedule"}
+                {isPackageFlow ? "Package Schedule" : "Staff & Service"}
                 <span className="text-[11px] font-bold ml-3">{bookingTimeRange ?? "—"}</span>
               </h3>
               <p className="text-[8px] font-semibold text-(--text-muted)">
@@ -510,7 +568,7 @@ export function ServiceBookingAccordion({
           <div className="text-right">
             <h3 className="text-[11px] font-bold text-(--text-primary)">
               {!isPackageFlow ? `${assignedCount}/${selectedServiceIds.length} staff ·${" "}` : ""}
-              {scheduledCount}/{selectedServiceIds.length} scheduled
+              {scheduledCount}/{selectedServiceIds.length} Service
             </h3>
           </div>
         </div>
@@ -570,8 +628,8 @@ export function ServiceBookingAccordion({
                       type="button"
                       onClick={() => selectServiceTab(service.id)}
                       aria-pressed={active}
-                      className={`
-                        relative shrink-0 rounded-xl border px-3 py-2 text-[10px]
+                      className={`flex items-center
+                         shrink-0 rounded-xl border px-3 py-2 text-[10px]
                         font-semibold transition-all duration-200
                         ${
                           active
@@ -580,12 +638,18 @@ export function ServiceBookingAccordion({
                         }
                       `}
                     >
+                      {!ready ?
                       <span
-                        className={`absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full ${
+                        className={` left-1.5 top-1.5 h-1.5 w-1.5 rounded-full ${
                           ready ? "bg-(--success)" : "bg-(--danger)"
                         }`}
-                      />
-                      {`Service - ${index + 1}`}
+                      /> :
+                        ready ? <Check size={12} strokeWidth={2.5} className="text-white bg-(--success) rounded-full p-0.5" /> : null 
+                      }
+                      <span className="inline-flex items-center gap-1 pl-2">
+                       
+                        Service - {index + 1}
+                      </span>
                     </button>
                   );
                 })}

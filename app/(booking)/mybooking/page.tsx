@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  BadgeCheck,
   CalendarDays,
   CalendarPlus,
+  Check,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ChevronUp,
   Clock3,
   MapPin,
@@ -103,66 +107,61 @@ const statusStyles: Record<
 
 function OrganizationBanner({
   organization,
+  serviceLabel,
   variant = "default",
   receiptVisible = false,
   onToggleReceipt,
   serialNumber,
 }: {
   organization: BookingOrganization;
+  serviceLabel?: string;
   variant?: "default" | "receipt";
   receiptVisible?: boolean;
   onToggleReceipt?: () => void;
   serialNumber?: string;
 }) {
   return (
-    <div className="border-b border-(--border)">
-      {/* <div className="relative h-[115px] w-full">
-        <Image
-          src={organization.banner}
-          alt={organization.name}
-          fill
-          sizes="100vw"
-          className="object-cover"
-        />
-
-        <div className="absolute inset-0 bg-linear-to-t from-black/45 to-transparent" />
-
-        <div className="absolute left-2 top-2 flex items-center gap-1.5">
-          <span
-            className={`h-2.5 w-2.5 shrink-0 rounded-full border border-white/80 shadow-sm ${
-              organization.isOpen ? "bg-(--success)" : "bg-(--danger)"
-            }`}
-            aria-label={organization.isOpen ? "Store open" : "Store closed"}
-          />
-          {serialNumber && (
-            <span className="rounded-full bg-black/55 px-1.5 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
-              {serialNumber}
-            </span>
-          )}
-        </div>
-      </div> */}
-
-      <div className="flex items-center gap-3 px-2.5 py-2 border-t-8 border-(--accent-primary)  ">
-        <div className="relative h-13 w-13 shrink-0 overflow-hidden rounded-xl  border-2 border-white">
-          <Image
-            src={organization.thumbnail}
-            alt={organization.name}
-            fill
-            sizes="40px"
-            className="object-cover"
-          />
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[12px] font-bold text-(--text-primary)">
-            {organization.name}
-          </p>
-          <div className="mt-0.5 flex items-center gap-1 text-[10px] font-semibold">
-            <MapPin size={9} className="shrink-0 text-(--text-secondary)" />
-            <span className="truncate text-(--text-secondary)">
-              {organization.address}
-            </span>
+    <div className="border-t-8 border-(--accent-primary) bg-(--bg-card) px-2.5 py-2">
+      <div className="flex min-w-0 items-start gap-2">
+        <div className="relative h-14 w-14 shrink-0">
+          <div className="relative h-16 w-16 overflow-hidden rounded-xl border-2 border-(--bg-card) shadow-(--shadow-card)">
+            <Image
+              src={organization.thumbnail}
+              alt={organization.name}
+              fill
+              sizes="56px"
+              className="object-cover"
+            />
           </div>
+        </div>
+
+        <div className="min-w-0 flex-1 pt-0.5 ml-1">
+          <div className="flex items-center gap-1">
+            <h2 className="truncate font-[family-name:var(--font-heading)] text-lg font-bold text-(--text-primary)">
+              {organization.name}
+            </h2>
+            <BadgeCheck
+              className="h-3.5 w-3.5 shrink-0 text-(--accent-primary)"
+              strokeWidth={2}
+            />
+          </div>
+          {serviceLabel ? (
+            <p className="mt-0.5 truncate text-[11px] text-(--text-secondary)">
+              {serviceLabel}
+            </p>
+          ) : null}
+          <p className="mt-0.5 flex gap-0.5 text-[12px] text-(--text-secondary)">
+            <MapPin
+              className="mt-0.5 h-2.5 w-2.5 shrink-0"
+              strokeWidth={1.8}
+            />
+            <span>{organization.address}</span>
+          </p>
+          {/* {serialNumber ? (
+            <p className="mt-0.5 text-[10px] font-semibold text-(--text-muted)">
+              {serialNumber}
+            </p>
+          ) : null} */}
         </div>
 
         {variant === "receipt" && onToggleReceipt ? (
@@ -170,17 +169,15 @@ function OrganizationBanner({
             type="button"
             onClick={onToggleReceipt}
             aria-expanded={receiptVisible}
-            aria-label={receiptVisible ? "Hide receipt" : "Show receipt"}
+            aria-label={receiptVisible ? "Hide receipt" : "View receipt"}
             className="
               shrink-0 rounded-lg bg-(--accent-primary) px-2 py-1.5
               text-[10px] font-bold text-white transition-opacity duration-200
               hover:opacity-90 flex items-center gap-1
             "
           >
-            {receiptVisible ? "Hide Receipt" : "Show Receipt"}
-            
-            {receiptVisible ? <ChevronUp size={15} />: <ChevronDown size={15} />}
-            
+            {receiptVisible ? "Hide Receipt" : "View Receipt"}
+            {receiptVisible ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
           </button>
         ) : (
           <button
@@ -207,6 +204,7 @@ function ReceiptCard({ booking }: { booking: Booking }) {
     <article className="feature-card overflow-hidden rounded-xl">
       <OrganizationBanner
         organization={booking.organization}
+        serviceLabel={booking.service}
         variant="receipt"
         receiptVisible={receiptOpen}
         onToggleReceipt={() => setReceiptOpen((open) => !open)}
@@ -222,96 +220,168 @@ function ReceiptCard({ booking }: { booking: Booking }) {
   );
 }
 
+function groupBookingsByStore(bookings: Booking[]): Booking[][] {
+  const groups = new Map<string, Booking[]>();
+  for (const booking of bookings) {
+    const key = booking.organization.id;
+    const current = groups.get(key) ?? [];
+    current.push(booking);
+    groups.set(key, current);
+  }
+  return Array.from(groups.values());
+}
+
 function BookingCard({
-  booking,
+  bookings,
   tab,
   serviceSubTab,
 }: {
-  booking: Booking;
+  bookings: Booking[];
   tab: CardStatusTab;
   serviceSubTab?: ServiceSubTab;
 }) {
-  const status = statusStyles[tab];
-  const showViewButton = tab === "upcoming" && serviceSubTab === "booked";
+  const [activeServiceId, setActiveServiceId] = useState(
+    () => bookings[0]?.id ?? "",
+  );
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (bookings.length === 0) {
+      setActiveServiceId("");
+      return;
+    }
+    if (!bookings.some((booking) => booking.id === activeServiceId)) {
+      setActiveServiceId(bookings[0]?.id ?? "");
+    }
+  }, [bookings, activeServiceId]);
+
+  const booking =
+    bookings.find((item) => item.id === activeServiceId) ?? bookings[0];
+  if (!booking) return null;
+
+  const status = statusStyles[tab];
   const rebookServiceId = getRebookServiceId(booking.service);
   const bookAgainHref = buildBookingUrl({
     serviceIds: rebookServiceId ? [rebookServiceId] : [],
     step: 2,
   });
-
   const staff = getStaffForBooking(booking.therapist);
   const datePreview = parseDateLabelForPreview(booking.date);
+  const serviceSummary = bookings.map((item) => item.service).slice(0, 3).join(" • ");
+
+  const scrollTabs = (direction: "left" | "right") => {
+    tabsScrollRef.current?.scrollBy({
+      left: direction === "left" ? -120 : 120,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <article className="feature-card overflow-hidden rounded-xl">
-      <OrganizationBanner organization={booking.organization} />
-
-      <div className="p-2.5">
-      {tab !== "upcoming" && (
-        <div className="mb-2 flex justify-end">
-          <span
-            className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold"
-            style={{ color: status.color, background: status.bg }}
-          >
-            {status.label}
-          </span>
-        </div>
-      )}
-
-      <BookingPreviewCards
-        serviceName={booking.service}
-        serviceImage={booking.image}
-        serviceDuration={booking.duration ?? "—"}
-        servicePriceLabel={booking.price}
-        staffName={booking.therapist}
-        staffImage={staff.image}
-        monthLabel={datePreview.monthLabel}
-        dateLabel={datePreview.dateLabel}
-        weekdayLabel={datePreview.weekdayLabel}
-        timeLabel={booking.time}
-        scheduled={datePreview.scheduled}
-        totalAmountLabel={booking.price}
+      <OrganizationBanner
+        organization={booking.organization}
+        serviceLabel={serviceSummary || booking.service}
       />
 
-      <div className="mt-2.5 flex gap-2 border-t border-(--border) pt-2.5">
-        <button
-          type="button"
-          className="
-            flex flex-1 items-center justify-center gap-1 rounded-lg
-            border border-(--border) py-1.5 text-[10px] font-bold
-            text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
-          "
-        >
-          {tab === "upcoming" ? "Cancel" : status.label}
-        </button>
-        {tab === "upcoming" ? (
-          <button
-            type="button"
-            className="
-              flex flex-1 items-center justify-center gap-1 rounded-lg
-              border border-(--border) py-1.5 text-[10px] font-bold
-              text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
-            "
-          >
-            <CalendarPlus size={12} />
-            Change
-          </button>
-        ) : tab === "completed" ? (
-          <Link
-            href={bookAgainHref}
-            className="
-              flex flex-1 items-center justify-center gap-1 rounded-lg
-              border border-(--border) py-1.5 text-[10px] font-bold
-              text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
-            "
-          >
-            <RotateCcw size={12} />
-            Book Again
-          </Link>
+      <div className="p-2.5">
+        {bookings.length > 0 ? (
+          <div className="relative mb-2.5 px-5">
+            {bookings.length > 1 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => scrollTabs("left")}
+                  aria-label="Scroll service tabs left"
+                  className="
+                    absolute left-0 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2
+                    items-center justify-center rounded-full border border-(--border)
+                    bg-(--bg-card) text-(--text-primary)
+                  "
+                >
+                  <ChevronLeft size={13} strokeWidth={2.5} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollTabs("right")}
+                  aria-label="Scroll service tabs right"
+                  className="
+                    absolute right-0 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2
+                    items-center justify-center rounded-full border border-(--border)
+                    bg-(--bg-card) text-(--text-primary)
+                  "
+                >
+                  <ChevronRight size={13} strokeWidth={2.5} />
+                </button>
+              </>
+            ) : null}
+
+            <div
+              ref={tabsScrollRef}
+              className="scrollbar-none ml-1 mr-1 flex gap-1.5 px-2 overflow-x-auto scroll-smooth"
+              role="tablist"
+              aria-label="Store services"
+            >
+              {bookings.map((item, index) => {
+                const active = item.id === booking.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setActiveServiceId(item.id)}
+                    className={`
+                      inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5
+                      text-[10px] font-semibold transition-all duration-200
+                      ${
+                        active
+                          ? "primary-button border-transparent text-white"
+                          : "border-(--border) bg-(--bg-card) text-(--text-primary)"
+                      }
+                    `}
+                  >
+                    {/* {active ? (
+                      <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-(--success)">
+                        <Check size={9} strokeWidth={3} className="text-white" />
+                      </span>
+                    ) : (
+                      <span className="h-2 w-2 rounded-full bg-[#c45c26]" />
+                    )} */}
+                    Service - {index + 1}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         ) : null}
 
-        {tab === "upcoming" && (
+        {tab !== "upcoming" && (
+          <div className="mb-2 flex justify-end">
+            <span
+              className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold"
+              style={{ color: status.color, background: status.bg }}
+            >
+              {status.label}
+            </span>
+          </div>
+        )}
+
+        <BookingPreviewCards
+          serviceName={booking.service}
+          serviceImage={booking.image}
+          serviceDuration={booking.duration ?? "—"}
+          servicePriceLabel={booking.price}
+          staffName={booking.therapist}
+          staffImage={staff.image}
+          monthLabel={datePreview.monthLabel}
+          dateLabel={datePreview.dateLabel}
+          weekdayLabel={datePreview.weekdayLabel}
+          timeLabel={booking.time}
+          scheduled={datePreview.scheduled}
+          totalAmountLabel={booking.price}
+        />
+
+        <div className="mt-2.5 flex gap-2 border-t border-(--border) pt-2.5">
           <button
             type="button"
             className="
@@ -320,11 +390,48 @@ function BookingCard({
               text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
             "
           >
-            <Undo2 size={12} />
-            Reschedule
+            {tab === "upcoming" ? "Cancel" : status.label}
           </button>
-        )}
-      </div>
+          {tab === "upcoming" ? (
+            <button
+              type="button"
+              className="
+                flex flex-1 items-center justify-center gap-1 rounded-lg
+                border border-(--border) py-1.5 text-[10px] font-bold
+                text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
+              "
+            >
+              <CalendarPlus size={12} />
+              Change
+            </button>
+          ) : tab === "completed" ? (
+            <Link
+              href={bookAgainHref}
+              className="
+                flex flex-1 items-center justify-center gap-1 rounded-lg
+                border border-(--border) py-1.5 text-[10px] font-bold
+                text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
+              "
+            >
+              <RotateCcw size={12} />
+              Book Again
+            </Link>
+          ) : null}
+
+          {tab === "upcoming" && (
+            <button
+              type="button"
+              className="
+                flex flex-1 items-center justify-center gap-1 rounded-lg
+                border border-(--border) py-1.5 text-[10px] font-bold
+                text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
+              "
+            >
+              <Undo2 size={12} />
+              Reschedule
+            </button>
+          )}
+        </div>
       </div>
     </article>
   );
@@ -565,24 +672,24 @@ export default function MyBookingPage() {
 
         {bookings.length > 0 ? (
           <div className="space-y-2.5">
-            {bookings.map((booking) =>
-              activeTab === "completed" ? (
-                <ReceiptCard key={booking.id} booking={booking} />
-              ) : activeTab === "history" ? (
-                <BookingCard
-                  key={booking.id}
-                  booking={booking}
-                  tab={activeHistorySubTab}
-                />
-              ) : (
-                <BookingCard
-                  key={booking.id}
-                  booking={booking}
-                  tab="upcoming"
-                  serviceSubTab={activeServiceSubTab}
-                />
-              ),
-            )}
+            {activeTab === "completed"
+              ? bookings.map((booking) => (
+                  <ReceiptCard key={booking.id} booking={booking} />
+                ))
+              : groupBookingsByStore(bookings).map((storeBookings) => (
+                  <BookingCard
+                    key={storeBookings[0]?.organization.id}
+                    bookings={storeBookings}
+                    tab={
+                      activeTab === "history" ? activeHistorySubTab : "upcoming"
+                    }
+                    serviceSubTab={
+                      activeTab === "upcoming"
+                        ? activeServiceSubTab
+                        : undefined
+                    }
+                  />
+                ))}
           </div>
         ) : (
           <EmptyState label={emptyLabel} />

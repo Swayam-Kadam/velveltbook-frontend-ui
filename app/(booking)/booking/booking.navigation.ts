@@ -35,12 +35,19 @@ export function parseStaffAssignments(
 ): Record<string, string> {
   if (!raw) return {};
 
+  /** Legacy org-book ids → shared booking staff ids */
+  const legacyStaffIds: Record<string, string> = {
+    st1: "sony",
+    st2: "jesai",
+    st3: "sami",
+    st4: "samar",
+  };
+
   const assignments: Record<string, string> = {};
   for (const part of raw.split(",")) {
-    const [serviceId, staffId] = part.split(":");
-    if (serviceId && staffId) {
-      assignments[serviceId] = staffId;
-    }
+    const [serviceId, rawStaffId] = part.split(":");
+    if (!serviceId || !rawStaffId) continue;
+    assignments[serviceId] = legacyStaffIds[rawStaffId] ?? rawStaffId;
   }
   return assignments;
 }
@@ -179,6 +186,16 @@ export function parseBookingSearchParams(searchParams: URLSearchParams) {
     ? Number(packageOriginalRaw)
     : undefined;
 
+  const legacyStaffIds: Record<string, string> = {
+    st1: "sony",
+    st2: "jesai",
+    st3: "sami",
+    st4: "samar",
+  };
+  const normalizedStaffId = staff
+    ? (legacyStaffIds[staff] ?? staff)
+    : undefined;
+
   return {
     serviceIds: services ? services.split(",").filter(Boolean) : [],
     productIds,
@@ -186,7 +203,7 @@ export function parseBookingSearchParams(searchParams: URLSearchParams) {
       expert === "male" || expert === "female" ? expert : ("" as ExpertType),
     step: step ? Number(step) : 1,
     organizationId: org ?? undefined,
-    staffId: staff ?? undefined,
+    staffId: normalizedStaffId,
     staffAssignments: parseStaffAssignments(staffMap),
     scheduleAssignments: parseScheduleAssignments(scheduleMap),
     productQuantities,

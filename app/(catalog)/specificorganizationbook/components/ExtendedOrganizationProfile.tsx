@@ -1570,7 +1570,7 @@ export function ExtendedOrganizationProfile({
 
                             <div
                               ref={serviceTabsScrollRef}
-                              className="scrollbar-none flex min-w-0 flex-1 gap-2 overflow-x-auto"
+                              className="scrollbar-none flex min-w-0 flex-1 gap-2 overflow-x-auto py-1 px-1"
                             >
                               {selectedServices.map((service, index) => {
                                 const isActive = service.id === focusedService.id;
@@ -1581,7 +1581,7 @@ export function ExtendedOrganizationProfile({
                                     key={service.id}
                                     className={`
                                       relative flex shrink-0 items-center gap-2 rounded-xl border
-                                      px-2 py-1.5 pr-6 transition-all
+                                      px-2 py-1.5 pr-6 transition-all hover:scale-101 cursor-pointer
                                       ${
                                         isReady
                                           ? "border-(--success)"
@@ -1599,7 +1599,7 @@ export function ExtendedOrganizationProfile({
                                       onClick={() =>
                                         handleFocusServiceTab(service.id)
                                       }
-                                      className="flex min-w-0 items-center gap-2 text-left"
+                                      className="flex min-w-0 items-center gap-2 text-left cursor-pointer"
                                     >
                                       <div className="relative h-8 w-8 overflow-hidden rounded-xs">
                                         <Image

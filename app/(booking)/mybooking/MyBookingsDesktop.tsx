@@ -337,6 +337,13 @@ function ReceiptListCard({
             />
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-(--text-secondary)">
+            <span className="inline-flex min-w-0  gap-1">
+              <MapPin
+                size={10}
+                className="shrink-0 text-(--accent-primary) mt-0.5"
+              />
+              <span className="">{booking.organization.address}</span>
+            </span>
             <span className="inline-flex items-center gap-1">
               <Star
                 size={10}
@@ -344,13 +351,6 @@ function ReceiptListCard({
               />
               <span className="font-medium text-(--text-primary)">4.8</span>
               <span>(320+)</span>
-            </span>
-            <span className="inline-flex min-w-0  gap-1">
-              <MapPin
-                size={10}
-                className="shrink-0 text-(--accent-primary) mt-0.5"
-              />
-              <span className="">{booking.organization.address}</span>
             </span>
           </div>
           {/* <div className="mt-1.5 flex items-center justify-between gap-2 text-[10px] text-(--text-secondary)">
@@ -935,6 +935,16 @@ export function MyBookingsDesktop({
                       />
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] text-(--text-secondary)">
+                      
+                      <span className="inline-flex min-w-0  gap-1">
+                        <MapPin
+                          size={11}
+                          className="shrink-0 text-(--accent-primary) mt-0.5"
+                        />
+                        <span className="">
+                          {selectedBooking.organization.address}
+                        </span>
+                      </span>
                       <span className="inline-flex items-center gap-1">
                         <Star
                           size={11}
@@ -944,15 +954,6 @@ export function MyBookingsDesktop({
                           4.8
                         </span>
                         <span>(320+)</span>
-                      </span>
-                      <span className="inline-flex min-w-0  gap-1">
-                        <MapPin
-                          size={11}
-                          className="shrink-0 text-(--accent-primary) mt-0.5"
-                        />
-                        <span className="">
-                          {selectedBooking.organization.address}
-                        </span>
                       </span>
                     </div>
                   </div>
@@ -1118,8 +1119,8 @@ export function MyBookingsDesktop({
                 className="grid min-h-0 flex-1 grid-cols-[minmax(220px,0.9fr)_minmax(0,1.35fr)_minmax(240px,0.85fr)] gap-3.5 xl:gap-4"
               >
                 {/* LEFT */}
-                <div className="flex min-h-0 flex-col gap-3 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary)/25">
-                  <article className={`${cardShell} p-3.5`}>
+                <div className="flex min-h-0 flex-col gap-3 overflow-hidden pr-0.5">
+                  <article className={`${cardShell} shrink-0 p-3.5`}>
                     <div className="flex items-center gap-3">
                       <div className="relative h-[78px] w-[92px] shrink-0 overflow-hidden rounded-2xl shadow-sm ring-1 ring-black/5">
                         <Image
@@ -1148,7 +1149,7 @@ export function MyBookingsDesktop({
                     ) : null}
                   </article>
 
-                  <article className={`${cardShell} p-3.5`}>
+                  <article className={`${cardShell} shrink-0 p-3.5`}>
                     <div className="flex items-center gap-3">
                       <div className="relative h-[78px] w-[78px] shrink-0 overflow-hidden rounded-2xl shadow-sm ring-1 ring-black/5">
                         <Image
@@ -1186,8 +1187,8 @@ export function MyBookingsDesktop({
                     ) : null}
                   </article>
 
-                  <article className={`${cardShell} overflow-hidden`}>
-                    <div className="bg-[linear-gradient(90deg,var(--accent-primary)_0%,#5a2d6e_100%)] px-3 py-2.5 text-center">
+                  <article className={`${cardShell} flex min-h-0 flex-1 flex-col overflow-hidden`}>
+                    <div className="shrink-0 bg-[linear-gradient(90deg,var(--accent-primary)_0%,#5a2d6e_100%)] px-3 py-2.5 text-center">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/95">
                         {datePreview.monthLabel}
                       </p>
@@ -1205,16 +1206,42 @@ export function MyBookingsDesktop({
                       </p>
                     </div>
                     {statusTab === "upcoming" ? (
-                      <div className="px-3.5 pb-3.5">
+                      <div className="shrink-0 px-3.5 pb-3">
                         <ChangeButton onClick={() => setEditPanel("datetime")} />
                       </div>
                     ) : null}
+                    <div className="mt-auto space-y-2 border-t border-(--border) bg-(--bg-secondary)/40 px-3.5 py-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-(--text-muted)">
+                        Booking notes
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-(--accent-primary)/15 bg-white px-2.5 py-1 text-[10px] font-medium text-(--text-primary)">
+                          <Phone size={10} className="text-(--accent-primary)" />
+                          Flexible Booking
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-(--accent-primary)/15 bg-white px-2.5 py-1 text-[10px] font-medium text-(--text-primary)">
+                          <Lock size={10} className="text-(--accent-primary)" />
+                          Secure &amp; Private
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-(--accent-primary)/15 bg-white px-2.5 py-1 text-[10px] font-medium text-(--text-primary)">
+                          <Clock3 size={10} className="text-(--accent-primary)" />
+                          Arrive 10 mins early
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-(--accent-primary)/15 bg-white px-2.5 py-1 text-[10px] font-medium text-(--text-primary)">
+                          <CalendarDays
+                            size={10}
+                            className="text-(--accent-primary)"
+                          />
+                          Free cancel before 24h
+                        </span>
+                      </div>
+                    </div>
                   </article>
                 </div>
 
                 {/* MIDDLE */}
-                <div className="flex  flex-col gap-3.5 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary)/25">
-                  <section className={`${cardShell}`}>
+                <div className="flex min-h-0 flex-col gap-3.5 overflow-hidden pr-0.5">
+                  <section className={`${cardShell} shrink-0`}>
                     <div className="relative h-[172px] w-full xl:h-[196px]">
                       <Image
                         src={selectedBooking.organization.banner}
@@ -1258,6 +1285,12 @@ export function MyBookingsDesktop({
                           />
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] text-(--text-secondary)">
+                          <span className="inline-flex min-w-0 items-center gap-1">
+                            <MapPin size={11} className="shrink-0 text-(--accent-primary)" />
+                            <span className="truncate">
+                              {selectedBooking.organization.address}
+                            </span>
+                          </span>
                           <span className="inline-flex items-center gap-1">
                             <Star
                               size={11}
@@ -1267,12 +1300,6 @@ export function MyBookingsDesktop({
                               4.8
                             </span>
                             <span>(320+)</span>
-                          </span>
-                          <span className="inline-flex min-w-0 items-center gap-1">
-                            <MapPin size={11} className="shrink-0 text-(--accent-primary)" />
-                            <span className="truncate">
-                              {selectedBooking.organization.address}
-                            </span>
                           </span>
                         </div>
                       </div>
@@ -1291,11 +1318,11 @@ export function MyBookingsDesktop({
 
                   <section
                     className={`
-                      ${cardShell}  flex-1 border-(--brand-gold)/35 p-4
+                      ${cardShell} flex min-h-0 flex-1 flex-col border-(--brand-gold)/35 p-4
                       bg-[linear-gradient(180deg,white_0%,color-mix(in_srgb,var(--brand-gold)_4%,white)_100%)]
                     `}
                   >
-                    <div className="mb-3.5 flex items-center justify-between gap-2">
+                    <div className="mb-3.5 flex shrink-0 items-center justify-between gap-2">
                       <div>
                         <p className="text-[14px] font-semibold text-(--text-primary)">
                           Selected Services
@@ -1309,30 +1336,32 @@ export function MyBookingsDesktop({
                       </span>
                     </div>
 
-                    <BookingPreviewCards
-                      serviceName={selectedBooking.service}
-                      serviceImage={selectedBooking.image}
-                      serviceDuration={selectedBooking.duration ?? "60 min"}
-                      servicePriceLabel={selectedBooking.price}
-                      staffName={staff.name}
-                      staffImage={staff.image}
-                      monthLabel={datePreview.monthLabel}
-                      dateLabel={datePreview.dateLabel}
-                      weekdayLabel={datePreview.weekdayLabel}
-                      timeLabel={selectedBooking.time}
-                      scheduled={datePreview.scheduled}
-                      totalAmountLabel={selectedBooking.price}
-                      showChangeButtons={statusTab === "upcoming"}
-                      // onChangeService={() => setEditPanel("service")}
-                      // onChangeStaff={() => setEditPanel("staff")}
-                      // onChangeDateTime={() => setEditPanel("datetime")}
-                    />
+                    <div className="flex min-h-0 flex-1 flex-col justify-center">
+                      <BookingPreviewCards
+                        serviceName={selectedBooking.service}
+                        serviceImage={selectedBooking.image}
+                        serviceDuration={selectedBooking.duration ?? "60 min"}
+                        servicePriceLabel={selectedBooking.price}
+                        staffName={staff.name}
+                        staffImage={staff.image}
+                        monthLabel={datePreview.monthLabel}
+                        dateLabel={datePreview.dateLabel}
+                        weekdayLabel={datePreview.weekdayLabel}
+                        timeLabel={selectedBooking.time}
+                        scheduled={datePreview.scheduled}
+                        totalAmountLabel={selectedBooking.price}
+                        showChangeButtons={statusTab === "upcoming"}
+                        // onChangeService={() => setEditPanel("service")}
+                        // onChangeStaff={() => setEditPanel("staff")}
+                        // onChangeDateTime={() => setEditPanel("datetime")}
+                      />
+                    </div>
                   </section>
                 </div>
 
                 {/* RIGHT */}
-                <div className="flex min-h-0 flex-col gap-3.5 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary)/25">
-                  <section className={`${cardShell} p-4 ring-1 ${statusCopy.ring}`}>
+                <div className="flex min-h-0 flex-col gap-3.5 overflow-hidden pr-0.5">
+                  <section className={`${cardShell} shrink-0 p-4 ring-1 ${statusCopy.ring}`}>
                     <div className="flex items-start gap-3.5">
                       <span
                         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${statusCopy.iconBg}`}
@@ -1355,8 +1384,8 @@ export function MyBookingsDesktop({
                     </div>
                   </section>
 
-                  <section className={`${cardShell} p-4`}>
-                    <div className="mb-3.5 flex items-center gap-2.5">
+                  <section className={`${cardShell} flex min-h-0 flex-1 flex-col p-4`}>
+                    <div className="mb-3.5 flex shrink-0 items-center gap-2.5">
                       <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--accent-primary)_10%,transparent)]">
                         <CreditCard size={15} className="text-(--accent-primary)" />
                       </span>
@@ -1365,7 +1394,7 @@ export function MyBookingsDesktop({
                       </h3>
                     </div>
 
-                    <div className="space-y-2.5 text-[13px]">
+                    <div className="flex min-h-0 flex-1 flex-col justify-center space-y-2.5 text-[13px]">
                       <div className="flex items-center justify-between rounded-xl bg-(--bg-secondary)/70 px-3 py-2.5 text-(--text-secondary)">
                         <span>Service Price</span>
                         <span className="font-semibold text-(--text-primary)">
@@ -1388,23 +1417,25 @@ export function MyBookingsDesktop({
                       </div>
                     </div>
 
-                    <div className="mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-[color-mix(in_srgb,var(--success)_14%,transparent)] px-3 py-1.5 text-[11px] font-bold text-(--success) ring-1 ring-(--success)/15">
-                      <Check size={12} strokeWidth={2.5} />
-                      Paid
-                    </div>
+                    <div className="mt-auto space-y-3 pt-3.5">
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-[color-mix(in_srgb,var(--success)_14%,transparent)] px-3 py-1.5 text-[11px] font-bold text-(--success) ring-1 ring-(--success)/15">
+                        <Check size={12} strokeWidth={2.5} />
+                        Paid
+                      </div>
 
-                    <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-(--border) pt-3 text-[11px] text-(--text-muted)">
-                      <span className="inline-flex items-center gap-1.5 font-medium">
-                        <CreditCard size={13} className="text-(--accent-primary)" />
-                        {paymentMethod}
-                      </span>
-                      <span className="text-right">{paidAt}</span>
+                      <div className="flex items-center justify-between gap-2 border-t border-(--border) pt-3 text-[11px] text-(--text-muted)">
+                        <span className="inline-flex items-center gap-1.5 font-medium">
+                          <CreditCard size={13} className="text-(--accent-primary)" />
+                          {paymentMethod}
+                        </span>
+                        <span className="text-right">{paidAt}</span>
+                      </div>
                     </div>
                   </section>
 
                   <section
                     className="
-                      mt-auto overflow-hidden rounded-[18px] border border-(--accent-primary)/12
+                      shrink-0 overflow-hidden rounded-[18px] border border-(--accent-primary)/12
                       bg-[linear-gradient(145deg,color-mix(in_srgb,var(--accent-primary)_10%,white)_0%,color-mix(in_srgb,#C45B8B_8%,white)_100%)]
                       p-4 shadow-[0_10px_30px_rgba(61,28,77,0.06)]
                     "

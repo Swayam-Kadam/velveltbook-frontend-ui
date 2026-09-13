@@ -138,7 +138,7 @@ function ChangeServiceMenuModal({
       >
         <div className="flex items-center justify-between gap-2 border-b border-(--border) px-3 py-3">
           <div>
-            <h3 className="text-sm font-bold text-(--text-primary)">
+            <h3 className="text-lg font-bold text-(--text-primary)">
               Change Service
             </h3>
             <p className="mt-0.5 text-[10px] text-(--text-muted)">
@@ -166,10 +166,10 @@ function ChangeServiceMenuModal({
           <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary)">
             <div className="flex-1 overflow-y-auto px-2 pt-3 pb-3 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
               <div className="mb-3">
-                <h4 className="text-xs font-medium text-(--text-primary)">
+                <h4 className="text-sm font-bold text-(--text-primary)">
                   Select a Service
                 </h4>
-                <p className="text-[8px] text-(--text-muted)">
+                <p className="text-[10px] text-(--text-primary)">
                   {activeCategoryLabel} · {categoryServices.length} available
                 </p>
               </div>

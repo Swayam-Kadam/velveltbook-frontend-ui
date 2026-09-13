@@ -29,16 +29,22 @@ function ChangeBoxButton({
   visible: boolean;
   onClick?: () => void;
 }) {
-  if (!visible || !onClick) return null;
+  if (!visible) return null;
+
+  const canChange = Boolean(onClick);
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center justify-center gap-1 bg-(--text-primary) text-[12px] font-bold text-white border-t-[2px]"
+      disabled={!canChange}
+      className={`
+        flex w-full items-center justify-center gap-1 border-t-[2px] border-white
+        py-1 text-[12px] font-bold text-(--text-primary)
+        ${canChange ? "bg-(--brand-gold)" : "cursor-default bg-(--brand-gold-light)"}
+      `}
     >
-      <Pencil size={12} />
-      Change
+      {canChange ? "Change" : "Default"}
     </button>
   );
 }
@@ -137,8 +143,8 @@ export function BookingPreviewCards({
             </span>
           </div>
           <ChangeBoxButton
-            visible={showChangeButtons && !autoStaff}
-            onClick={onChangeStaff}
+            visible={showChangeButtons}
+            onClick={autoStaff ? undefined : onChangeStaff}
           />
         </div>
 

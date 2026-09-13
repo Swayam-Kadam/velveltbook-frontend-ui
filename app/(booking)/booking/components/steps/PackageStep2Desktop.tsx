@@ -110,7 +110,7 @@ export function PackageStep2Desktop({
     <>
       <div className="hidden lg:grid lg:h-[calc(100vh-140px)] lg:min-h-[680px] lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
         {/* LEFT */}
-        <aside className="flex min-h-0 flex-col gap-4">
+        <aside className="flex h-full min-h-0 flex-col gap-4">
           <section className="flex h-[240px] shrink-0 overflow-hidden rounded-[22px] border border-(--border) bg-(--bg-card) xl:h-[260px]">
             <div className="relative h-full aspect-square shrink-0 overflow-hidden">
               <Image
@@ -211,20 +211,24 @@ export function PackageStep2Desktop({
                       <p className="truncate text-[14px] font-semibold text-(--text-primary)">
                         {service.name}
                       </p>
-                      <div className="mt-1 flex items-center gap-1 text-[12px] text-(--text-secondary)">
-                        <Clock3 size={12} />
-                        <span>{service.duration}</span>
-                      </div>
-                      <div className="mt-1 flex items-center gap-1 text-[12px] text-(--text-secondary)">
-                        <UserRound
+
+                      <div className="mt-1 flex items-center gap-1 text-[15px] text-(--text-primary)">
+                        {/* <UserRound
                           size={12}
                           className="text-(--accent-primary)"
-                        />
-                        <span className="truncate">packages</span>
+                        /> */}
+                        <span className="bg-(--text-primary) text-white px-1 py-0.5 rounded-xs text-[12px] font-semibold">{packageName}</span>
                       </div>
-                      <p className="mt-1 text-[15px] font-bold text-(--brand-gold)">
+                      
+                      <div className="mt-1 flex items-center gap-1 text-[14px] text-(--text-primary)">
+                        <Clock3 size={12} />
+                        <span>{service.duration}</span>
+
+                        <p className="ml-2 text-[15px] font-bold text-(--brand-gold)">
                         {service.priceLabel}
                       </p>
+                      </div>
+                      
                     </div>
                     {onRemoveService && (
                       <button
@@ -283,10 +287,10 @@ export function PackageStep2Desktop({
         </aside>
 
         {/* RIGHT — red section: Booking Details + Appointment/Price + footer */}
-        <div className="flex min-h-0 flex-col gap-4">
-          <div className="grid min-h-40rem] flex-1 grid-cols-[minmax(0,1.2fr)_minmax(290px,0.9fr)] gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.85fr)]">
+        <div className="flex h-full min-h-0 flex-col gap-4">
+          <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1.2fr)_minmax(290px,0.9fr)] gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.85fr)]">
             {/* Booking Details */}
-            <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
+            <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
               <div className="flex shrink-0 items-center gap-2 border-b border-(--border) px-4 py-3.5">
                 <CalendarDays size={15} className="text-(--accent-primary)" />
                 <h2 className="text-[15px] font-bold text-(--text-primary)">
@@ -395,7 +399,7 @@ export function PackageStep2Desktop({
             </section>
 
             {/* Appointment + Price */}
-            <div className="flex min-h-0 flex-col gap-4  pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
+            <div className="flex h-full min-h-0 flex-col gap-4 pr-0.5">
               <article className="h-[228px] shrink-0 overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
                 <div className="flex h-11 shrink-0 items-center justify-between border-b border-(--border) px-4">
                   <div className="flex items-center gap-1.5">
@@ -520,17 +524,17 @@ export function PackageStep2Desktop({
                 </div>
               </article>
 
-              <article className="shrink-0 overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
-                <div className="flex items-center gap-1.5 border-b border-(--border) px-2.5 py-1.5">
+              <article className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card)">
+                <div className="flex shrink-0 items-center gap-1.5 border-b border-(--border) px-2.5 py-1.5">
                   <CalendarDays size={12} className="text-(--accent-primary)" />
                   <p className="text-[11px] font-bold text-(--text-primary)">
                     Select Date &amp; Time
                   </p>
                 </div>
 
-                <div className="bg-(--bg-secondary) p-1.5">
+                <div className="flex min-h-0 flex-1 flex-col bg-(--bg-secondary) p-1.5">
                   <div
-                    className="mb-1.5 grid grid-cols-2 gap-1 rounded-xl border border-(--border) bg-(--bg-card) p-1"
+                    className="mb-1.5 grid shrink-0 grid-cols-2 gap-1 rounded-xl border border-(--border) bg-(--bg-card) p-1"
                     role="tablist"
                     aria-label="Date or time"
                   >
@@ -539,7 +543,7 @@ export function PackageStep2Desktop({
                       role="tab"
                       aria-selected={scheduleTab === "date"}
                       onClick={() => setScheduleTab("date")}
-                      className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
+                      className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-sm text-[11px] font-semibold transition-colors cursor-pointer ${
                         scheduleTab === "date"
                           ? "bg-(--accent-primary) text-white"
                           : "text-(--text-secondary) hover:text-(--text-primary)"
@@ -553,7 +557,7 @@ export function PackageStep2Desktop({
                       role="tab"
                       aria-selected={scheduleTab === "time"}
                       onClick={() => setScheduleTab("time")}
-                      className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
+                      className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-sm text-[11px] font-semibold transition-colors cursor-pointer ${
                         scheduleTab === "time"
                           ? "bg-(--accent-primary) text-white"
                           : "text-(--text-secondary) hover:text-(--text-primary)"
@@ -564,7 +568,7 @@ export function PackageStep2Desktop({
                     </button>
                   </div>
 
-                  <div className="h-[240px] w-full">
+                  <div className="min-h-0 flex-1 w-full">
                     {scheduleTab === "date" ? (
                       <MonthDateCalendar
                         days={bookingDays}

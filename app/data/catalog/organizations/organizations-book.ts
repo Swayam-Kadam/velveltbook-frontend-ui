@@ -1,3 +1,4 @@
+import { SHARED_STAFF } from "@/data/shared/staff";
 import type { ExtendedOrganization } from "@/types/organization";
 
 const defaultServices = [
@@ -35,36 +36,13 @@ const defaultServices = [
   },
 ];
 
-const defaultStaff = [
-  {
-    id: "st1",
-    name: "lori",
-    experience: "2+ years Exp.",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop",
-  },
-  {
-    id: "st2",
-    name: "Priya",
-    experience: "3+ years Exp.",
-    image:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
-  },
-  {
-    id: "st3",
-    name: "Anita",
-    experience: "4+ years Exp.",
-    image:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop",
-  },
-  {
-    id: "st4",
-    name: "lori",
-    experience: "2+ years Exp.",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop",
-  },
-];
+/** Same ids as booking SHARED_STAFF so org book selection carries into /booking. */
+const defaultStaff = SHARED_STAFF.map((member) => ({
+  id: member.id,
+  name: member.name,
+  experience: member.experience,
+  image: member.image,
+}));
 
 export const extendedOrganizations: Record<string, ExtendedOrganization> = {
   "org-trending-2": {

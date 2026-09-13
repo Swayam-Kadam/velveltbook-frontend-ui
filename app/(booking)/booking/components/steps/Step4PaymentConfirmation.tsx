@@ -865,9 +865,9 @@ function ServiceDesktopBookingSummary({
           >
             <Pencil size={12} />
             EDIT
-          </button>
+            </button>
         ) : null}
-      </div>
+        </div>
 
       <div className="mb-3 flex items-center gap-2">
         <Sparkles size={15} className="text-(--accent-primary)" />
@@ -906,7 +906,7 @@ function ServiceDesktopBookingSummary({
                 <div className="min-w-0 w-[200px] shrink-0">
                   <h3 className="text-[20px] font-bold text-(--text-primary)">
                     {service.name}
-                  </h3>
+            </h3>
                   <p className="mt-0.5 text-[11px] leading-snug text-(--text-primary)">
                     {service.duration}
                     {service.duration ? " • " : ""}
@@ -915,7 +915,7 @@ function ServiceDesktopBookingSummary({
                   <p className="mt-1 text-[13px] font-bold text-(--text-primary)">
                     ${money(service.price)}
                   </p>
-                </div>
+          </div>
 
                 {/* <div className="inline-flex h-8 shrink-0 items-center rounded-lg border border-(--border) bg-(--bg-card) px-1">
                   <span className="flex h-6 w-6 items-center justify-center text-(--text-muted)">
@@ -2031,6 +2031,58 @@ export function Step4PaymentConfirmation({
                 Secure SSL encrypted payment
               </p>
             </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-5">
+              {[
+                {
+                  icon: Lock,
+                  title: "SSL Encrypted",
+                  text: "Bank-grade 256-bit encryption",
+                },
+                {
+                  icon: ShieldCheck,
+                  title: "PCI DSS Secure",
+                  text: "Card data never stored",
+                },
+                {
+                  icon: BadgeCheck,
+                  title: "Fraud Protected",
+                  text: "Real-time payment monitoring",
+                },
+                {
+                  icon: Zap,
+                  title: "Instant Confirm",
+                  text: "Booking locked in seconds",
+                },
+                {
+                  icon: ClipboardCheck,
+                  title: "Buyer Guarantee",
+                  text: "Safe checkout, every time",
+                },
+              ].map(({ icon: Icon, title, text }) => (
+                <article
+                  key={title}
+                  className="
+                    flex flex-col items-center gap-2 rounded-xl border border-(--border)
+                    bg-(--bg-secondary) px-2.5 py-3.5 text-center
+                    transition-colors hover:border-(--accent-primary)/35
+                  "
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent-primary)_10%,transparent)] text-(--accent-primary)">
+                    <Icon size={16} strokeWidth={2} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-semibold text-(--text-primary)">
+                      {title}
+                    </p>
+                    <p className="mt-0.5 text-[10px] leading-snug text-(--text-muted)">
+                      {text}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+
           </section>
         </div>
 

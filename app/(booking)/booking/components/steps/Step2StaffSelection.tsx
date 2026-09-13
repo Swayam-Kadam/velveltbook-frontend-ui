@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import {
   ArrowRightIcon,
@@ -188,10 +188,23 @@ export function Step2StaffSelection({
   onEditService,
 }: Step2StaffSelectionProps) {
   const [packageScheduleOpen, setPackageScheduleOpen] = useState(false);
+  const [activeServiceId, setActiveServiceId] = useState(
+    () => selectedServiceIds[0] ?? "",
+  );
   const selectedServices = getSelectedServices(
     selectedServiceIds,
     organizationId,
   );
+
+  useEffect(() => {
+    if (selectedServiceIds.length === 0) {
+      setActiveServiceId("");
+      return;
+    }
+    if (!selectedServiceIds.includes(activeServiceId)) {
+      setActiveServiceId(selectedServiceIds[0] ?? "");
+    }
+  }, [selectedServiceIds, activeServiceId]);
   const { subtotal } = calcServicesTotal(selectedServiceIds, organizationId);
   const hasSelection = selectedServices.length > 0;
   const allStaffAssigned = areAllServiceStaffAssigned(
@@ -369,6 +382,8 @@ export function Step2StaffSelection({
       schedules={serviceSchedules}
       lockStaffSelection={lockStaffSelection}
       packageName={packageName}
+      activeServiceId={activeServiceId}
+      onActiveServiceChange={setActiveServiceId}
       onSelectStaff={onSelectServiceStaff}
       onSelectDay={onSelectServiceDay}
       onSelectTime={onSelectServiceTime}
@@ -404,6 +419,8 @@ export function Step2StaffSelection({
           serviceStaff={serviceStaff}
           serviceSchedules={serviceSchedules}
           packageName={packageName}
+          activeServiceId={activeServiceId}
+          onActiveServiceChange={setActiveServiceId}
           onRemoveService={onRemoveService ? handleRemoveService : undefined}
           showOrganizationBanner={false}
         />
@@ -708,6 +725,8 @@ export function Step2StaffSelection({
                   serviceStaff={serviceStaff}
                   schedules={serviceSchedules}
                   packageName={packageName}
+                  activeServiceId={activeServiceId}
+                  onActiveServiceChange={setActiveServiceId}
                   onSelectDay={onSelectServiceDay}
                   onSelectTime={onSelectServiceTime}
                   onSelectStaff={onSelectServiceStaff}

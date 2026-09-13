@@ -52,10 +52,10 @@ export function FavoriteStoresPageContent() {
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col lg:flex-row lg:items-stretch lg:gap-5 xl:gap-6">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-5 lg:grid-cols-3 lg:items-stretch xl:gap-2">
           <div
             className="
-              min-w-0 flex-1
+              min-w-0 lg:col-span-2
               lg:h-[calc(100vh-7rem)] lg:min-h-0 lg:overflow-y-auto lg:pr-1
               scrollbar-thin scrollbar-thumb-(--accent-primary)/30
               scrollbar-track-transparent
@@ -97,7 +97,7 @@ export function FavoriteStoresPageContent() {
             )}
           </div>
 
-          <div className="hidden shrink-0 lg:block lg:self-start">
+          <div className="hidden min-w-0 lg:block">
             <FavoriteStoresSuggestionsSidebar
               excludeStoreIds={excludeStoreIds}
               title="Suggestions"

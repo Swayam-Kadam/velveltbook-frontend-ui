@@ -20,11 +20,11 @@ export function FavoriteStoresSuggestionsSidebar({
   const suggestions = getSuggestionStores(excludeStoreIds);
 
   return (
-    <aside className="hidden w-[min(100%,420px)] shrink-0 lg:sticky lg:top-24 lg:flex lg:flex-col lg:self-start xl:w-[460px]">
+    <aside className="hidden h-full min-w-0 w-full lg:sticky lg:top-24 lg:flex lg:flex-col">
       <div
         className={`
-          flex ${DESKTOP_PANEL_HEIGHT} flex-col overflow-hidden rounded-[22px]
-          border border-(--border)
+          flex ${DESKTOP_PANEL_HEIGHT} w-full flex-col overflow-hidden rounded-[22px]
+          border-3 border-(--border)
           bg-[color-mix(in_srgb,var(--accent-primary)_7%,var(--bg-primary))]
           shadow-(--shadow-card)
         `}
@@ -42,7 +42,7 @@ export function FavoriteStoresSuggestionsSidebar({
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-3 scrollbar-thin scrollbar-thumb-(--accent-primary)/30 scrollbar-track-transparent">
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-1 py-3 scrollbar-thin scrollbar-thumb-(--accent-primary)/30 scrollbar-track-transparent">
           {suggestions.length > 0 ? (
             suggestions.map((item) => (
               <div key={item.id} className="min-w-0">

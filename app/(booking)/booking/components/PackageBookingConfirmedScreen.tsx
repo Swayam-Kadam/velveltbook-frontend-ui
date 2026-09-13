@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
+  BadgeCheck,
   CalendarClock,
   CalendarDays,
   Check,
@@ -12,9 +13,12 @@ import {
   Clock3,
   Copy,
   MapPin,
+  MessageCircle,
+  MessageSquareText,
   ReceiptText,
   Store,
   Tag,
+  Timer,
   X,
   XCircle,
 } from "lucide-react";
@@ -36,7 +40,19 @@ import {
   BookingConfirmedReceipt,
   type ReceiptLineItem,
 } from "./BookingConfirmedReceipt";
+import { BookingStoreChat } from "./BookingStoreChat";
 import { Step2DateTimeSection } from "./steps/Step2DateTimeSection";
+
+const CANCEL_WINDOW_SECONDS = 7 * 60;
+
+type DetailView = "services" | "chat";
+
+function formatCountdown(seconds: number) {
+  const safe = Math.max(0, seconds);
+  const mins = Math.floor(safe / 60);
+  const secs = safe % 60;
+  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
 
 interface PackageBookingConfirmedScreenProps {
   selectedServiceIds: string[];
@@ -359,6 +375,8 @@ export function PackageBookingConfirmedScreen({
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(CANCEL_WINDOW_SECONDS);
+  const [detailView, setDetailView] = useState<DetailView>("services");
 
   const selectedServices = getSelectedServices(
     selectedServiceIds,
@@ -375,6 +393,13 @@ export function PackageBookingConfirmedScreen({
     thumbnail: bookingLocation.image,
     address: bookingLocation.address,
   };
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setSecondsLeft((current) => (current <= 0 ? 0 : current - 1));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, []);
 
   const heroImage =
     packageImage ||
@@ -516,7 +541,7 @@ export function PackageBookingConfirmedScreen({
   return (
     <div className="mx-auto min-h-dvh w-full max-w-[430px] bg-(--bg-primary) px-3.5 pb-8 pt-1">
       <div className="relative overflow-hidden rounded-2xl px-3 py-2 text-center">
-        <Sparkle className="left-8 top-3 h-3 w-3" color="var(--brand-gold)" />
+        {/* <Sparkle className="left-8 top-3 h-3 w-3" color="var(--brand-gold)" />
         <Sparkle
           className="right-10 top-4 h-2.5 w-2.5"
           color="var(--accent-secondary)"
@@ -528,7 +553,7 @@ export function PackageBookingConfirmedScreen({
         <Sparkle
           className="right-10 bottom-5 h-3 w-3"
           color="var(--accent-glow)"
-        />
+        /> */}
 
         <div className="relative z-10 flex flex-col items-center">
           {/* <span className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-(--accent-primary) shadow-(--shadow-glow)">
@@ -537,17 +562,136 @@ export function PackageBookingConfirmedScreen({
           <h1 className="text-[24px] font-bold text-(--text-primary)">
             Booking Confirmed!
           </h1>
-          {/* <p className="mt-1 text-[12px] text-(--text-secondary)">
-            Your appointment has been successfully booked.
-          </p> */}
+        </div>
+      </div>
 
+      <div className="mb-3 flex items-start gap-2.5 rounded-xl bg-[#FDECEC] px-3 py-2.5">
+        <Timer
+          size={22}
+          strokeWidth={2.2}
+          className="mt-0.5 shrink-0 text-[#E53E3E]"
+        />
+        <div className="min-w-0">
+          <p className="text-[13px] leading-snug text-(--text-primary)">
+            You have{" "}
+            <span className="font-bold tabular-nums text-[#D32F2F]">
+              {formatCountdown(secondsLeft)}
+            </span>{" "}
+            to cancel or modify your booking.
+          </p>
+          <p className="mt-1 text-[10px] leading-snug text-(--text-secondary)">
+            Cancel your booking before 7 minutes, otherwise cancellation charges
+            will be applicable.
+          </p>
+        </div>
+      </div>
+
+      {/* <div className="mb-3 overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)">
+        <div className="border-t-8 border-(--accent-primary) bg-(--bg-card) px-2.5 py-2">
+          <div className="flex min-w-0 items-start gap-2">
+            {detailView !== "chat" ? (
+              <button
+                type="button"
+                aria-label="Message store"
+                onClick={() => setDetailView("chat")}
+                className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--accent-primary) text-white"
+              >
+                <MessageSquareText size={18} strokeWidth={2} />
+              </button>
+            ) : null}
+
+            <div className="relative h-14 w-14 shrink-0">
+              <div className="relative h-16 w-16 overflow-hidden rounded-xl border-2 border-(--bg-card) shadow-(--shadow-card)">
+                <Image
+                  src={org.thumbnail ?? org.banner}
+                  alt={org.name}
+                  fill
+                  sizes="56px"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            <div className="ml-1 min-w-0 flex-1 pt-0.5">
+              <div className="flex items-center gap-1">
+                <h2 className="truncate font-[family-name:var(--font-heading)] text-lg font-bold text-(--text-primary)">
+                  {org.name}
+                </h2>
+                <BadgeCheck
+                  className="h-3.5 w-3.5 shrink-0 text-(--accent-primary)"
+                  strokeWidth={2}
+                />
+              </div>
+              <p className="mt-0.5 truncate text-[11px] text-(--text-secondary)">
+                {selectedServices.length > 0
+                  ? selectedServices
+                      .slice(0, 3)
+                      .map((service) => service.name)
+                      .join(" • ")
+                  : packageName}
+              </p>
+              <p className="mt-0.5 flex gap-0.5 text-[12px] text-(--text-secondary)">
+                <MapPin
+                  className="mt-0.5 h-2.5 w-2.5 shrink-0"
+                  strokeWidth={1.8}
+                />
+                <span>{org.address ?? bookingLocation.address}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div> */}
+
+      {detailView === "chat" ? (
+        <div className="mb-3">
+          <BookingStoreChat
+            storeName={org.name}
+            storeImage={org.thumbnail ?? org.banner}
+            onBack={() => setDetailView("services")}
+          />
+        </div>
+      ) : (
+        <>
+          <div className="mb-3 flex items-center gap-2.5 rounded-xl bg-[color-mix(in_srgb,var(--accent-primary)_12%,white)] px-3 py-2.5">
+            
+            <div className="min-w-0 flex-1">
+              <p className="text-[12px] font-bold text-(--text-primary)">
+                Be in touch with store
+              </p>
+              <p className="text-[10px] leading-snug text-(--text-secondary)">
+                You can message the store for any questions or special requests.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDetailView("chat")}
+              className=""
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--accent-primary) text-white">
+              <MessageSquareText size={16} />
+            </span>
+            </button>
+          </div>
+
+      <section className="mb-3 overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-(--shadow-card)">
+        <div className="flex items-center justify-between border-b border-(--border) px-3.5 py-3">
+         
+         <div>
+          <div className="flex items-center gap-1.5">
+            <CalendarDays size={14} className="text-(--accent-primary)" />
+            <h2 className="text-[13px] font-bold text-(--text-primary)">
+              Booking Details
+              
+            </h2>
+            
+          </div>
           <button
             type="button"
             onClick={handleCopy}
             className="
-              mt-3 inline-flex items-center gap-1.5 rounded-full
+              mt-3 inline-flex items-center gap-1.5 rounded-xs
               bg-[color-mix(in_srgb,var(--accent-primary)_10%,white)]
-              px-3 py-1.5 text-[11px] font-semibold text-(--text-primary)
+              px-1 py-1 text-[11px] font-semibold text-(--text-primary)
             "
           >
             Booking ID: {bookingId}
@@ -557,17 +701,8 @@ export function PackageBookingConfirmedScreen({
               <Copy size={12} className="text-(--text-muted)" />
             )}
           </button>
-        </div>
-      </div>
-
-      <section className="mb-3 overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-(--shadow-card)">
-        <div className="flex items-center justify-between border-b border-(--border) px-3.5 py-3">
-          <div className="flex items-center gap-1.5">
-            <CalendarDays size={14} className="text-(--accent-primary)" />
-            <h2 className="text-[13px] font-bold text-(--text-primary)">
-              Booking Details
-            </h2>
           </div>
+          
           <button
             type="button"
             onClick={() => setEditActionsOpen((open) => !open)}
@@ -653,6 +788,40 @@ export function PackageBookingConfirmedScreen({
           </div>
         </div>
       </section>
+      {editActionsOpen && (
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <button
+              type="button"
+              onClick={() => setShowReceiptModal(true)}
+              className="flex items-center gap-1.5 rounded-sm bg-(--accent-primary) px-2 py-2.5 text-left text-white"
+            >
+              <ReceiptText size={14} strokeWidth={2} className="shrink-0" />
+              <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
+                View Receipt
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowRescheduleModal(true)}
+              className="flex items-center gap-1.5 rounded-sm bg-(--accent-primary) px-2 py-2.5 text-left text-white"
+            >
+              <CalendarClock size={14} strokeWidth={2} className="shrink-0" />
+              <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
+                Reschedule
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCancelModal(true)}
+              className="flex items-center gap-1.5 rounded-sm bg-(--accent-primary) px-2 py-2.5 text-left text-white"
+            >
+              <XCircle size={14} strokeWidth={2} className="shrink-0" />
+              <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
+                Cancel Booking
+              </span>
+            </button>
+          </div>
+        )}
 
       <section className="mb-3 overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-(--shadow-card)">
         <div className="grid grid-cols-[112px_minmax(0,1fr)] gap-3 p-3">
@@ -763,40 +932,6 @@ export function PackageBookingConfirmedScreen({
       </section>
 
       <div className="mb-13 space-y-2.5">
-        {editActionsOpen && (
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => setShowReceiptModal(true)}
-              className="flex items-center gap-1.5 rounded-sm bg-(--accent-primary) px-2 py-2.5 text-left text-white"
-            >
-              <ReceiptText size={14} strokeWidth={2} className="shrink-0" />
-              <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
-                View Receipt
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowRescheduleModal(true)}
-              className="flex items-center gap-1.5 rounded-sm bg-(--accent-primary) px-2 py-2.5 text-left text-white"
-            >
-              <CalendarClock size={14} strokeWidth={2} className="shrink-0" />
-              <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
-                Reschedule
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowCancelModal(true)}
-              className="flex items-center gap-1.5 rounded-sm bg-(--accent-primary) px-2 py-2.5 text-left text-white"
-            >
-              <XCircle size={14} strokeWidth={2} className="shrink-0" />
-              <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
-                Cancel Booking
-              </span>
-            </button>
-          </div>
-        )}
 
         <button
           type="button"
@@ -813,6 +948,8 @@ export function PackageBookingConfirmedScreen({
           Back to Home
         </button>
       </div>
+        </>
+      )}
 
       {showReceiptModal && (
         <PackageReceiptModal
