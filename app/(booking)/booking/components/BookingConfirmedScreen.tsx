@@ -14,6 +14,8 @@ import {
   Info,
   MapPin,
   MessageCircle,
+  MessageSquare,
+  MessageSquareText,
   PencilLine,
   ReceiptText,
   RotateCcw,
@@ -1180,7 +1182,7 @@ export function BookingConfirmedScreen({
                     onClick={() => setDetailView("chat")}
                     className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#3D1C4D] text-white"
                   >
-                    <MessageCircle size={18} strokeWidth={2} />
+                    <MessageSquareText size={18} strokeWidth={2} />
                   </button>
                 ) : null}
               </div>
