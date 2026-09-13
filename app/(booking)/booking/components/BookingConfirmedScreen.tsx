@@ -402,7 +402,7 @@ function CancelBookingModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-[#2D1659] py-2.5 text-[13px] font-semibold text-[#2D1659]"
+            className="rounded-xl border border-[#3D1C4D] py-2.5 text-[13px] font-semibold text-[#3D1C4D]"
           >
             Cancel
           </button>
@@ -488,7 +488,7 @@ function RescheduleModal({
                     flex w-full items-center gap-3 rounded-xl border p-2 text-left
                     ${
                       active
-                        ? "border-[#2D1659] bg-[#F3EAF8]"
+                        ? "border-[#3D1C4D] bg-[#F3EAF8]"
                         : "border-(--border)"
                     }
                   `}
@@ -511,7 +511,7 @@ function RescheduleModal({
                     </p>
                   </div>
                   {active && (
-                    <Check size={16} className="shrink-0 text-[#2D1659]" />
+                    <Check size={16} className="shrink-0 text-[#3D1C4D]" />
                   )}
                 </button>
               );
@@ -551,7 +551,7 @@ function RescheduleModal({
               <button
                 type="button"
                 onClick={() => setStep("service")}
-                className="h-11 rounded-xl border border-[#2D1659] text-[14px] font-semibold text-[#2D1659]"
+                className="h-11 rounded-xl border border-[#3D1C4D] text-[14px] font-semibold text-[#3D1C4D]"
               >
                 Back
               </button>
@@ -1055,7 +1055,7 @@ export function BookingConfirmedScreen({
 
   return (
     <div className="mx-auto min-h-dvh w-full max-w-[430px] bg-(--bg-primary) pb-[110px] lg:pb-8">
-      <header className="relative overflow-hidden bg-[#2D1659] px-4 py-5">
+      <header className="relative overflow-hidden bg-[#3D1C4D] px-4 py-5">
         <Sparkle className="left-14 top-2 h-3 w-3" color="#E8A0C0" />
         <Sparkle className="right-10 top-3 h-2.5 w-2.5" color="#C69C6D" />
         <Sparkle className="bottom-4 left-8 h-2 w-2" color="#B9A3E8" />
@@ -1123,7 +1123,7 @@ export function BookingConfirmedScreen({
               <button
                 type="button"
                 onClick={() => openServicePicker("add")}
-                className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#2D1659]"
+                className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#3D1C4D]"
               >
                 Add More Service
                 <CirclePlus size={16} strokeWidth={2.2} />
@@ -1178,7 +1178,7 @@ export function BookingConfirmedScreen({
                     type="button"
                     aria-label="Message store"
                     onClick={() => setDetailView("chat")}
-                    className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2D1659] text-white"
+                    className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#3D1C4D] text-white"
                   >
                     <MessageCircle size={18} strokeWidth={2} />
                   </button>
@@ -1196,9 +1196,9 @@ export function BookingConfirmedScreen({
           ) : (
             <>
           {items.length > 0 && (
-            <div className="mb-2.5 flex items-end gap-2 border-b border-(--border)/60">
+            <div className="mb-2.5 flex items-center gap-2">
               <div
-                className="scrollbar-none flex min-w-0 flex-1 gap-4 overflow-x-auto"
+                className="scrollbar-none flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1"
                 role="tablist"
                 aria-label="Booking items"
               >
@@ -1215,12 +1215,12 @@ export function BookingConfirmedScreen({
                       }}
                       onClick={() => setActiveIndex(index)}
                       className={`
-                        shrink-0 whitespace-nowrap -mb-px pb-1.5 text-[11px] font-bold
-                        tracking-[0.08em]
+                        shrink-0 rounded-xl border px-3 py-2 text-[10px] font-semibold
+                        transition-all duration-200
                         ${
                           active
-                            ? "border-b-2 border-[#2D1659] text-[#2D1659]"
-                            : "border-b-2 border-transparent text-(--text-muted)"
+                            ? "primary-button border-transparent text-white"
+                            : "border-(--text-primary) bg-(--bg-card) text-(--text-primary)"
                         }
                       `}
                     >
@@ -1234,7 +1234,7 @@ export function BookingConfirmedScreen({
                   type="button"
                   onClick={handleUndo}
                   disabled={history.length === 0}
-                  className="mb-1.5 inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold text-[#C69C6D] disabled:opacity-40"
+                  className="inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold text-[#C69C6D] disabled:opacity-40"
                 >
                   Undo
                   <RotateCcw size={13} strokeWidth={2.3} />
@@ -1244,10 +1244,8 @@ export function BookingConfirmedScreen({
                 <button
                   type="button"
                   onClick={startEditing}
-                  // disabled={history.length === 0}
-                  className=" bg-[#2D1659] m-1.5 inline-flex shrink-0 items-center px-1 py-0.5 rounded-[4px] gap-1 text-[12px] font-semibold text-white disabled:opacity-40"
+                  className="inline-flex shrink-0 items-center gap-1 rounded-[4px] bg-[#3D1C4D] px-1 py-0.5 text-[12px] font-semibold text-white disabled:opacity-40"
                 >
-                  {/* <PencilLine size={13} strokeWidth={2.3} /> */}
                   Edit
                 </button>
               )}
@@ -1257,7 +1255,7 @@ export function BookingConfirmedScreen({
           {activeItem && (
             <div className="rounded-xl border border-(--brand-gold)/55 bg-(--bg-card) p-2.5">
               <div className="mb-2.5 flex items-center gap-2">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#2D1659]">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#3D1C4D]">
                   <ShoppingBag size={13} className="text-white" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -1335,7 +1333,7 @@ export function BookingConfirmedScreen({
                 <button
                   type="button"
                   onClick={() => openServicePicker("replace")}
-                  className="flex items-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
+                  className="flex items-center gap-1.5 rounded-sm bg-[#3D1C4D] px-2 py-2.5 text-left text-white"
                 >
                   <ShoppingBag size={14} strokeWidth={2} className="shrink-0" />
                   <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
@@ -1346,7 +1344,7 @@ export function BookingConfirmedScreen({
                 <button
                   type="button"
                   onClick={() => setEditPanel("staff")}
-                  className="flex items-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
+                  className="flex items-center gap-1.5 rounded-sm bg-[#3D1C4D] px-2 py-2.5 text-left text-white"
                 >
                   <UserRound size={14} strokeWidth={2} className="shrink-0" />
                   <span className="min-w-0 flex-1 text-[8px] font-semibold leading-tight">
@@ -1360,7 +1358,7 @@ export function BookingConfirmedScreen({
                     beginChange();
                     setEditPanel("datetime");
                   }}
-                  className="flex items-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
+                  className="flex items-center gap-1.5 rounded-sm bg-[#3D1C4D] px-2 py-2.5 text-left text-white"
                 >
                   <CalendarClock size={14} strokeWidth={2} className="shrink-0" />
                   <span className="min-w-0 flex-1 text-[8px] font-semibold leading-tight">
@@ -1372,7 +1370,7 @@ export function BookingConfirmedScreen({
 
               <div className="flex items-center justify-between rounded-lg bg-[#F3EAF8] px-3 py-2.5">
                 <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-(--text-primary)">
-                  <ClipboardList size={16} className="text-[#2D1659]" />
+                  <ClipboardList size={16} className="text-[#3D1C4D]" />
                   Total Amount
                 </span>
                 <span className="text-[16px] font-bold text-(--brand-gold)">
@@ -1396,14 +1394,14 @@ export function BookingConfirmedScreen({
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="rounded-xl border border-[#2D1659] py-3 text-[14px] font-semibold text-[#2D1659]"
+                  className="rounded-xl border border-[#3D1C4D] py-3 text-[14px] font-semibold text-[#3D1C4D]"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleSaveChanges}
-                  className="rounded-xl bg-[#2D1659] py-3 text-[14px] font-semibold text-white"
+                  className="rounded-xl bg-[#3D1C4D] py-3 text-[14px] font-semibold text-white"
                 >
                   Save Changes
                 </button>
@@ -1417,7 +1415,7 @@ export function BookingConfirmedScreen({
         {!isEditing && detailView === "services" && (
           <>
             <div className="flex items-center gap-2.5 rounded-xl bg-[#EFE6F6] px-3 py-2.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2D1659] text-white">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#3D1C4D] text-white">
                 <MessageCircle size={16} />
               </span>
               <div className="min-w-0 flex-1">
@@ -1432,7 +1430,7 @@ export function BookingConfirmedScreen({
               <button
                 type="button"
                 onClick={() => setDetailView("chat")}
-                className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#2D1659] px-2 py-1.5 text-[10px] font-semibold text-[#2D1659]"
+                className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#3D1C4D] px-2 py-1.5 text-[10px] font-semibold text-[#3D1C4D]"
               >
                 <MessageCircle size={12} />
                 Message Store
@@ -1443,7 +1441,7 @@ export function BookingConfirmedScreen({
               <button
                 type="button"
                 onClick={() => setShowReceiptModal(true)}
-                className="flex items-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
+                className="flex items-center gap-1.5 rounded-sm bg-[#3D1C4D] px-2 py-2.5 text-left text-white"
               >
                 <ReceiptText size={14} strokeWidth={2} className="shrink-0" />
                 <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
@@ -1453,7 +1451,7 @@ export function BookingConfirmedScreen({
               <button
                 type="button"
                 onClick={() => setShowRescheduleModal(true)}
-                className="flex items-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
+                className="flex items-center gap-1.5 rounded-sm bg-[#3D1C4D] px-2 py-2.5 text-left text-white"
               >
                 <CalendarClock size={14} strokeWidth={2} className="shrink-0" />
                 <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
@@ -1463,7 +1461,7 @@ export function BookingConfirmedScreen({
               <button
                 type="button"
                 onClick={() => setShowCancelModal(true)}
-                className="flex items-center justify-center text-center gap-1.5 rounded-sm bg-[#2D1659] px-2 py-2.5 text-left text-white"
+                className="flex items-center justify-center text-center gap-1.5 rounded-sm bg-[#3D1C4D] px-2 py-2.5 text-left text-white"
               >
                 <XCircle size={14} strokeWidth={2} className="shrink-0" />
                 <span className="min-w-0 flex-1 text-[7px] font-semibold leading-tight">
@@ -1485,7 +1483,7 @@ export function BookingConfirmedScreen({
             <button
               type="button"
               onClick={() => router.push("/home")}
-              className="w-full rounded-xl bg-[#2D1659] py-3.5 text-[15px] font-semibold text-white"
+              className="w-full rounded-xl bg-[#3D1C4D] py-3.5 text-[15px] font-semibold text-white"
             >
               Back to Home
             </button>

@@ -415,11 +415,13 @@ function DesktopSalonSidebar({
 
 function DesktopDealsCartBar({
   isBooking,
+  isPackageFlow = false,
   cartCount,
   cartTotal,
   bookingHref,
 }: {
   isBooking: boolean;
+  isPackageFlow?: boolean;
   cartCount: number;
   cartTotal: number;
   bookingHref: string;
@@ -440,7 +442,9 @@ function DesktopDealsCartBar({
         </p>
         <p className="mt-1 text-[11px] text-(--text-secondary)">
           {isBooking
-            ? `${cartCount} service${cartCount === 1 ? "" : "s"}`
+            ? isPackageFlow
+              ? `${cartCount} package${cartCount === 1 ? "" : "s"}`
+              : `${cartCount} service${cartCount === 1 ? "" : "s"}`
             : `${cartCount} items`}
         </p>
       </div>
@@ -504,6 +508,7 @@ function DesktopDealsGrid({
             key={deal.id}
             deal={deal}
             desktop
+            isSelected={selectedDealId === deal.id}
             onBookClick={onBookClick}
           />
         ) : (
@@ -599,6 +604,15 @@ export function DealsPageContent() {
   } = useDeals();
 
   const openDesktopBooking = (deal: Deal) => {
+    if (activePackageId === deal.id) {
+      setActivePackageId("");
+      setSelectedServicesByPackage((current) => {
+        const { [deal.id]: _removed, ...rest } = current;
+        return rest;
+      });
+      return;
+    }
+
     const packages = buildDesktopBookingPackages(deal, allDeals);
     setDesktopBookingDeal(deal);
     setDesktopPackages(packages);
@@ -652,12 +666,18 @@ export function DealsPageContent() {
     : [];
   const browseDeals = allDeals.slice(0, 4);
   const cartCount = isDesktopBooking
-    ? selectedServiceIds.length
+    ? isPackageFlow
+      ? activePackageId && selectedServiceIds.length > 0
+        ? 1
+        : 0
+      : selectedServiceIds.length
     : browseDeals.length;
   const cartTotal = isDesktopBooking
-    ? (activePackage?.services
-        .filter((service) => selectedServiceIds.includes(service.id))
-        .reduce((sum, service) => sum + service.price, 0) ?? 0)
+    ? isPackageFlow && activePackage && selectedServiceIds.length > 0
+      ? activePackage.currentPrice
+      : (activePackage?.services
+          .filter((service) => selectedServiceIds.includes(service.id))
+          .reduce((sum, service) => sum + service.price, 0) ?? 0)
     : browseDeals.reduce((sum, deal) => sum + deal.currentPrice, 0);
   const bookingServiceIds = activePackage
     ? Array.from(
@@ -767,6 +787,7 @@ export function DealsPageContent() {
 
             <DesktopDealsCartBar
               isBooking={isDesktopBooking}
+              isPackageFlow={isPackageFlow}
               cartCount={cartCount}
               cartTotal={cartTotal}
               bookingHref={bookingHref}

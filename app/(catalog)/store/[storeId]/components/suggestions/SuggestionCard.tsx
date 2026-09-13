@@ -60,14 +60,14 @@ export default function SuggestionCard({ suggestion, bookNowLabel }: Props) {
 
       <div className="mt-3 flex items-center gap-2">
         <Link
-          href={`/store/${suggestion.storeId}`}
+          href={`/specificorganizationbook/${suggestion.storeId}`}
           className="primary-button flex h-9 flex-1 items-center justify-center rounded-lg text-xs font-medium text-white"
         >
           {bookNowLabel}
         </Link>
 
         <Link
-          href={`/store/${suggestion.storeId}`}
+          href={`/specificorganizationbook/${suggestion.storeId}`}
           aria-label={`View ${suggestion.name}`}
           className="secondary-button flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-(--border) text-(--text-primary) transition-colors hover:border-(--accent-primary)"
         >

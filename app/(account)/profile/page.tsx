@@ -62,10 +62,11 @@ function ProfileTopBar({
                 <button
                     type="button"
                     onClick={onToggleEdit}
+                    disabled={isEditing}
                     aria-pressed={isEditing}
-                    className="flex h-10 min-w-10 items-center justify-end rounded-sm px-3 text-[14px] font-semibold bg-(--accent-primary) text-white transition-opacity duration-200 hover:opacity-80"
+                    className={`flex h-10 min-w-10 items-center justify-end rounded-sm px-3 text-[14px] font-semibold text-white transition-opacity duration-200 hover:opacity-80 ${isEditing ? "bg-[#693f7a] cursor-not-allowed" : "bg-(--accent-primary) cursor-pointer"}`}
                 >
-                    {isEditing ? "Done" : "Edit"}
+                    {isEditing ? "Edit" : "Edit"}
                 </button>
             </div>
         </div>
@@ -357,11 +358,12 @@ function ProfileDesktopLayout({
                         <button
                             type="button"
                             onClick={onToggleEdit}
+                            disabled={isEditing}
                             aria-pressed={isEditing}
-                            className="primary-button inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold text-white"
+                            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold text-white ${isEditing ? "bg-[#693f7a] cursor-not-allowed" : "bg-(--accent-primary) cursor-pointer"}`}
                         >
                             <Pencil size={15} />
-                            {isEditing ? "Done Editing" : "Edit Profile"}
+                            {isEditing ? "Edit Profile" : "Edit Profile"}
                         </button>
                     </div>
 

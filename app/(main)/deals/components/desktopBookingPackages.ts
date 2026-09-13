@@ -172,9 +172,14 @@ export function createDefaultServiceSelection(
 ): Record<string, string[]> {
   const selection: Record<string, string[]> = {};
   for (const pkg of packages) {
-    selection[pkg.id] = preselectAll
-      ? pkg.services.map((service) => service.id)
-      : [];
+    if (preselectAll) {
+      selection[pkg.id] = pkg.services.map((service) => service.id);
+      continue;
+    }
+
+    // Single deals: auto-select the first service in each option.
+    const firstService = pkg.services[0];
+    selection[pkg.id] = firstService ? [firstService.id] : [];
   }
   return selection;
 }

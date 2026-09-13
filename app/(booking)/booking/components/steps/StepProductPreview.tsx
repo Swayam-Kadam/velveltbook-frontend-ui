@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Swal from "sweetalert2";
 import {
   ArrowRight,
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
   Gift,
@@ -26,10 +27,12 @@ import {
 } from "../BookingOrganizationBanner";
 import {
   bookingLocation,
+  buildBookingDays,
   calcProductsTotal,
   getSelectedProducts,
 } from "../../booking.data";
 import { ProductAddMoreModal } from "../ProductAddMoreModal";
+import { BookingMonthCalendar } from "./BookingMonthCalendar";
 import {
   DEFAULT_PRODUCT_ADDRESS,
   ProductDeliverySections,
@@ -586,6 +589,15 @@ export function StepProductPreview({
     () => initialAddress ?? DEFAULT_PRODUCT_ADDRESS,
   );
   const [couponCode, setCouponCode] = useState("");
+  const bookingDays = useMemo(() => buildBookingDays(new Date()), []);
+  const deliveryDayId =
+    address.deliveryDayId &&
+    bookingDays.some((day) => day.id === address.deliveryDayId)
+      ? address.deliveryDayId
+      : (bookingDays[0]?.id ?? "");
+  const selectedDeliveryDay = bookingDays.find(
+    (day) => day.id === deliveryDayId,
+  );
 
   const selectedProducts = getSelectedProducts(selectedProductIds);
   const { subtotal, tax } = calcProductsTotal(
@@ -645,7 +657,20 @@ export function StepProductPreview({
       return;
     }
 
-    onDesktopContinue?.(address);
+    if (!deliveryDayId) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Select a delivery date",
+        text: "Please choose a delivery date from the calendar.",
+        ...swalDefaults,
+      });
+      return;
+    }
+
+    onDesktopContinue?.({
+      ...address,
+      deliveryDayId,
+    });
   };
 
   const handleReplace = () => {
@@ -787,7 +812,7 @@ export function StepProductPreview({
         <div
           className="
             grid grid-cols-1 gap-5
-            xl:h-[calc(100vh-140px)] xl:min-h-[680px] xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_360px]
+            xl:h-[calc(100vh-140px)] xl:min-h-[680px] xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_462px]
             xl:items-stretch
           "
         >
@@ -908,6 +933,45 @@ export function StepProductPreview({
                 storeAddress={org.address ?? bookingLocation.address}
                 embedded
               />
+
+              <section className="rounded-xl border border-(--border) bg-(--bg-secondary) p-3">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-(--accent-primary)/10">
+                      <CalendarDays
+                        size={15}
+                        className="text-(--accent-primary)"
+                      />
+                    </span>
+                    <div>
+                      <h3 className="text-[13px] font-bold text-(--text-primary)">
+                        {address.deliveryType === "pickup"
+                          ? "Pickup Date"
+                          : "Delivery Date"}
+                      </h3>
+                      <p className="text-[11px] text-(--text-muted)">
+                        Choose when you want your order
+                      </p>
+                    </div>
+                  </div>
+                  {selectedDeliveryDay ? (
+                    <span className="rounded-full border border-(--border) bg-(--bg-card) px-2.5 py-1 text-[11px] font-semibold text-(--text-primary)">
+                      {selectedDeliveryDay.weekday}, {selectedDeliveryDay.date}
+                    </span>
+                  ) : null}
+                </div>
+
+                <BookingMonthCalendar
+                  days={bookingDays}
+                  activeDayId={deliveryDayId}
+                  onSelectDay={(dayId) =>
+                    setAddress((current) => ({
+                      ...current,
+                      deliveryDayId: dayId,
+                    }))
+                  }
+                />
+              </section>
             </div>
           </section>
 

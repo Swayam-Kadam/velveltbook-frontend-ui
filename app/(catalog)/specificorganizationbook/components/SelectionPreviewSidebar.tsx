@@ -58,7 +58,7 @@ function SuggestionStoreCard({
   suggestion: Suggestion;
   bookNowLabel: string;
 }) {
-  const href = `/store/${suggestion.storeId}`;
+  const href = `/specificorganizationbook/${suggestion.storeId}`;
 
   return (
     <article className="rounded-2xl border border-(--border) bg-(--bg-card) p-3 transition-all hover:border-(--accent-primary)/35">
@@ -433,7 +433,7 @@ export function SelectionPreviewSidebar({
         {/* ========== BOTTOM: Suggestions (fills rest, scrolls inside) ========== */}
         <div
           className="
-            flex min-h-0 max-h-[40rem] flex-1 flex-col overflow-hidden rounded-[22px]
+            flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px]
             border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]
           "
         >

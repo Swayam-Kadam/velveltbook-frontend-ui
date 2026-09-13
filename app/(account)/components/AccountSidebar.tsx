@@ -35,13 +35,13 @@ const NAV_ITEMS = [
   { id: "bookings", label: "My Bookings", href: "/mybooking", icon: CalendarDays },
   { id: "favourites", label: "Favourites", href: "/favoritestore", icon: Heart },
   { id: "orders", label: "My Orders", href: "/mybooking", icon: ShoppingBag },
-  { id: "messages", label: "Messages", href: "/help", icon: MessageSquare },
-  { id: "reviews", label: "Reviews", href: "/help", icon: Star },
+  { id: "messages", label: "Messages", href: "#", icon: MessageSquare },
+  { id: "reviews", label: "Reviews", href: "#", icon: Star },
   { id: "payments", label: "Payments", href: "/payment-method", icon: CreditCard },
   { id: "deals", label: "Deals & Offers", href: "/deals", icon: Tag },
   { id: "profile", label: "Profile", href: "/profile", icon: UserRound },
-  { id: "settings", label: "Settings", href: "/help", icon: Settings },
-  { id: "help", label: "Help & Support", href: "/help", icon: Headphones },
+  { id: "settings", label: "Settings", href: "#", icon: Settings },
+  { id: "help", label: "Help & Support", href: "#", icon: Headphones },
 ] as const;
 
 interface AccountSidebarProps {

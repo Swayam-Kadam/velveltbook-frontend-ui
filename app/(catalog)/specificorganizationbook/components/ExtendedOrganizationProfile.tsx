@@ -27,6 +27,7 @@ import {
   Venus,
   X,
   Trash2,
+  CheckCircle,
 } from "lucide-react";
 import { TimingsDropdown } from "@/components/TimingsDropdown";
 import { CategorySidebar } from "@/menu/components/CategorySidebar";
@@ -87,7 +88,7 @@ function MenuCatalogTabs({
   onChange: (tab: MenuCatalogTab) => void;
 }) {
   return (
-    <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="mb-4 flex shrink-0 items-center justify-between gap-3">
       <div
         className="
           inline-flex rounded-full border border-(--border)
@@ -723,6 +724,27 @@ export function ExtendedOrganizationProfile({
     [selectableServices, selectedServiceIds],
   );
 
+  const prevSelectedServiceCountRef = useRef(0);
+
+  useEffect(() => {
+    const count = selectedServiceIds.length;
+    const previousCount = prevSelectedServiceCountRef.current;
+    prevSelectedServiceCountRef.current = count;
+
+    if (count <= previousCount || count === 0) return;
+
+    const timer = window.setTimeout(() => {
+      const container = serviceTabsScrollRef.current;
+      if (!container) return;
+      container.scrollTo({
+        left: container.scrollWidth,
+        behavior: "smooth",
+      });
+    }, 50);
+
+    return () => window.clearTimeout(timer);
+  }, [selectedServiceIds]);
+
   const selectedProducts = useMemo(
     () =>
       selectedProductIds
@@ -839,10 +861,12 @@ export function ExtendedOrganizationProfile({
     };
 
     sync();
+    const frame = window.requestAnimationFrame(sync);
     const observer = new ResizeObserver(sync);
     observer.observe(node);
     window.addEventListener("resize", sync);
     return () => {
+      window.cancelAnimationFrame(frame);
       observer.disconnect();
       window.removeEventListener("resize", sync);
     };
@@ -1367,7 +1391,7 @@ export function ExtendedOrganizationProfile({
       <div className="hidden lg:block">
         <main className="min-h-screen bg-(--bg-primary) pb-10">
           <div className="mx-auto max-w-[1600px] px-4 py-6 xl:px-8">
-            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[300px_minmax(0,1fr)_500px] xl:gap-6">
+            <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[300px_minmax(0,1fr)_500px] xl:gap-6">
               <SelectionPreviewSidebar
                 previewTab={menuTab}
                 onPreviewTabChange={handleMenuTabChange}
@@ -1397,7 +1421,7 @@ export function ExtendedOrganizationProfile({
 
               <div
                 ref={contentMatchRef}
-                className="order-1 space-y-6 xl:order-none xl:space-y-3"
+                className="order-1 min-w-0 space-y-6 xl:order-none xl:space-y-3"
               >
                 <section className="overflow-hidden rounded-[28px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
                   <div className="grid grid-cols-1 lg:grid-cols-[1.45fr_0.9fr]">
@@ -1502,12 +1526,12 @@ export function ExtendedOrganizationProfile({
                 <section className="overflow-hidden rounded-[20px] border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
                   {selectedServices.length === 0 ? (
                     <div className="flex min-h-[293px] flex-col items-center justify-center gap-1 bg-(--bg-secondary) px-4 py-6 text-center">
-                      <p className="text-2xl font-bold text-(--text-primary)">
+                      <h3 className="text-2xl font-bold text-(--text-primary)">
                         Service preview
-                      </p>
-                      <p className="text-[20px] text-(--text-muted) font-semibold">
+                      </h3>
+                      <h3 className="text-[20px] text-(--text-muted) font-semibold">
                         Select a service from the menu to preview it here.
-                      </p>
+                      </h3>
                     </div>
                   ) : (
                     (() => {
@@ -1715,17 +1739,17 @@ export function ExtendedOrganizationProfile({
                               {focusedStaff ? (
                                 <button
                                 type="button"
-                                onClick={() =>
-                                  handleAssignStaffRequest(focusedService.id)
-                                }
+                                // onClick={() =>
+                                //   handleAssignStaffRequest(focusedService.id)
+                                // }
                                 className="
                                   primary-button inline-flex h-9 w-fit items-center
                                   justify-center gap-2 rounded-sm px-3 text-[11px]
                                   font-semibold text-white w-full cursor-pointer
                                 " 
                               >
-                                <UserRound size={14} />
-                                Change Staff
+                                <CheckCircle size={14} />
+                                Staff Assigned
                               </button>
                               ) : (
                                 <button
@@ -1768,7 +1792,7 @@ export function ExtendedOrganizationProfile({
                                     onClick={() =>
                                       handleAssignStaffRequest(focusedService.id)
                                     }
-                                    className="shrink-0 cursor-pointer text-[10px] font-semibold text-(--brand-gold)"
+                                    className="bg-(--accent-primary) p-1 rounded-xs shrink-0 cursor-pointer text-[10px] font-semibold text-white"
                                   >
                                     Change
                                   </button>
@@ -1828,7 +1852,7 @@ export function ExtendedOrganizationProfile({
                               const activeTime = schedule?.time || "";
 
                               return (
-                                <div className="flex min-w-0 flex-col justify-center bg-(--bg-card) p-1.5 lg:p-1">
+                                <div className="flex min-w-0 flex-col justify-center bg-(--bg-card) p-1.5 lg:p-[1px]  ">
                                   <Step2DateTimeSection
                                     embedded
                                     days={bookingDays}
@@ -2358,9 +2382,16 @@ export function ExtendedOrganizationProfile({
                 </section> */}
               </div>
 
-              <aside className="order-3 flex h-full min-h-0 flex-col xl:order-none">
-                <div className="flex min-h-0 flex-1 flex-col space-y-5">
-                  <div className="flex min-h-0 flex-1 flex-col rounded-[var(--radius-lg)] border border-(--border) bg-(--bg-card) p-4 shadow-[var(--shadow-card)] lg:p-5">
+              <aside
+                className="order-3 flex min-h-0 w-full flex-col xl:order-none xl:self-start"
+                style={
+                  sidebarMatchHeight != null && sidebarMatchHeight > 0
+                    ? { height: sidebarMatchHeight }
+                    : undefined
+                }
+              >
+                <div className="flex min-h-0 flex-1 flex-col">
+                  <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-(--border) bg-(--bg-card) p-4 shadow-[var(--shadow-card)] lg:p-5">
                     <MenuCatalogTabs
                       active={menuTab}
                       onChange={handleMenuTabChange}
@@ -2369,7 +2400,13 @@ export function ExtendedOrganizationProfile({
                     <div
                       className={`
                         flex min-h-0 flex-1 overflow-hidden rounded-xl border border-(--border)
-                        ${isProductFlow ? "min-h-[640px]" : "min-h-[520px]"}
+                        ${
+                          sidebarMatchHeight != null && sidebarMatchHeight > 0
+                            ? ""
+                            : isProductFlow
+                              ? "min-h-[640px]"
+                              : "min-h-[520px]"
+                        }
                       `}
                     >
                       <CategorySidebar

@@ -344,7 +344,7 @@ export function StoreDealsBookingModal({ booking }: StoreDealsBookingModalProps)
                   <span className="text-(--text-secondary)">({store.reviewCount})</span>
                 </div>
 
-                <div className="mt-0.5 flex items-start gap-1 text-[10px] text-(--text-muted)">
+                <div className="mt-0.5 flex items-start gap-1 text-[10px] text-(--text-primary)">
                   <MapPin size={10} className="mt-0.5 shrink-0" />
                   <span className="line-clamp-1">{store.location}</span>
                 </div>

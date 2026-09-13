@@ -556,7 +556,7 @@ export function ServiceBookingAccordion({
 
               <div
                 ref={tabsScrollRef}
-                className="scrollbar-none flex gap-0.5 overflow-x-auto overflow-y-hidden scroll-smooth px-1"
+                className="ml-2 mr-2 scrollbar-none flex gap-0.5 overflow-x-auto overflow-y-hidden scroll-smooth px-1"
               >
                 {selectedServices.map((service, index) => {
                   const ready =

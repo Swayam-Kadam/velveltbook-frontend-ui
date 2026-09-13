@@ -13,6 +13,8 @@ export interface ProductDeliveryAddress {
   addressLine2: string;
   suburb: string;
   postcode: string;
+  /** Selected delivery / pickup day id from booking calendar. */
+  deliveryDayId?: string;
 }
 
 export const DEFAULT_PRODUCT_ADDRESS: ProductDeliveryAddress = {
@@ -24,6 +26,7 @@ export const DEFAULT_PRODUCT_ADDRESS: ProductDeliveryAddress = {
   addressLine2: "",
   suburb: "",
   postcode: "",
+  deliveryDayId: "",
 };
 
 export const PRODUCT_COUNTRY_CODES = [

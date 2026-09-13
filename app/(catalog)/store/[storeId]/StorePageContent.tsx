@@ -17,8 +17,8 @@ export default function StorePageContent({ data }: Props) {
 
   return (
     <main className="min-h-screen bg-(--bg-primary) pb-24 lg:pb-8">
-      <div className="mx-auto max-w-[1600px] px-4 py-5 lg:px-8 lg:py-6">
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_minmax(0,1fr)_300px] xl:gap-6">
+      <div className="mx-auto max-w-[1700px] px-4 py-5 lg:px-6 lg:py-6">
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[220px_minmax(0,1fr)_400px] xl:gap-5">
           <SuggestionsSidebar
             meta={suggestions.meta}
             items={suggestions.items}

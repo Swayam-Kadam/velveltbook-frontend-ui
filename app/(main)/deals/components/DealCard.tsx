@@ -1,18 +1,24 @@
 import Image from "next/image";
-import { MapPin, Star, Store } from "lucide-react";
+import { Check, MapPin, Plus, Star, Store } from "lucide-react";
 import type { SingleDeal } from "../deals.types";
 
 interface DealCardProps {
   deal: SingleDeal;
   onBookClick?: (deal: SingleDeal) => void;
   desktop?: boolean;
+  isSelected?: boolean;
 }
 
 function formatPrice(amount: number) {
   return `$${amount}`;
 }
 
-export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) {
+export function DealCard({
+  deal,
+  onBookClick,
+  desktop = false,
+  isSelected = false,
+}: DealCardProps) {
   if (desktop) {
     return (
       <article className="feature-card flex h-full flex-col overflow-hidden rounded-2xl border border-(--border) bg-(--bg-card) shadow-[var(--shadow-card)]">
@@ -50,11 +56,6 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
               <Store size={12} strokeWidth={1.5} className="shrink-0 " />
               <span className="truncate">{deal.salonName}</span>
             </div>
-            {/* <div className="flex shrink-0 items-center gap-1">
-              <Star size={12} className="fill-(--brand-gold) text-(--brand-gold)" />
-              <span className="font-medium text-(--text-primary)">{deal.rating}</span>
-              <span className="text-(--text-secondary)">({deal.reviewCount})</span>
-            </div> */}
           </div>
 
           <div className="flex items-start gap-1 text-[11px] leading-snug text-(--text-secondary)">
@@ -86,9 +87,25 @@ export function DealCard({ deal, onBookClick, desktop = false }: DealCardProps) 
             <button
               type="button"
               onClick={() => onBookClick?.(deal)}
-              className="primary-button inline-flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-[12px] font-semibold text-white transition-transform active:scale-[0.98] cursor-pointer"
+              aria-pressed={isSelected}
+              className={`inline-flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-[12px] font-semibold transition-transform cursor-pointer active:scale-[0.98] ${
+                isSelected
+                  ? "primary-button text-white border-2 border-(--brand-gold)"
+                  : "primary-button text-white border-2 border-(--brand-gold)"
+              }`}
             >
-              Book Now
+              {isSelected ? (
+                <Check
+                  size={16}
+                  className="mr-2 rounded-full border-2 border-white bg-(--brand-gold) p-0.5"
+                />
+              ) : (
+                <Plus
+                  size={16}
+                  className="mr-2 rounded-full border-2 border-white bg-(--brand-gold) p-0.5"
+                />
+              )}
+              {isSelected ? "Deal Added" : "Book Now"}
             </button>
           </div>
         </div>

@@ -191,12 +191,12 @@ export function PackageStep2Desktop({
               )}
             </div>
 
-            <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto p-3.5 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
+            <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3.5 scrollbar-thin scrollbar-thumb-(--accent-primary) scrollbar-track-(--bg-secondary)">
               {hasSelection ? (
                 selectedServices.map((service) => (
                   <article
                     key={service.id}
-                    className="flex items-center gap-3 rounded-2xl border border-(--border) bg-(--bg-secondary) p-2.5"
+                    className="flex items-center gap-3 rounded-2xl border border-(--border) bg-(--bg-secondary) p-2"
                   >
                     <div className="relative h-[68px] w-[68px] shrink-0 overflow-hidden rounded-xl">
                       <Image
@@ -255,7 +255,7 @@ export function PackageStep2Desktop({
               )}
             </div>
 
-            <div className="shrink-0 space-y-2.5 border-t border-(--border) p-3.5">
+            {/* <div className="shrink-0 space-y-2.5 border-t border-(--border) p-3.5">
               <button
                 type="button"
                 onClick={onContinue}
@@ -278,7 +278,7 @@ export function PackageStep2Desktop({
               >
                 Back
               </button>
-            </div>
+            </div> */}
           </section>
         </aside>
 
@@ -318,7 +318,7 @@ export function PackageStep2Desktop({
                     </div>
                   </div>
 
-                  <div className="min-w-0 rounded-xl border border-(--border) bg-(--bg-card) p-3.5">
+                  <div className="flex h-full min-h-0 min-w-0 flex-col rounded-xl border border-(--border) bg-(--bg-card) p-3.5">
                     <div className="flex items-start gap-2">
                       <Store
                         size={20}
@@ -339,7 +339,7 @@ export function PackageStep2Desktop({
                       </div>
                     </div>
 
-                    <div className="mt-4">
+                    <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
                       <p className="mb-2 text-[20px] font-bold text-(--text-primary)">
                         {selectedServices.length} Services Booked
                       </p>
@@ -363,9 +363,35 @@ export function PackageStep2Desktop({
                         ))}
                       </div>
                     </div>
+
+                    <div className="mt-auto flex shrink-0 flex-col gap-2 pt-4">
+                      <button
+                        type="button"
+                        onClick={onContinue}
+                        className="
+                          primary-button flex h-12 w-full items-center justify-center gap-2
+                          rounded-xl text-[14px] font-semibold text-white
+                          transition-opacity hover:opacity-90
+                        "
+                      >
+                        Continue
+                        <ChevronRight size={18} strokeWidth={2.5} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={onBack}
+                        className="
+                          secondary-button flex h-10 w-full items-center justify-center
+                          rounded-xl text-[13px] font-medium
+                        "
+                      >
+                        Back
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
+              
             </section>
 
             {/* Appointment + Price */}
@@ -559,7 +585,7 @@ export function PackageStep2Desktop({
               </article>
             </div>
           </div>
-
+{/* 
           <div className="shrink-0 space-y-2.5">
             <button
               type="button"
@@ -575,7 +601,7 @@ export function PackageStep2Desktop({
             >
               Back to Home
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 

@@ -14,22 +14,27 @@ export function CallExpertScreen() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="relative pb-[110px]">
-      <div className="space-y-4 px-2 pt-2">
-        <HelpTopNav />
-        <HelpTabNav />
-        <ChooseServiceSection
-          selectedServiceId={selectedServiceId}
-          onSelectService={setSelectedServiceId}
-        />
-        <ChooseExpertSection
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
-        <TrustFeatures />
-      </div>
+    // <div className="relative pb-[110px]">
+    //   <div className="space-y-4 px-2 pt-2">
+    //     <HelpTopNav />
+    //     <HelpTabNav />
+    //     <ChooseServiceSection
+    //       selectedServiceId={selectedServiceId}
+    //       onSelectService={setSelectedServiceId}
+    //     />
+    //     <ChooseExpertSection
+    //       searchQuery={searchQuery}
+    //       onSearchChange={setSearchQuery}
+    //     />
+    //     <TrustFeatures />
+    //   </div>
 
-      <ContinueBookingBar />
-    </div>
+    //   <ContinueBookingBar />
+    // </div>
+    <div className="flex items-center justify-center h-screen">
+      <h3 className="text-[60px] font-bold text-(--text-primary) text-center">
+        Coming Soon ...
+      </h3>
+      </div>
   );
 }

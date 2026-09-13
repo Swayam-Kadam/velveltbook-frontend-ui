@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { MapPin, Star, Store } from "lucide-react";
+import { Check, CheckCircle, MapPin, Plus, Star, Store } from "lucide-react";
 import type { PackageDeal } from "../deals.types";
 
 interface PackageCardProps {
@@ -89,13 +89,25 @@ export function PackageCard({
             <button
               type="button"
               onClick={() => onBookClick?.(deal)}
-              className={`inline-flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-[12px] font-semibold transition-transform active:scale-[0.98] ${
+              aria-pressed={isSelected}
+              className={`inline-flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-[12px] font-semibold transition-transform cursor-pointer active:scale-[0.98] ${
                 isSelected
-                  ? "border border-(--accent-primary) bg-[color-mix(in_srgb,var(--accent-primary)_12%,var(--bg-card))] text-(--accent-primary)"
-                  : "primary-button text-white"
+                  ? "primary-button text-white border-2 border-(--brand-gold)"
+                  : "primary-button text-white border-2 border-(--brand-gold)"
               }`}
             >
-              {isSelected ? "Selected Package" : "Book Package"}
+              {isSelected ? (
+                <Check
+                  size={16}
+                  className="mr-2 rounded-full border-2 border-white bg-(--brand-gold) p-0.5"
+                />
+              ) : (
+                <Plus
+                  size={16}
+                  className="mr-2 rounded-full border-2 border-white bg-(--brand-gold) p-0.5"
+                />
+              )}
+              {isSelected ? "Package Added" : "Book Package"}
             </button>
           </div>
         </div>

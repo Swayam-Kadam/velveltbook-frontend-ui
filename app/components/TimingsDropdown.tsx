@@ -59,7 +59,7 @@ export function TimingsDropdown({
       if (!rect) return;
       setPanelPos({
         top: rect.bottom + 8,
-        right: Math.max(8, window.innerWidth - rect.right),
+        right: Math.max(8, window.innerWidth - (rect.right+60)),
       });
     };
 

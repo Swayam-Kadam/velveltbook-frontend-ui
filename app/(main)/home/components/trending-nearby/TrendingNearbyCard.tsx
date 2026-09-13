@@ -50,7 +50,7 @@ export function TrendingNearbyCard({
         <>
             {/* ================= MOBILE ================= */}
 
-            <article className="feature-card overflow-visible rounded-xl lg:hidden">
+            <article className="feature-card flex h-full flex-col overflow-visible rounded-xl lg:hidden">
                 <Link
                     href={""}
                     className="block transition-transform duration-200 active:scale-[0.98]"
@@ -132,11 +132,9 @@ export function TrendingNearbyCard({
                     </div>
                 </Link>
 
-                {!isFavoriteVariant ? (
-                    <div className="p-2 pt-0">
-                        <TrendingNearbyActions store={item} />
-                    </div>
-                ) : null}
+                <div className="mt-auto p-2 pt-0">
+                    <TrendingNearbyActions store={item} />
+                </div>
             </article>
 
             {/* ================= DESKTOP ================= */}
@@ -429,7 +427,7 @@ export function TrendingNearbyCard({
                 <div className="flex gap-3 px-4 pb-4">
 
                     <Link
-                        href="/specificorganizationbook/store-1"
+                        href={`/specificorganizationbook/${item.organizationId}`}
                         className="
                 primary-button
                 flex

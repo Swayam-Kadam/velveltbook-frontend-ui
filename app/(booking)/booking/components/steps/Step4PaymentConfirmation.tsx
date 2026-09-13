@@ -903,10 +903,10 @@ function ServiceDesktopBookingSummary({
                   />
                 </div>
 
-                <div className="min-w-0 w-[130px] shrink-0">
-                  <p className="truncate text-[13px] font-bold text-(--text-primary)">
+                <div className="min-w-0 w-[200px] shrink-0">
+                  <h3 className="text-[20px] font-bold text-(--text-primary)">
                     {service.name}
-                  </p>
+                  </h3>
                   <p className="mt-0.5 text-[11px] leading-snug text-(--text-primary)">
                     {service.duration}
                     {service.duration ? " • " : ""}
@@ -1598,9 +1598,9 @@ export function Step4PaymentConfirmation({
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[14px] font-semibold text-(--text-primary)">
+                        <h3 className="text-[20px] font-bold text-(--text-primary)">
                           {product.name}
-                        </p>
+                        </h3>
                         <p className="mt-0.5 text-[12px] text-(--text-muted)">
                           {product.quantity} · Qty {qty}
                         </p>

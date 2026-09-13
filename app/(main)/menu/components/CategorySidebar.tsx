@@ -27,7 +27,7 @@ export function CategorySidebar({
         flex w-[88px] shrink-0 flex-col
         border-r border-(--border)
         bg-(--bg-primary)
-        py-2 overflow-y-auto
+        py-2 overflow-y-auto scrollbar-thin scrollbar-thumb-(--brand-gold) scrollbar-track-(--bg-primary)
       "
     >
       <nav className="flex flex-col gap-1.5 px-1.5">

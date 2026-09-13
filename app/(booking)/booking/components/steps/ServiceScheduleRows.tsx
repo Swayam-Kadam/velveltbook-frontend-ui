@@ -243,7 +243,7 @@ export function MonthDateCalendar({
                 if (bookingDay) onSelectDay(bookingDay.id);
               }}
               className={`
-                relative flex flex-col items-center justify-center rounded-full
+                relative flex flex-col items-center justify-center rounded-xs
                 font-semibold transition-all
                 ${compact ? "h-7 text-[12px]" : "h-10 text-[13px]"}
                 ${
@@ -256,13 +256,6 @@ export function MonthDateCalendar({
               `}
             >
               {dayNum}
-              {selectable && !active ? (
-                <span
-                  className={`absolute rounded-full bg-(--accent-primary) ${
-                    compact ? "bottom-0.5 h-1 w-1" : "bottom-1 h-1 w-1"
-                  }`}
-                />
-              ) : null}
             </button>
           );
         })}

@@ -66,13 +66,14 @@ export function FavoriteStoresPageContent() {
                 Loading favourites...
               </p>
             ) : stores.length > 0 ? (
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-2 lg:gap-2.5">
                 {stores.map((store) => (
-                  <TrendingNearbyCard
-                    key={store.id}
-                    item={store}
-                    variant="favorite"
-                  />
+                  <div key={store.id} className="min-w-0 h-full">
+                    <TrendingNearbyCard
+                      item={store}
+                      variant="favorite"
+                    />
+                  </div>
                 ))}
               </div>
             ) : (
@@ -96,15 +97,10 @@ export function FavoriteStoresPageContent() {
             )}
           </div>
 
-          <div className="hidden shrink-0 gap-4 lg:flex lg:self-start">
+          <div className="hidden shrink-0 lg:block lg:self-start">
             <FavoriteStoresSuggestionsSidebar
               excludeStoreIds={excludeStoreIds}
               title="Suggestions"
-            />
-            <FavoriteStoresSuggestionsSidebar
-              excludeStoreIds={excludeStoreIds}
-              title="Nearby"
-              offset={5}
             />
           </div>
         </div>

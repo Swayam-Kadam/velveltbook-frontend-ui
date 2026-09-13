@@ -281,22 +281,23 @@ function ReceiptListCard({
       type="button"
       onClick={onSelect}
       className={`
-        w-full overflow-hidden rounded-[18px] border text-left transition-all duration-200
+        ${cardShell} w-full overflow-hidden text-left
         ${
           active
-            ? "border-(--accent-primary)/40 bg-white shadow-[0_14px_34px_rgba(61,28,77,0.12)] ring-1 ring-(--accent-primary)/20"
-            : "border-(--border) bg-white/90 shadow-[0_8px_24px_rgba(61,28,77,0.05)] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(61,28,77,0.08)]"
+            ? "border-(--accent-primary)/40 shadow-[0_14px_34px_rgba(61,28,77,0.12)] ring-1 ring-(--accent-primary)/20"
+            : ""
         }
       `}
     >
-      <div className="relative h-[120px] w-full">
+      <div className="relative h-[120px] w-full xl:h-[140px]">
         <Image
           src={booking.organization.banner}
           alt={booking.organization.name}
           fill
           sizes="280px"
-          className="object-cover"
+          className="rounded-t-2xl object-cover"
         />
+        <div className="absolute inset-0 bg-linear-to-t from-black/35 via-black/5 to-transparent" />
         {statusLabel ? (
           <span
             className={`absolute left-2.5 top-2.5 rounded-full px-2.5 py-1 text-[10px] font-semibold ${statusBg} ${statusTone}`}
@@ -304,31 +305,62 @@ function ReceiptListCard({
             {statusLabel}
           </span>
         ) : null}
+        <div className="absolute inset-0 bg-linear-to-t from-black/35 via-black/5 to-transparent" />
+                  <div className="absolute right-3 top-3">
+                    <TimingsDropdown
+                      summary={
+                        "9AM - 5PM"
+                      }
+                      buttonClassName="flex items-center gap-1 rounded-full border border-white/40 bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-(--text-primary) shadow-sm backdrop-blur-md"
+                    />
+                  </div>
       </div>
-      <div className="space-y-2 p-3.5">
-        <div className="flex items-center gap-1.5">
-          <h3 className="truncate text-[15px] font-semibold text-(--accent-primary)">
-            {booking.organization.name.replace(/,.*/, "")}
-          </h3>
-          <BadgeCheck size={14} className="shrink-0 text-(--accent-primary)" />
+
+      <div className="flex items-start gap-2.5 px-3 py-3">
+        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border-2 border-white shadow-md ring-1 ring-(--border)">
+          <Image
+            src={booking.organization.thumbnail}
+            alt={booking.organization.name}
+            fill
+            sizes="40px"
+            className="object-cover"
+          />
         </div>
-        <p className="truncate text-[12px] font-medium text-(--text-primary)">
-          {booking.service}
-        </p>
-        <div className="flex items-center gap-1 text-[11px] text-(--text-secondary)">
-          <Star size={11} className="fill-(--brand-gold) text-(--brand-gold)" />
-          <span className="font-medium text-(--text-primary)">4.8</span>
-          <span>(320+)</span>
-        </div>
-        <p className="flex items-start gap-1 text-[11px] leading-snug text-(--text-muted)">
-          <MapPin size={11} className="mt-0.5 shrink-0 text-(--accent-primary)" />
-          <span className="line-clamp-2">{booking.organization.address}</span>
-        </p>
-        <div className="flex items-center justify-between gap-2 pt-0.5 text-[11px] text-(--text-secondary)">
-          <span>
-            {booking.date} · {booking.time}
-          </span>
-          <span className="font-semibold text-(--brand-gold)">{booking.price}</span>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <h3 className="truncate font-[family-name:var(--font-heading)] text-[14px] font-semibold text-(--accent-primary)">
+              {booking.organization.name}
+            </h3>
+            <BadgeCheck
+              size={14}
+              className="shrink-0 text-(--accent-primary)"
+            />
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-(--text-secondary)">
+            <span className="inline-flex items-center gap-1">
+              <Star
+                size={10}
+                className="fill-(--brand-gold) text-(--brand-gold)"
+              />
+              <span className="font-medium text-(--text-primary)">4.8</span>
+              <span>(320+)</span>
+            </span>
+            <span className="inline-flex min-w-0  gap-1">
+              <MapPin
+                size={10}
+                className="shrink-0 text-(--accent-primary) mt-0.5"
+              />
+              <span className="">{booking.organization.address}</span>
+            </span>
+          </div>
+          {/* <div className="mt-1.5 flex items-center justify-between gap-2 text-[10px] text-(--text-secondary)">
+            <span className="truncate">
+              {booking.date} · {booking.time}
+            </span>
+            <span className="shrink-0 font-semibold text-(--brand-gold)">
+              {booking.price}
+            </span>
+          </div> */}
         </div>
       </div>
     </button>
@@ -766,7 +798,7 @@ export function MyBookingsDesktop({
             </p>
           </div>
           <Link
-            href="/booking"
+            href="/specificorganizationbook/store-1"
             className="
               primary-button inline-flex items-center gap-1.5 rounded-full px-5 py-2.5
               text-[13px] font-semibold text-white shadow-(--shadow-glow)
@@ -813,7 +845,7 @@ export function MyBookingsDesktop({
 
             <div
               key={`${activeTab}-${activeHistorySubTab}-${selectedBooking.id}`}
-              className="grid min-h-0 flex-1 grid-cols-[minmax(220px,0.7fr)_minmax(0,1fr)_minmax(340px,1.15fr)] gap-3.5 xl:gap-4"
+              className="grid min-h-0 flex-1 grid-cols-[minmax(220px,0.6fr)_minmax(0,1fr)_minmax(340px,1.15fr)] gap-3.5 xl:gap-1"
             >
             {/* LEFT — booking list */}
             <div className="flex min-h-0 flex-col gap-3 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary)/25">
@@ -859,78 +891,80 @@ export function MyBookingsDesktop({
 
             {/* MIDDLE — booking details */}
             <div className="flex min-h-0 flex-col gap-3.5 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary)/25">
-              <section className="shrink-0 overflow-hidden rounded-[18px] border border-[color-mix(in_srgb,var(--accent-primary)_8%,var(--border))] bg-white shadow-[0_10px_30px_rgba(61,28,77,0.06)]">
-                <div className="relative aspect-[16/9] w-full min-h-[168px] max-h-[220px]">
+              <section className={`${cardShell} `}>
+                <div className="relative h-[172px]  w-full xl:h-[196px]">
                   <Image
                     src={selectedBooking.organization.banner}
                     alt={selectedBooking.organization.name}
                     fill
                     sizes="560px"
-                    className="object-cover"
+                    className="object-cover rounded-t-2xl"
                     priority
                   />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/45 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/35 via-black/5 to-transparent" />
                   <div className="absolute right-3 top-3">
                     <TimingsDropdown
-                      summary="Timings"
-                      buttonClassName="flex items-center gap-1 rounded-full border border-white/55 bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-(--text-primary) shadow-sm backdrop-blur-md"
+                      summary={
+                        selectedBooking.organization.isOpen
+                          ? "9AM - 5PM"
+                          : "Closed"
+                      }
+                      buttonClassName="flex items-center gap-1 rounded-full border border-white/40 bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-(--text-primary) shadow-sm backdrop-blur-md"
                     />
                   </div>
                 </div>
 
-                <div className="relative z-10 -mt-7 space-y-2.5 bg-white px-4 pb-4 pt-0">
-                  <div className="flex items-end gap-3">
-                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border-[3px] border-white bg-(--bg-secondary) shadow-md ring-1 ring-(--border)">
-                      <Image
-                        src={selectedBooking.organization.thumbnail}
-                        alt={selectedBooking.organization.name}
-                        fill
-                        sizes="56px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1 pb-1.5">
-                      <div className="flex items-center gap-1.5">
-                        <h3 className="truncate font-[family-name:var(--font-heading)] text-[20px] font-semibold text-(--accent-primary)">
-                          {selectedBooking.organization.name.replace(/,.*/, "")}
-                        </h3>
-                        <BadgeCheck
-                          size={17}
-                          className="shrink-0 fill-(--accent-primary) text-white"
-                        />
-                      </div>
-                    </div>
+                <div className="flex items-start gap-3 px-4 py-3.5">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border-2 border-white shadow-md ring-1 ring-(--border)">
+                    <Image
+                      src={selectedBooking.organization.thumbnail}
+                      alt={selectedBooking.organization.name}
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                    />
                   </div>
-
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-(--text-secondary)">
-                    <span className="inline-flex items-center gap-1">
-                      <Star
-                        size={12}
-                        className="fill-(--brand-gold) text-(--brand-gold)"
-                      />
-                      <span className="font-semibold text-(--text-primary)">4.8</span>
-                      <span>(320+)</span>
-                    </span>
-                    <span className="inline-flex min-w-0 items-center gap-1">
-                      <MapPin
-                        size={12}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="truncate font-[family-name:var(--font-heading)] text-[17px] font-semibold text-(--accent-primary)">
+                        {selectedBooking.organization.name}
+                      </h3>
+                      <BadgeCheck
+                        size={16}
                         className="shrink-0 text-(--accent-primary)"
                       />
-                      <span className="line-clamp-1">
-                        {selectedBooking.organization.address}
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] text-(--text-secondary)">
+                      <span className="inline-flex items-center gap-1">
+                        <Star
+                          size={11}
+                          className="fill-(--brand-gold) text-(--brand-gold)"
+                        />
+                        <span className="font-medium text-(--text-primary)">
+                          4.8
+                        </span>
+                        <span>(320+)</span>
                       </span>
-                    </span>
+                      <span className="inline-flex min-w-0  gap-1">
+                        <MapPin
+                          size={11}
+                          className="shrink-0 text-(--accent-primary) mt-0.5"
+                        />
+                        <span className="">
+                          {selectedBooking.organization.address}
+                        </span>
+                      </span>
+                    </div>
                   </div>
-
-                  <div className="flex flex-wrap gap-1.5">
-                    {["Massage", "Spa", "Wellness"].map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-(--border) bg-(--bg-secondary) px-2.5 py-1 text-[10px] font-medium text-(--text-secondary)"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                  <div className="hidden shrink-0 flex-col gap-1.5 xl:flex">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-(--accent-primary)/15 bg-[color-mix(in_srgb,var(--accent-primary)_4%,white)] px-2.5 py-1 text-[9px] font-medium text-(--text-primary)">
+                      <Phone size={10} className="text-(--accent-primary)" />
+                      Flexible Booking
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full border border-(--accent-primary)/15 bg-[color-mix(in_srgb,var(--accent-primary)_4%,white)] px-2.5 py-1 text-[9px] font-medium text-(--text-primary)">
+                      <Lock size={10} className="text-(--accent-primary)" />
+                      Secure &amp; Private
+                    </span>
                   </div>
                 </div>
               </section>
@@ -1097,9 +1131,9 @@ export function MyBookingsDesktop({
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[15px] font-semibold text-(--text-primary)">
+                        <h3 className="truncate text-[20px] font-bold text-(--text-primary)">
                           {selectedBooking.service}
-                        </p>
+                        </h3>
                         <p className="mt-1.5 text-[12px] text-(--text-muted)">
                           {selectedBooking.duration ?? "60 min"}
                           <span className="mx-1.5 text-(--border)">•</span>
@@ -1126,9 +1160,9 @@ export function MyBookingsDesktop({
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[15px] font-semibold text-(--text-primary)">
+                        <h3 className="truncate text-[20px] font-bold text-(--text-primary)">
                           {staff.name}
-                        </p>
+                        </h3>
                         <p className="text-[12px] text-(--text-muted)">Therapist</p>
                         <div className="mt-1.5 flex items-center gap-1 text-[12px]">
                           <Star
@@ -1179,15 +1213,15 @@ export function MyBookingsDesktop({
                 </div>
 
                 {/* MIDDLE */}
-                <div className="flex min-h-0 flex-col gap-3.5 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary)/25">
-                  <section className={`${cardShell} overflow-hidden`}>
+                <div className="flex  flex-col gap-3.5 overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-(--accent-primary)/25">
+                  <section className={`${cardShell}`}>
                     <div className="relative h-[172px] w-full xl:h-[196px]">
                       <Image
                         src={selectedBooking.organization.banner}
                         alt={selectedBooking.organization.name}
                         fill
                         sizes="560px"
-                        className="object-cover"
+                        className="object-cover rounded-t-2xl"
                         priority
                       />
                       <div className="absolute inset-0 bg-linear-to-t from-black/35 via-black/5 to-transparent" />
@@ -1195,7 +1229,7 @@ export function MyBookingsDesktop({
                         <TimingsDropdown
                           summary={
                             selectedBooking.organization.isOpen
-                              ? "Open now"
+                              ? "9AM - 5PM"
                               : "Closed"
                           }
                           buttonClassName="flex items-center gap-1 rounded-full border border-white/40 bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-(--text-primary) shadow-sm backdrop-blur-md"
@@ -1257,7 +1291,7 @@ export function MyBookingsDesktop({
 
                   <section
                     className={`
-                      ${cardShell} min-h-0 flex-1 border-(--brand-gold)/35 p-4
+                      ${cardShell}  flex-1 border-(--brand-gold)/35 p-4
                       bg-[linear-gradient(180deg,white_0%,color-mix(in_srgb,var(--brand-gold)_4%,white)_100%)]
                     `}
                   >

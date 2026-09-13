@@ -360,7 +360,7 @@ export function Step2DateTimeSection({
     }`;
 
   const periodToggle = (active: boolean) =>
-    `rounded-md px-2 py-0.5 text-[9px] font-semibold transition-colors ${
+    `rounded-md px-2 py-1 text-[9px] font-semibold transition-colors ${
       active
         ? "bg-(--accent-primary) text-white"
         : "text-(--text-secondary) hover:text-(--accent-primary)"
@@ -480,7 +480,7 @@ export function Step2DateTimeSection({
 
   if (embedded) {
     return (
-      <section className="overflow-hidden rounded-xl border border-(--border) bg-(--bg-card)">
+      <section className="overflow-hidden rounded-[5px] border border-(--border) bg-(--bg-card)">
         <div ref={calendarAnchorRef} className="relative">
           <button
             type="button"
@@ -492,12 +492,12 @@ export function Step2DateTimeSection({
               px-2.5 py-2 text-left text-white
             "
           >
-            <div className="min-w-0 flex-1">
-              <p className="text-[7px] font-semibold uppercase tracking-wide text-white/80">
+            <div className="min-w-0 flex-1 ">
+              <p className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
                 Month
               </p>
               <span className="inline-flex items-center gap-0.5">
-                <span className="truncate text-[10px] font-bold leading-tight">
+                <span className="truncate text-[14px] font-bold leading-tight">
                   {MONTH_FULL[activeMonth.month]}
                 </span>
                 <ChevronDown
@@ -510,15 +510,15 @@ export function Step2DateTimeSection({
             <span className="h-5 w-px shrink-0 bg-white/35" />
 
             <div className="min-w-0 shrink-0 pr-1">
-              <p className="text-[7px] font-semibold uppercase tracking-wide text-white/80">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
                 Year
               </p>
-              <p className="text-[10px] font-bold leading-tight">
+              <p className="text-[12px] font-bold leading-tight">
                 {activeMonth.year}
               </p>
             </div>
 
-            <Calendar size={15} className="ml-auto shrink-0 text-white" />
+            <Calendar size={17} className="ml-auto shrink-0 text-white" />
           </button>
 
           {showCalendar && (
@@ -536,7 +536,7 @@ export function Step2DateTimeSection({
           )}
         </div>
 
-        <div className="space-y-5 p-2.5 pb-3">
+        <div className="space-y-6 p-2.5 pb-3 min-h-[162px]">
           {dateScroller}
 
           <div className="flex items-center justify-between gap-2">

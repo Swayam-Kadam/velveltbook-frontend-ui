@@ -7,14 +7,11 @@ import {
   ArrowRight,
   CalendarDays,
   CalendarPlus,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Clock3,
-  CreditCard,
   MapPin,
   Navigation2,
-  Receipt,
   RotateCcw,
   Sparkles,
   Star,
@@ -45,6 +42,7 @@ import {
 import { allMenuServices } from "@/data/catalog/menu/services";
 import { SHARED_STAFF } from "@/data/shared/staff";
 import { MyBookingsDesktop } from "./MyBookingsDesktop";
+import { MyBookingTaxInvoice } from "./MyBookingTaxInvoice";
 import DirectionsIcon from '@mui/icons-material/Directions';
 
 type CardStatusTab = "upcoming" | HistorySubTab;
@@ -202,181 +200,6 @@ function OrganizationBanner({
   );
 }
 
-function ReceiptDivider() {
-  return (
-    <div
-      className="my-3 border-t border-dashed border-(--border)"
-      aria-hidden
-    />
-  );
-}
-
-function ReceiptRow({
-  label,
-  value,
-  bold,
-  gold,
-}: {
-  label: string;
-  value: string;
-  bold?: boolean;
-  gold?: boolean;
-}) {
-  return (
-    <div className="flex items-start justify-between gap-3 text-[10px]">
-      <span className="shrink-0 font-semibold text-(--text-muted)">{label}</span>
-      <span
-        className={`text-right ${bold ? "text-[12px] font-bold" : "font-semibold"} ${gold ? "text-(--brand-gold)" : "text-(--text-primary)"}`}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function ReceiptDetails({
-  booking,
-  statusLabel = "Completed",
-  statusColor = "var(--success)",
-  stampLabel = "Paid",
-}: {
-  booking: Booking;
-  statusLabel?: string;
-  statusColor?: string;
-  stampLabel?: string;
-}) {
-  return (
-    <div className="relative border-t border-(--border) bg-(--bg-card) px-3 py-3">
-      <div
-        className="
-          pointer-events-none absolute right-3 top-2 flex h-14 w-14
-          rotate-[-12deg] items-center justify-center rounded-full border-2
-          border-[color-mix(in_srgb,var(--success)_45%,transparent)]
-          text-[color-mix(in_srgb,var(--success)_70%,transparent)]
-        "
-        aria-hidden
-      >
-        <span className="text-[7px] font-bold uppercase tracking-wider">
-          {stampLabel}
-        </span>
-      </div>
-
-      <div className="flex items-start justify-between gap-2 pr-12">
-        <div>
-          <div className="flex items-center gap-1.5">
-            <Receipt size={13} className="text-(--brand-gold)" strokeWidth={2} />
-            <h3 className="text-[12px] font-bold uppercase tracking-wide text-(--text-primary)">
-              Receipt
-            </h3>
-          </div>
-          <p className="mt-0.5 font-mono text-[9px] font-semibold text-(--text-muted)">
-            {booking.receiptNumber ?? `RCP-${booking.id.toUpperCase()}`}
-          </p>
-        </div>
-        <span
-          className="
-            flex shrink-0 items-center gap-0.5 rounded-full px-2 py-0.5
-            text-[8px] font-bold
-          "
-          style={{
-            color: statusColor,
-            background: `color-mix(in srgb, ${statusColor} 14%, transparent)`,
-          }}
-        >
-          <CheckCircle2 size={9} />
-          {statusLabel}
-        </span>
-      </div>
-
-      <ReceiptDivider />
-
-      <div className="space-y-2">
-        <div className="flex gap-2.5">
-          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg">
-            <Image
-              src={booking.image}
-              alt={booking.service}
-              fill
-              sizes="56px"
-              className="object-cover"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[12px] font-bold text-(--text-primary)">
-              {booking.service}
-            </p>
-            {booking.duration && (
-              <p className="mt-0.5 text-[9px] font-semibold text-(--text-muted)">
-                {booking.duration}
-              </p>
-            )}
-            <p className="mt-1 text-[13px] font-bold text-(--brand-gold)">
-              {booking.price}
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-1.5 rounded-lg bg-(--bg-secondary) px-2.5 py-2">
-          <ReceiptRow label="Therapist" value={booking.therapist} />
-          <ReceiptRow label="Date" value={booking.date} />
-          <ReceiptRow label="Time" value={booking.time} />
-          <ReceiptRow label="Location" value={booking.location} />
-        </div>
-      </div>
-
-      <ReceiptDivider />
-
-      <div className="space-y-1.5">
-        <ReceiptRow label="Subtotal" value={booking.subtotal ?? booking.price} />
-        <ReceiptRow label="GST (10%)" value={booking.tax ?? "$0.00"} />
-        <div className="border-t border-(--border) pt-1.5">
-          <ReceiptRow label="Total Paid" value={booking.price} bold gold />
-        </div>
-      </div>
-
-      <ReceiptDivider />
-
-      <div className="space-y-1.5">
-        <div className="flex items-center gap-1.5 text-[9px] font-semibold text-(--text-secondary)">
-          <CreditCard size={11} className="text-(--accent-primary)" />
-          <span>{booking.paymentMethod ?? "Card payment"}</span>
-        </div>
-        <p className="text-[9px] font-semibold text-(--text-muted)">
-          Paid on {booking.paidAt ?? `${booking.date} · ${booking.time}`}
-        </p>
-      </div>
-
-      <div
-        className="
-          mt-3 flex items-center justify-center gap-0.5 overflow-hidden
-          py-1 opacity-40
-        "
-        aria-hidden
-      >
-        {Array.from({ length: 28 }).map((_, i) => (
-          <span
-            key={i}
-            className={`inline-block bg-(--text-muted) ${i % 3 === 0 ? "h-5 w-0.5" : "h-3 w-px"}`}
-          />
-        ))}
-      </div>
-      <div className="mt-2.5 flex gap-2 border-t border-(--border) pt-2.5">
-          <button
-            type="button"
-            className="
-              flex flex-1 items-center justify-center gap-1 rounded-lg
-              border border-(--border) py-1.5 text-[10px] font-bold
-              text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
-            "
-          >
-            <Star size={12} className="text-(--brand-gold)" />
-            Rate
-          </button>
-        </div>
-    </div>
-  );
-}
-
 function ReceiptCard({ booking }: { booking: Booking }) {
   const [receiptOpen, setReceiptOpen] = useState(false);
 
@@ -390,89 +213,11 @@ function ReceiptCard({ booking }: { booking: Booking }) {
         serialNumber={booking.number}
       />
 
-      {/* <div className="p-2.5">
-        <div className="flex gap-3">
-          <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-sm">
-            <Image
-              src={booking.image}
-              alt={booking.service}
-              fill
-              sizes="72px"
-              className="object-cover"
-            />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="truncate text-[13px] font-bold text-(--text-primary)">
-                {booking.service}
-              </h3>
-              <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-[8px] font-bold text-(--success)"
-                style={{
-                  background:
-                    "color-mix(in srgb, var(--success) 14%, transparent)",
-                }}
-              >
-                Completed
-              </span>
-            </div>
-
-            <div className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-(--text-secondary)">
-              <UserRound size={11} className="text-(--accent-primary)" />
-              <span className="truncate">with {booking.therapist}</span>
-            </div>
-
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[9px] font-semibold text-(--text-secondary)">
-              <span className="flex items-center gap-1">
-                <CalendarDays size={10} className="text-(--accent-primary)" />
-                {booking.date}
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock3 size={10} className="text-(--accent-primary)" />
-                {booking.time}
-              </span>
-            </div>
-
-            <div className="mt-1 flex items-center justify-between gap-2">
-              <span className="flex min-w-0 items-center gap-1 text-[9px] font-semibold text-(--text-muted)">
-                <MapPin size={10} className="shrink-0 text-(--accent-primary)" />
-                <span className="truncate">{booking.location}</span>
-              </span>
-              <span className="shrink-0 text-[13px] font-bold text-(--brand-gold)">
-                {booking.price}
-              </span>
-            </div>
-          </div>
+      {receiptOpen ? (
+        <div className="border-t border-(--border) p-2.5">
+          <MyBookingTaxInvoice booking={booking} />
         </div>
-
-        <div className="mt-2.5 flex gap-2 border-t border-(--border) pt-2.5">
-          <button
-            type="button"
-            className="
-              flex flex-1 items-center justify-center gap-1 rounded-lg
-              border border-(--border) py-1.5 text-[10px] font-bold
-              text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
-            "
-          >
-            <Star size={12} className="text-(--brand-gold)" />
-            Rate
-          </button>
-          <Link
-            href="/booking"
-            className="
-              flex flex-1 items-center justify-center gap-1 rounded-lg
-              border border-(--border) py-1.5 text-[10px] font-bold
-              text-(--text-primary) transition-colors hover:bg-(--bg-card-hover)
-            "
-          >
-            <RotateCcw size={12} />
-            Book Again
-          </Link>
-        </div>
-      </div> */}
-
-      {receiptOpen && <ReceiptDetails booking={booking} />}
+      ) : null}
     </article>
   );
 }

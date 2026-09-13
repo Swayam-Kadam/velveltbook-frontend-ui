@@ -35,7 +35,7 @@ function ChangeBoxButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center justify-center gap-1 bg-(--text-primary) text-[12px] font-bold text-white"
+      className="flex w-full items-center justify-center gap-1 bg-(--text-primary) text-[12px] font-bold text-white border-t-[2px]"
     >
       <Pencil size={12} />
       Change
@@ -182,7 +182,7 @@ export function BookingPreviewCards({
         </div>
       </div>
 
-      {totalAmountLabel ? (
+      {/* {totalAmountLabel ? (
         <div className="mt-3 flex items-center justify-between border-t border-(--border) pt-2">
           <div className="flex items-center gap-1 text-[9px] font-semibold text-(--text-primary)">
             <span>Total Amount</span>
@@ -191,7 +191,7 @@ export function BookingPreviewCards({
             {totalAmountLabel}
           </span>
         </div>
-      ) : null}
+      ) : null} */}
     </>
   );
 }

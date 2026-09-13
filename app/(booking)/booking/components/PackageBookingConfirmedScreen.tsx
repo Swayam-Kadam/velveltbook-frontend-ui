@@ -514,32 +514,32 @@ export function PackageBookingConfirmedScreen({
   };
 
   return (
-    <div className="mx-auto min-h-dvh w-full max-w-[430px] bg-(--bg-primary) px-3.5 pb-8 pt-5">
-      <div className="relative mb-5 overflow-hidden rounded-2xl px-3 py-5 text-center">
+    <div className="mx-auto min-h-dvh w-full max-w-[430px] bg-(--bg-primary) px-3.5 pb-8 pt-1">
+      <div className="relative overflow-hidden rounded-2xl px-3 py-2 text-center">
         <Sparkle className="left-8 top-3 h-3 w-3" color="var(--brand-gold)" />
         <Sparkle
           className="right-10 top-4 h-2.5 w-2.5"
           color="var(--accent-secondary)"
         />
         <Sparkle
-          className="bottom-6 left-12 h-2 w-2"
+          className="bottom-6 left-10 h-2 w-2"
           color="var(--brand-gold-light)"
         />
         <Sparkle
-          className="right-14 bottom-5 h-3 w-3"
+          className="right-10 bottom-5 h-3 w-3"
           color="var(--accent-glow)"
         />
 
         <div className="relative z-10 flex flex-col items-center">
-          <span className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-(--accent-primary) shadow-(--shadow-glow)">
+          {/* <span className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-(--accent-primary) shadow-(--shadow-glow)">
             <Check size={32} strokeWidth={3} className="text-white" />
-          </span>
+          </span> */}
           <h1 className="text-[24px] font-bold text-(--text-primary)">
             Booking Confirmed!
           </h1>
-          <p className="mt-1 text-[12px] text-(--text-secondary)">
+          {/* <p className="mt-1 text-[12px] text-(--text-secondary)">
             Your appointment has been successfully booked.
-          </p>
+          </p> */}
 
           <button
             type="button"

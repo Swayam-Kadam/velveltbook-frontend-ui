@@ -1,34 +1,53 @@
+import { expertProviders } from "@/data/main/home/expert-providers";
+import { nationalityProviders } from "@/data/main/home/nationality-providers";
 import { trendingNearbyData } from "@/home/components/trending-nearby/trending-nearby.data";
 import type { TrendingNearbyItem } from "@/types/home";
 
-export const MIN_SUGGESTION_STORES = 15;
+function toSuggestionItem(item: TrendingNearbyItem): TrendingNearbyItem {
+  return {
+    id: item.id,
+    name: item.name,
+    image: item.image,
+    avatar: item.avatar,
+    service: item.service,
+    address: item.address,
+    desktopService: item.desktopService,
+    rating: item.rating,
+    reviews: item.reviews,
+    description: item.description,
+    desktopServices: item.desktopServices,
+    availability: item.availability,
+    distance: item.distance,
+    online: item.online,
+    organizationId: item.organizationId,
+    category: item.category,
+  };
+}
 
-/** Build at least `minCount` suggestion stores, excluding favourites. */
+/** Unique suggestion stores (no duplicate names/ids), excluding favourites. */
 export function getSuggestionStores(
   excludeStoreIds: string[] = [],
-  minCount = MIN_SUGGESTION_STORES,
 ): TrendingNearbyItem[] {
   const excluded = new Set(excludeStoreIds);
-  const pool = trendingNearbyData.filter((item) => !excluded.has(item.id));
-
-  if (pool.length === 0) return [];
-
+  const seenIds = new Set<string>();
+  const seenNames = new Set<string>();
   const suggestions: TrendingNearbyItem[] = [];
-  let index = 0;
 
-  while (suggestions.length < Math.max(minCount, pool.length)) {
-    const base = pool[index % pool.length];
-    const cycle = Math.floor(index / pool.length);
+  const candidates = [
+    ...expertProviders,
+    ...nationalityProviders,
+    ...trendingNearbyData,
+  ];
 
-    suggestions.push(
-      cycle === 0
-        ? base
-        : {
-            ...base,
-            id: `${base.id}-suggest-${cycle}`,
-          },
-    );
-    index += 1;
+  for (const item of candidates) {
+    if (excluded.has(item.id) || seenIds.has(item.id)) continue;
+
+    const nameKey = item.name.trim().toLowerCase();
+    if (seenNames.has(nameKey)) continue;
+
+    seenIds.add(item.id);
+    seenNames.add(nameKey);
+    suggestions.push(toSuggestionItem(item));
   }
 
   return suggestions;

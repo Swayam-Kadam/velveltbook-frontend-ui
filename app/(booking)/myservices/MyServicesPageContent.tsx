@@ -79,10 +79,10 @@ function ServiceRow({ service }: { service: MyServiceItem }) {
         </div>
 
         <div className="min-w-0 w-[250px] shrink-0">
-          <p className=" text-[18px] font-bold text-(--text-primary)">
+          <h3 className=" text-[18px] font-bold text-(--text-primary)">
             {service.name}
-          </p>
-          <p className="mt-0.5 text-[14px] leading-snug font-bold text-(--text-primary)">
+          </h3>
+          <p className="mt-0.5 text-[14px] leading-snug font-semibold text-(--text-primary)">
             {service.description}
           </p>
           <p className="mt-1.5 text-[18px] font-bold text-(--text-primary)">
@@ -399,7 +399,7 @@ export function MyServicesPageContent() {
             </p>
           </div>
 
-          <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_360px] items-stretch gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_360px] items-stretch gap-6 xl:grid-cols-[minmax(0,1fr)_480px]">
             <BookingSummaryPanel session={session} />
             <StoreOrderSidebar session={session} onContinue={handleContinue} />
           </div>

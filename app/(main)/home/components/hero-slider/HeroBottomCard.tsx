@@ -20,6 +20,8 @@ interface HeroBottomCardProps {
 
 export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
     const organizationHref = `/extendedspecificorganization/${store.id}`;
+    const bookHref = `/specificorganizationbook/${store.id}`;
+    const servicesHref = `${bookHref}#menu-section`;
 
     return (
         <div
@@ -89,7 +91,7 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                 <div className="block lg:hidden">
             <div className="mt-4 grid grid-cols-3 gap-3 lg:grid-cols-2 lg:gap-2">
                 <Link
-                    href="/specificorganizationbook/store-1#menu-section"
+                    href={servicesHref}
                     className="
     secondary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium
@@ -118,7 +120,7 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                 </Link>
 
                 <Link
-                    href="/specificorganizationbook/store-1"
+                    href={bookHref}
                     className="
     primary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium text-white
@@ -135,8 +137,7 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                 <div className="hidden lg:block">
                 <div className="mt-4 grid grid-cols-3 gap-3 lg:grid-cols-2 lg:gap-2">
                 <Link
-                    // href={"/store/lori-massage-parlour"}
-                    href={"#"}
+                    href={servicesHref}
                     className="
     secondary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium
@@ -165,7 +166,7 @@ export function HeroBottomCard({ store, className = "" }: HeroBottomCardProps) {
                 </Link>
 
                 <Link
-                    href="/specificorganizationbook/store-1"
+                    href={bookHref}
                     className="
     primary-button inline-flex flex-1 items-center justify-center gap-2
     rounded-[4px] py-1 text-[10px] font-medium text-white

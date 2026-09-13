@@ -679,13 +679,14 @@ export function Step3DateTimeSelection({
                         <button
                           type="button"
                           onClick={() => setIsEditMode((current) => !current)}
-                          className="flex items-center gap-0.5 rounded-full border border-(--border) px-3 py-1.5 text-[12px] font-bold text-(--accent-secondary)"
+                          className="primary-button flex items-center gap-0.5 rounded-sm border border-(--border) px-3 py-1.5 text-[12px] font-bold text-white"
                         >
                           {isEditMode ? (
                             "Done"
                           ) : (
                             <>
-                              <Pencil size={14} /> Edit
+                              {/* <Pencil size={14} /> */}
+                               Edit
                             </>
                           )}
                         </button>

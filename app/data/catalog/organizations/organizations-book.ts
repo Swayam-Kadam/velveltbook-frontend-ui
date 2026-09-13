@@ -96,13 +96,13 @@ export const extendedOrganizations: Record<string, ExtendedOrganization> = {
   },
   "store-1": {
     id: "store-1",
-    name: "Glamour Salon",
+    name: "Rao-sahab Spa",
     status: "Online",
-    address: "42 Mount Alexander Rd, Ascot Vale VIC 3032",
-    thumbnail:
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=200&h=200&fit=crop",
+    address: "New Delhi, India",
+    thumbnail: "/barber.jpg",
     heroImages: [
-      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=400&fit=crop",
+      "/body spa bg.jpg",
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&h=400&fit=crop",
     ],
     availability: "9AM - 6PM",
     services: defaultServices,
@@ -112,6 +112,106 @@ export const extendedOrganizations: Record<string, ExtendedOrganization> = {
         id: "rv1",
         name: "Daniel K.",
         rating: 4.2,
+        date: "2 days ago",
+        text: "Amazing experience. The ambiance was so relaxing and the sessions were pure bliss.",
+        avatar:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+      },
+    ],
+  },
+  "store-2": {
+    id: "store-2",
+    name: "Urban Massage Studio",
+    status: "Online",
+    address: "Mumbai, India",
+    thumbnail: "/barber.jpg",
+    heroImages: [
+      "/massage.webp",
+      "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=800&h=400&fit=crop",
+    ],
+    availability: "10AM - 7PM",
+    services: defaultServices,
+    staff: defaultStaff,
+    reviews: [
+      {
+        id: "rv1",
+        name: "Daniel K.",
+        rating: 4.2,
+        date: "2 days ago",
+        text: "Amazing experience. The ambiance was so relaxing and the sessions were pure bliss.",
+        avatar:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+      },
+    ],
+  },
+  "store-3": {
+    id: "store-3",
+    name: "Glow Beauty Salon",
+    status: "Online",
+    address: "Indore, India",
+    thumbnail: "/barber.jpg",
+    heroImages: [
+      "/salon bg.jpg",
+      "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&h=400&fit=crop",
+    ],
+    availability: "8AM - 5PM",
+    services: defaultServices,
+    staff: defaultStaff,
+    reviews: [
+      {
+        id: "rv1",
+        name: "Daniel K.",
+        rating: 4.2,
+        date: "2 days ago",
+        text: "Amazing experience. The ambiance was so relaxing and the sessions were pure bliss.",
+        avatar:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+      },
+    ],
+  },
+  "lori-massage-parlour": {
+    id: "lori-massage-parlour",
+    name: "Lori Massage Parlour",
+    status: "Online",
+    address: "Vijay Nagar, Indore",
+    thumbnail: "/massage.webp",
+    heroImages: [
+      "/massage.webp",
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&h=400&fit=crop",
+    ],
+    availability: "9AM - 5PM",
+    services: defaultServices,
+    staff: defaultStaff,
+    reviews: [
+      {
+        id: "rv1",
+        name: "Daniel K.",
+        rating: 4.8,
+        date: "2 days ago",
+        text: "Amazing experience. The ambiance was so relaxing and the sessions were pure bliss.",
+        avatar:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+      },
+    ],
+  },
+  "thai-luxury-spa": {
+    id: "thai-luxury-spa",
+    name: "Thai Luxury Spa",
+    status: "Offline",
+    address: "Palasia, Indore",
+    thumbnail: "/massage.webp",
+    heroImages: [
+      "/body spa bg.jpg",
+      "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=800&h=400&fit=crop",
+    ],
+    availability: "10AM - 8PM",
+    services: defaultServices,
+    staff: defaultStaff,
+    reviews: [
+      {
+        id: "rv1",
+        name: "Daniel K.",
+        rating: 4.7,
         date: "2 days ago",
         text: "Amazing experience. The ambiance was so relaxing and the sessions were pure bliss.",
         avatar:
